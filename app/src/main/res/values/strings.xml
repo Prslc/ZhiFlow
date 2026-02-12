@@ -11,4 +11,9 @@
     <string name="anonymous_user">Anonymous user</string>
     <string name="avatar_desc">Avatar</string>
     <string name="feed_meta">%1$d Agree · %2$d Comments</string>
+
+    <!-- type -->
+    <string name="type_answer">Answer</string>
+    <string name="type_article">Article</string>
+    <string name="type_unknown">Content</string>
 </resources>

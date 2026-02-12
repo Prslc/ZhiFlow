@@ -34,13 +34,17 @@ fun ZhihuFeedItem(
         Column(modifier = Modifier.padding(16.dp)) {
 
             // title
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TypeLabel(target.type)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -89,5 +93,40 @@ fun ZhihuFeedItem(
                 color = MaterialTheme.colorScheme.outline
             )
         }
+    }
+}
+
+@Composable
+fun TypeLabel(type: String?) {
+    val (label, containerColor, contentColor) = when (type) {
+        "answer" -> Triple(
+            stringResource(R.string.type_answer),
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.primary
+        )
+        "article" -> Triple(
+            stringResource(R.string.type_article),
+            MaterialTheme.colorScheme.tertiaryContainer,
+            MaterialTheme.colorScheme.tertiary
+        )
+        else -> Triple(
+            stringResource(R.string.type_unknown),
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+
+    Surface(
+        color = containerColor,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.extraSmall,
+        modifier = Modifier.padding(end = 6.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            fontWeight = FontWeight.Bold
+        )
     }
 }

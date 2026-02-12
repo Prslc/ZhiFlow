@@ -47,7 +47,8 @@ fun ZhiFlowApp() {
                     icon = { Icon(destination.icon, null) },
                     label = { Text(stringResource(destination.labelRes)) },
                     selected = destination == currentDestination,
-                    onClick = { currentDestination = destination }
+                    onClick = { currentDestination = destination },
+                    alwaysShowLabel = false
                 )
             }
         }

@@ -25,6 +25,7 @@ data class FeedItem(
 @Serializable
 data class FeedTarget(
     val id: Long? = 0,
+    val type: String? = null,            // type
     val title: String? = null,           // title
     @SerialName("question") val question: Question? = null, // question
     val author: Author? = null,
