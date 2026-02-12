@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">ZhiFlow</string>
+
+    <!-- navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- feed -->
+    <string name="unknown_content">Unknown content</string>
+    <string name="anonymous_user">Anonymous user</string>
+    <string name="avatar_desc">Avatar</string>
+    <string name="feed_meta">%1$d Agree · %2$d Comments</string>
 </resources>
