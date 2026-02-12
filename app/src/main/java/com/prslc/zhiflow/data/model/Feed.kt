@@ -12,8 +12,8 @@ data class ZhihuResponse(
 @Serializable
 data class PagingData(
     @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String? = null,    // 下一页的 URL
-    val previous: String? = null // 上一页的 URL
+    val next: String? = null,    // next page
+    val previous: String? = null // pre page
 )
 
 @Serializable
@@ -25,13 +25,13 @@ data class FeedItem(
 @Serializable
 data class FeedTarget(
     val id: Long? = 0,
-    val title: String? = null,           // 文章标题
-    @SerialName("question") val question: Question? = null, // 回答所属的问题
+    val title: String? = null,           // title
+    @SerialName("question") val question: Question? = null, // question
     val author: Author? = null,
-    val excerpt: String? = null,         // 摘要
-    val content: String? = null,         // 那个巨大的 HTML 正文
-    @SerialName("voteup_count") val voteCount: Int = 0,
-    @SerialName("comment_count") val commentCount: Int = 0
+    val excerpt: String? = null,         // excerpt
+    val content: String? = null,         // content text
+    @SerialName("voteup_count") val voteCount: Int = 0,     // Agree count
+    @SerialName("comment_count") val commentCount: Int = 0  // comment count
 )
 
 @Serializable
@@ -39,6 +39,6 @@ data class Question(val title: String? = null)
 
 @Serializable
 data class Author(
-    val name: String = "匿名用户",
+    val name: String = "Anonymous user",
     @SerialName("avatar_url") val avatarUrl: String? = null
 )

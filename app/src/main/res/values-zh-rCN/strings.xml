@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ZhiFlow</string>
+
+    <!-- navigation -->
+    <string name="nav_home">首页</string>
+    <string name="nav_favorites">收藏</string>
+    <string name="nav_profile">个人中心</string>
+
+    <!-- feed -->
+    <string name="unknown_content">未知内容</string>
+    <string name="anonymous_user">匿名用户</string>
+    <string name="avatar_desc">头像</string>
+    <string name="feed_meta">%1$d 赞同 · %2$d 评论</string>
+</resources>
