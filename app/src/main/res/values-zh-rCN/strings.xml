@@ -12,4 +12,9 @@
     <string name="anonymous_user">匿名用户</string>
     <string name="avatar_desc">头像</string>
     <string name="feed_meta">%1$d 赞同 · %2$d 评论</string>
+
+    <!-- type -->
+    <string name="type_answer">回答</string>
+    <string name="type_article">文章</string>
+    <string name="type_unknown">内容</string>
 </resources>
