@@ -28,7 +28,7 @@ data class FeedTarget(
     val type: String? = null,            // type
     val title: String? = null,           // title
     @SerialName("question") val question: Question? = null, // question
-    val author: Author? = null,
+    val author: FeedAuthor? = null,
     val excerpt: String? = null,         // excerpt
     val content: String? = null,         // content text
     @SerialName("voteup_count") val voteCount: Int = 0,     // Agree count
@@ -39,7 +39,7 @@ data class FeedTarget(
 data class Question(val title: String? = null)
 
 @Serializable
-data class Author(
+data class FeedAuthor(
     val name: String = "Anonymous user",
     @SerialName("avatar_url") val avatarUrl: String? = null
 )

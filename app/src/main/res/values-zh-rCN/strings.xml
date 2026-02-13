@@ -2,6 +2,10 @@
 <resources>
     <string name="app_name">ZhiFlow</string>
 
+    <!-- general -->
+    <string name="general_back">返回</string>
+    <string name="general_loding">加载中…</string>
+
     <!-- navigation -->
     <string name="nav_home">首页</string>
     <string name="nav_favorites">收藏</string>
@@ -17,4 +21,8 @@
     <string name="type_answer">回答</string>
     <string name="type_article">文章</string>
     <string name="type_unknown">内容</string>
+
+    <!-- answer -->
+    <string name="question_title_filed">标题加载失败</string>
+    <string name="answer_published_format">发布于 %1$s · %2$s</string>
 </resources>
