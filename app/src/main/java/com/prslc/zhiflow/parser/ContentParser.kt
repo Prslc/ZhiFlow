@@ -24,9 +24,11 @@ object ContentParser {
                         RichTextElement.Text(parseParagraph(segment.paragraph))
                     }
                 }
+
                 "image" -> {
                     segment.image?.let { RichTextElement.Image(it) }
                 }
+
                 else -> null
             }
         }

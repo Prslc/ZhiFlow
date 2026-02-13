@@ -35,7 +35,8 @@ fun FeedScreen(
     val shouldLoadMore = remember {
         derivedStateOf {
             val totalItemsCount = listState.layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val lastVisibleItemIndex =
+                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
         }
     }
@@ -75,7 +76,12 @@ fun FeedScreen(
 
                 if (viewModel.isNextLoading) {
                     item {
-                        Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         }
                     }

@@ -104,11 +104,13 @@ fun TypeLabel(type: String?) {
             MaterialTheme.colorScheme.primaryContainer,
             MaterialTheme.colorScheme.primary
         )
+
         "article" -> Triple(
             stringResource(R.string.type_article),
             MaterialTheme.colorScheme.tertiaryContainer,
             MaterialTheme.colorScheme.tertiary
         )
+
         else -> Triple(
             stringResource(R.string.type_unknown),
             MaterialTheme.colorScheme.surfaceVariant,

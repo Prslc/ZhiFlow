@@ -41,9 +41,11 @@ fun RichText(segments: List<Segment>) {
                         )
                     )
                 }
+
                 is RichTextElement.Image -> {
                     ImageComponent(element.data)
                 }
+
                 is RichTextElement.Divider -> {
                     Divider()
                 }
