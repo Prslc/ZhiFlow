@@ -65,12 +65,28 @@ fun ZhiFlowApp() {
             targetState = currentAnswerId,
             transitionSpec = {
                 if (targetState != null) {
-                    (slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn())
-                        .togetherWith(slideOutHorizontally(targetOffsetX = { -it / 3 }, animationSpec = tween(300)) + fadeOut())
+                    (slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = tween(300)
+                    ) + fadeIn())
+                        .togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { -it / 3 },
+                                animationSpec = tween(300)
+                            ) + fadeOut()
+                        )
                         .apply { targetContentZIndex = 1f }
                 } else {
-                    (slideInHorizontally(initialOffsetX = { -it / 3 }, animationSpec = tween(300)) + fadeIn())
-                        .togetherWith(slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300)) + fadeOut())
+                    (slideInHorizontally(
+                        initialOffsetX = { -it / 3 },
+                        animationSpec = tween(300)
+                    ) + fadeIn())
+                        .togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(300)
+                            ) + fadeOut()
+                        )
                         .apply { targetContentZIndex = 0f }
                 }
             },
@@ -102,6 +118,7 @@ fun ZhiFlowApp() {
                                 viewModel = feedViewModel,
                                 onItemClick = { id -> currentAnswerId = id }
                             )
+
                             AppDestinations.FAVORITES -> Box(Modifier.padding(innerPadding))
                             AppDestinations.PROFILE -> Box(Modifier.padding(innerPadding))
                         }
@@ -111,6 +128,7 @@ fun ZhiFlowApp() {
         }
     }
 }
+
 enum class AppDestinations(
     val labelRes: Int,
     val icon: ImageVector,

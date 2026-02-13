@@ -47,7 +47,10 @@ fun AnswerScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CircularProgressIndicator(strokeWidth = 3.dp)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(stringResource(R.string.general_loding), color = MaterialTheme.colorScheme.outline)
+                Text(
+                    stringResource(R.string.general_loding),
+                    color = MaterialTheme.colorScheme.outline
+                )
             }
         }
         return
@@ -69,7 +72,8 @@ fun AnswerScreen(
             LargeTopAppBar(
                 title = {
                     val titleText = currentAnswer?.question?.title
-                        ?: currentAnswer?.header?.text ?: stringResource(R.string.question_title_filed)
+                        ?: currentAnswer?.header?.text
+                        ?: stringResource(R.string.question_title_filed)
 
                     val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
 
