@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.viewmodel
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,12 +11,16 @@ import kotlinx.coroutines.launch
 class FeedViewModel : ViewModel() {
 
     var feedItems = mutableStateListOf<FeedItem>()
+
+    val listState = LazyListState()
     var isRefreshing by mutableStateOf(false)
     var isNextLoading by mutableStateOf(false)
     private var nextPageUrl: String? = null
 
-    init {
-        refresh()
+    fun loadIfEmpty() {
+        if (feedItems.isEmpty()) {
+            refresh()
+        }
     }
 
     fun refresh() {

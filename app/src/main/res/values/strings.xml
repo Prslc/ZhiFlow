@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">ZhiFlow</string>
 
+    <!-- general -->
+    <string name="general_back">back</string>
+    <string name="general_loding">loading…</string>
+
     <!-- navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_favorites">Favorites</string>
@@ -16,4 +20,8 @@
     <string name="type_answer">Answer</string>
     <string name="type_article">Article</string>
     <string name="type_unknown">Content</string>
+
+    <!-- answer -->
+    <string name="question_title_filed">Title loading failed</string>
+    <string name="answer_published_format">Posted in %1$s · %2$s</string>
 </resources>

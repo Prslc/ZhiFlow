@@ -27,12 +27,12 @@ object Client {
             connectTimeoutMillis = 10000
         }
 
-        // Request
         defaultRequest {
-            url("https://www.zhihu.com/api/v3/")
-            header(HttpHeaders.Cookie, BuildConfig.COOKIE)
-            header(HttpHeaders.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            header(HttpHeaders.Accept, "application/json")
+            url("https://api.zhihu.com")
+            header(HttpHeaders.Cookie, BuildConfig.cookie)
+            header(HttpHeaders.UserAgent, BuildConfig.ua)
+            header("x-zse-96", BuildConfig.x_zse_96)
+            header("x-zse-93", BuildConfig.x_zse_93)
         }
     }
 }
