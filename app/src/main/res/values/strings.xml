@@ -25,4 +25,8 @@
     <!-- answer -->
     <string name="question_title_filed">Title loading failed</string>
     <string name="answer_published_format">Posted in %1$s · %2$s</string>
+
+    <!-- light box -->
+    <string name="lightbox_image_save_success">Saved to gallery</string>
+    <string name="lightbox_image_save_failed">Failed to save image</string>
 </resources>

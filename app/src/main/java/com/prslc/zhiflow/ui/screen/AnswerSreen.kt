@@ -14,15 +14,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
 import com.prslc.zhiflow.ui.viewmodel.AnswerViewModel
 
@@ -36,7 +41,17 @@ fun AnswerScreen(
     val currentAnswer = viewModel.answer
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    BackHandler { onBack() }
+    var selectedImageUrl by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val lazyListState = rememberLazyListState()
+
+    BackHandler(enabled = selectedImageUrl != null || currentAnswer != null) {
+        if (selectedImageUrl != null) {
+            selectedImageUrl = null
+        } else {
+            onBack()
+        }
+    }
 
     LaunchedEffect(answerId) {
         viewModel.loadAnswer(answerId)
@@ -66,95 +81,117 @@ fun AnswerScreen(
     }
 
     // content
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    val titleText = currentAnswer?.question?.title
-                        ?: currentAnswer?.header?.text
-                        ?: stringResource(R.string.question_title_filed)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                LargeTopAppBar(
+                    title = {
+                        val titleText = currentAnswer?.question?.title
+                            ?: currentAnswer?.header?.text
+                            ?: stringResource(R.string.question_title_filed)
 
-                    val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
-
-                    Text(
-                        text = titleText,
-                        modifier = Modifier.padding(
-                            end = if (isCollapsed) 10.dp else 5.dp
-                        ),
-                        style = if (isCollapsed) {
-                            MaterialTheme.typography.titleMedium
-                        } else {
-                            MaterialTheme.typography.headlineSmall
-                        },
-                        fontWeight = FontWeight.Bold,
-                        maxLines = if (isCollapsed) 1 else 3,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.general_back)
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
-                )
-            )
-        }
-    ) { padding ->
-        currentAnswer?.let { answer ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(bottom = 50.dp)
-            ) {
-                // author
-                item {
-                    AuthorSection(answer.author)
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
-                }
-
-                // Content
-                item {
-                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-                        RichText(answer.structuredContent.segments)
-                    }
-                }
-
-                // end
-                item {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        val timeDisplay = when {
-                            !answer.contentEnd?.updateTime.isNullOrBlank() -> answer.contentEnd.updateTime
-                            !answer.contentEnd?.createTime.isNullOrBlank() -> answer.contentEnd.createTime
-                            else -> ""
-                        }
+                        val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
 
                         Text(
-                            text = stringResource(
-                                R.string.answer_published_format,
-                                answer.contentEnd!!.ipInfo,
-                                timeDisplay
+                            text = titleText,
+                            modifier = Modifier.padding(
+                                end = if (isCollapsed) 10.dp else 5.dp
                             ),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.outline
+                            style = if (isCollapsed) {
+                                MaterialTheme.typography.titleMedium
+                            } else {
+                                MaterialTheme.typography.headlineSmall
+                            },
+                            fontWeight = FontWeight.Bold,
+                            maxLines = if (isCollapsed) 1 else 3,
+                            overflow = TextOverflow.Ellipsis
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.general_back)
+                            )
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                            2.dp
+                        )
+                    )
+                )
+            }
+        ) { padding ->
+            currentAnswer?.let { answer ->
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(bottom = 50.dp)
+                ) {
+                    // author
+                    item {
+                        AuthorSection(answer.author)
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 20.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                    }
+
+                    // Content
+                    item {
+                        Box(
+                            modifier = Modifier.padding(
+                                horizontal = 20.dp,
+                                vertical = 16.dp
+                            )
+                        ) {
+                            RichText(
+                                segments = answer.structuredContent.segments,
+                                onImageClick = { url ->
+                                    selectedImageUrl = url
+                                }
+                            )
+                        }
+                    }
+
+                    // end
+                    item {
+                        answer.contentEnd?.let { contentEnd ->
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                val timeDisplay = when {
+                                    !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
+                                    !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
+                                    else -> ""
+                                }
+
+                                Text(
+                                    text = stringResource(
+                                        R.string.answer_published_format,
+                                        contentEnd.ipInfo,
+                                        timeDisplay
+                                    ),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+        // light box
+        ImageLightbox(
+            imageUrl = selectedImageUrl,
+            onDismiss = { selectedImageUrl = null }
+        )
     }
 }
 

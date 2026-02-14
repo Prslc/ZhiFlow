@@ -26,4 +26,8 @@
     <!-- answer -->
     <string name="question_title_filed">标题加载失败</string>
     <string name="answer_published_format">发布于 %1$s · %2$s</string>
+
+    <!-- light box -->
+    <string name="lightbox_image_save_success">已保存至相册</string>
+    <string name="lightbox_image_save_failed">保存失败</string>
 </resources>
