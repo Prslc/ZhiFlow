@@ -9,6 +9,7 @@
     <!-- navigation -->
     <string name="nav_home">首页</string>
     <string name="nav_favorites">收藏</string>
+    <string name="nav_debug">调试</string>
     <string name="nav_profile">个人中心</string>
 
     <!-- feed -->

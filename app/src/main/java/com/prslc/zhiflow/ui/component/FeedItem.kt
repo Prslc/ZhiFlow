@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.component
 
-import androidx.compose.foundation.clickable
+import android.widget.Toast
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,6 +14,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import coil.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.FeedItem
@@ -25,11 +29,25 @@ fun ZhihuFeedItem(
     val target = item.target ?: return
     val title = target.question?.title ?: target.title ?: stringResource(R.string.unknown_content)
 
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .clickable { target.id?.let { onClick(it.toString()) } },
+            .combinedClickable(
+                onClick = {
+                    target.id?.let { onClick(it.toString()) }
+                },
+                onLongClick = {
+                    target.id?.let { id ->
+                        clipboardManager.setText(AnnotatedString(id.toString()))
+
+                        Toast.makeText(context, "ID has been copied to the clipboard", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
