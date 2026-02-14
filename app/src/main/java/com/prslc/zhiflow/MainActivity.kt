@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.ui.screen.AnswerScreen
+import com.prslc.zhiflow.ui.screen.DebugScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import com.prslc.zhiflow.ui.screen.FeedScreen
 import com.prslc.zhiflow.ui.viewmodel.FeedViewModel
@@ -118,8 +119,11 @@ fun ZhiFlowApp() {
                                 viewModel = feedViewModel,
                                 onItemClick = { id -> currentAnswerId = id }
                             )
-
-                            AppDestinations.FAVORITES -> Box(Modifier.padding(innerPadding))
+                            AppDestinations.Debug -> DebugScreen(
+                                innerPadding = innerPadding,
+                                onNavigateToAnswer = { id -> currentAnswerId = id }
+                            )
+//                            AppDestinations.FAVORITES -> Box(Modifier.padding(innerPadding))
                             AppDestinations.PROFILE -> Box(Modifier.padding(innerPadding))
                         }
                     }
@@ -134,6 +138,8 @@ enum class AppDestinations(
     val icon: ImageVector,
 ) {
     HOME(R.string.nav_home, Icons.Default.Home),
-    FAVORITES(R.string.nav_favorites, Icons.Default.Favorite),
+//    FAVORITES(R.string.nav_favorites, Icons.Default.Favorite),
+
+    Debug(R.string.nav_debug, Icons.Default.BugReport),
     PROFILE(R.string.nav_profile, Icons.Default.AccountBox),
 }
