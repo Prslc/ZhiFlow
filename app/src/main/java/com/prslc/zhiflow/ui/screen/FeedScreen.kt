@@ -20,7 +20,6 @@ import com.prslc.zhiflow.ui.viewmodel.FeedViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
-    innerPadding: PaddingValues,
     viewModel: FeedViewModel = viewModel(),
     onItemClick: (String) -> Unit
 ) {
@@ -50,9 +49,7 @@ fun FeedScreen(
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing && viewModel.feedItems.isNotEmpty(),
         onRefresh = { viewModel.refresh() },
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+        modifier = Modifier.fillMaxSize()
     ) {
         if (viewModel.isRefreshing && viewModel.feedItems.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

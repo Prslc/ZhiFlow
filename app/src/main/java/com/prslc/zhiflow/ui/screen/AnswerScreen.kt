@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,6 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.exception.uiMessage
+import com.prslc.zhiflow.ui.component.ErrorView
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
 import com.prslc.zhiflow.ui.viewmodel.AnswerViewModel
@@ -38,6 +39,7 @@ fun AnswerScreen(
     onBack: () -> Unit,
     viewModel: AnswerViewModel = viewModel()
 ) {
+
     val currentAnswer = viewModel.answer
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -64,7 +66,7 @@ fun AnswerScreen(
                 CircularProgressIndicator(strokeWidth = 3.dp)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    stringResource(R.string.general_loding),
+                    stringResource(R.string.general_loading),
                     color = MaterialTheme.colorScheme.outline
                 )
             }
@@ -73,9 +75,15 @@ fun AnswerScreen(
     }
 
     // error
-    if (viewModel.errorMessage != null && currentAnswer == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            ErrorMessage(viewModel.errorMessage!!, Modifier)
+    if (viewModel.error != null && currentAnswer == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            ErrorView(
+                message = viewModel.error!!.uiMessage,
+                onRetry = { viewModel.loadAnswer(answerId) }
+            )
         }
         return
     }
@@ -227,21 +235,5 @@ fun AuthorSection(author: AnswerAuthor) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun ErrorMessage(
-    message: String,
-    modifier: Modifier
-) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            Icons.Default.Warning,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.error
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = message, color = MaterialTheme.colorScheme.error)
     }
 }

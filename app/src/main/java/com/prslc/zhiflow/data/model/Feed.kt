@@ -28,7 +28,7 @@ data class FeedTarget(
     val type: String? = null,            // type
     val title: String? = null,           // title
     @SerialName("question") val question: Question? = null, // question
-    val author: FeedAuthor? = null,
+    val author: FeedAuthor? = null,      // author
     val excerpt: String? = null,         // excerpt
     val content: String? = null,         // content text
     @SerialName("voteup_count") val voteCount: Int = 0,     // Agree count

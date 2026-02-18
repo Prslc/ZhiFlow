@@ -2,8 +2,10 @@ package com.prslc.zhiflow.data.service
 
 import android.util.Log
 import com.prslc.zhiflow.data.api.Client
+import com.prslc.zhiflow.data.exception.toApiException
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuResponse
+import com.prslc.zhiflow.data.model.ZhihuUser
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -31,17 +33,26 @@ suspend fun getRecommendFeed(limit: Int = 10, nextUrl: String? = null): ZhihuRes
 }
 
 suspend fun getAnswerDetail(answerId: String): ZhihuAnswer? {
-    val TAG = "AnswerService"
     return try {
         val response = Client.client.get("answers/v2/$answerId")
+        response.body<ZhihuAnswer>()
+    } catch (e: Exception) {
+        throw e.toApiException()
+    }
+}
+
+suspend fun getUserDetail(): ZhihuUser? {
+    val TAG = "AnswerService"
+    return try {
+        val response = Client.client.get("people/self")
         if (response.status.value != 200) {
             Log.e(TAG, "Request failed with status: ${response.status}")
             return null
         }
 
-        response.body<ZhihuAnswer>()
+        response.body<ZhihuUser>()
     } catch (e: Exception) {
-        Log.e(TAG, "Failed to fetch answer $answerId", e)
+        Log.e(TAG, "Failed to fetch profile", e)
         null
     }
 }

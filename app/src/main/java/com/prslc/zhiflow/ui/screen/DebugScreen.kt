@@ -20,17 +20,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 
 @Composable
 fun DebugScreen(
-    innerPadding: PaddingValues,
     onNavigateToAnswer: (String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var answerId by remember { mutableStateOf("") }
 
-    Column(Modifier.padding(innerPadding).padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         ListItem(
             headlineContent = { Text("测试回答页面") },
             supportingContent = { Text("通过 Answer ID 直接跳转") },
@@ -45,7 +47,7 @@ fun DebugScreen(
             title = { Text("跳转至指定回答") },
             text = {
                 Column {
-                    Text("请输入回答 ID (例如: 1998880095331443030)",
+                    Text("请输入回答 ID (例如: 2001212055)",
                         style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
