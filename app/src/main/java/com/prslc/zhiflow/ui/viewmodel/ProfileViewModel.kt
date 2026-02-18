@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.data.exception.ApiException
+import com.prslc.zhiflow.data.exception.toApiException
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuUser
 import com.prslc.zhiflow.data.service.getAnswerDetail
@@ -14,12 +16,13 @@ import kotlinx.coroutines.launch
 class ProfileViewModel : ViewModel() {
     var user by mutableStateOf<ZhihuUser?>(null)
     var isLoading by mutableStateOf(false)
-    var errorMessage by mutableStateOf<String?>(null)
+
+    var error by mutableStateOf<ApiException?>(null)
 
     fun loadProfile() {
         viewModelScope.launch {
             try {
-                errorMessage = null
+                error = null
                 isLoading = true
 
                 val result = getUserDetail()
@@ -27,10 +30,10 @@ class ProfileViewModel : ViewModel() {
                 if (result != null) {
                     user = result
                 } else {
-                    errorMessage = "Fetch User Profile failed"
+                    error = ApiException.UnknownException()
                 }
             } catch (e: Exception) {
-                errorMessage = e.localizedMessage ?: "Unknown Error"
+                error = e.toApiException()
                 e.printStackTrace()
             } finally {
                 isLoading = false

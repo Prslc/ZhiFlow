@@ -29,6 +29,7 @@
     <string name="anonymous_user">匿名用户</string>
     <string name="avatar_desc">头像</string>
     <string name="feed_meta">%1$d 赞同 · %2$d 评论</string>
+    <string name="feed_retry">点击重试</string>
 
     <!-- type -->
     <string name="type_answer">回答</string>
