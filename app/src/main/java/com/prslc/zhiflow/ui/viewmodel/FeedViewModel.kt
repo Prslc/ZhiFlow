@@ -4,6 +4,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.data.exception.ApiException
+import com.prslc.zhiflow.data.exception.toApiException
 import com.prslc.zhiflow.data.model.FeedItem
 import com.prslc.zhiflow.data.service.getRecommendFeed
 import kotlinx.coroutines.launch
@@ -11,6 +13,8 @@ import kotlinx.coroutines.launch
 class FeedViewModel : ViewModel() {
 
     var feedItems = mutableStateListOf<FeedItem>()
+
+    var error by mutableStateOf<ApiException?>(null)
 
     val listState = LazyListState()
     var isRefreshing by mutableStateOf(false)
@@ -28,6 +32,7 @@ class FeedViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 isRefreshing = true
+                error = null
                 val response = getRecommendFeed(limit = 10, nextUrl = null)
 
                 if (response != null) {
@@ -38,6 +43,7 @@ class FeedViewModel : ViewModel() {
                     nextPageUrl = response.paging.next
                 }
             } catch (e: Exception) {
+                error = e.toApiException()
                 e.printStackTrace()
             } finally {
                 isRefreshing = false
@@ -58,7 +64,7 @@ class FeedViewModel : ViewModel() {
                     nextPageUrl = response.paging.next
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                error = e.toApiException()
             } finally {
                 isNextLoading = false
             }

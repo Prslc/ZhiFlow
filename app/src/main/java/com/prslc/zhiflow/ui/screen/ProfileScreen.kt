@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.ui.component.ErrorView
 import com.prslc.zhiflow.ui.viewmodel.ProfileViewModel
 import com.prslc.zhiflow.utils.formatCount
@@ -110,7 +111,7 @@ fun ProfileScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
-                message = viewModel.errorMessage ?: stringResource(R.string.error_load_failed),
+                message = viewModel.error!!.uiMessage,
                 onRetry = { viewModel.loadProfile() },
                 modifier = Modifier.align(Alignment.Center)
             )
