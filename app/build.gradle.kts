@@ -15,8 +15,8 @@ val localProperties = Properties().apply {
 
 val rawCookie = localProperties.getProperty("cookie") ?: ""
 val ua = localProperties.getProperty("ua") ?: ""
-val xZse96 = localProperties.getProperty("x-zse-96") ?: ""
-val xZse93 = localProperties.getProperty("x-zse-93") ?: ""
+val xZse96 = localProperties.getProperty("x_zse_96") ?: ""
+val xZse93 = localProperties.getProperty("x_zse_93") ?: ""
 val escapedCookie = rawCookie.replace("\"", "\\\"")
 
 android {
