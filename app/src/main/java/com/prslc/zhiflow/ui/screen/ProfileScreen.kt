@@ -111,7 +111,7 @@ fun ProfileScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
-                message = viewModel.error!!.uiMessage,
+                message = viewModel.error?.uiMessage ?: stringResource(R.string.error_unknown),
                 onRetry = { viewModel.loadProfile() },
                 modifier = Modifier.align(Alignment.Center)
             )
