@@ -24,9 +24,10 @@ import com.prslc.zhiflow.data.model.FeedItem
 @Composable
 fun ZhihuFeedItem(
     item: FeedItem,
-    onClick: (String) -> Unit   // id
+    onClick: (String, String) -> Unit   // id, type
 ) {
     val target = item.target ?: return
+    val type = target.type ?: "answer"
     val title = target.question?.title ?: target.title ?: stringResource(R.string.unknown_content)
 
     val clipboardManager = LocalClipboardManager.current
@@ -38,7 +39,10 @@ fun ZhihuFeedItem(
             .padding(horizontal = 12.dp, vertical = 6.dp)
             .combinedClickable(
                 onClick = {
-                    target.id?.let { onClick(it.toString()) }
+                    val id = target.id?.toString()
+                    if (id != null) {
+                        onClick(id, type)
+                    }
                 },
                 onLongClick = {
                     target.id?.let { id ->

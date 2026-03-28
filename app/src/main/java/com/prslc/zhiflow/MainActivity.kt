@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -14,22 +18,28 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.prslc.zhiflow.ui.AnswerDetail
-import com.prslc.zhiflow.ui.DebugTab
-import com.prslc.zhiflow.ui.HomeTab
-import com.prslc.zhiflow.ui.MainContainer
-import com.prslc.zhiflow.ui.ProfileTab
-import com.prslc.zhiflow.ui.Settings
+import com.prslc.zhiflow.ui.navigation.AnswerDetail
+import com.prslc.zhiflow.ui.navigation.DebugTab
+import com.prslc.zhiflow.ui.navigation.HomeTab
+import com.prslc.zhiflow.ui.navigation.MainContainer
+import com.prslc.zhiflow.ui.navigation.NavigatorAction
+import com.prslc.zhiflow.ui.navigation.ProfileTab
+import com.prslc.zhiflow.ui.navigation.Settings
 import com.prslc.zhiflow.ui.screen.AnswerScreen
 import com.prslc.zhiflow.ui.screen.DebugScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
@@ -44,28 +54,68 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             ZhiFlowTheme {
-                val navController = rememberNavController()
-
-                NavHost(
-                    navController = navController,
-                    startDestination = MainContainer
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    composable<MainContainer> {
-                        MainScreen(
-                            onNavigateToAnswer = { id -> navController.navigate(AnswerDetail(id)) },
-                            onNavigateToSettings = { navController.navigate(Settings) }
+                    val navController = rememberNavController()
+                    val context = LocalContext.current
+                    val navigator = remember(navController, context) {
+                        NavigatorAction(
+                            navController,
+                            context
                         )
                     }
 
-                    composable<AnswerDetail> { backStackEntry ->
-                        val route: AnswerDetail = backStackEntry.toRoute()
-                        AnswerScreen(answerId = route.id, onBack = { navController.popBackStack() })
-                    }
+                    NavHost(
+                        navController = navController,
+                        startDestination = MainContainer,
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(600, easing = FastOutSlowInEasing)
+                            )
+                        },
+                        exitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { -it / 5 },
+                                animationSpec = tween(600, easing = FastOutSlowInEasing)
+                            )
+                        },
+                        popEnterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { -it / 5 },
+                                animationSpec = tween(600, easing = FastOutSlowInEasing)
+                            )
+                        },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(600, easing = FastOutSlowInEasing)
+                            )
+                        }
+                    ) {
+                        composable<MainContainer> {
+                            MainScreen(
+                                onNavigateToContent = navigator::navigateToContent,
+                                onNavigateToSettings = navigator::navigateToSettings
+                            )
+                        }
 
-                    composable<Settings> {
-                        SettingsScreen(onBack = { navController.popBackStack() })
+                        composable<AnswerDetail> { backStackEntry ->
+                            val route: AnswerDetail = backStackEntry.toRoute()
+                            AnswerScreen(
+                                answerId = route.id,
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable<Settings> {
+                            SettingsScreen(onBack = { navController.popBackStack() })
+                        }
                     }
                 }
             }
@@ -75,7 +125,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(
-    onNavigateToAnswer: (String) -> Unit,
+    onNavigateToContent: (String, String) -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
     val tabs = listOf(HomeTab, DebugTab, ProfileTab)
@@ -86,6 +136,7 @@ fun MainScreen(
     val profileViewModel: ProfileViewModel = viewModel()
 
     NavigationSuiteScaffold(
+        layoutType = NavigationSuiteType.NavigationBar,
         navigationSuiteItems = {
             tabs.forEachIndexed { index, tab ->
                 item(
@@ -112,15 +163,15 @@ fun MainScreen(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding()
+                .statusBarsPadding(),
         ) { pageIndex ->
             when (tabs[pageIndex]) {
                 HomeTab -> FeedScreen(
                     viewModel = feedViewModel,
-                    onItemClick = onNavigateToAnswer
+                    onItemClick = onNavigateToContent
                 )
                 DebugTab -> DebugScreen(
-                    onNavigateToAnswer = onNavigateToAnswer
+                    onNavigateToAnswer = onNavigateToContent
                 )
                 ProfileTab -> ProfileScreen(
                     viewModel = profileViewModel,

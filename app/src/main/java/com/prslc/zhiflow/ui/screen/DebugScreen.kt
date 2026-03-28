@@ -1,15 +1,17 @@
 package com.prslc.zhiflow.ui.screen
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionAnswer
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -23,7 +25,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DebugScreen(
-    onNavigateToAnswer: (String) -> Unit
+    onNavigateToAnswer: (String, String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var answerId by remember { mutableStateOf("") }
@@ -63,7 +65,7 @@ fun DebugScreen(
                 TextButton(
                     onClick = {
                         if (answerId.isNotBlank()) {
-                            onNavigateToAnswer(answerId)
+                            onNavigateToAnswer(answerId, "answer")
                             showDialog = false
                         }
                     }

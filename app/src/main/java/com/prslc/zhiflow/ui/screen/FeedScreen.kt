@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,7 +31,7 @@ import com.prslc.zhiflow.ui.viewmodel.FeedViewModel
 @Composable
 fun FeedScreen(
     viewModel: FeedViewModel = viewModel(),
-    onItemClick: (String) -> Unit
+    onItemClick: (String, String) -> Unit
 ) {
 
     val listState = viewModel.listState
@@ -86,8 +87,8 @@ fun FeedScreen(
                     items = viewModel.feedItems,
                     key = { it.target?.id ?: it.hashCode() }
                 ) { item ->
-                    ZhihuFeedItem(item = item) { id ->
-                        onItemClick(id)
+                    ZhihuFeedItem(item = item) { id, type ->
+                        onItemClick(id, type)
                     }
                 }
 
