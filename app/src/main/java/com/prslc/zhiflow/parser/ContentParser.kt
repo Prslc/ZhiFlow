@@ -19,8 +19,6 @@ sealed interface RichTextElement {
 }
 
 object ContentParser {
-    private val commentImgRegex =
-        """<a[^>]+class="comment_img"[^>]+href="([^"]+)"[^>]*data-width="(\d+)"[^>]*data-height="(\d+)"""".toRegex()
 
     fun transform(segments: List<Segment>): List<RichTextElement> {
         return segments.mapNotNull { segment ->
@@ -54,27 +52,29 @@ object ContentParser {
     fun parseCommentHtml(html: String): CommentContent {
         val extractedImages = mutableListOf<ZhihuImage>()
 
-        // Extract Image metadata using Regex
-        commentImgRegex.findAll(html).forEach { match ->
-            val url = match.groupValues[1]
-            val w = match.groupValues[2].toIntOrNull() ?: 0
-            val h = match.groupValues[3].toIntOrNull() ?: 0
+        val aTagRegex = """<a[^>]+class="[^"]*comment_img[^"]*"[^>]*>.*?</a>""".toRegex()
+        val hrefRegex = """href="([^"]+)"""".toRegex()
+        val widthRegex = """data-width="(\d+)"""".toRegex()
+        val heightRegex = """data-height="(\d+)"""".toRegex()
 
-            extractedImages.add(
-                ZhihuImage(
-                    urls = listOf(url),
-                    width = w,
-                    height = h
-                )
-            )
+        var processedHtml = html
+
+        aTagRegex.findAll(html).forEach { match ->
+            val fullTag = match.value
+
+            val url = hrefRegex.find(fullTag)?.groupValues?.get(1) ?: ""
+            val w = widthRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+            val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+
+            if (url.isNotEmpty()) {
+                extractedImages.add(ZhihuImage(urls = listOf(url), width = w, height = h))
+            }
+
+            processedHtml = processedHtml.replace(fullTag, "")
         }
 
-        // Strip HTML tags and entities
-        val spanned = Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT)
-
-        // Remove the "[图片]" placeholder text often found in <a> tags
-        val cleanText = spanned.toString()
-            .replace("[图片]", "")
+        val cleanText = Html.fromHtml(processedHtml, Html.FROM_HTML_MODE_COMPACT)
+            .toString()
             .trim()
 
         return CommentContent(
