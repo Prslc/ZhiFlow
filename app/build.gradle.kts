@@ -13,9 +13,11 @@ val localProperties = Properties().apply {
     }
 }
 
+val rawCookie = localProperties.getProperty("cookie") ?: ""
 val ua = localProperties.getProperty("ua") ?: ""
 val xZse96 = localProperties.getProperty("x_zse_96") ?: ""
 val xZse93 = localProperties.getProperty("x_zse_93") ?: ""
+val escapedCookie = rawCookie.replace("\"", "\\\"")
 
 android {
     namespace = "com.prslc.zhiflow"
@@ -28,6 +30,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        buildConfigField("String", "cookie", "\"$escapedCookie\"")
         buildConfigField("String", "ua", "\"$ua\"")
         buildConfigField("String", "x_zse_96", "\"$xZse96\"")
         buildConfigField("String", "x_zse_93", "\"$xZse93\"")
