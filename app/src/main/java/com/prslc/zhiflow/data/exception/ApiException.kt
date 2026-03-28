@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.data.exception
 
 import androidx.compose.runtime.Composable
-import com.prslc.zhiflow.R
 import androidx.compose.ui.platform.LocalResources
+import com.prslc.zhiflow.R
 
 sealed class ApiException(val resId: Int, val code: Int? = null) : Exception() {
     class NetworkException : ApiException(R.string.error_network)

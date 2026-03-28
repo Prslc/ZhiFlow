@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.model
 
-import kotlinx.serialization.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class ZhihuAnswer(
@@ -50,8 +51,9 @@ data class Reaction(
 
 @Serializable
 data class Statistics(
+    @SerialName("favorites") val favoritesCount: Int,
     @SerialName("up_vote_count") val upVoteCount: Int,
-    @SerialName("comment_count") val commentCount: Int
+    @SerialName("comment_count") val commentCount: Int,
 )
 
 @Serializable

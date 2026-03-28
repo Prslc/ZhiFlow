@@ -53,4 +53,10 @@
     <string name="profile_retry">Retry</string>
     <string name="content_desc_settings">Settings</string>
     <string name="content_desc_avatar">User Avatar</string>
+
+    <!-- buttomBar -->
+    <string name="bottom_voteup">Upvote %1$s</string>
+    <string name="bottom_downvote">Downvote</string>
+    <string name="bottom_save">Save</string>
+    <string name="bottom_comment">Comment</string>
 </resources>
