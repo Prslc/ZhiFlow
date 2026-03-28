@@ -46,12 +46,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -100,6 +102,30 @@ fun AnswerScreen(
 
     LaunchedEffect(answerId) {
         viewModel.loadAnswer(answerId)
+    }
+
+    var currentProgress by remember { mutableStateOf(0) }
+
+    LaunchedEffect(lazyListState) {
+        snapshotFlow {
+            val layout = lazyListState.layoutInfo
+            val total = layout.totalItemsCount
+            if (total <= 0) 0
+            else {
+                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
+                ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
+            }
+        }.collect { currentProgress = it }
+    }
+
+    DisposableEffect(answerId) {
+        viewModel.updateReadProgress(answerId, "answer", 0)
+
+        onDispose {
+            if (currentProgress > 0) {
+                viewModel.updateReadProgress(answerId, "answer", currentProgress)
+            }
+        }
     }
 
     var isBottomBarVisible by remember { mutableStateOf(true) }
