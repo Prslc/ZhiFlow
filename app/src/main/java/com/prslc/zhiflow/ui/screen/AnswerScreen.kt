@@ -396,12 +396,12 @@ fun AnswerBottomBar(
                     .background(upvoteBgColor),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // voteup
+                // Upvote
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .clickable { viewModel.toggleUpvote() },
+                        .clickable { viewModel.updateVote("up") },
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -413,7 +413,7 @@ fun AnswerBottomBar(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = stringResource(R.string.bottom_voteup, formatCount(viewModel.displayUpvoteCount)),
+                            text = stringResource(R.string.bottom_upvote, formatCount(viewModel.displayUpvoteCount)),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = upvoteContentColor
@@ -432,7 +432,7 @@ fun AnswerBottomBar(
                     modifier = Modifier
                         .width(52.dp)
                         .fillMaxHeight()
-                        .clickable { viewModel.toggleDownvote() },
+                        .clickable { viewModel.updateVote("down") },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

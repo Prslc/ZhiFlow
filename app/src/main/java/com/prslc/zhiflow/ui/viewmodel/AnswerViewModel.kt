@@ -13,6 +13,7 @@ import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.service.addReadHistory
 import com.prslc.zhiflow.data.service.getAnswerDetail
+import com.prslc.zhiflow.data.service.voteAction
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,7 +38,14 @@ class AnswerViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                answer = getAnswerDetail(answerId)
+                val result = getAnswerDetail(answerId)
+                answer = result
+
+                result?.reaction?.relation?.let { rel ->
+                    isUpvoted = (rel.vote == "UP")
+                    isDownvoted = (rel.vote == "DOWN")
+                }
+
             } catch (e: Exception) {
                 error = e.toApiException()
             } finally {
@@ -51,7 +59,8 @@ class AnswerViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(NonCancellable) {
                 try {
-                    val success = addReadHistory(ReadHistoryRequest(contentToken, contentType, progress))
+                    val success =
+                        addReadHistory(ReadHistoryRequest(contentToken, contentType, progress))
                     if (success) {
                         Log.d(tag, "Successfully synced progress: $progress%")
                     }
@@ -71,27 +80,31 @@ class AnswerViewModel : ViewModel() {
         lastReportedProgress = -1
     }
 
-    // send like
-    fun toggleUpvote() {
-        val previousUpvoted = isUpvoted
-        val previousOffset = upvoteOffset
+    fun updateVote(targetAction: String) {
+        val id = answer?.id ?: return
 
-        if (isUpvoted) {
-            isUpvoted = false
-            upvoteOffset -= 1
-        } else {
-            isUpvoted = true
-            upvoteOffset += 1
-            if (isDownvoted) isDownvoted = false
+        // check status
+        val isActive = if (targetAction == "up") isUpvoted else isDownvoted
+        val method = if (isActive) "DELETE" else "POST"
+
+        when (targetAction) {
+            "up" -> {
+                isUpvoted = !isUpvoted
+                upvoteOffset += if (isUpvoted) 1 else -1
+                if (isUpvoted) isDownvoted = false
+            }
+
+            "down" -> {
+                isDownvoted = !isDownvoted
+                if (isDownvoted && isUpvoted) {
+                    isUpvoted = false
+                    upvoteOffset--
+                }
+            }
         }
 
-        // TODO
-    }
-
-    fun toggleDownvote() {
-        isDownvoted = !isDownvoted
-        if (isDownvoted && isUpvoted) {
-            toggleUpvote()
+        viewModelScope.launch {
+            voteAction(id, targetAction, method)
         }
     }
 }

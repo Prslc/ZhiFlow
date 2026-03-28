@@ -46,9 +46,15 @@ data class SubTitle(val text: String)
 
 @Serializable
 data class Reaction(
-    val statistics: Statistics
+    val statistics: Statistics,
+    val relation: Relation? = null
 )
 
+@Serializable
+data class Relation(
+    val vote: String? = "NEUTRAL",
+    val faved: Boolean = false
+)
 @Serializable
 data class Statistics(
     @SerialName("favorites") val favoritesCount: Int,
