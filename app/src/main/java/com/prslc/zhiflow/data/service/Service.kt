@@ -10,6 +10,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -84,6 +85,23 @@ suspend fun addReadHistory(request: ReadHistoryRequest): Boolean {
         isSuccess
     } catch (e: Exception) {
         Log.e(tag, "Network error during sync", e)
+        false
+    }
+}
+
+// Performs a vote action (up/down).
+// Use method="POST" to vote, and method="DELETE" to remove the vote.
+suspend fun voteAction(answerId: String, action: String, method: String = "POST"): Boolean {
+    val tag = "voteService"
+    return try {
+        val response = Client.client.request("reaction/answers/$answerId/vote/$action") {
+            this.method = io.ktor.http.HttpMethod.parse(method)
+        }
+        val isSuccess = response.status.isSuccess()
+        Log.d(tag, "Voted $action ($method) on $answerId | Success: $isSuccess")
+        isSuccess
+    } catch (e: Exception) {
+        Log.e(tag, "Vote network error: $action ($method)", e)
         false
     }
 }
