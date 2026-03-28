@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.getValue
@@ -59,147 +60,160 @@ fun AnswerScreen(
         viewModel.loadAnswer(answerId)
     }
 
-    // loading
-    if (viewModel.isLoading && currentAnswer == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator(strokeWidth = 3.dp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    stringResource(R.string.general_loading),
-                    color = MaterialTheme.colorScheme.outline
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+
+        // loading
+        if (viewModel.isLoading && currentAnswer == null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(strokeWidth = 3.dp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        stringResource(R.string.general_loading),
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+        }
+
+        // error
+        if (viewModel.error != null && currentAnswer == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                ErrorView(
+                    message = viewModel.error!!.uiMessage,
+                    onRetry = { viewModel.loadAnswer(answerId) }
                 )
             }
         }
-        return
-    }
 
-    // error
-    if (viewModel.error != null && currentAnswer == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            ErrorView(
-                message = viewModel.error!!.uiMessage,
-                onRetry = { viewModel.loadAnswer(answerId) }
-            )
-        }
-        return
-    }
+        // content
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                topBar = {
+                    LargeTopAppBar(
+                        title = {
+                            val titleText = when {
+                                viewModel.isLoading && currentAnswer == null -> stringResource(R.string.general_loading)
+                                viewModel.error != null && currentAnswer == null -> stringResource(R.string.error_load_failed)
+                                currentAnswer != null -> {
+                                    currentAnswer.question?.title
+                                        ?: currentAnswer.header?.text
+                                        ?: stringResource(R.string.question_title_filed)
+                                }
+                                else -> ""
+                            }
 
-    // content
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                LargeTopAppBar(
-                    title = {
-                        val titleText = currentAnswer?.question?.title
-                            ?: currentAnswer?.header?.text
-                            ?: stringResource(R.string.question_title_filed)
+                            val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
 
-                        val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
-
-                        Text(
-                            text = titleText,
-                            modifier = Modifier.padding(
-                                end = if (isCollapsed) 10.dp else 5.dp
-                            ),
-                            style = if (isCollapsed) {
-                                MaterialTheme.typography.titleMedium
-                            } else {
-                                MaterialTheme.typography.headlineSmall
-                            },
-                            fontWeight = FontWeight.Bold,
-                            maxLines = if (isCollapsed) 1 else 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.general_back)
+                            Text(
+                                text = titleText,
+                                modifier = Modifier.padding(
+                                    end = if (isCollapsed) 10.dp else 10.dp
+                                ),
+                                style = if (isCollapsed) {
+                                    MaterialTheme.typography.titleMedium
+                                } else {
+                                    MaterialTheme.typography.headlineSmall
+                                },
+                                fontWeight = FontWeight.Bold,
+                                maxLines = if (isCollapsed) 1 else 3,
+                                overflow = TextOverflow.Ellipsis
                             )
-                        }
-                    },
-                    scrollBehavior = scrollBehavior,
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                            2.dp
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.general_back)
+                                )
+                            }
+                        },
+                        scrollBehavior = scrollBehavior,
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                2.dp
+                            )
                         )
                     )
-                )
-            }
-        ) { padding ->
-            currentAnswer?.let { answer ->
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(bottom = 50.dp)
-                ) {
-                    // author
-                    item {
-                        AuthorSection(answer.author)
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 20.dp),
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                        )
-                    }
-
-                    // Content
-                    item {
-                        Box(
-                            modifier = Modifier.padding(
-                                horizontal = 20.dp,
-                                vertical = 16.dp
-                            )
-                        ) {
-                            RichText(
-                                segments = answer.structuredContent.segments,
-                                onImageClick = { url ->
-                                    selectedImageUrl = url
-                                }
+                }
+            ) { padding ->
+                currentAnswer?.let { answer ->
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentPadding = PaddingValues(bottom = 50.dp)
+                    ) {
+                        // author
+                        item {
+                            AuthorSection(answer.author)
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 20.dp),
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                             )
                         }
-                    }
 
-                    // end
-                    item {
-                        answer.contentEnd?.let { contentEnd ->
-                            Column(modifier = Modifier.padding(20.dp)) {
-                                val timeDisplay = when {
-                                    !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
-                                    !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
-                                    else -> ""
-                                }
-
-                                Text(
-                                    text = stringResource(
-                                        R.string.answer_published_format,
-                                        contentEnd.ipInfo,
-                                        timeDisplay
-                                    ),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.outline
+                        // Content
+                        item {
+                            Box(
+                                modifier = Modifier.padding(
+                                    horizontal = 20.dp,
+                                    vertical = 16.dp
                                 )
+                            ) {
+                                RichText(
+                                    segments = answer.structuredContent.segments,
+                                    onImageClick = { url ->
+                                        selectedImageUrl = url
+                                    }
+                                )
+                            }
+                        }
+
+                        // end
+                        item {
+                            answer.contentEnd?.let { contentEnd ->
+                                Column(modifier = Modifier.padding(20.dp)) {
+                                    val timeDisplay = when {
+                                        !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
+                                        !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
+                                        else -> ""
+                                    }
+
+                                    Text(
+                                        text = stringResource(
+                                            R.string.answer_published_format,
+                                            contentEnd.ipInfo,
+                                            timeDisplay
+                                        ),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.outline
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+            // light box
+            ImageLightbox(
+                imageUrl = selectedImageUrl,
+                onDismiss = { selectedImageUrl = null }
+            )
         }
-        // light box
-        ImageLightbox(
-            imageUrl = selectedImageUrl,
-            onDismiss = { selectedImageUrl = null }
-        )
     }
 }
 
