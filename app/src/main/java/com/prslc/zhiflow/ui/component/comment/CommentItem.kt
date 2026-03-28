@@ -20,22 +20,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.ui.component.ImageComponent
 import com.prslc.zhiflow.utils.formatToDate
-
 @Composable
 fun CommentItem(
     comment: ZhihuComment,
     modifier: Modifier = Modifier,
+    isChild: Boolean = false,
+    showReplyButton: Boolean = true,
     onAuthorClick: (String) -> Unit = {},
     onLikeClick: (String) -> Unit = {},
-    onImageClick: (String) -> Unit = {}
+    onImageClick: (String) -> Unit = {},
+    onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
     val parsedContent = remember(comment.content) {
         ContentParser.parseCommentHtml(comment.content)
@@ -44,7 +48,10 @@ fun CommentItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(
+                horizontal = 16.dp,
+                vertical = 12.dp
+            ),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // avatar
@@ -52,23 +59,41 @@ fun CommentItem(
             model = comment.author.avatarUrl,
             contentDescription = "avatar",
             modifier = Modifier
-                .size(36.dp)
+                .size(if (isChild) 30.dp else 36.dp)
                 .clip(CircleShape)
                 .clickable { onAuthorClick(comment.author.id) },
             contentScale = ContentScale.Crop
         )
 
-
+        // name
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // name
-            Text(
-                text = comment.author.name,
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.clickable { onAuthorClick(comment.author.id) }
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = comment.author.name,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.clickable { onAuthorClick(comment.author.id) }
+                )
+
+                comment.replyToAuthor?.let { replyTo ->
+                    Text(
+                        text = " ▸ ",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    Text(
+                        text = replyTo.name,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.clickable { onAuthorClick(replyTo.id) }
+                    )
+                }
+            }
 
             // comment
             Text(
@@ -92,12 +117,18 @@ fun CommentItem(
                 }
             }
 
-            // IP and time
+            // IP
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(top = 2.dp)
             ) {
+                Text(
+                    text = formatToDate(comment.createdTime),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+
                 comment.tags.find { it.type == "ip_info" }?.text?.let { ip ->
                     Text(
                         text = ip,
@@ -106,11 +137,17 @@ fun CommentItem(
                     )
                 }
 
-                Text(
-                    text = formatToDate(comment.createdTime),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.outline
-                )
+                if (!isChild && comment.childCount > 0 && showReplyButton) {
+                    Text(
+                        text = stringResource(R.string.comment_reply_count_with_arrow, comment.childCount),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable { onShowReplies(comment) }
+                            .padding(vertical = 4.dp)
+                    )
+                }
             }
         }
 

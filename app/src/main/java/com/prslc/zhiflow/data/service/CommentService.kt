@@ -32,3 +32,24 @@ suspend fun getRootComments(
         throw e
     }
 }
+
+suspend fun getChildComments(
+    rootCommentId: String,
+    offset: String = "",
+    limit: Int = 20
+): CommentResponse? {
+    val tag = "commentService"
+    return try {
+        val response = Client.client.get("comment_v5/comment/$rootCommentId/child_comment") {
+            parameter("order_by", "ts")
+            parameter("limit", limit)
+            parameter("offset", offset)
+        }
+
+        if (response.status.value != 200) return null
+        response.body<CommentResponse>()
+    } catch (e: Exception) {
+        Log.e(tag, "Failed to fetch child comments", e)
+        null
+    }
+}

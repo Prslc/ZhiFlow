@@ -27,9 +27,11 @@ fun CommentList(
     hasMore: Boolean,               // check if pagination ended
     onLoadMore: () -> Unit,         // trigger next page
     modifier: Modifier = Modifier,
+    isChild: Boolean = false,
     onAuthorClick: (String) -> Unit = {},
     onLikeClick: (String) -> Unit = {},
-    onImageClick: (String) -> Unit = {}
+    onImageClick: (String) -> Unit = {},
+    onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
     val listState = rememberLazyListState()
 
@@ -59,6 +61,8 @@ fun CommentList(
         ) { comment ->
             CommentItem(
                 comment = comment,
+                isChild = isChild,
+                onShowReplies = onShowReplies,
                 onAuthorClick = onAuthorClick,
                 onLikeClick = onLikeClick,
                 onImageClick = onImageClick

@@ -69,4 +69,7 @@
 
     <!-- comment -->
     <string name="comment_count">Comment %1d</string>
+    <string name="comment_reply_detail">Reply Details</string>
+    <string name="comment_reply_count">%1$d replies</string>
+    <string name="comment_reply_count_with_arrow">%1$d replies &gt;</string>
 </resources>

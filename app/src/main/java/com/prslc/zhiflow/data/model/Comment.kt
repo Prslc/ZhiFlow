@@ -15,6 +15,7 @@ data class CommentResponse(
 data class ZhihuComment(
     val id: String,
     val content: String,    // html
+    @SerialName("reply_to_author") val replyToAuthor: Author? = null,
     @SerialName("created_time") val createdTime: Long,
     @SerialName("like_count") val likeCount: Int,
     val author: CommentAuthor,
@@ -78,4 +79,11 @@ data class CommentAuthor(
 data class CommentTag(
     val type: String,   // ip
     val text: String    // ip address
+)
+@Serializable
+data class Author(
+    val id: String,
+    val name: String,
+    @SerialName("avatar_url") val avatarUrl: String,
+    val headline: String? = null,
 )
