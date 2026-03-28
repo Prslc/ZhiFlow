@@ -54,4 +54,10 @@
     <string name="profile_retry">重试</string>
     <string name="content_desc_settings">设置</string>
     <string name="content_desc_avatar">用户头像</string>
+
+    <!-- buttomBar -->
+    <string name="bottom_voteup">赞同 %1$s</string>
+    <string name="bottom_downvote">不赞同</string>
+    <string name="bottom_save">收藏</string>
+    <string name="bottom_comment">评论</string>
 </resources>

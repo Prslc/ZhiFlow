@@ -7,9 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.data.exception.ApiException
 import com.prslc.zhiflow.data.exception.toApiException
-import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuUser
-import com.prslc.zhiflow.data.service.getAnswerDetail
 import com.prslc.zhiflow.data.service.getUserDetail
 import kotlinx.coroutines.launch
 
