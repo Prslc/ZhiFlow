@@ -12,16 +12,18 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object Client {
+    val json = Json {
+        ignoreUnknownKeys = true    // Skip undefined fields
+        isLenient = true            // Permissive mode
+        coerceInputValues = true    // Forced conversion
+        encodeDefaults = true       // Default value
+    }
+
     val client = HttpClient(OkHttp) {
         install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true // Skip undefined fields
-                isLenient = true         // Permissive mode
-                coerceInputValues = true // Forced conversion
-            })
+            json(Client.json)
         }
 
-        // Timeout
         install(HttpTimeout) {
             requestTimeoutMillis = 15000
             connectTimeoutMillis = 10000

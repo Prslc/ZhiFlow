@@ -76,7 +76,9 @@ import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ErrorView
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
+import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.viewmodel.AnswerViewModel
+import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 import com.prslc.zhiflow.utils.formatCount
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,9 +86,19 @@ import com.prslc.zhiflow.utils.formatCount
 fun AnswerScreen(
     answerId: String,
     onBack: () -> Unit,
-    viewModel: AnswerViewModel = viewModel()
+    viewModel: AnswerViewModel = viewModel(),
+    commentViewModel: CommentViewModel = viewModel()
 ) {
+    val commentState = commentViewModel.uiState
+
     var showCollectionSheet by rememberSaveable { mutableStateOf(false) }
+    var showComments by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showComments) {
+        if (showComments && commentState.comments.isEmpty()) {
+            commentViewModel.loadComments(answerId)
+        }
+    }
 
     val currentAnswer = viewModel.answer
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -245,7 +257,7 @@ fun AnswerScreen(
                         currentAnswer?.let { answer ->
                             AnswerBottomBar(
                                 viewModel = viewModel,
-                                onComment = { TODO() },
+                                onComment = { showComments = true },
                                 onStar = { showCollectionSheet = true }
                             )
                         }
@@ -322,6 +334,16 @@ fun AnswerScreen(
                     }
                 )
             }
+
+            CommentBottomSheet(
+                viewModel = commentViewModel,
+                answerId = answerId,
+                showComments = showComments,
+                onDismissRequest = {
+                    showComments = false
+                    commentViewModel.resetState()
+                }
+            )
 
             // light box
             ImageLightbox(
