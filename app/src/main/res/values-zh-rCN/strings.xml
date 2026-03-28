@@ -67,4 +67,7 @@
     <string name="collection_item_count">%1$d 条内容</string>
     <string name="collection_default_label">默认</string>
     <string name="collection_private_desc">私密收藏夹</string>
+
+    <!-- comment -->
+    <string name="comment_count">评论 %1d</string>
 </resources>

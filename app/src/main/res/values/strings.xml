@@ -66,4 +66,7 @@
     <string name="collection_item_count">%1$d items</string>
     <string name="collection_default_label">Default</string>
     <string name="collection_private_desc">Private collection</string>
+
+    <!-- comment -->
+    <string name="comment_count">Comment %1d</string>
 </resources>
