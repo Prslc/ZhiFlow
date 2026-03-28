@@ -29,6 +29,7 @@ object Client {
 
         defaultRequest {
             url("https://api.zhihu.com")
+            header(HttpHeaders.Cookie, BuildConfig.cookie)
             header(HttpHeaders.UserAgent, BuildConfig.ua)
             header("x-zse-96", BuildConfig.x_zse_96)
             header("x-zse-93", BuildConfig.x_zse_93)
