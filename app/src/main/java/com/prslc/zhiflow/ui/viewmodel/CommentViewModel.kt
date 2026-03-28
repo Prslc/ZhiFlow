@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.data.model.ZhihuComment
+import com.prslc.zhiflow.data.service.getChildComments
 import com.prslc.zhiflow.data.service.getRootComments
 import kotlinx.coroutines.launch
 
@@ -21,7 +22,19 @@ class CommentViewModel : ViewModel() {
         val error: Throwable? = null
     )
 
+    data class ChildCommentUiState(
+        val isLoading: Boolean = false,
+        val comments: List<ZhihuComment> = emptyList(),
+        val rootComment: ZhihuComment? = null,
+        val offset: String = "",
+        val hasMore: Boolean = true,
+        val showSheet: Boolean = false
+    )
+
     var uiState by mutableStateOf(CommentUiState())
+        private set
+
+    var childUiState by mutableStateOf(ChildCommentUiState())
         private set
 
     // load
@@ -60,6 +73,49 @@ class CommentViewModel : ViewModel() {
                 uiState = uiState.copy(isLoading = false)
             }
         }
+    }
+
+    fun loadChildComments(rootComment: ZhihuComment, forceRefresh: Boolean = false) {
+        if (forceRefresh) {
+            childUiState = ChildCommentUiState(
+                rootComment = rootComment,
+                showSheet = true,
+                isLoading = true,
+                comments = emptyList(),
+                hasMore = true,
+                offset = ""
+            )
+        }
+
+        if (childUiState.isLoading && !forceRefresh || (!childUiState.hasMore && !forceRefresh)) return
+
+        viewModelScope.launch {
+            childUiState = childUiState.copy(isLoading = true)
+
+            try {
+                val currentOffset = if (forceRefresh) "" else childUiState.offset
+                val response = getChildComments(rootCommentId = rootComment.id, offset = currentOffset)
+
+                if (response != null) {
+                    val paging = response.paging
+                    val nextOffset = paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val hasNext = paging?.isEnd == false
+
+                    childUiState = childUiState.copy(
+                        comments = if (forceRefresh) response.data else childUiState.comments + response.data,
+                        offset = nextOffset,
+                        hasMore = hasNext,
+                        isLoading = false
+                    )
+                }
+            } finally {
+                childUiState = childUiState.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun dismissChildSheet() {
+        childUiState = childUiState.copy(showSheet = false)
     }
 
     fun resetState() {
