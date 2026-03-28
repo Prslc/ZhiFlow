@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -153,7 +154,15 @@ fun MainScreen(
                             null
                         )
                     },
-                    label = { Text(tab.javaClass.simpleName.removeSuffix("Tab")) },
+                    label = {
+                        val labelText = when(tab) {
+                            HomeTab -> stringResource(R.string.nav_home)
+                            DebugTab -> stringResource(R.string.nav_debug)
+                            ProfileTab -> stringResource(R.string.nav_profile)
+                            else -> "Unknown"
+                        }
+                        Text(labelText)
+                    },
                     alwaysShowLabel = false
                 )
             }
