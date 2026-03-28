@@ -118,7 +118,7 @@ fun AnswerScreen(
                             Text(
                                 text = titleText,
                                 modifier = Modifier.padding(
-                                    end = if (isCollapsed) 10.dp else 10.dp
+                                    end = 10.dp
                                 ),
                                 style = if (isCollapsed) {
                                     MaterialTheme.typography.titleMedium
