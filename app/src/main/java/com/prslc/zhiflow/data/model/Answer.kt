@@ -16,9 +16,15 @@ data class ZhihuAnswer(
 
 @Serializable
 data class AnswerAuthor(
-    val fullname: String,
-    @SerialName("url_token") val urlToken: String,
-    val description: String,
+    val fullname: String = "",
+    @SerialName("url_token")
+    val urlToken: String = "",
+    val description: String = "",
+    val id: String = "",
+    val name: String = "",
+    val headline: String = "",
+    @SerialName("avatar_url")
+    val avatarUrl: String = "",
     val avatar: AvatarContainer? = null
 )
 

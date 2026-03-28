@@ -15,60 +15,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
-suspend fun getRecommendFeed(limit: Int = 10, nextUrl: String? = null): ZhihuResponse? {
-    val tag = "feedService"
-    return try {
-        val requestUrl = nextUrl ?: "topstory/recommend"
-
-        val response = Client.client.get(requestUrl) {
-            if (nextUrl == null) {
-                parameter("limit", limit)
-                parameter("action", "down")
-            }
-        }
-
-        Log.d(tag, "Requesting: $requestUrl | Status: ${response.status}")
-
-        response.body<ZhihuResponse>()
-    } catch (e: Exception) {
-        Log.e(tag, "Network Error", e)
-        null
-    }
-}
-
-suspend fun getAnswerDetail(answerId: String): ZhihuAnswer? {
-    val tag = "answerService"
-    return try {
-        val response = Client.client.get("answers/v2/$answerId")
-
-        if (response.status.value != 200) {
-            Log.e(tag, "Request failed with status: ${response.status}")
-            return null
-        }
-
-        response.body<ZhihuAnswer>()
-    } catch (e: Exception) {
-        Log.e(tag, "Failed to fetch profile", e)
-        throw e
-    }
-}
-
-suspend fun getUserDetail(): ZhihuUser? {
-    val tag = "userService"
-    return try {
-        val response = Client.client.get("people/self")
-        if (response.status.value != 200) {
-            Log.e(tag, "Request failed with status: ${response.status}")
-            return null
-        }
-
-        response.body<ZhihuUser>()
-    } catch (e: Exception) {
-        Log.e(tag, "Failed to fetch profile", e)
-        throw e
-    }
-}
-
 suspend fun addReadHistory(request: ReadHistoryRequest): Boolean {
     val tag = "addReadHistory"
     return try {

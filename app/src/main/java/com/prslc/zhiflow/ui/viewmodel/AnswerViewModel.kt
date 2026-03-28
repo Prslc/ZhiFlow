@@ -26,6 +26,7 @@ class AnswerViewModel : ViewModel() {
 
     var isUpvoted by mutableStateOf(false)
     var isDownvoted by mutableStateOf(false)
+    var isFaved by mutableStateOf(false)
     private var upvoteOffset by mutableIntStateOf(0)
 
     val displayUpvoteCount: Int
@@ -44,6 +45,7 @@ class AnswerViewModel : ViewModel() {
                 result?.reaction?.relation?.let { rel ->
                     isUpvoted = (rel.vote == "UP")
                     isDownvoted = (rel.vote == "DOWN")
+                    isFaved = (rel.faved)
                 }
 
             } catch (e: Exception) {

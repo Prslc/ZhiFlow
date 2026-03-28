@@ -58,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -71,6 +72,7 @@ import coil.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
+import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ErrorView
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
@@ -84,6 +86,7 @@ fun AnswerScreen(
     onBack: () -> Unit,
     viewModel: AnswerViewModel = viewModel()
 ) {
+    var showCollectionSheet by rememberSaveable { mutableStateOf(false) }
 
     val currentAnswer = viewModel.answer
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -135,8 +138,7 @@ fun AnswerScreen(
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (available.y < -5) {
                     isBottomBarVisible = false
-                }
-                else if (available.y > 5) {
+                } else if (available.y > 5) {
                     isBottomBarVisible = true
                 }
                 return Offset.Zero
@@ -244,7 +246,7 @@ fun AnswerScreen(
                             AnswerBottomBar(
                                 viewModel = viewModel,
                                 onComment = { TODO() },
-                                onStar = { TODO() }
+                                onStar = { showCollectionSheet = true }
                             )
                         }
                     }
@@ -311,6 +313,16 @@ fun AnswerScreen(
                     }
                 }
             }
+            if (showCollectionSheet) {
+                CollectionDialog(
+                    answerId = answerId,
+                    onDismissRequest = { showCollectionSheet = false },
+                    onResult = { isFavedNow ->
+                        viewModel.isFaved = isFavedNow
+                    }
+                )
+            }
+
             // light box
             ImageLightbox(
                 imageUrl = selectedImageUrl,
@@ -413,7 +425,10 @@ fun AnswerBottomBar(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = stringResource(R.string.bottom_upvote, formatCount(viewModel.displayUpvoteCount)),
+                            text = stringResource(
+                                R.string.bottom_upvote,
+                                formatCount(viewModel.displayUpvoteCount)
+                            ),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = upvoteContentColor
@@ -453,10 +468,11 @@ fun AnswerBottomBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BottomActionItem(
-                    icon = Icons.Default.Star,
+                    icon = if (viewModel.isFaved) Icons.Filled.Star else Icons.Default.Star,
                     label = formatCount(
                         viewModel.answer?.reaction?.statistics?.favoritesCount ?: 0
                     ),
+                    iconTint = if (viewModel.isFaved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onStar
                 )
                 BottomActionItem(
@@ -473,6 +489,7 @@ fun AnswerBottomBar(
 private fun BottomActionItem(
     icon: ImageVector,
     label: String,
+    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -491,7 +508,7 @@ private fun BottomActionItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = iconTint,
                 modifier = Modifier.size(22.dp)
             )
         }

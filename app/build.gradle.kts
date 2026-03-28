@@ -17,6 +17,7 @@ val rawCookie = localProperties.getProperty("cookie") ?: ""
 val ua = localProperties.getProperty("ua") ?: ""
 val xZse96 = localProperties.getProperty("x_zse_96") ?: ""
 val xZse93 = localProperties.getProperty("x_zse_93") ?: ""
+val authorization = localProperties.getProperty("authorization") ?: ""
 val escapedCookie = rawCookie.replace("\"", "\\\"")
 
 android {
@@ -34,6 +35,7 @@ android {
         buildConfigField("String", "ua", "\"$ua\"")
         buildConfigField("String", "x_zse_96", "\"$xZse96\"")
         buildConfigField("String", "x_zse_93", "\"$xZse93\"")
+        buildConfigField("String", "authorization", "\"$authorization\"")
     }
 
     buildTypes {
