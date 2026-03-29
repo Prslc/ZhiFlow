@@ -20,6 +20,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.ui.viewmodel.CollectionViewModel
@@ -60,7 +62,7 @@ fun CollectionItem(
                 // default
                 if (isDefault) {
                     Spacer(Modifier.width(6.dp))
-                    androidx.compose.material3.Surface(
+                    Surface(
                         color = MaterialTheme.colorScheme.secondaryContainer,
                         shape = MaterialTheme.shapes.extraSmall
                     ) {
@@ -107,8 +109,8 @@ fun CollectionDialog(
         viewModel.loadCollections(answerId)
     }
 
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismissRequest) {
-        androidx.compose.material3.Surface(
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
             modifier = Modifier

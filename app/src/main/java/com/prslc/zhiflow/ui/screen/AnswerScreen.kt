@@ -73,7 +73,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.ui.component.CollectionDialog
-import com.prslc.zhiflow.ui.component.ErrorView
+import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
 import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet

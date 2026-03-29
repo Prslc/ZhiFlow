@@ -1,11 +1,20 @@
 package com.prslc.zhiflow.ui.component.comment
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -37,90 +46,149 @@ fun CommentBottomSheet(
     val uiState = viewModel.uiState
     val childUiState = viewModel.childUiState
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-    val childSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val rootListState = rememberLazyListState()
+    val childListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
     if (showComments) {
         ModalBottomSheet(
-            onDismissRequest = onDismissRequest,
-            sheetState = sheetState
+            onDismissRequest = {
+                viewModel.onSheetDismissed()
+                onDismissRequest()
+            },
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surface,
         ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.comment_count, uiState.totalCount),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+            BackHandler(enabled = showComments && childUiState.isDetailMode) {
+                viewModel.backToMain()
+            }
 
-                    IconButton(onClick = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            onDismissRequest()
+            AnimatedContent(
+                targetState = childUiState.isDetailMode,
+                transitionSpec = {
+                    if (targetState) {
+                        (slideInHorizontally { it } + fadeIn()) togetherWith
+                                (slideOutHorizontally { -it } + fadeOut())
+                    } else {
+                        (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                (slideOutHorizontally { it } + fadeOut())
+                    }
+                },
+                label = "CommentSheetTransition"
+            ) { isDetail ->
+                if (!isDetail) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        CommentHeader(
+                            title = stringResource(R.string.comment_count, uiState.totalCount),
+                            onClose = {
+                                scope.launch { sheetState.hide() }
+                                    .invokeOnCompletion { onDismissRequest() }
+                            }
+                        )
+                        CommentList(
+                            modifier = Modifier.weight(1f),
+                            comments = uiState.comments,
+                            isLoading = uiState.isLoading,
+                            hasMore = uiState.hasMore,
+                            onLoadMore = { viewModel.loadComments(answerId) },
+                            onAuthorClick = { /* TODO */ },
+                            onLikeClick = { /* TODO */ },
+                            onImageClick = { /* TODO */ },
+                            state = rootListState,
+                            onShowReplies = { root ->
+                                viewModel.loadChildComments(
+                                    root,
+                                    forceRefresh = true
+                                )
+                            }
+                        )
+                    }
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        CommentHeader(
+                            title = stringResource(R.string.comment_reply_detail),
+                            onClose = { viewModel.backToMain() },
+                            isBackStyle = true
+                        )
+
+                        childUiState.rootComment?.let { root ->
+                            CommentItem(comment = root, isChild = false, showReplyButton = false)
+                            HorizontalDivider(
+                                thickness = 3.dp,
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
                         }
-                    }) {
-                        Icon(Icons.Default.Close, contentDescription = "close")
+
+                        CommentList(
+                            comments = childUiState.comments,
+                            isLoading = childUiState.isLoading,
+                            hasMore = childUiState.hasMore,
+                            onAuthorClick = { /* TODO */ },
+                            onLikeClick = { /* TODO */ },
+                            onImageClick = { /* TODO */ },
+                            onLoadMore = {
+                                childUiState.rootComment?.let {
+                                    viewModel.loadChildComments(
+                                        it
+                                    )
+                                }
+                            },
+                            state = childListState,
+                            isChild = true,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
-
-                // list
-                CommentList(
-                    comments = viewModel.uiState.comments,
-                    isLoading = viewModel.uiState.isLoading,
-                    hasMore = viewModel.uiState.hasMore,
-                    onLoadMore = { viewModel.loadComments(answerId) },
-                    onAuthorClick = { /* TODO */ },
-                    onLikeClick = { /* TODO */ },
-                    onImageClick = { /* TODO */ },
-                    onShowReplies = { rootComment ->
-                        viewModel.loadChildComments(rootComment, forceRefresh = true)
-                    }
-                )
             }
         }
     }
-    if (childUiState.showSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.dismissChildSheet() },
-            sheetState = childSheetState,
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.comment_reply_detail),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
+}
 
-                childUiState.rootComment?.let { root ->
-                    CommentItem(comment = root, isChild = false, showReplyButton = false)
-                    HorizontalDivider(
-                        thickness = 3.dp,
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
-                }
-
-                CommentList(
-                    comments = childUiState.comments,
-                    isLoading = childUiState.isLoading,
-                    hasMore = childUiState.hasMore,
-                    onLoadMore = {
-                        childUiState.rootComment?.let { viewModel.loadChildComments(it) }
-                    },
-                    isChild = true,
-                    modifier = Modifier.weight(1f, fill = false)
+@Composable
+fun CommentHeader(
+    title: String,
+    onClose: () -> Unit,
+    isBackStyle: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        if (isBackStyle) {
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.padding(start = 4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "back"
+                )
+            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        } else {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            )
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.padding(end = 4.dp)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "close"
                 )
             }
         }

@@ -59,7 +59,7 @@ fun CommentItem(
             model = comment.author.avatarUrl,
             contentDescription = "avatar",
             modifier = Modifier
-                .size(if (isChild) 30.dp else 36.dp)
+                .size(36.dp)
                 .clip(CircleShape)
                 .clickable { onAuthorClick(comment.author.id) },
             contentScale = ContentScale.Crop

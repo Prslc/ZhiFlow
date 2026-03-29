@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.component
+package com.prslc.zhiflow.ui.component.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
