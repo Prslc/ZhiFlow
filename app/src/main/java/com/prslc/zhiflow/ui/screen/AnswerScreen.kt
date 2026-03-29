@@ -32,7 +32,6 @@ import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -73,10 +73,11 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.ui.component.CollectionDialog
-import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
 import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet
+import com.prslc.zhiflow.ui.component.common.ErrorView
+import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.viewmodel.AnswerViewModel
 import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 import com.prslc.zhiflow.utils.formatCount
@@ -119,7 +120,7 @@ fun AnswerScreen(
         viewModel.loadAnswer(answerId)
     }
 
-    var currentProgress by remember { mutableStateOf(0) }
+    var currentProgress by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(lazyListState) {
         snapshotFlow {
@@ -164,36 +165,6 @@ fun AnswerScreen(
             .nestedScroll(nestedScrollConnection),
         color = MaterialTheme.colorScheme.background
     ) {
-
-        // loading
-        if (viewModel.isLoading && currentAnswer == null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(strokeWidth = 3.dp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        stringResource(R.string.general_loading),
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-            }
-        }
-
-        // error
-        if (viewModel.error != null && currentAnswer == null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
-                contentAlignment = Alignment.Center
-            ) {
-                ErrorView(
-                    message = viewModel.error!!.uiMessage,
-                    onRetry = { viewModel.loadAnswer(answerId) }
-                )
-            }
-        }
-
         // content
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -202,17 +173,10 @@ fun AnswerScreen(
                 topBar = {
                     LargeTopAppBar(
                         title = {
-                            val titleText = when {
-                                viewModel.isLoading && currentAnswer == null -> stringResource(R.string.general_loading)
-                                viewModel.error != null && currentAnswer == null -> stringResource(R.string.error_load_failed)
-                                currentAnswer != null -> {
-                                    currentAnswer.question?.title
-                                        ?: currentAnswer.header?.text
-                                        ?: stringResource(R.string.question_title_filed)
-                                }
-
-                                else -> ""
+                            val titleText = currentAnswer?.let {
+                                it.question?.title ?: it.header?.text ?: ""
                             }
+                                ?: if (viewModel.isLoading) "" else stringResource(R.string.question_title_filed)
 
                             val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
 
@@ -254,85 +218,99 @@ fun AnswerScreen(
                         enter = slideInVertically(initialOffsetY = { it }),
                         exit = slideOutVertically(targetOffsetY = { it }),
                     ) {
-                        currentAnswer?.let { answer ->
+                        currentAnswer?.let {
                             AnswerBottomBar(
                                 viewModel = viewModel,
                                 onComment = { showComments = true },
-                                onStar = { showCollectionSheet = true }
-                            )
+                                onStar = { showCollectionSheet = true })
                         }
                     }
-                }
-            ) { padding ->
-                currentAnswer?.let { answer ->
-                    LazyColumn(
-                        state = lazyListState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            // Only use top padding to prevent content jumping when the bottom bar animates.
-                            .padding(top = padding.calculateTopPadding()),
-                        contentPadding = PaddingValues(bottom = 80.dp)
-                    ) {
-                        // author
-                        item {
-                            AuthorSection(answer.author)
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 20.dp),
-                                thickness = 0.5.dp,
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
-                        }
+                }) { padding ->
+                when {
+                    viewModel.isLoading && currentAnswer == null -> {
+                        LoadingView(modifier = Modifier.fillMaxSize())
+                    }
 
-                        // Content
-                        item {
-                            Box(
-                                modifier = Modifier.padding(
-                                    horizontal = 20.dp,
-                                    vertical = 16.dp
-                                )
+                    viewModel.error != null && currentAnswer == null -> {
+                        ErrorView(
+                            message = viewModel.error!!.uiMessage,
+                            onRetry = { viewModel.loadAnswer(answerId) },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    else -> {
+                        currentAnswer?.let { answer ->
+                            LazyColumn(
+                                state = lazyListState,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    // Only use top padding to prevent content jumping when the bottom bar animates.
+                                    .padding(top = padding.calculateTopPadding()),
+                                contentPadding = PaddingValues(bottom = 80.dp)
                             ) {
-                                RichText(
-                                    segments = answer.structuredContent.segments,
-                                    onImageClick = { url ->
-                                        selectedImageUrl = url
-                                    }
-                                )
-                            }
-                        }
-
-                        // end
-                        item {
-                            answer.contentEnd?.let { contentEnd ->
-                                Column(modifier = Modifier.padding(20.dp)) {
-                                    val timeDisplay = when {
-                                        !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
-                                        !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
-                                        else -> ""
-                                    }
-
-                                    Text(
-                                        text = stringResource(
-                                            R.string.answer_published_format,
-                                            contentEnd.ipInfo,
-                                            timeDisplay
-                                        ),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.outline
+                                // author
+                                item {
+                                    AuthorSection(answer.author)
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(
+                                            alpha = 0.5f
+                                        )
                                     )
+                                }
+
+                                // Content
+                                item {
+                                    Box(
+                                        modifier = Modifier.padding(
+                                            horizontal = 20.dp, vertical = 16.dp
+                                        )
+                                    ) {
+                                        RichText(
+                                            segments = answer.structuredContent.segments,
+                                            onImageClick = { url ->
+                                                selectedImageUrl = url
+                                            })
+                                    }
+                                }
+
+                                // end
+                                item {
+                                    answer.contentEnd?.let { contentEnd ->
+                                        Column(modifier = Modifier.padding(20.dp)) {
+                                            val timeDisplay = when {
+                                                !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
+                                                !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
+                                                else -> ""
+                                            }
+
+                                            Text(
+                                                text = stringResource(
+                                                    R.string.answer_published_format,
+                                                    contentEnd.ipInfo,
+                                                    timeDisplay
+                                                ),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.outline
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+
             if (showCollectionSheet) {
                 CollectionDialog(
                     answerId = answerId,
                     onDismissRequest = { showCollectionSheet = false },
                     onResult = { isFavedNow ->
                         viewModel.isFaved = isFavedNow
-                    }
-                )
+                    })
             }
 
             CommentBottomSheet(
@@ -342,14 +320,11 @@ fun AnswerScreen(
                 onDismissRequest = {
                     showComments = false
                     commentViewModel.resetState()
-                }
-            )
+                })
 
             // light box
             ImageLightbox(
-                imageUrl = selectedImageUrl,
-                onDismiss = { selectedImageUrl = null }
-            )
+                imageUrl = selectedImageUrl, onDismiss = { selectedImageUrl = null })
         }
     }
 }
@@ -391,9 +366,7 @@ fun AuthorSection(author: AnswerAuthor) {
 
 @Composable
 fun AnswerBottomBar(
-    viewModel: AnswerViewModel,
-    onComment: () -> Unit = {},
-    onStar: () -> Unit = {}
+    viewModel: AnswerViewModel, onComment: () -> Unit = {}, onStar: () -> Unit = {}
 ) {
     val isUpvoted = viewModel.isUpvoted
     val isDownvoted = viewModel.isDownvoted
@@ -401,19 +374,15 @@ fun AnswerBottomBar(
     val upvoteBgColor by animateColorAsState(
         targetValue = if (isUpvoted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(
             alpha = 0.5f
-        ),
-        label = "upvoteBg"
+        ), label = "upvoteBg"
     )
     val upvoteContentColor by animateColorAsState(
-        targetValue =
-            if (isUpvoted) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (isUpvoted) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
         label = "upvoteContent"
     )
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 2.dp,
-        shadowElevation = 12.dp
+        modifier = Modifier.fillMaxWidth(), tonalElevation = 2.dp, shadowElevation = 12.dp
     ) {
         Row(
             modifier = Modifier
@@ -427,8 +396,7 @@ fun AnswerBottomBar(
                     .weight(1.4f)
                     .fillMaxHeight()
                     .clip(CircleShape)
-                    .background(upvoteBgColor),
-                verticalAlignment = Alignment.CenterVertically
+                    .background(upvoteBgColor), verticalAlignment = Alignment.CenterVertically
             ) {
                 // Upvote
                 Box(
@@ -448,8 +416,7 @@ fun AnswerBottomBar(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = stringResource(
-                                R.string.bottom_upvote,
-                                formatCount(viewModel.displayUpvoteCount)
+                                R.string.bottom_upvote, formatCount(viewModel.displayUpvoteCount)
                             ),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.ExtraBold,
@@ -498,9 +465,9 @@ fun AnswerBottomBar(
                     onClick = onStar
                 )
                 BottomActionItem(
-                    icon = Icons.AutoMirrored.Default.Comment,
-                    label = formatCount(viewModel.answer?.reaction?.statistics?.commentCount ?: 0),
-                    onClick = onComment
+                    icon = Icons.AutoMirrored.Default.Comment, label = formatCount(
+                        viewModel.answer?.reaction?.statistics?.commentCount ?: 0
+                    ), onClick = onComment
                 )
             }
         }
@@ -511,8 +478,8 @@ fun AnswerBottomBar(
 private fun BottomActionItem(
     icon: ImageVector,
     label: String,
-    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     modifier: Modifier = Modifier,
+    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: () -> Unit
 ) {
     Column(
@@ -524,8 +491,7 @@ private fun BottomActionItem(
         verticalArrangement = Arrangement.Center
     ) {
         Box(
-            modifier = Modifier.size(24.dp),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
