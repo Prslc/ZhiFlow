@@ -44,7 +44,6 @@ suspend fun voteAction(answerId: String, action: String, method: String = "POST"
             this.method = io.ktor.http.HttpMethod.parse(method)
         }
         val isSuccess = response.status.isSuccess()
-        Log.d(tag, "Voted $action ($method) on $answerId | Success: $isSuccess")
         isSuccess
     } catch (e: Exception) {
         Log.e(tag, "Vote network error: $action ($method)", e)

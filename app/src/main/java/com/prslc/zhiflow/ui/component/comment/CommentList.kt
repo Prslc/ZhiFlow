@@ -106,7 +106,10 @@ fun CommentList(
                                     CommentItem(
                                         comment = rootComment,
                                         isChild = false,
-                                        showReplyButton = false
+                                        showReplyButton = false,
+                                        onLikeClick = onLikeClick,
+                                        onAuthorClick = onAuthorClick,
+                                        onImageClick = onImageClick
                                     )
                                     HorizontalDivider(
                                         thickness = 4.dp,

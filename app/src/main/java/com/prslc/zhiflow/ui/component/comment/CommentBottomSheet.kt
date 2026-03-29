@@ -107,7 +107,9 @@ fun CommentBottomSheet(
                                 hasMore = uiState.hasMore,
                                 onLoadMore = { viewModel.loadComments(answerId) },
                                 onAuthorClick = { /* TODO */ },
-                                onLikeClick = { /* TODO */ },
+                                onLikeClick = { commentId ->
+                                    viewModel.updateCommentReaction(commentId, true)
+                                },
                                 onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 state = rootListState,
                                 onShowReplies = { root ->
@@ -132,7 +134,9 @@ fun CommentBottomSheet(
                                 hasMore = childUiState.hasMore,
                                 rootComment = childUiState.rootComment,
                                 onAuthorClick = { /* TODO */ },
-                                onLikeClick = { /* TODO */ },
+                                onLikeClick = { commentId ->
+                                    viewModel.updateCommentReaction(commentId, true)
+                                },
                                 onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 onLoadMore = {
                                     childUiState.rootComment?.let {

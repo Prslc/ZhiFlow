@@ -70,7 +70,7 @@ fun ImageLightbox(
         val dialogWindow = (dialogView.parent as? DialogWindowProvider)?.window
 
         val barsType = WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
-        
+
         // reset zoom
         LaunchedEffect(imageUrl) {
             zoomableImageState.zoomableState.resetZoom(animationSpec = androidx.compose.animation.core.snap())
