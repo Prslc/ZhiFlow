@@ -19,7 +19,8 @@ class CommentViewModel : ViewModel() {
         val totalCount: Int = 0,
         val offset: String = "",
         val hasMore: Boolean = true,
-        val error: Throwable? = null
+        val error: Throwable? = null,
+        val selectedImageUrl: String? = null
     )
 
     data class ChildCommentUiState(
@@ -38,6 +39,15 @@ class CommentViewModel : ViewModel() {
         private set
 
     private var lastLoadedAnswerId: String? = null
+
+
+    fun openImageLightbox(url: String) {
+        uiState = uiState.copy(selectedImageUrl = url)
+    }
+
+    fun closeImageLightbox() {
+        uiState = uiState.copy(selectedImageUrl = null)
+    }
 
     // load
     fun loadComments(answerId: String, forceRefresh: Boolean = false) {

@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 import kotlinx.coroutines.launch
 
@@ -69,7 +70,11 @@ fun CommentBottomSheet(
                     .fillMaxHeight(0.95f)
                     .statusBarsPadding()
             ) {
-                BackHandler(enabled = showComments && childUiState.isDetailMode) {
+                BackHandler(enabled = uiState.selectedImageUrl != null) {
+                    viewModel.closeImageLightbox()
+                }
+
+                BackHandler(enabled = showComments && childUiState.isDetailMode && uiState.selectedImageUrl == null) {
                     viewModel.backToMain()
                 }
 
@@ -103,7 +108,7 @@ fun CommentBottomSheet(
                                 onLoadMore = { viewModel.loadComments(answerId) },
                                 onAuthorClick = { /* TODO */ },
                                 onLikeClick = { /* TODO */ },
-                                onImageClick = { /* TODO */ },
+                                onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 state = rootListState,
                                 onShowReplies = { root ->
                                     scope.launch {
@@ -128,7 +133,7 @@ fun CommentBottomSheet(
                                 rootComment = childUiState.rootComment,
                                 onAuthorClick = { /* TODO */ },
                                 onLikeClick = { /* TODO */ },
-                                onImageClick = { /* TODO */ },
+                                onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 onLoadMore = {
                                     childUiState.rootComment?.let {
                                         viewModel.loadChildComments(
@@ -146,6 +151,10 @@ fun CommentBottomSheet(
             }
         }
     }
+    ImageLightbox(
+        imageUrl = uiState.selectedImageUrl,
+        onDismiss = { viewModel.closeImageLightbox() }
+    )
 }
 
 @Composable
