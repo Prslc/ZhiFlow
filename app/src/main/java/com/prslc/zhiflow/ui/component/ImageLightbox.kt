@@ -1,12 +1,6 @@
 package com.prslc.zhiflow.ui.component
 
-import android.app.Activity
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +12,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +23,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -48,62 +43,67 @@ fun ImageLightbox(
     imageUrl: String?,
     onDismiss: () -> Unit
 ) {
+    if (imageUrl == null) return
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
 
     val zoomableImageState = rememberZoomableImageState(rememberZoomableState())
-
     val successText = stringResource(R.string.lightbox_image_save_success)
     val failedText = stringResource(R.string.lightbox_image_save_failed)
 
+    val isDarkTheme = isSystemInDarkTheme()
+
     val isZoomed by remember {
-        derivedStateOf {
-            (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f
-        }
+        derivedStateOf { (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f }
     }
 
-    var activeUrl by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(imageUrl) {
-        if (imageUrl != null) activeUrl = imageUrl
-    }
-
-    AnimatedVisibility(
-        visible = imageUrl != null,
-        enter = fadeIn(tween(300)),
-        exit = fadeOut(tween(400))
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
-        val view = LocalView.current
-        val isDarkTheme = isSystemInDarkTheme()
-        val urlToShow = imageUrl ?: activeUrl
-        val window = (view.context as Activity).window
-        val controller = WindowCompat.getInsetsController(window, view)
+        val dialogView = LocalView.current
+        val dialogWindow = (dialogView.parent as? DialogWindowProvider)?.window
 
-        DisposableEffect(Unit) {
-            // Force light status bar icons for the dark background and restore system defaults on exit
-            controller.isAppearanceLightStatusBars = false
-            onDispose {
-                controller.show(WindowInsetsCompat.Type.statusBars())
-                controller.isAppearanceLightStatusBars = !isDarkTheme
-            }
+        val barsType = WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
+        
+        // reset zoom
+        LaunchedEffect(imageUrl) {
+            zoomableImageState.zoomableState.resetZoom(animationSpec = androidx.compose.animation.core.snap())
         }
 
-        LaunchedEffect(isZoomed, imageUrl) {
-            if (imageUrl != null) {
+        LaunchedEffect(isZoomed, dialogWindow) {
+            dialogWindow?.let { window ->
+                val controller = WindowCompat.getInsetsController(window, dialogView)
                 if (isZoomed) {
                     // Hide status bars during zoom for immersive viewing with swipe-to-show behavior
-                    controller.hide(WindowInsetsCompat.Type.statusBars())
-                    controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    controller.hide(barsType)
+                    controller.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 } else {
                     // Restore status bars and ensure icon visibility when image is fit to screen
-                    controller.show(WindowInsetsCompat.Type.statusBars())
+                    controller.show(barsType)
                     controller.isAppearanceLightStatusBars = false
                 }
             }
         }
 
-        urlToShow?.let { url ->
+        DisposableEffect(dialogWindow) {
+            onDispose {
+                // Force light status bar icons for the dark background and restore system defaults on exit
+                dialogWindow?.let { window ->
+                    val controller = WindowCompat.getInsetsController(window, dialogView)
+                    controller.show(WindowInsetsCompat.Type.statusBars())
+                    controller.isAppearanceLightStatusBars = !isDarkTheme
+                }
+            }
+        }
+
+        imageUrl.let { url ->
             Surface(
                 color = Color.Black,
                 modifier = Modifier.fillMaxSize()
@@ -124,12 +124,11 @@ fun ImageLightbox(
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.Center,
                         onClick = {
-                            val currentZoom = zoomableImageState.zoomableState.zoomFraction ?: 0f
-                            if (currentZoom <= 0.05f) {
+                            if (!isZoomed) {
                                 onDismiss()
                             }
                         },
-                        onLongClick = { _ ->
+                        onLongClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             scope.launch {
                                 val result = ImageSaveHelper.saveImageToGallery(context, url)
@@ -142,7 +141,7 @@ fun ImageLightbox(
                         }
                     )
 
-                    // loading
+                    // Loading
                     if (!zoomableImageState.isImageDisplayed) {
                         CircularProgressIndicator(
                             color = Color.White.copy(alpha = 0.5f),
@@ -151,13 +150,6 @@ fun ImageLightbox(
                     }
                 }
             }
-        }
-    }
-
-    // reset zoom
-    LaunchedEffect(imageUrl == null) {
-        if (imageUrl == null) {
-            zoomableImageState.zoomableState.resetZoom(animationSpec = snap())
         }
     }
 }
