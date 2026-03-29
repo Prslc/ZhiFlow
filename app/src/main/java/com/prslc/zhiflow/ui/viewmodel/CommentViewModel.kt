@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.data.model.ZhihuComment
+import com.prslc.zhiflow.data.service.commentReaction
 import com.prslc.zhiflow.data.service.getChildComments
 import com.prslc.zhiflow.data.service.getRootComments
 import kotlinx.coroutines.launch
@@ -124,6 +125,48 @@ class CommentViewModel : ViewModel() {
                 childUiState = childUiState.copy(isLoading = false)
             }
         }
+    }
+
+    fun updateCommentReaction(commentId: String, isLikeAction: Boolean) {
+        val id = uiState.comments.find { it.id == commentId }
+            ?: childUiState.comments.find { it.id == commentId }
+            ?: childUiState.rootComment?.takeIf { it.id == commentId }
+            ?: return
+
+        val action = if (isLikeAction) "like" else "unlike"
+        val isCurrentlyActive = if (isLikeAction) id.liked else false
+        val method = if (isCurrentlyActive) "DELETE" else "POST"
+
+        updateLocalStatus(commentId, isLikeAction, !isCurrentlyActive)
+
+        viewModelScope.launch {
+            val success = commentReaction(commentId, action, method)
+            if (!success) {
+                updateLocalStatus(commentId, isLikeAction, isCurrentlyActive)
+            }
+        }
+    }
+
+    private fun updateLocalStatus(id: String, isLike: Boolean, active: Boolean) {
+        val mapper = { comment: ZhihuComment ->
+            if (comment.id == id) {
+                if (isLike) {
+                    comment.copy(
+                        liked = active,
+                        likeCount = if (active) comment.likeCount + 1 else (comment.likeCount - 1).coerceAtLeast(0)
+                    )
+                } else {
+                    // TODO
+                    comment
+                }
+            } else comment
+        }
+
+        uiState = uiState.copy(comments = uiState.comments.map(mapper))
+        childUiState = childUiState.copy(
+            rootComment = childUiState.rootComment?.let(mapper),
+            comments = childUiState.comments.map(mapper)
+        )
     }
 
     fun backToMain() {

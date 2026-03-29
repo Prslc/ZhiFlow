@@ -6,6 +6,8 @@ import com.prslc.zhiflow.data.model.CommentResponse
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.request
+import io.ktor.http.isSuccess
 
 suspend fun getRootComments(
     answerId: String,
@@ -51,5 +53,22 @@ suspend fun getChildComments(
     } catch (e: Exception) {
         Log.e(tag, "Failed to fetch child comments", e)
         null
+    }
+}
+
+// Performs a like comment action (like/unlike).
+// Use method="POST" to reaction, and method="DELETE" to remove the reaction.
+suspend fun commentReaction(commentId: String, action: String, method: String = "POST"): Boolean {
+    val tag = "commentReaction"
+    return try {
+        val response = Client.client.request("reaction/comments/$commentId/$action") {
+            this.method = io.ktor.http.HttpMethod.parse(method)
+        }
+        val isSuccess = response.status.isSuccess()
+        Log.d(tag, "commentReaction $action ($method) on $commentId | Success: $isSuccess")
+        isSuccess
+    } catch (e: Exception) {
+        Log.e(tag, "commentReaction network error: $action ($method)", e)
+        false
     }
 }
