@@ -23,6 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
@@ -61,6 +65,22 @@ fun CommentList(
         else -> "EMPTY"
     }
 
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                return if (source == NestedScrollSource.UserInput && available.y < 0) {
+                    available
+                } else {
+                    Offset.Zero
+                }
+            }
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedContent(
             targetState = stateTarget,
@@ -73,7 +93,8 @@ fun CommentList(
             when (target) {
                 "CONTENT" -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
+                        .nestedScroll(nestedScrollConnection),
                         state = state
                     ) {
                         items(

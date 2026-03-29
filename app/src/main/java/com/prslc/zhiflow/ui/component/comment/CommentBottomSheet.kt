@@ -10,8 +10,11 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -58,85 +61,98 @@ fun CommentBottomSheet(
             },
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surface,
+            contentWindowInsets = { WindowInsets(0) },
+            dragHandle = null
         ) {
-            BackHandler(enabled = showComments && childUiState.isDetailMode) {
-                viewModel.backToMain()
-            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.95f)
+                    .statusBarsPadding()
+            ) {
+                BackHandler(enabled = showComments && childUiState.isDetailMode) {
+                    viewModel.backToMain()
+                }
 
-            AnimatedContent(
-                targetState = childUiState.isDetailMode,
-                transitionSpec = {
-                    if (targetState) {
-                        (slideInHorizontally { it } + fadeIn()) togetherWith
-                                (slideOutHorizontally { -it } + fadeOut())
-                    } else {
-                        (slideInHorizontally { -it } + fadeIn()) togetherWith
-                                (slideOutHorizontally { it } + fadeOut())
-                    }
-                },
-                label = "CommentSheetTransition"
-            ) { isDetail ->
-                if (!isDetail) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        CommentHeader(
-                            title = stringResource(R.string.comment_count, uiState.totalCount),
-                            onClose = {
-                                scope.launch { sheetState.hide() }
-                                    .invokeOnCompletion { onDismissRequest() }
-                            }
-                        )
-                        CommentList(
-                            modifier = Modifier.weight(1f),
-                            comments = uiState.comments,
-                            isLoading = uiState.isLoading,
-                            hasMore = uiState.hasMore,
-                            onLoadMore = { viewModel.loadComments(answerId) },
-                            onAuthorClick = { /* TODO */ },
-                            onLikeClick = { /* TODO */ },
-                            onImageClick = { /* TODO */ },
-                            state = rootListState,
-                            onShowReplies = { root ->
-                                viewModel.loadChildComments(
-                                    root,
-                                    forceRefresh = true
-                                )
-                            }
-                        )
-                    }
-                } else {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        CommentHeader(
-                            title = stringResource(R.string.comment_reply_detail),
-                            onClose = { viewModel.backToMain() },
-                            isBackStyle = true
-                        )
-
-                        childUiState.rootComment?.let { root ->
-                            CommentItem(comment = root, isChild = false, showReplyButton = false)
-                            HorizontalDivider(
-                                thickness = 3.dp,
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            )
+                AnimatedContent(
+                    targetState = childUiState.isDetailMode,
+                    transitionSpec = {
+                        if (targetState) {
+                            (slideInHorizontally { it } + fadeIn()) togetherWith
+                                    (slideOutHorizontally { -it } + fadeOut())
+                        } else {
+                            (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                    (slideOutHorizontally { it } + fadeOut())
                         }
-
-                        CommentList(
-                            comments = childUiState.comments,
-                            isLoading = childUiState.isLoading,
-                            hasMore = childUiState.hasMore,
-                            onAuthorClick = { /* TODO */ },
-                            onLikeClick = { /* TODO */ },
-                            onImageClick = { /* TODO */ },
-                            onLoadMore = {
-                                childUiState.rootComment?.let {
+                    },
+                    label = "CommentSheetTransition"
+                ) { isDetail ->
+                    if (!isDetail) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            CommentHeader(
+                                title = stringResource(R.string.comment_count, uiState.totalCount),
+                                onClose = {
+                                    scope.launch { sheetState.hide() }
+                                        .invokeOnCompletion { onDismissRequest() }
+                                }
+                            )
+                            CommentList(
+                                modifier = Modifier.weight(1f),
+                                comments = uiState.comments,
+                                isLoading = uiState.isLoading,
+                                hasMore = uiState.hasMore,
+                                onLoadMore = { viewModel.loadComments(answerId) },
+                                onAuthorClick = { /* TODO */ },
+                                onLikeClick = { /* TODO */ },
+                                onImageClick = { /* TODO */ },
+                                state = rootListState,
+                                onShowReplies = { root ->
                                     viewModel.loadChildComments(
-                                        it
+                                        root,
+                                        forceRefresh = true
                                     )
                                 }
-                            },
-                            state = childListState,
-                            isChild = true,
-                            modifier = Modifier.weight(1f)
-                        )
+                            )
+                        }
+                    } else {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            CommentHeader(
+                                title = stringResource(R.string.comment_reply_detail),
+                                onClose = { viewModel.backToMain() },
+                                isBackStyle = true
+                            )
+
+                            childUiState.rootComment?.let { root ->
+                                CommentItem(
+                                    comment = root,
+                                    isChild = false,
+                                    showReplyButton = false
+                                )
+                                HorizontalDivider(
+                                    thickness = 3.dp,
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                )
+                            }
+
+                            CommentList(
+                                comments = childUiState.comments,
+                                isLoading = childUiState.isLoading,
+                                hasMore = childUiState.hasMore,
+                                onAuthorClick = { /* TODO */ },
+                                onLikeClick = { /* TODO */ },
+                                onImageClick = { /* TODO */ },
+                                onLoadMore = {
+                                    childUiState.rootComment?.let {
+                                        viewModel.loadChildComments(
+                                            it
+                                        )
+                                    }
+                                },
+                                state = childListState,
+                                isChild = true,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }
