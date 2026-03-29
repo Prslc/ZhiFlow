@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,7 @@ import com.prslc.zhiflow.ui.component.common.LoadingView
 fun CommentList(
     modifier: Modifier = Modifier,
     comments: List<ZhihuComment>,
+    rootComment: ZhihuComment? = null,
     isLoading: Boolean,             // track loading state
     hasMore: Boolean,               // check if pagination ended
     onLoadMore: () -> Unit,         // trigger next page
@@ -97,6 +99,23 @@ fun CommentList(
                         .nestedScroll(nestedScrollConnection),
                         state = state
                     ) {
+                        // Pin
+                        if (rootComment != null) {
+                            item(key = "root_${rootComment.id}") {
+                                Column {
+                                    CommentItem(
+                                        comment = rootComment,
+                                        isChild = false,
+                                        showReplyButton = false
+                                    )
+                                    HorizontalDivider(
+                                        thickness = 4.dp,
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                    )
+                                }
+                            }
+                        }
+
                         items(
                             items = comments,
                             key = { it.id }

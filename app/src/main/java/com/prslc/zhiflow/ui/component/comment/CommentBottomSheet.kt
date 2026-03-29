@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -107,10 +106,10 @@ fun CommentBottomSheet(
                                 onImageClick = { /* TODO */ },
                                 state = rootListState,
                                 onShowReplies = { root ->
-                                    viewModel.loadChildComments(
-                                        root,
-                                        forceRefresh = true
-                                    )
+                                    scope.launch {
+                                        childListState.scrollToItem(0)
+                                    }
+                                    viewModel.loadChildComments(root, forceRefresh = true)
                                 }
                             )
                         }
@@ -122,22 +121,11 @@ fun CommentBottomSheet(
                                 isBackStyle = true
                             )
 
-                            childUiState.rootComment?.let { root ->
-                                CommentItem(
-                                    comment = root,
-                                    isChild = false,
-                                    showReplyButton = false
-                                )
-                                HorizontalDivider(
-                                    thickness = 3.dp,
-                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                                )
-                            }
-
                             CommentList(
                                 comments = childUiState.comments,
                                 isLoading = childUiState.isLoading,
                                 hasMore = childUiState.hasMore,
+                                rootComment = childUiState.rootComment,
                                 onAuthorClick = { /* TODO */ },
                                 onLikeClick = { /* TODO */ },
                                 onImageClick = { /* TODO */ },
