@@ -1,12 +1,18 @@
 package com.prslc.zhiflow.ui.component.comment
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -17,76 +23,112 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
+import com.prslc.zhiflow.ui.component.common.EmptyView
+import com.prslc.zhiflow.ui.component.common.LoadingView
 
 @Composable
 fun CommentList(
+    modifier: Modifier = Modifier,
     comments: List<ZhihuComment>,
     isLoading: Boolean,             // track loading state
     hasMore: Boolean,               // check if pagination ended
     onLoadMore: () -> Unit,         // trigger next page
-    modifier: Modifier = Modifier,
+    state: LazyListState,
     isChild: Boolean = false,
     onAuthorClick: (String) -> Unit = {},
     onLikeClick: (String) -> Unit = {},
     onImageClick: (String) -> Unit = {},
     onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
-    val listState = rememberLazyListState()
 
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val totalItemsNumber = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-
-            lastVisibleItemIndex > (totalItemsNumber - 3) && totalItemsNumber > 0
-        }
+    val lastIndex by remember {
+        derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }
     }
 
-    LaunchedEffect(shouldLoadMore, isLoading) {
-        if (shouldLoadMore && !isLoading && hasMore) {
+    LaunchedEffect(lastIndex) {
+        if (comments.isNotEmpty() && lastIndex >= comments.size - 8 && !isLoading && hasMore) {
             onLoadMore()
         }
     }
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        state = listState
-    ) {
-        items(
-            items = comments,
-            key = { it.id }
-        ) { comment ->
-            CommentItem(
-                comment = comment,
-                isChild = isChild,
-                onShowReplies = onShowReplies,
-                onAuthorClick = onAuthorClick,
-                onLikeClick = onLikeClick,
-                onImageClick = onImageClick
-            )
+    val stateTarget = when {
+        isLoading && comments.isEmpty() -> "LOADING"
+        comments.isNotEmpty() -> "CONTENT"
+        else -> "EMPTY"
+    }
 
-            HorizontalDivider(
-                thickness = 0.5.dp,
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-            )
-        }
+    Box(modifier = modifier.fillMaxSize()) {
+        AnimatedContent(
+            targetState = stateTarget,
+            contentKey = { it },
+            transitionSpec = {
+                fadeIn().togetherWith(fadeOut())
+            },
+            label = "CommentListStatusTransition"
+        ) { target ->
+            when (target) {
+                "CONTENT" -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        state = state
+                    ) {
+                        items(
+                            items = comments,
+                            key = { it.id }
+                        ) { comment ->
+                            CommentItem(
+                                comment = comment,
+                                isChild = isChild,
+                                onShowReplies = onShowReplies,
+                                onAuthorClick = onAuthorClick,
+                                onLikeClick = onLikeClick,
+                                onImageClick = onImageClick
+                            )
+                            HorizontalDivider(
+                                thickness = 0.5.dp,
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
 
-        // Loading Footer
-        if (isLoading && hasMore) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.padding(8.dp)
+                        if (isLoading && comments.isNotEmpty()) {
+                            item(key = "loading_footer") {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                "LOADING" -> {
+                    LoadingView(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
+                    )
+                }
+
+                "EMPTY" -> {
+                    EmptyView(
+                        message = if (isChild) stringResource(R.string.comment_empty_child) else stringResource(
+                            R.string.comment_empty_root
+                        ),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
                     )
                 }
             }

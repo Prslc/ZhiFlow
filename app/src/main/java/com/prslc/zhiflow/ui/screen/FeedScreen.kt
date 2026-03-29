@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.data.exception.uiMessage
-import com.prslc.zhiflow.ui.component.ErrorView
+import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.component.ZhihuFeedItem
 import com.prslc.zhiflow.ui.viewmodel.FeedViewModel

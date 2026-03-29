@@ -28,7 +28,7 @@ class CommentViewModel : ViewModel() {
         val rootComment: ZhihuComment? = null,
         val offset: String = "",
         val hasMore: Boolean = true,
-        val showSheet: Boolean = false
+        val isDetailMode: Boolean = false
     )
 
     var uiState by mutableStateOf(CommentUiState())
@@ -37,40 +37,43 @@ class CommentViewModel : ViewModel() {
     var childUiState by mutableStateOf(ChildCommentUiState())
         private set
 
+    private var lastLoadedAnswerId: String? = null
+
     // load
     fun loadComments(answerId: String, forceRefresh: Boolean = false) {
-        if (forceRefresh) {
-            uiState = CommentUiState()
+        if (!forceRefresh && answerId == lastLoadedAnswerId && uiState.comments.isNotEmpty()) return
+        if (uiState.isLoading && !forceRefresh) return
+
+        val isNewOrRefresh = forceRefresh || answerId != lastLoadedAnswerId
+        if (isNewOrRefresh) {
+            lastLoadedAnswerId = answerId
+            uiState = uiState.copy(
+                isLoading = true,
+                comments = emptyList(),
+                offset = "",
+                hasMore = true
+            )
+        } else {
+            uiState = uiState.copy(isLoading = true)
         }
 
-        if (uiState.isLoading || (!uiState.hasMore && !forceRefresh)) return
-
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
             try {
-                val response = getRootComments(
-                    answerId = answerId,
-                    offset = uiState.offset,
-                    limit = 20
-                )
-
+                val response = getRootComments(answerId, uiState.offset)
                 if (response != null) {
-                    val newComments = uiState.comments + response.data
-
-                    val nextOffset =
-                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
 
                     uiState = uiState.copy(
-                        comments = newComments,
+                        comments = if (isNewOrRefresh) response.data else (uiState.comments + response.data).distinctBy { it.id },
                         totalCount = response.counts.total,
                         offset = nextOffset,
                         hasMore = hasNext,
                         isLoading = false
                     )
                 }
-            } finally {
-                uiState = uiState.copy(isLoading = false)
+            } catch (e: Exception) {
+                uiState = uiState.copy(isLoading = false, error = e)
             }
         }
     }
@@ -79,7 +82,7 @@ class CommentViewModel : ViewModel() {
         if (forceRefresh) {
             childUiState = ChildCommentUiState(
                 rootComment = rootComment,
-                showSheet = true,
+                isDetailMode = true,
                 isLoading = true,
                 comments = emptyList(),
                 hasMore = true,
@@ -87,19 +90,18 @@ class CommentViewModel : ViewModel() {
             )
         }
 
-        if (childUiState.isLoading && !forceRefresh || (!childUiState.hasMore && !forceRefresh)) return
+        if (childUiState.isLoading && !forceRefresh) return
 
         viewModelScope.launch {
-            childUiState = childUiState.copy(isLoading = true)
+            if (!forceRefresh) childUiState = childUiState.copy(isLoading = true)
 
             try {
                 val currentOffset = if (forceRefresh) "" else childUiState.offset
                 val response = getChildComments(rootCommentId = rootComment.id, offset = currentOffset)
 
                 if (response != null) {
-                    val paging = response.paging
-                    val nextOffset = paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
-                    val hasNext = paging?.isEnd == false
+                    val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val hasNext = response.paging?.isEnd == false
 
                     childUiState = childUiState.copy(
                         comments = if (forceRefresh) response.data else childUiState.comments + response.data,
@@ -108,17 +110,24 @@ class CommentViewModel : ViewModel() {
                         isLoading = false
                     )
                 }
-            } finally {
+            } catch (e: Exception) {
                 childUiState = childUiState.copy(isLoading = false)
             }
         }
     }
 
-    fun dismissChildSheet() {
-        childUiState = childUiState.copy(showSheet = false)
+    fun backToMain() {
+        childUiState = childUiState.copy(
+            isDetailMode = false,
+            rootComment = null
+        )
     }
 
     fun resetState() {
         uiState = CommentUiState()
+    }
+
+    fun onSheetDismissed() {
+        childUiState = ChildCommentUiState()
     }
 }

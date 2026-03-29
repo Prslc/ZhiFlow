@@ -73,4 +73,6 @@
     <string name="comment_reply_detail">回复详情</string>
     <string name="comment_reply_count">%1$d 条回复</string>
     <string name="comment_reply_count_with_arrow">%1$d 条回复 &gt;</string>
+    <string name="comment_empty_root">暂无评论，快来抢沙发</string>
+    <string name="comment_empty_child">暂无回复</string>
 </resources>
