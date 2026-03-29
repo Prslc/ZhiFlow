@@ -106,6 +106,8 @@ dependencies {
     // Utils
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.jsoup)
     implementation(libs.telephoto.zoomable.image.coil)
 }

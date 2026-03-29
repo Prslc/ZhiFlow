@@ -75,4 +75,7 @@
     <string name="comment_reply_count_with_arrow">%1$d 条回复 &gt;</string>
     <string name="comment_empty_root">暂无评论，快来抢沙发</string>
     <string name="comment_empty_child">暂无回复</string>
+
+    <!-- RichText -->
+    <string name="richtext_references">参考</string>
 </resources>

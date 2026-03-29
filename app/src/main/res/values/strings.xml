@@ -74,4 +74,7 @@
     <string name="comment_reply_count_with_arrow">%1$d replies &gt;</string>
     <string name="comment_empty_root">No comments yet. Be the first to comment!</string>
     <string name="comment_empty_child">No replies yet</string>
+
+    <!-- RichText -->
+    <string name="richtext_references">References</string>
 </resources>

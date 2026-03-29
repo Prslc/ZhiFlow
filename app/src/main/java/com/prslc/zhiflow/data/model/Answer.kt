@@ -76,25 +76,12 @@ data class ContentEndInfo(
 )
 
 @Serializable
-data class StructuredContent(
-    val segments: List<Segment>
-)
-
-@Serializable
-data class Segment(
-    val type: String,
-    val paragraph: Paragraph? = null,
-    val image: ZhihuImage? = null
-)
-
-@Serializable
-data class Paragraph(val text: String = "")
-
-@Serializable
 data class ZhihuImage(
+    val description: String,
     val urls: List<String>,
     val width: Int,
-    val height: Int
+    val height: Int,
+    @SerialName("is_gif") val isGif: Boolean,
 )
 
 @Serializable

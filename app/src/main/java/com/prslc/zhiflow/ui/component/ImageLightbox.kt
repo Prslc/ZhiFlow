@@ -29,12 +29,13 @@ import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import coil.request.ImageRequest
-import coil.size.Size
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.size.Size
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.utils.ImageSaveHelper
 import kotlinx.coroutines.launch
-import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
+import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
 
