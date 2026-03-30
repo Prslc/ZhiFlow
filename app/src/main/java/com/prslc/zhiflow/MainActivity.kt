@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.navigation.AnswerDetail
 import com.prslc.zhiflow.ui.navigation.ArticleDetail
 import com.prslc.zhiflow.ui.navigation.DebugTab
@@ -111,7 +112,7 @@ class MainActivity : ComponentActivity() {
                             val route: AnswerDetail = backStackEntry.toRoute()
                             ContentDetailScreen(
                                 id = route.id,
-                                contentType = "answer",
+                                contentType = ContentType.ANSWER,
                                 onBack = { navController.popBackStack() }
                             )
                         }
@@ -120,7 +121,7 @@ class MainActivity : ComponentActivity() {
                             val route: ArticleDetail = backStackEntry.toRoute()
                             ContentDetailScreen(
                                 id = route.id,
-                                contentType = "article",
+                                contentType = ContentType.ARTICLE,
                                 onBack = { navController.popBackStack() }
                             )
                         }

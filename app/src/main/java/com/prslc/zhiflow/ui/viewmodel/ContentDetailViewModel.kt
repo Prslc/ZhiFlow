@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.data.exception.ApiException
 import com.prslc.zhiflow.data.exception.toApiException
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.ZhihuContent
 import com.prslc.zhiflow.data.service.addReadHistory
@@ -37,17 +38,16 @@ class ContentViewModel : ViewModel() {
      * @param id Content ID
      * @param type "answer" or "article"
      */
-    fun loadContent(id: String, type: String) {
+    fun loadContent(id: String, type: ContentType) {
         if (isLoading) return
         resetStates()
         isLoading = true
 
         viewModelScope.launch {
             try {
-                val result: ZhihuContent? = when (type.lowercase()) {
-                    "article" -> getArticleDetail(id)
-                    "answer" -> getAnswerDetail(id)
-                    else -> null
+                val result: ZhihuContent? = when (type) {
+                    ContentType.ARTICLE -> getArticleDetail(id)
+                    ContentType.ANSWER -> getAnswerDetail(id)
                 }
 
                 content = result
@@ -67,10 +67,8 @@ class ContentViewModel : ViewModel() {
 
 
     // vote
-    fun updateVote(targetAction: String) {
+    fun updateVote(targetAction: String, contentType: ContentType) {
         val id = content?.id ?: return
-        val type =
-            if (content is com.prslc.zhiflow.data.model.ZhihuArticle) "articles" else "answers"
 
         val isActive = if (targetAction == "up") isUpvoted else isDownvoted
         val method = if (isActive) "DELETE" else "POST"
@@ -92,16 +90,16 @@ class ContentViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            voteAction(id, targetAction, method)
+            voteAction(id, contentType, targetAction, method)
         }
     }
 
 
-    fun updateReadProgress(contentToken: String, contentType: String, progress: Int) {
+    fun updateReadProgress(contentToken: String, contentType: ContentType, progress: Int) {
         viewModelScope.launch {
             withContext(NonCancellable) {
                 try {
-                    addReadHistory(ReadHistoryRequest(contentToken, contentType, progress))
+                    addReadHistory(ReadHistoryRequest(contentToken, contentType.type, progress))
                 } catch (e: Exception) {
                     throw  e
                 }

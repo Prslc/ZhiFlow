@@ -2,6 +2,7 @@ package com.prslc.zhiflow.data.service
 
 import com.prslc.zhiflow.data.api.Client
 import com.prslc.zhiflow.data.model.CollectionResponse
+import com.prslc.zhiflow.data.model.ContentType
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
@@ -16,11 +17,13 @@ import io.ktor.http.isSuccess
  * @param id Content ID
  * @param contentType "answer" or "article"
  */
-suspend fun getCollectionsForContent(id: String, contentType: String): CollectionResponse? {
-    val typePath = if (contentType.lowercase().contains("article")) "article" else "answer"
+suspend fun getCollectionsForContent(
+    id: String,
+    contentType: ContentType
+): CollectionResponse? {
 
     return try {
-        val response = Client.client.get("collections/contents/$typePath/$id") {
+        val response = Client.client.get("collections/contents/${contentType.type}/$id") {
             parameter("ever_top", 1)
         }
 
@@ -41,14 +44,13 @@ suspend fun getCollectionsForContent(id: String, contentType: String): Collectio
  */
 suspend fun updateContentCollections(
     id: String,
-    contentType: String,
+    contentType: ContentType,
     addIds: List<Long>,
     removeIds: List<Long>
 ): Boolean {
-    val typePath = if (contentType.lowercase().contains("article")) "article" else "answer"
 
     return try {
-        val response = Client.client.put("v2/collections/contents/$typePath/$id") {
+        val response = Client.client.put("v2/collections/contents/${contentType.type}/$id") {
             setBody(FormDataContent(Parameters.build {
                 if (addIds.isNotEmpty()) {
                     append("add_collections", addIds.joinToString(","))

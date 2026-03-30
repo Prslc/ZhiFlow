@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 import kotlinx.coroutines.launch
@@ -41,8 +42,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentBottomSheet(
-    viewModel: CommentViewModel,
     id: String,
+    contentType: ContentType,
+    viewModel: CommentViewModel,
     showComments: Boolean,
     onDismissRequest: () -> Unit,
 ) {
@@ -105,7 +107,7 @@ fun CommentBottomSheet(
                                 comments = uiState.comments,
                                 isLoading = uiState.isLoading,
                                 hasMore = uiState.hasMore,
-                                onLoadMore = { viewModel.loadComments(id) },
+                                onLoadMore = { viewModel.loadComments(id, contentType) },
                                 onAuthorClick = { /* TODO */ },
                                 onLikeClick = { commentId ->
                                     viewModel.updateCommentReaction(commentId, true)

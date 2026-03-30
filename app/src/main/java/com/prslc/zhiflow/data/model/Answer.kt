@@ -14,7 +14,7 @@ data class ZhihuAnswer(
     @SerialName("structured_content") override val structuredContent: StructuredContent
 ) : ZhihuContent {
     override val displayTitle: String
-        get() = question?.title ?: ""
+        get() = question?.title ?: "No title"
 }
 
 @Serializable
