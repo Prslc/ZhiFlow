@@ -15,6 +15,10 @@ import io.ktor.client.request.setBody
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
+/**
+ * Add read history record
+ * @param request Read history request body
+ */
 suspend fun addReadHistory(request: ReadHistoryRequest): Boolean {
     val tag = "addReadHistory"
     return try {
@@ -35,8 +39,12 @@ suspend fun addReadHistory(request: ReadHistoryRequest): Boolean {
     }
 }
 
-// Performs a vote action (up/down).
-// Use method="POST" to vote, and method="DELETE" to remove the vote.
+/**
+ * Perform vote action (up/down)
+ * @param answerId Answer ID
+ * @param action Vote type (e.g., "up", "down")
+ * @param method "POST" to vote, "DELETE" to remove vote
+ */
 suspend fun voteAction(answerId: String, action: String, method: String = "POST"): Boolean {
     val tag = "voteService"
     return try {

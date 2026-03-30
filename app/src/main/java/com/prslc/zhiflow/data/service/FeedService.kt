@@ -7,6 +7,11 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
+/**
+ * Fetch recommended feed (supports pagination)
+ * @param limit Number of items (first page only)
+ * @param nextUrl Next page URL, null for first page
+ */
 suspend fun getRecommendFeed(limit: Int = 10, nextUrl: String? = null): ZhihuResponse? {
     val tag = "feedService"
     return try {

@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CommentBottomSheet(
     viewModel: CommentViewModel,
-    answerId: String,
+    id: String,
     showComments: Boolean,
     onDismissRequest: () -> Unit,
 ) {
@@ -105,7 +105,7 @@ fun CommentBottomSheet(
                                 comments = uiState.comments,
                                 isLoading = uiState.isLoading,
                                 hasMore = uiState.hasMore,
-                                onLoadMore = { viewModel.loadComments(answerId) },
+                                onLoadMore = { viewModel.loadComments(id) },
                                 onAuthorClick = { /* TODO */ },
                                 onLikeClick = { commentId ->
                                     viewModel.updateCommentReaction(commentId, true)

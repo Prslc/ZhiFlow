@@ -9,6 +9,13 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.http.isSuccess
 
+/**
+ * Fetch root comments of an answer (supports pagination)
+ * @param answerId Answer ID
+ * @param offset Pagination offset
+ * @param orderBy Sorting method (e.g., "score", "ts")
+ * @param limit Number of comments per request
+ */
 suspend fun getRootComments(
     answerId: String,
     offset: String = "",
@@ -35,6 +42,12 @@ suspend fun getRootComments(
     }
 }
 
+/**
+ * Fetch child comments of a root comment (supports pagination)
+ * @param rootCommentId Root comment ID
+ * @param offset Pagination offset
+ * @param limit Number of comments per request
+ */
 suspend fun getChildComments(
     rootCommentId: String,
     offset: String = "",
@@ -56,8 +69,12 @@ suspend fun getChildComments(
     }
 }
 
-// Performs a like comment action (like/unlike).
-// Use method="POST" to reaction, and method="DELETE" to remove the reaction.
+/**
+ * Perform comment reaction (like/unlike)
+ * @param commentId Comment ID
+ * @param action Reaction type (e.g., "like")
+ * @param method "POST" to like, "DELETE" to unlike
+ */
 suspend fun commentReaction(commentId: String, action: String, method: String = "POST"): Boolean {
     val tag = "commentReaction"
     return try {

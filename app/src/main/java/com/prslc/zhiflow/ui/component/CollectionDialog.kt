@@ -100,13 +100,14 @@ fun CollectionItem(
 
 @Composable
 fun CollectionDialog(
-    answerId: String,
+    id: String,
+    contentType: String,
     onDismissRequest: () -> Unit,
     onResult: (Boolean) -> Unit,
     viewModel: CollectionViewModel = viewModel()
 ) {
-    LaunchedEffect(answerId) {
-        viewModel.loadCollections(answerId)
+    LaunchedEffect(id) {
+        viewModel.loadCollections(id, contentType)
     }
 
     Dialog(onDismissRequest = onDismissRequest) {
@@ -182,7 +183,7 @@ fun CollectionDialog(
                     Spacer(Modifier.width(8.dp))
                     TextButton(
                         onClick = {
-                            viewModel.updateCollectionStatus(answerId) { isFaved ->
+                            viewModel.updateCollectionStatus(id, contentType) { isFaved ->
                                 onResult(isFaved)
                                 onDismissRequest()
                             }

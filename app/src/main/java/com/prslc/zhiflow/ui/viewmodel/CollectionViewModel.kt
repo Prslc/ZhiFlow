@@ -7,7 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.data.model.ZhihuCollection
-import com.prslc.zhiflow.data.service.CollectionService
+import com.prslc.zhiflow.data.service.getCollectionsForContent
+import com.prslc.zhiflow.data.service.updateContentCollections
 import kotlinx.coroutines.launch
 
 class CollectionViewModel : ViewModel() {
@@ -18,10 +19,10 @@ class CollectionViewModel : ViewModel() {
 
     var isLoading by mutableStateOf(false)
 
-    fun loadCollections(contentId: String) {
+    fun loadCollections(contentId: String, contentType: String) {
         viewModelScope.launch {
             isLoading = true
-            val response = CollectionService.getCollectionsForAnswer(contentId)
+            val response = getCollectionsForContent(contentId, contentType)
             collectionList = response?.data ?: emptyList()
 
             tempSelectedIds.clear()
@@ -31,7 +32,7 @@ class CollectionViewModel : ViewModel() {
     }
 
     // submit
-    fun updateCollectionStatus(contentId: String, onComplete: (Boolean) -> Unit) {
+    fun updateCollectionStatus(contentId: String, contentType: String, onComplete: (Boolean) -> Unit) {
         val initialIds = collectionList.filter { it.isFavorited }.map { it.id }.toSet()
         val currentIds = tempSelectedIds.toSet()
 
@@ -44,10 +45,10 @@ class CollectionViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            val success = CollectionService.updateAnswerCollections(contentId, addIds, removeIds)
+            val success = updateContentCollections(contentId, contentType, addIds, removeIds)
             if (success) {
                 onComplete(currentIds.isNotEmpty())
-                loadCollections(contentId)
+                loadCollections(contentId, contentType)
             }
         }
     }
