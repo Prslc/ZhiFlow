@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuCollection
 import com.prslc.zhiflow.data.service.getCollectionsForContent
 import com.prslc.zhiflow.data.service.updateContentCollections
@@ -19,7 +20,7 @@ class CollectionViewModel : ViewModel() {
 
     var isLoading by mutableStateOf(false)
 
-    fun loadCollections(contentId: String, contentType: String) {
+    fun loadCollections(contentId: String, contentType: ContentType) {
         viewModelScope.launch {
             isLoading = true
             val response = getCollectionsForContent(contentId, contentType)
@@ -32,7 +33,7 @@ class CollectionViewModel : ViewModel() {
     }
 
     // submit
-    fun updateCollectionStatus(contentId: String, contentType: String, onComplete: (Boolean) -> Unit) {
+    fun updateCollectionStatus(contentId: String, contentType: ContentType, onComplete: (Boolean) -> Unit) {
         val initialIds = collectionList.filter { it.isFavorited }.map { it.id }.toSet()
         val currentIds = tempSelectedIds.toSet()
 

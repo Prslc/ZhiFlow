@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.data.service.commentReaction
 import com.prslc.zhiflow.data.service.getChildComments
@@ -51,7 +52,7 @@ class CommentViewModel : ViewModel() {
     }
 
     // load
-    fun loadComments(answerId: String, forceRefresh: Boolean = false) {
+    fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
         if (!forceRefresh && answerId == lastLoadedAnswerId && uiState.comments.isNotEmpty()) return
         if (uiState.isLoading && !forceRefresh) return
 
@@ -70,7 +71,7 @@ class CommentViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = getRootComments(answerId, uiState.offset)
+                val response = getRootComments(answerId, contentType, uiState.offset)
                 if (response != null) {
                     val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false

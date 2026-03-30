@@ -57,6 +57,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.RichText
@@ -70,7 +71,7 @@ import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 @Composable
 fun ContentDetailScreen(
     id: String,
-    contentType: String,
+    contentType: ContentType,
     onBack: () -> Unit,
     viewModel: ContentViewModel = viewModel(),
     commentViewModel: CommentViewModel = viewModel()
@@ -82,7 +83,7 @@ fun ContentDetailScreen(
 
     LaunchedEffect(showComments) {
         if (showComments && commentState.comments.isEmpty()) {
-            commentViewModel.loadComments(id)
+            commentViewModel.loadComments(id, contentType)
         }
     }
 
@@ -120,11 +121,11 @@ fun ContentDetailScreen(
     }
 
     DisposableEffect(id) {
-        viewModel.updateReadProgress(id, "answer", 0)
+        viewModel.updateReadProgress(id, contentType, 0)
 
         onDispose {
             if (currentProgress > 0) {
-                viewModel.updateReadProgress(id, "answer", currentProgress)
+                viewModel.updateReadProgress(id, contentType, currentProgress)
             }
         }
     }
@@ -212,7 +213,7 @@ fun ContentDetailScreen(
                                 upvoteCount = viewModel.displayUpvoteCount,
                                 favCount = viewModel.content?.reaction?.statistics?.favoritesCount ?: 0,
                                 commentCount = viewModel.content?.reaction?.statistics?.commentCount ?: 0,
-                                onVoteClick = { type -> viewModel.updateVote(type) },
+                                onVoteClick = { type -> viewModel.updateVote(type, contentType) },
                                 onStarClick = { showCollectionSheet = true },
                                 onCommentClick = { showComments = true }
                             )
@@ -309,6 +310,7 @@ fun ContentDetailScreen(
 
             CommentBottomSheet(
                 id = id,
+                contentType = contentType,
                 viewModel = commentViewModel,
                 showComments = showComments,
                 onDismissRequest = {

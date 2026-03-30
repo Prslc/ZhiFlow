@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.viewmodel.CollectionViewModel
 
 @Composable
@@ -101,7 +102,7 @@ fun CollectionItem(
 @Composable
 fun CollectionDialog(
     id: String,
-    contentType: String,
+    contentType: ContentType,
     onDismissRequest: () -> Unit,
     onResult: (Boolean) -> Unit,
     viewModel: CollectionViewModel = viewModel()

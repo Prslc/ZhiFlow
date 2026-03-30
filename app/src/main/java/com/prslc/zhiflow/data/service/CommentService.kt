@@ -3,6 +3,7 @@ package com.prslc.zhiflow.data.service
 import android.util.Log
 import com.prslc.zhiflow.data.api.Client
 import com.prslc.zhiflow.data.model.CommentResponse
+import com.prslc.zhiflow.data.model.ContentType
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -18,13 +19,15 @@ import io.ktor.http.isSuccess
  */
 suspend fun getRootComments(
     answerId: String,
+    contentType: ContentType,
     offset: String = "",
     orderBy: String = "score",
     limit: Int = 20
 ): CommentResponse? {
+
     val tag = "commentService"
     return try {
-        val response = Client.client.get("comment_v5/answers/$answerId/root_comment") {
+        val response = Client.client.get("comment_v5/${contentType.apiPath}/$answerId/root_comment") {
             parameter("order_by", orderBy)
             parameter("limit", limit)
             parameter("offset", offset)
@@ -37,7 +40,7 @@ suspend fun getRootComments(
 
         response.body<CommentResponse>()
     } catch (e: Exception) {
-        Log.e(tag, "Failed to fetch comments for answer: $answerId", e)
+        Log.e(tag, "Failed to fetch comments $answerId", e)
         throw e
     }
 }
