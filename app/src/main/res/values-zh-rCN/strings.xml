@@ -5,6 +5,7 @@
     <!-- general -->
     <string name="general_back">返回</string>
     <string name="general_loading">加载中…</string>
+    <string name="published_format">发布于 %1$s · %2$s</string>
 
     <!-- error box -->
     <string name="error_load_failed">加载失败</string>

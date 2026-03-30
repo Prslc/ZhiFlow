@@ -10,3 +10,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable object Settings
 @Serializable data class AnswerDetail(val id: String)
+@Serializable data class ArticleDetail(val id: String)

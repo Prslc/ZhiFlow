@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.QuestionAnswer
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -25,59 +25,86 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DebugScreen(
-    onNavigateToAnswer: (String, String) -> Unit
+    onNavigateToContent: (String, String) -> Unit
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-    var answerId by remember { mutableStateOf("") }
+    var activeDialogType by remember { mutableStateOf<String?>(null) }
+    var inputId by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        ListItem(
-            headlineContent = { Text("测试回答页面") },
-            supportingContent = { Text("通过 Answer ID 直接跳转") },
-            leadingContent = { Icon(Icons.Default.QuestionAnswer, null) },
-            modifier = Modifier.clickable { showDialog = true }
+        DebugItem(
+            title = "Test Answer Page",
+            subtitle = "Jump directly via Answer ID",
+            onClick = {
+                activeDialogType = "answer"
+                inputId = ""
+            }
+        )
+
+        DebugItem(
+            title = "Test Article Page",
+            subtitle = "Jump directly via Article ID",
+            onClick = {
+                activeDialogType = "article"
+                inputId = ""
+            }
         )
     }
 
-    if (showDialog) {
+    // Dialog
+    activeDialogType?.let { type ->
+        val isArticle = type == "article"
+        val label = if (isArticle) "Article" else "Answer"
+
         AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("跳转至指定回答") },
+            onDismissRequest = { activeDialogType = null },
+            title = { Text("Navigate to $label") },
             text = {
                 Column {
-                    Text("请输入回答 ID (例如: 2001212055)",
-                        style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = "Enter the target $label ID below",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = answerId,
-                        onValueChange = { answerId = it },
-                        label = { Text("Answer ID") },
-                        singleLine = true,
-                        placeholder = { Text("输入 ID...") }
+                        value = inputId,
+                        onValueChange = { inputId = it },
+                        label = { Text("$label ID") },
+                        placeholder = { Text("e.g. 123456") },
+                        singleLine = true
                     )
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (answerId.isNotBlank()) {
-                            onNavigateToAnswer(answerId, "answer")
-                            showDialog = false
+                        if (inputId.isNotBlank()) {
+                            onNavigateToContent(inputId, type)
+                            activeDialogType = null
                         }
                     }
                 ) {
-                    Text("跳转")
+                    Text("Navigate")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("取消")
+                TextButton(onClick = { activeDialogType = null }) {
+                    Text("Cancel")
                 }
             }
         )
     }
+}
+
+@Composable
+private fun DebugItem(title: String, subtitle: String, onClick: () -> Unit) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(subtitle) },
+        leadingContent = { Icon(Icons.Default.BugReport, null) },
+        modifier = Modifier.clickable(onClick = onClick)
+    )
 }

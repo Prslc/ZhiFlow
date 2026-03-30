@@ -4,6 +4,7 @@
     <!-- general -->
     <string name="general_back">back</string>
     <string name="general_loading">loading…</string>
+    <string name="published_format">Posted in %1$s · %2$s</string>
 
     <!-- error box -->
     <string name="error_load_failed">Failed to load</string>

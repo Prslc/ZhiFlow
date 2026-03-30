@@ -6,6 +6,9 @@ import com.prslc.zhiflow.data.model.ZhihuUser
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 
+/**
+ * Fetch current user profile
+ */
 suspend fun getUserDetail(): ZhihuUser? {
     val tag = "userService"
     return try {

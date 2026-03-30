@@ -5,14 +5,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ZhihuAnswer(
-    val id: String,
-    val author: AnswerAuthor,
+    override val id: String,
+    override val author: AnswerAuthor,
     val header: Header? = null,
     val question: ZhihuQuestion? = null,
-    val reaction: Reaction,
-    @SerialName("content_end_info") val contentEnd: ContentEndInfo? = null,
-    @SerialName("structured_content") val structuredContent: StructuredContent
-)
+    override val reaction: Reaction,
+    @SerialName("content_end_info") override val contentEnd: ContentEndInfo? = null,
+    @SerialName("structured_content") override val structuredContent: StructuredContent
+) : ZhihuContent {
+    override val displayTitle: String
+        get() = question?.title ?: ""
+}
 
 @Serializable
 data class AnswerAuthor(
@@ -61,6 +64,7 @@ data class Relation(
     val vote: String? = "NEUTRAL",
     val faved: Boolean = false
 )
+
 @Serializable
 data class Statistics(
     @SerialName("favorites") val favoritesCount: Int,

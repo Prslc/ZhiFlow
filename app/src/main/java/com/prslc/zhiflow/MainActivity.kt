@@ -35,13 +35,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.prslc.zhiflow.ui.navigation.AnswerDetail
+import com.prslc.zhiflow.ui.navigation.ArticleDetail
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.NavigatorAction
 import com.prslc.zhiflow.ui.navigation.ProfileTab
 import com.prslc.zhiflow.ui.navigation.Settings
-import com.prslc.zhiflow.ui.screen.AnswerScreen
+import com.prslc.zhiflow.ui.screen.ContentDetailScreen
 import com.prslc.zhiflow.ui.screen.DebugScreen
 import com.prslc.zhiflow.ui.screen.FeedScreen
 import com.prslc.zhiflow.ui.screen.ProfileScreen
@@ -108,8 +109,18 @@ class MainActivity : ComponentActivity() {
 
                         composable<AnswerDetail> { backStackEntry ->
                             val route: AnswerDetail = backStackEntry.toRoute()
-                            AnswerScreen(
-                                answerId = route.id,
+                            ContentDetailScreen(
+                                id = route.id,
+                                contentType = "answer",
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable<ArticleDetail> { backStackEntry ->
+                            val route: ArticleDetail = backStackEntry.toRoute()
+                            ContentDetailScreen(
+                                id = route.id,
+                                contentType = "article",
                                 onBack = { navController.popBackStack() }
                             )
                         }
@@ -180,7 +191,7 @@ fun MainScreen(
                     onItemClick = onNavigateToContent
                 )
                 DebugTab -> DebugScreen(
-                    onNavigateToAnswer = onNavigateToContent
+                    onNavigateToContent = onNavigateToContent
                 )
                 ProfileTab -> ProfileScreen(
                     viewModel = profileViewModel,

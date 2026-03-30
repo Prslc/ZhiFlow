@@ -11,49 +11,55 @@ import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 
-object CollectionService {
+/**
+ * Retrieve the list of collections (favorites) for a specific content item
+ * @param id Content ID
+ * @param contentType "answer" or "article"
+ */
+suspend fun getCollectionsForContent(id: String, contentType: String): CollectionResponse? {
+    val typePath = if (contentType.lowercase().contains("article")) "article" else "answer"
 
-    /**
-     * Fetch all collection folders for a specific answer
-     */
-    suspend fun getCollectionsForAnswer(answerId: String): CollectionResponse? {
-        return try {
-            val response = Client.client.get("collections/contents/answer/$answerId") {
-                parameter("ever_top", 1)
-            }
+    return try {
+        val response = Client.client.get("collections/contents/$typePath/$id") {
+            parameter("ever_top", 1)
+        }
 
-            if (response.status.isSuccess()) {
-                response.body<CollectionResponse>()
-            } else {
-                null
-            }
-        } catch (e: Exception) {
+        if (response.status.isSuccess()) {
+            response.body<CollectionResponse>()
+        } else {
             null
         }
+    } catch (e: Exception) {
+        null
     }
+}
 
-    /**
-     * Update answer collection status (Add/Remove from folders)
-     */
-    suspend fun updateAnswerCollections(
-        answerId: String,
-        addIds: List<Long>,
-        removeIds: List<Long>
-    ): Boolean {
-        return try {
-            val response = Client.client.put("v2/collections/contents/answer/$answerId") {
-                setBody(FormDataContent(Parameters.build {
-                    if (addIds.isNotEmpty()) {
-                        append("add_collections", addIds.joinToString(","))
-                    }
-                    if (removeIds.isNotEmpty()) {
-                        append("remove_collections", removeIds.joinToString(","))
-                    }
-                }))
-            }
-            response.status.isSuccess()
-        } catch (e: Exception) {
-            false
+/**
+ * Update the collection (favorite) status of a content item (add/remove from collections)
+ * @param id Content ID
+ * @param contentType "answer" or "article"
+ */
+suspend fun updateContentCollections(
+    id: String,
+    contentType: String,
+    addIds: List<Long>,
+    removeIds: List<Long>
+): Boolean {
+    val typePath = if (contentType.lowercase().contains("article")) "article" else "answer"
+
+    return try {
+        val response = Client.client.put("v2/collections/contents/$typePath/$id") {
+            setBody(FormDataContent(Parameters.build {
+                if (addIds.isNotEmpty()) {
+                    append("add_collections", addIds.joinToString(","))
+                }
+                if (removeIds.isNotEmpty()) {
+                    append("remove_collections", removeIds.joinToString(","))
+                }
+            }))
         }
+        response.status.isSuccess()
+    } catch (e: Exception) {
+        false
     }
 }
