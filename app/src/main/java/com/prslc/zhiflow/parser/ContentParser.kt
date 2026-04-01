@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.parser
 
 import android.text.Html
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -15,6 +16,7 @@ import com.prslc.zhiflow.data.model.Mark
 import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.data.model.ZhihuImage
+import kotlinx.serialization.json.Json
 
 data class CommentContent(
     val text: String,
@@ -31,6 +33,7 @@ sealed interface RichTextElement {
         val isOrdered: Boolean,
         val index: Int = 0  // ordered list
     ) : RichTextElement
+
     data class FormulaBlock(val data: Formula) : RichTextElement
     data class Blockquote(val content: AnnotatedString) : RichTextElement
     data class Code(val code: String, val lang: String?) : RichTextElement
@@ -41,6 +44,7 @@ sealed interface RichTextElement {
         val cells: List<String>,
         val hasHeader: Boolean
     ) : RichTextElement
+
     data object Divider : RichTextElement
 }
 
@@ -95,12 +99,14 @@ object ContentParser {
 
                 "table" -> {
                     segment.table?.let {
-                        listOf(RichTextElement.Table(
-                            rows = it.rowCount,
-                            cols = it.columnCount,
-                            cells = it.cells,
-                            hasHeader = it.hasHeadRow
-                        ))
+                        listOf(
+                            RichTextElement.Table(
+                                rows = it.rowCount,
+                                cols = it.columnCount,
+                                cells = it.cells,
+                                hasHeader = it.hasHeadRow
+                            )
+                        )
                     } ?: emptyList()
                 }
 
@@ -140,25 +146,66 @@ object ContentParser {
 
     private fun parseContent(rawText: String, marks: List<Mark>): AnnotatedString {
         return buildAnnotatedString {
-            append(rawText)
-            marks.forEach { mark ->
-                val start = mark.start.coerceIn(0, rawText.length)
-                val end = mark.end.coerceIn(0, rawText.length)
-                if (start >= end) return@forEach
+            val formulaMarks = marks.filter { it.type == "formula" && it.formula != null }
+                .sortedBy { it.start }
+
+            var currentRawIndex = 0
+            val offsets = mutableListOf<Pair<Int, Int>>()
+
+            formulaMarks.forEach { mark ->
+                append(rawText.substring(currentRawIndex, mark.start))
+
+                val formulaData = mark.formula!!
+                val placeholderPos = length
+                val inlineId = "f_$placeholderPos"
+
+                appendInlineContent(inlineId, "[f]")
+
+                addStringAnnotation(
+                    tag = "INLINE_FORMULA_DATA",
+                    annotation = Json.encodeToString(formulaData),
+                    start = placeholderPos,
+                    end = placeholderPos + 1
+                )
+
+                offsets.add(mark.start to (mark.end - mark.start - 1))
+                currentRawIndex = mark.end
+            }
+
+            append(rawText.substring(currentRawIndex))
+
+            marks.filter { it.type != "formula" }.forEach { mark ->
+                val newStart = calculateNewIndex(mark.start, offsets)
+                val newEnd = calculateNewIndex(mark.end, offsets)
+
+                val safeStart = newStart.coerceIn(0, length)
+                val safeEnd = newEnd.coerceIn(0, length)
+                if (safeStart >= safeEnd) return@forEach
 
                 when (mark.type) {
-                    "bold" -> addStyle(SpanStyle(fontWeight = FontWeight.ExtraBold), start, end)
-                    "italic" -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
+                    "bold" -> addStyle(
+                        SpanStyle(fontWeight = FontWeight.ExtraBold),
+                        safeStart,
+                        safeEnd
+                    )
+
+                    "italic" -> addStyle(
+                        SpanStyle(fontStyle = FontStyle.Italic),
+                        safeStart,
+                        safeEnd
+                    )
+
                     "strikethrough" -> addStyle(
                         SpanStyle(textDecoration = TextDecoration.LineThrough),
-                        start,
-                        end
+                        safeStart,
+                        safeEnd
                     )
+
                     "code" -> addStyle(
                         SpanStyle(
                             fontFamily = FontFamily.Monospace,
                             background = Color.Gray.copy(alpha = 0.1f)
-                        ), start, end
+                        ), safeStart, safeEnd
                     )
 
                     "reference" -> {
@@ -169,45 +216,33 @@ object ContentParser {
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E88E5)
                             ),
-                            start = start,
-                            end = end
+                            safeStart, safeEnd
                         )
                         mark.reference?.title?.let { title ->
-                            addStringAnnotation(
-                                tag = "REF_TITLE",
-                                annotation = title,
-                                start = start,
-                                end = end
-                            )
-                        }
-                    }
-                    // Do not parse entity_word, as this is a quick search.
-                    "link" -> {
-                        val url = mark.link?.href ?: mark.entityWord?.url
-                        if (!url.isNullOrEmpty()) {
-                            addStringAnnotation(
-                                tag = "URL",
-                                annotation = url,
-                                start = start,
-                                end = end
-                            )
-                            addStyle(SpanStyle(color = Color(0xFF1E88E5)), start, end)
+                            addStringAnnotation("REF_TITLE", title, safeStart, safeEnd)
                         }
                     }
 
-                    "formula" -> {
-                        mark.formula?.imgUrl?.let { url ->
-                            addStringAnnotation(
-                                tag = "INLINE_FORMULA",
-                                annotation = url,
-                                start = start,
-                                end = end
-                            )
+                    "link" -> {
+                        val url = mark.link?.href ?: mark.entityWord?.url
+                        if (!url.isNullOrEmpty()) {
+                            addStringAnnotation("URL", url, safeStart, safeEnd)
+                            addStyle(SpanStyle(color = Color(0xFF1E88E5)), safeStart, safeEnd)
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun calculateNewIndex(oldIndex: Int, offsets: List<Pair<Int, Int>>): Int {
+        var totalShift = 0
+        for ((origStart, reduced) in offsets) {
+            if (oldIndex > origStart) {
+                totalShift += reduced
+            } else break
+        }
+        return (oldIndex - totalShift).coerceAtLeast(0)
     }
 
     fun parseCommentHtml(html: String): CommentContent {
@@ -228,7 +263,15 @@ object ContentParser {
             val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
 
             if (url.isNotEmpty()) {
-                extractedImages.add(ZhihuImage(urls = listOf(url), width = w, height = h, isGif = false, description = ""))
+                extractedImages.add(
+                    ZhihuImage(
+                        urls = listOf(url),
+                        width = w,
+                        height = h,
+                        isGif = false,
+                        description = ""
+                    )
+                )
             }
 
             processedHtml = processedHtml.replace(fullTag, "")
