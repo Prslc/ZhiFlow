@@ -91,6 +91,7 @@ fun RichText(
                     val navigator = LocalNavigator.current
                     CardComponent(
                         element = element,
+                        uriHandler = uriHandler,
                         onNavigate = { id, type ->
                             navigator.navigateToContent(id, type)
                         },

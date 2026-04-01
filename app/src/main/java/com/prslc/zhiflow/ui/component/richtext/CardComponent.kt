@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import com.prslc.zhiflow.parser.RichTextElement
 fun CardComponent(
     element: RichTextElement.Card,
     modifier: Modifier = Modifier,
+    uriHandler: UriHandler,
     onNavigate: (String, String) -> Unit
 ) {
     Surface(
@@ -42,18 +44,27 @@ fun CardComponent(
             .padding(vertical = 4.dp)
             .clickable {
                 val urlPath = element.url.substringBefore("?")
-                val id = Regex("\\d+").find(urlPath.split("/").lastOrNull() ?: "")?.value
+
+                /** * Dirty data alert: metadata says ANSWER, but it's an external redirect.
+                 * We must verify if it's actually a Zhihu link before internal navigation.
+                 */
+                val isRealUrl = element.url.contains("zhihu.com")
+                val id = if (isRealUrl) {
+                    Regex("\\d+").find(urlPath.split("/").lastOrNull() ?: "")?.value
+                } else null
 
                 val type = when {
-                    urlPath.contains("/p/") || element.contentType?.uppercase() == "ARTICLE" -> "article"
-                    urlPath.contains("/answer/") || element.contentType?.uppercase() == "ANSWER" -> "answer"
+                    urlPath.contains("/p/") -> "article"
+                    urlPath.contains("/answer/") -> "answer"
+                    isRealUrl && element.contentType?.uppercase() == "ANSWER" -> "answer"
+                    isRealUrl && element.contentType?.uppercase() == "ARTICLE" -> "article"
                     else -> null
                 }
 
                 if (id != null && type != null) {
                     onNavigate(id, type)
                 } else {
-                    // navigator.openInBrowser(element.url)
+                    uriHandler.openUri(element.url)
                 }
             },
         shape = RoundedCornerShape(8.dp),
