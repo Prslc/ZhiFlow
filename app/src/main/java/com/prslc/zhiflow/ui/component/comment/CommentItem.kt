@@ -28,7 +28,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.parser.ContentParser
-import com.prslc.zhiflow.ui.component.ImageComponent
+import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.utils.formatToDate
 @Composable
 fun CommentItem(
