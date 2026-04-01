@@ -60,7 +60,7 @@ import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ImageLightbox
-import com.prslc.zhiflow.ui.component.RichText
+import com.prslc.zhiflow.ui.component.richtext.RichText
 import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.component.common.BottomBar
 import com.prslc.zhiflow.ui.component.common.ErrorView
