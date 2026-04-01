@@ -60,14 +60,13 @@ object ContentParser {
                 }
 
                 "list_node" -> {
-                    val type = segment.listNode?.type
-                    val isOrdered = type == "ordered"
-                    segment.listNode?.items?.mapIndexed { index, item ->
+                    val counter = OrderedListCounter()
+                    segment.listNode?.items?.map { item ->
                         RichTextElement.BulletItem(
                             content = parseContent(item.text, item.marks),
                             level = item.indentLevel,
-                            isOrdered = isOrdered,
-                            index = index + 1
+                            isOrdered = segment.listNode.type == "ordered",
+                            index = counter.next(item.indentLevel)
                         )
                     } ?: emptyList()
                 }
@@ -127,6 +126,16 @@ object ContentParser {
         if (paragraph.text.trim() == "---") return listOf(RichTextElement.Divider)
 
         return listOf(RichTextElement.Text(parseContent(paragraph.text, paragraph.marks)))
+    }
+
+    private class OrderedListCounter {
+        private val counts = mutableMapOf<Int, Int>()
+        fun next(level: Int): Int {
+            val nextIdx = (counts[level] ?: 0) + 1
+            counts[level] = nextIdx
+            counts.keys.removeAll { it > level }
+            return nextIdx
+        }
     }
 
     private fun parseContent(rawText: String, marks: List<Mark>): AnnotatedString {
