@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,25 +32,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.ui.navigation.AnswerDetail
-import com.prslc.zhiflow.ui.navigation.ArticleDetail
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.MainContainer
-import com.prslc.zhiflow.ui.navigation.NavigatorAction
+import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
-import com.prslc.zhiflow.ui.navigation.Settings
-import com.prslc.zhiflow.ui.screen.ContentDetailScreen
+import com.prslc.zhiflow.ui.navigation.contentGraph
 import com.prslc.zhiflow.ui.screen.DebugScreen
 import com.prslc.zhiflow.ui.screen.FeedScreen
 import com.prslc.zhiflow.ui.screen.ProfileScreen
-import com.prslc.zhiflow.ui.screen.SettingsScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
-import com.prslc.zhiflow.ui.viewmodel.FeedViewModel
 import com.prslc.zhiflow.ui.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
@@ -64,70 +58,40 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val navController = rememberNavController()
                     val context = LocalContext.current
-                    val navigator = remember(navController, context) {
-                        NavigatorAction(
-                            navController,
-                            context
-                        )
-                    }
+                    val navController = rememberNavController()
+                    val navigator = remember(navController) { Navigator(navController, context) }
 
-                    NavHost(
-                        navController = navController,
-                        startDestination = MainContainer,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(600, easing = FastOutSlowInEasing)
-                            )
-                        },
-                        exitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { -it / 5 },
-                                animationSpec = tween(600, easing = FastOutSlowInEasing)
-                            )
-                        },
-                        popEnterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { -it / 5 },
-                                animationSpec = tween(600, easing = FastOutSlowInEasing)
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(600, easing = FastOutSlowInEasing)
-                            )
-                        }
-                    ) {
-                        composable<MainContainer> {
-                            MainScreen(
-                                onNavigateToContent = navigator::navigateToContent,
-                                onNavigateToSettings = navigator::navigateToSettings
-                            )
-                        }
-
-                        composable<AnswerDetail> { backStackEntry ->
-                            val route: AnswerDetail = backStackEntry.toRoute()
-                            ContentDetailScreen(
-                                id = route.id,
-                                contentType = ContentType.ANSWER,
-                                onBack = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable<ArticleDetail> { backStackEntry ->
-                            val route: ArticleDetail = backStackEntry.toRoute()
-                            ContentDetailScreen(
-                                id = route.id,
-                                contentType = ContentType.ARTICLE,
-                                onBack = { navController.popBackStack() }
-                            )
-                        }
-
-                        composable<Settings> {
-                            SettingsScreen(onBack = { navController.popBackStack() })
+                    CompositionLocalProvider(LocalNavigator provides navigator) {
+                        NavHost(
+                            navController = navController,
+                            startDestination = MainContainer,
+                            enterTransition = {
+                                slideInHorizontally(
+                                    initialOffsetX = { it },
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                )
+                            },
+                            exitTransition = {
+                                slideOutHorizontally(
+                                    targetOffsetX = { -it / 5 },
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                )
+                            },
+                            popEnterTransition = {
+                                slideInHorizontally(
+                                    initialOffsetX = { -it / 5 },
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                )
+                            },
+                            popExitTransition = {
+                                slideOutHorizontally(
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                )
+                            }
+                        ) {
+                            contentGraph(navController)
                         }
                     }
                 }
@@ -136,16 +100,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
-fun MainScreen(
-    onNavigateToContent: (String, String) -> Unit,
-    onNavigateToSettings: () -> Unit
-) {
+fun MainScreen() {
+    val navigator = LocalNavigator.current
+
     val tabs = listOf(HomeTab, DebugTab, ProfileTab)
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
-    val feedViewModel: FeedViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
 
     NavigationSuiteScaffold(
@@ -157,7 +120,7 @@ fun MainScreen(
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                     icon = {
                         Icon(
-                            when(tab) {
+                            when (tab) {
                                 HomeTab -> Icons.Default.Home
                                 DebugTab -> Icons.Default.BugReport
                                 ProfileTab -> Icons.Default.Person
@@ -167,7 +130,7 @@ fun MainScreen(
                         )
                     },
                     label = {
-                        val labelText = when(tab) {
+                        val labelText = when (tab) {
                             HomeTab -> stringResource(R.string.nav_home)
                             DebugTab -> stringResource(R.string.nav_debug)
                             ProfileTab -> stringResource(R.string.nav_profile)
@@ -188,15 +151,15 @@ fun MainScreen(
         ) { pageIndex ->
             when (tabs[pageIndex]) {
                 HomeTab -> FeedScreen(
-                    viewModel = feedViewModel,
-                    onItemClick = onNavigateToContent
+                    onItemClick = { id, type -> navigator.navigateToContent(id, type) }
                 )
+
                 DebugTab -> DebugScreen(
-                    onNavigateToContent = onNavigateToContent
+                    onNavigateToContent = { id, type -> navigator.navigateToContent(id, type) }
                 )
                 ProfileTab -> ProfileScreen(
                     viewModel = profileViewModel,
-                    onNavigateToSettings = onNavigateToSettings
+                    onNavigateToSettings = { navigator.navigateToSettings() }
                 )
             }
         }

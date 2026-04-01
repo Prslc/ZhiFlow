@@ -21,6 +21,7 @@ data class Segment(
     val table: Table? = null,
     val image: ZhihuImage? = null,
     @SerialName("reference_block") val referenceBlock: ReferenceBlock? = null,
+    val card: Card? = null,
 )
 
 @Serializable
@@ -119,4 +120,28 @@ data class Reference(
     val index: Int,
     val title: String? = null,
     val href: String? = null
+)
+
+@Serializable
+data class Card(
+    @SerialName("card_type") val cardType: String, // link-card, free_column_card, etc.
+    @SerialName("content_type") val contentType: String? = null, // ANSWER, QUESTION
+    val title: String? = null,
+    val url: String? = null,
+    @SerialName("url_token") val urlToken: String? = null,
+    @SerialName("extra_info") val extraInfo: String? = null,
+    val cover: String? = null,
+)
+
+@Serializable
+data class CardExtraInfo(
+    val title: String? = null,
+    val url: String? = null,
+    val cover: String? = null,
+    val desc: String? = null,
+    @SerialName("data-content-token") val contentToken: String? = null,
+    @SerialName("data-content-type") val contentType: String? = null,
+    @SerialName("column_title") val columnTitle: String? = null,
+    @SerialName("column_desc") val columnDesc: String? = null,
+    @SerialName("action_url") val actionUrl: String? = null
 )

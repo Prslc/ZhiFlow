@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun RichText(
@@ -83,6 +84,16 @@ fun RichText(
                         formula = element.data,
                         isInline = false,
                         modifier = Modifier.padding(vertical = 12.dp)
+                    )
+                }
+
+                is RichTextElement.Card -> {
+                    val navigator = LocalNavigator.current
+                    CardComponent(
+                        element = element,
+                        onNavigate = { id, type ->
+                            navigator.navigateToContent(id, type)
+                        },
                     )
                 }
 
