@@ -16,6 +16,7 @@ import com.prslc.zhiflow.data.model.Mark
 import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.utils.JsonHelper
 import kotlinx.serialization.json.Json
 
 data class CommentContent(
@@ -45,6 +46,14 @@ sealed interface RichTextElement {
         val hasHeader: Boolean
     ) : RichTextElement
 
+    data class Card(
+        val cardType: String,
+        val title: String,
+        val url: String,
+        val cover: String?,
+        val desc: String?,
+        val contentType: String?
+    ) : RichTextElement
     data object Divider : RichTextElement
 }
 
@@ -110,6 +119,25 @@ object ContentParser {
                     } ?: emptyList()
                 }
 
+                "card" -> {
+                    segment.card?.let { card ->
+                        val extra = JsonHelper.parseExtraInfo(card.extraInfo)
+
+                        val finalCover = extra?.cover?.takeIf { it.isNotBlank() } ?: card.cover
+
+                        listOf(
+                            RichTextElement.Card(
+                                cardType = card.cardType,
+                                title = card.title ?: extra?.title ?: "No title",
+                                url = card.url ?: extra?.url ?: "",
+                                cover = finalCover,
+                                desc = JsonHelper.cleanHtmlDesc(extra?.desc),
+                                contentType = card.contentType ?: extra?.contentType
+                            )
+                        )
+                    } ?: emptyList()
+                }
+
                 "hr" -> listOf(RichTextElement.Divider)
                 else -> emptyList()
             }
@@ -128,8 +156,6 @@ object ContentParser {
                 emptyList()
             }
         }
-
-        if (paragraph.text.trim() == "---") return listOf(RichTextElement.Divider)
 
         return listOf(RichTextElement.Text(parseContent(paragraph.text, paragraph.marks)))
     }

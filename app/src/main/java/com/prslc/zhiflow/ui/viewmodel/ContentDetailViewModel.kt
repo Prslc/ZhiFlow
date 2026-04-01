@@ -15,11 +15,15 @@ import com.prslc.zhiflow.data.service.addReadHistory
 import com.prslc.zhiflow.data.service.getAnswerDetail
 import com.prslc.zhiflow.data.service.getArticleDetail
 import com.prslc.zhiflow.data.service.voteAction
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 class ContentViewModel : ViewModel() {
+    private var loadJob: Job? = null
+
     var content by mutableStateOf<ZhihuContent?>(null)
 
     var isLoading by mutableStateOf(false)
@@ -39,29 +43,32 @@ class ContentViewModel : ViewModel() {
      * @param type "answer" or "article"
      */
     fun loadContent(id: String, type: ContentType) {
-        if (isLoading) return
+        loadJob?.cancel()
+
         resetStates()
         isLoading = true
 
-        viewModelScope.launch {
-            try {
-                val result: ZhihuContent? = when (type) {
+        loadJob = viewModelScope.launch {
+            val result = runCatching {
+                when (type) {
                     ContentType.ARTICLE -> getArticleDetail(id)
                     ContentType.ANSWER -> getAnswerDetail(id)
                 }
+            }
 
-                content = result
-
-                result?.reaction?.relation?.let { rel ->
+            result.onSuccess { data ->
+                content = data
+                data?.reaction?.relation?.let { rel ->
                     isUpvoted = (rel.vote == "UP")
                     isDownvoted = (rel.vote == "DOWN")
                     isFaved = rel.faved
                 }
-            } catch (e: Exception) {
+            }.onFailure { e ->
+                if (e is CancellationException) throw e
                 error = e.toApiException()
-            } finally {
-                isLoading = false
             }
+            // finally
+            isLoading = false
         }
     }
 
@@ -101,7 +108,7 @@ class ContentViewModel : ViewModel() {
                 try {
                     addReadHistory(ReadHistoryRequest(contentToken, contentType.type, progress))
                 } catch (e: Exception) {
-                    throw  e
+
                 }
             }
         }

@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -92,8 +93,6 @@ fun ContentDetailScreen(
 
     var selectedImageUrl by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val lazyListState = rememberLazyListState()
-
     BackHandler(enabled = selectedImageUrl != null || currentContent != null) {
         if (selectedImageUrl != null) {
             selectedImageUrl = null
@@ -107,18 +106,6 @@ fun ContentDetailScreen(
     }
 
     var currentProgress by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(lazyListState) {
-        snapshotFlow {
-            val layout = lazyListState.layoutInfo
-            val total = layout.totalItemsCount
-            if (total <= 0) 0
-            else {
-                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
-                ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
-            }
-        }.collect { currentProgress = it }
-    }
 
     DisposableEffect(id) {
         viewModel.updateReadProgress(id, contentType, 0)
@@ -235,60 +222,76 @@ fun ContentDetailScreen(
 
                     else -> {
                         currentContent?.let { answer ->
-                            LazyColumn(
-                                state = lazyListState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    // Only use top padding to prevent content jumping when the bottom bar animates.
-                                    .padding(top = padding.calculateTopPadding()),
-                                contentPadding = PaddingValues(bottom = 80.dp)
-                            ) {
-                                // author
-                                item {
-                                    AuthorSection(answer.author)
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 20.dp),
-                                        thickness = 0.5.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(
-                                            alpha = 0.5f
-                                        )
-                                    )
+                            key(id) {
+                                val lazyListState = rememberLazyListState()
+
+                                LaunchedEffect(id) {
+                                    snapshotFlow {
+                                        val layout = lazyListState.layoutInfo
+                                        val total = layout.totalItemsCount
+                                        if (total <= 0) 0
+                                        else {
+                                            val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                            ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
+                                        }
+                                    }.collect { currentProgress = it }
                                 }
 
-                                // Content
-                                item {
-                                    Box(
-                                        modifier = Modifier.padding(
-                                            horizontal = 20.dp, vertical = 16.dp
-                                        )
-                                    ) {
-                                        RichText(
-                                            segments = answer.structuredContent.segments,
-                                            onImageClick = { url ->
-                                                selectedImageUrl = url
-                                            })
-                                    }
-                                }
-
-                                // end
-                                item {
-                                    answer.contentEnd?.let { contentEnd ->
-                                        Column(modifier = Modifier.padding(20.dp)) {
-                                            val timeDisplay = when {
-                                                !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
-                                                !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
-                                                else -> ""
-                                            }
-
-                                            Text(
-                                                text = stringResource(
-                                                    R.string.answer_published_format,
-                                                    contentEnd.ipInfo,
-                                                    timeDisplay
-                                                ),
-                                                style = MaterialTheme.typography.labelMedium,
-                                                color = MaterialTheme.colorScheme.outline
+                                LazyColumn(
+                                    state = lazyListState,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        // Only use top padding to prevent content jumping when the bottom bar animates.
+                                        .padding(top = padding.calculateTopPadding()),
+                                    contentPadding = PaddingValues(bottom = 80.dp)
+                                ) {
+                                    // author
+                                    item {
+                                        AuthorSection(answer.author)
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(horizontal = 20.dp),
+                                            thickness = 0.5.dp,
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(
+                                                alpha = 0.5f
                                             )
+                                        )
+                                    }
+
+                                    // Content
+                                    item {
+                                        Box(
+                                            modifier = Modifier.padding(
+                                                horizontal = 20.dp, vertical = 16.dp
+                                            )
+                                        ) {
+                                            RichText(
+                                                segments = answer.structuredContent.segments,
+                                                onImageClick = { url ->
+                                                    selectedImageUrl = url
+                                                })
+                                        }
+                                    }
+
+                                    // end
+                                    item {
+                                        answer.contentEnd?.let { contentEnd ->
+                                            Column(modifier = Modifier.padding(20.dp)) {
+                                                val timeDisplay = when {
+                                                    !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
+                                                    !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
+                                                    else -> ""
+                                                }
+
+                                                Text(
+                                                    text = stringResource(
+                                                        R.string.answer_published_format,
+                                                        contentEnd.ipInfo,
+                                                        timeDisplay
+                                                    ),
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = MaterialTheme.colorScheme.outline
+                                                )
+                                            }
                                         }
                                     }
                                 }
