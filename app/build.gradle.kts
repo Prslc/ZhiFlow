@@ -42,6 +42,8 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            multiDexEnabled = true
+            vcsInfo.include = false
             signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -99,7 +101,7 @@ dependencies {
 
     // Ktor
     implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
@@ -107,7 +109,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-    implementation(libs.coil.network.okhttp)
-    implementation(libs.jsoup)
+    implementation(libs.coil.network.ktor)
     implementation(libs.telephoto.zoomable.image.coil)
 }

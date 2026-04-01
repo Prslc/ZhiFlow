@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
@@ -48,7 +49,7 @@ fun RichText(
         ContentParser.transform(segments)
     }
 
-    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    val uriHandler = LocalUriHandler.current
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         elements.forEach { element ->
@@ -149,7 +150,7 @@ fun Divider() {
 
 @Composable
 fun ReferenceSection(items: List<AnnotatedString>) {
-    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    val uriHandler = LocalUriHandler.current
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(

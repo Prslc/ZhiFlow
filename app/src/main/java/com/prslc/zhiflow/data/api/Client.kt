@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.api
 
 import com.prslc.zhiflow.BuildConfig
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -12,16 +12,16 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object Client {
-    val json = Json {
+    val jsonInstance = Json {
         ignoreUnknownKeys = true    // Skip undefined fields
         isLenient = true            // Permissive mode
         coerceInputValues = true    // Forced conversion
         encodeDefaults = true       // Default value
     }
 
-    val client = HttpClient(OkHttp) {
+    val client = HttpClient(Android) {
         install(ContentNegotiation) {
-            json(Client.json)
+            json(jsonInstance)
         }
 
         install(HttpTimeout) {
