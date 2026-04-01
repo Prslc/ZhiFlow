@@ -19,7 +19,7 @@ import com.prslc.zhiflow.data.model.ZhihuImage
 import kotlinx.serialization.json.Json
 
 data class CommentContent(
-    val text: String,
+    val text: AnnotatedString,
     val images: List<ZhihuImage>
 )
 
@@ -277,12 +277,14 @@ object ContentParser {
             processedHtml = processedHtml.replace(fullTag, "")
         }
 
-        val cleanText = Html.fromHtml(processedHtml, Html.FROM_HTML_MODE_COMPACT)
+        val rawText = Html.fromHtml(processedHtml, Html.FROM_HTML_MODE_COMPACT)
             .toString()
             .trim()
 
+        val annotatedText = EmojiParser.parse(rawText)
+
         return CommentContent(
-            text = cleanText,
+            text = annotatedText,
             images = extractedImages
         )
     }
