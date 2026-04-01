@@ -4,10 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
@@ -21,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +34,7 @@ import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.utils.formatToDate
+
 @Composable
 fun CommentItem(
     comment: ZhihuComment,
@@ -43,6 +48,32 @@ fun CommentItem(
 ) {
     val parsedContent = remember(comment.content) {
         ContentParser.parseCommentHtml(comment.content)
+    }
+
+    // emoji
+    val inlineContent = remember(parsedContent.text) {
+        val map = mutableMapOf<String, InlineTextContent>()
+        val text = parsedContent.text
+
+        text.getStringAnnotations("EMOJI_PATH", 0, text.length).forEach { pathAnno ->
+            val idAnno = text.getStringAnnotations("EMOJI_ID", pathAnno.start, pathAnno.end).firstOrNull()
+
+            if (idAnno != null) {
+                val inlineId = idAnno.item
+                map[inlineId] = InlineTextContent(
+                    placeholder = Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.Center),
+                    children = {
+                        AsyncImage(
+                            model = pathAnno.item,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                )
+            }
+        }
+        map
     }
 
     Row(
@@ -99,7 +130,8 @@ fun CommentItem(
             Text(
                 text = parsedContent.text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                inlineContent = inlineContent
             )
 
             // images
