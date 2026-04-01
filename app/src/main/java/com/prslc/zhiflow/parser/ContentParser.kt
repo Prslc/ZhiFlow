@@ -22,9 +22,15 @@ data class CommentContent(
 
 sealed interface RichTextElement {
     data class Text(val content: AnnotatedString) : RichTextElement
+    data class BulletItem(
+        val content: AnnotatedString,
+        val level: Int,
+        val isOrdered: Boolean,
+        val index: Int = 0  // ordered list
+    ) : RichTextElement
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     data class Image(val data: ZhihuImage) : RichTextElement
-    data class FormulaBlock(val data: Formula) : RichTextElement // 块级公式
+    data class FormulaBlock(val data: Formula) : RichTextElement
     data class Blockquote(val content: AnnotatedString) : RichTextElement
     data class Code(val code: String, val lang: String?) : RichTextElement
     data class Reference(val items: List<AnnotatedString>) : RichTextElement
@@ -43,6 +49,19 @@ object ContentParser {
                 "heading" -> {
                     segment.heading?.let {
                         listOf(RichTextElement.Heading(parseContent(it.text, it.marks), it.level))
+                    } ?: emptyList()
+                }
+
+                "list_node" -> {
+                    val type = segment.listNode?.type
+                    val isOrdered = type == "ordered"
+                    segment.listNode?.items?.mapIndexed { index, item ->
+                        RichTextElement.BulletItem(
+                            content = parseContent(item.text, item.marks),
+                            level = item.indentLevel,
+                            isOrdered = isOrdered,
+                            index = index + 1
+                        )
                     } ?: emptyList()
                 }
 
