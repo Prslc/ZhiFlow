@@ -36,7 +36,10 @@ class FeedViewModel : ViewModel() {
             try {
                 isRefreshing = true
                 error = null
-                val response = getRecommendFeed(limit = 10, nextUrl = null)
+                val response = getRecommendFeed(
+                    isRefresh = true,
+                    nextUrl = null
+                )
 
                 if (response != null) {
                     feedItems.clear()
