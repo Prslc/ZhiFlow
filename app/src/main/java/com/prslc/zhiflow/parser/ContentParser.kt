@@ -28,6 +28,12 @@ sealed interface RichTextElement {
     data class Text(val content: AnnotatedString) : RichTextElement
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     data class Image(val data: ZhihuImage) : RichTextElement
+    data class FormulaBlock(val data: Formula) : RichTextElement
+    data class Blockquote(val content: AnnotatedString) : RichTextElement
+    data class Code(val code: String, val lang: String?) : RichTextElement
+    data class Reference(val items: List<AnnotatedString>) : RichTextElement
+    data object Divider : RichTextElement
+
     data class BulletItem(
         val content: AnnotatedString,
         val level: Int,
@@ -35,10 +41,6 @@ sealed interface RichTextElement {
         val index: Int = 0  // ordered list
     ) : RichTextElement
 
-    data class FormulaBlock(val data: Formula) : RichTextElement
-    data class Blockquote(val content: AnnotatedString) : RichTextElement
-    data class Code(val code: String, val lang: String?) : RichTextElement
-    data class Reference(val items: List<AnnotatedString>) : RichTextElement
     data class Table(
         val rows: Int,
         val cols: Int,
@@ -54,7 +56,6 @@ sealed interface RichTextElement {
         val desc: String?,
         val contentType: String?
     ) : RichTextElement
-    data object Divider : RichTextElement
 }
 
 object ContentParser {
