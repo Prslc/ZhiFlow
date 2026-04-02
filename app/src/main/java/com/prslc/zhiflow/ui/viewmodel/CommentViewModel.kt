@@ -189,6 +189,8 @@ class CommentViewModel : ViewModel() {
     }
 
     fun onSheetDismissed() {
+        uiState = CommentUiState()
         childUiState = ChildCommentUiState()
+        lastLoadedAnswerId = null
     }
 }
