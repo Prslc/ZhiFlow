@@ -198,8 +198,10 @@ fun ContentDetailScreen(
                                 isDownvoted = viewModel.isDownvoted,
                                 isFaved = viewModel.isFaved,
                                 upvoteCount = viewModel.displayUpvoteCount,
-                                favCount = viewModel.content?.reaction?.statistics?.favoritesCount ?: 0,
-                                commentCount = viewModel.content?.reaction?.statistics?.commentCount ?: 0,
+                                favCount = viewModel.content?.reaction?.statistics?.favoritesCount
+                                    ?: 0,
+                                commentCount = viewModel.content?.reaction?.statistics?.commentCount
+                                    ?: 0,
                                 onVoteClick = { type -> viewModel.updateVote(type, contentType) },
                                 onStarClick = { showCollectionSheet = true },
                                 onCommentClick = { showComments = true }
@@ -231,8 +233,10 @@ fun ContentDetailScreen(
                                         val total = layout.totalItemsCount
                                         if (total <= 0) 0
                                         else {
-                                            val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
-                                            ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
+                                            val lastVisible =
+                                                layout.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                            ((lastVisible + 1).toFloat() / total * 100).toInt()
+                                                .coerceIn(0, 100)
                                         }
                                     }.collect { currentProgress = it }
                                 }
@@ -308,7 +312,8 @@ fun ContentDetailScreen(
                     onDismissRequest = { showCollectionSheet = false },
                     onResult = { isFavedNow ->
                         viewModel.isFaved = isFavedNow
-                    })
+                    }
+                )
             }
 
             CommentBottomSheet(
@@ -319,7 +324,8 @@ fun ContentDetailScreen(
                 onDismissRequest = {
                     showComments = false
                     commentViewModel.resetState()
-                })
+                }
+            )
 
             // light box
             ImageLightbox(

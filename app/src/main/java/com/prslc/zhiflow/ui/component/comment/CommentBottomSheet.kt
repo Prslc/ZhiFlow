@@ -49,14 +49,15 @@ fun CommentBottomSheet(
     showComments: Boolean,
     onDismissRequest: () -> Unit,
 ) {
-    val uiState = viewModel.uiState
-    val childUiState = viewModel.childUiState
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-    val rootListState = rememberLazyListState()
-    val childListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
 
     if (showComments) {
+        val uiState = viewModel.uiState
+        val childUiState = viewModel.childUiState
+        val rootListState = rememberLazyListState()
+        val childListState = rememberLazyListState()
+
         ModalBottomSheet(
             onDismissRequest = {
                 viewModel.onSheetDismissed()
@@ -160,11 +161,11 @@ fun CommentBottomSheet(
                 }
             }
         }
+        ImageLightbox(
+            imageUrl = uiState.selectedImageUrl,
+            onDismiss = { viewModel.closeImageLightbox() }
+        )
     }
-    ImageLightbox(
-        imageUrl = uiState.selectedImageUrl,
-        onDismiss = { viewModel.closeImageLightbox() }
-    )
 }
 
 @Composable
