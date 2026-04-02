@@ -27,6 +27,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -115,15 +116,20 @@ fun CommentBottomSheet(
                                 onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 state = rootListState,
                                 onShowReplies = { root ->
-                                    scope.launch {
-                                        childListState.scrollToItem(0)
-                                    }
                                     viewModel.loadChildComments(root, forceRefresh = true)
                                 }
                             )
                         }
                     } else {
                         Column(modifier = Modifier.fillMaxWidth()) {
+                            val currentRootId = childUiState.rootComment?.id
+
+                            LaunchedEffect(currentRootId) {
+                                if (currentRootId != null) {
+                                    childListState.scrollToItem(0)
+                                }
+                            }
+
                             CommentHeader(
                                 title = stringResource(R.string.comment_reply_detail),
                                 onClose = { viewModel.backToMain() },
@@ -141,10 +147,8 @@ fun CommentBottomSheet(
                                 },
                                 onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 onLoadMore = {
-                                    childUiState.rootComment?.let {
-                                        viewModel.loadChildComments(
-                                            it
-                                        )
+                                    childUiState.rootComment?.let { root ->
+                                        viewModel.loadChildComments(root, forceRefresh = false)
                                     }
                                 },
                                 state = childListState,

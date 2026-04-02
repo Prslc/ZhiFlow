@@ -53,17 +53,18 @@ class CommentViewModel : ViewModel() {
 
     // load
     fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
-        if (!forceRefresh && answerId == lastLoadedAnswerId && uiState.comments.isNotEmpty()) return
-        if (uiState.isLoading && !forceRefresh) return
-
         val isNewOrRefresh = forceRefresh || answerId != lastLoadedAnswerId
+
+        if (!forceRefresh && !isNewOrRefresh && uiState.isLoading) return
+
         if (isNewOrRefresh) {
             lastLoadedAnswerId = answerId
             uiState = uiState.copy(
                 isLoading = true,
                 comments = emptyList(),
                 offset = "",
-                hasMore = true
+                hasMore = true,
+                error = null
             )
         } else {
             uiState = uiState.copy(isLoading = true)
@@ -76,13 +77,18 @@ class CommentViewModel : ViewModel() {
                     val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
 
+                    val updatedComments = if (isNewOrRefresh) response.data else uiState.comments + response.data
+
                     uiState = uiState.copy(
-                        comments = if (isNewOrRefresh) response.data else (uiState.comments + response.data).distinctBy { it.id },
+                        comments = updatedComments,
                         totalCount = response.counts.total,
                         offset = nextOffset,
                         hasMore = hasNext,
-                        isLoading = false
+                        isLoading = false,
+                        error = null
                     )
+                } else {
+                    uiState = uiState.copy(isLoading = false)
                 }
             } catch (e: Exception) {
                 uiState = uiState.copy(isLoading = false, error = e)
@@ -129,13 +135,13 @@ class CommentViewModel : ViewModel() {
     }
 
     fun updateCommentReaction(commentId: String, isLikeAction: Boolean) {
-        val id = uiState.comments.find { it.id == commentId }
+        val targetComment = uiState.comments.find { it.id == commentId }
             ?: childUiState.comments.find { it.id == commentId }
             ?: childUiState.rootComment?.takeIf { it.id == commentId }
             ?: return
 
         val action = if (isLikeAction) "like" else "unlike"
-        val isCurrentlyActive = if (isLikeAction) id.liked else false
+        val isCurrentlyActive = if (isLikeAction) targetComment.liked else false
         val method = if (isCurrentlyActive) "DELETE" else "POST"
 
         updateLocalStatus(commentId, isLikeAction, !isCurrentlyActive)
@@ -173,7 +179,8 @@ class CommentViewModel : ViewModel() {
     fun backToMain() {
         childUiState = childUiState.copy(
             isDetailMode = false,
-            rootComment = null
+            rootComment = null,
+            comments = emptyList()
         )
     }
 
