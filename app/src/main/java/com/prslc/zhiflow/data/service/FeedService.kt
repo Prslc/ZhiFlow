@@ -8,27 +8,34 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
 /**
- * Fetch recommended feed (supports pagination)
- * @param limit Number of items (first page only)
- * @param nextUrl Next page URL, null for first page
+ * Fetch recommended feed from Zhihu (supports pagination and refresh)
+ *
+ * @param isRefresh If true, force refresh and fetch the first page
+ * @param nextUrl URL for the next page; if null or isRefresh is true, fetch the first page
+ * @return ZhihuResponse containing feed data, or null if the request fails
  */
-suspend fun getRecommendFeed(limit: Int = 10, nextUrl: String? = null): ZhihuResponse? {
+suspend fun getRecommendFeed(
+    isRefresh: Boolean = false,
+    nextUrl: String? = null
+): ZhihuResponse? {
     val tag = "feedService"
     return try {
-        val requestUrl = nextUrl ?: "topstory/recommend"
+        val requestUrl = nextUrl.takeUnless { isRefresh || nextUrl == null } ?: "topstory/recommend"
 
+        // Force refresh
         val response = Client.client.get(requestUrl) {
-            if (nextUrl == null) {
-                parameter("limit", limit)
+            if (isRefresh || nextUrl == null) {
                 parameter("action", "down")
+                parameter("start_type", "cold")
+                parameter("limit", 10)
+                parameter("is_feed_first_request", "1")
+                parameter("refresh_scene", "1")
             }
         }
 
-        Log.d(tag, "Requesting: $requestUrl | Status: ${response.status}")
-
         response.body<ZhihuResponse>()
     } catch (e: Exception) {
-        Log.e(tag, "Network Error", e)
+        Log.e(tag, "Failed to fetch feed from $nextUrl", e)
         null
     }
 }
