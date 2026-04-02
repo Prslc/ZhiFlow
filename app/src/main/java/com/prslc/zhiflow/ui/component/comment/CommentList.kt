@@ -13,21 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
@@ -51,36 +44,10 @@ fun CommentList(
     onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
 
-    val lastIndex by remember {
-        derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }
-    }
-
-    LaunchedEffect(lastIndex) {
-        if (comments.isNotEmpty() && lastIndex >= comments.size - 8 && !isLoading && hasMore) {
-            onLoadMore()
-        }
-    }
-
     val stateTarget = when {
         isLoading && comments.isEmpty() -> "LOADING"
         comments.isNotEmpty() -> "CONTENT"
         else -> "EMPTY"
-    }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                return if (source == NestedScrollSource.UserInput && available.y < 0) {
-                    available
-                } else {
-                    Offset.Zero
-                }
-            }
-        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -95,8 +62,7 @@ fun CommentList(
             when (target) {
                 "CONTENT" -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                        .nestedScroll(nestedScrollConnection),
+                        modifier = Modifier.fillMaxSize(),
                         state = state
                     ) {
                         // Pin
@@ -119,10 +85,17 @@ fun CommentList(
                             }
                         }
 
-                        items(
+                        itemsIndexed(
                             items = comments,
-                            key = { it.id }
-                        ) { comment ->
+                            key = { _, item -> item.id }
+                        ) { index, comment ->
+
+                            // load more
+                            if (index >= comments.size - 3 && !isLoading && hasMore) {
+                                LaunchedEffect(comments.size) {
+                                    onLoadMore()
+                                }
+                            }
                             CommentItem(
                                 comment = comment,
                                 isChild = isChild,

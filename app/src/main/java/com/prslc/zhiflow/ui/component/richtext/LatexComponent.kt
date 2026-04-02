@@ -43,8 +43,7 @@ fun LatexComponent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 16.dp),
-            contentAlignment = Alignment.Center
+                .padding(vertical = 12.dp, horizontal = 16.dp)
         ) {
             Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
                 AsyncImage(
