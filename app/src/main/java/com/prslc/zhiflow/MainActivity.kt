@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -60,7 +61,14 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val context = LocalContext.current
                     val navController = rememberNavController()
-                    val navigator = remember(navController) { Navigator(navController, context) }
+                    val uriHandler = LocalUriHandler.current
+                    val navigator = remember(navController) {
+                        Navigator(
+                            navController = navController,
+                            context = context,
+                            uriHandler =  uriHandler
+                        )
+                    }
 
                     CompositionLocalProvider(LocalNavigator provides navigator) {
                         NavHost(

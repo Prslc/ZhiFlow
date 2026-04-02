@@ -26,12 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun Divider() {
@@ -44,9 +44,10 @@ fun Divider() {
 
 @Composable
 fun BlockquoteComponent(
-    content: AnnotatedString,
-    uriHandler: UriHandler
+    content: AnnotatedString
 ) {
+    val navigator = LocalNavigator.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,7 +68,7 @@ fun BlockquoteComponent(
 
         ClickableText(
             content = content,
-            onClick = { url -> uriHandler.openUri(url) },
+            onClick = { url -> navigator.handleUrl(url) },
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 lineHeight = 24.sp
