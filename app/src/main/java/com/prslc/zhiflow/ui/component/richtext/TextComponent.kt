@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -29,7 +30,7 @@ fun RichTextComponent(
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    val navigator = LocalNavigator.current
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
     val inlineContentMap = remember(content) {
@@ -65,7 +66,9 @@ fun RichTextComponent(
 
                     // click link
                     content.getStringAnnotations("URL", offset, offset)
-                        .firstOrNull()?.let { uriHandler.openUri(it.item) }
+                        .firstOrNull()?.let {
+                            navigator.handleUrl(it.item)
+                        }
 
                     // inline formula
                     content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)

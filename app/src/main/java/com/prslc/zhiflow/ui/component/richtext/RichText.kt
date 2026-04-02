@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.parser.RichTextElement
-import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun RichText(
@@ -36,9 +35,7 @@ fun RichText(
                 }
 
                 is RichTextElement.Heading -> {
-                    Heading(
-                        element = element
-                    )
+                    Heading(element)
                 }
 
                 is RichTextElement.Code -> {
@@ -67,16 +64,11 @@ fun RichText(
                 }
 
                 is RichTextElement.Blockquote -> {
-                    BlockquoteComponent(
-                        content = element.content,
-                        uriHandler = uriHandler
-                    )
+                    BlockquoteComponent(element.content)
                 }
 
                 is RichTextElement.Table -> {
-                    TableComponent(
-                        element = element
-                    )
+                    TableComponent(element)
                 }
 
                 is RichTextElement.FormulaBlock -> {
@@ -88,14 +80,7 @@ fun RichText(
                 }
 
                 is RichTextElement.Card -> {
-                    val navigator = LocalNavigator.current
-                    CardComponent(
-                        element = element,
-                        uriHandler = uriHandler,
-                        onNavigate = { id, type ->
-                            navigator.navigateToContent(id, type)
-                        },
-                    )
+                    CardComponent(element)
                 }
 
                 is RichTextElement.Divider -> {
