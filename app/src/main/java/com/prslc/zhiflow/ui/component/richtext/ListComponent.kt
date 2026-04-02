@@ -12,8 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -22,12 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun BulletItemRow(
     item: RichTextElement.BulletItem,
-    uriHandler: UriHandler
 ) {
+    val navigator = LocalNavigator.current
     val indentation = (maxOf(0, item.level - 1) * 12).dp
 
     Row(
@@ -47,7 +46,7 @@ fun BulletItemRow(
 
         ClickableText(
             content = item.content,
-            onClick = { url -> uriHandler.openUri(url) },
+            onClick = { url -> navigator.handleUrl(url) },
             style = MaterialTheme.typography.bodyLarge.copy(
                 lineHeight = 24.sp
             ),
@@ -60,7 +59,7 @@ fun BulletItemRow(
 
 @Composable
 fun ReferenceSection(items: List<AnnotatedString>) {
-    val uriHandler = LocalUriHandler.current
+    val navigator = LocalNavigator.current
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
@@ -88,7 +87,7 @@ fun ReferenceSection(items: List<AnnotatedString>) {
                 ),
                 onClick = { url ->
                     try {
-                        uriHandler.openUri(url)
+                        navigator.handleUrl(url)
                     } catch (e: Exception) {
                         throw e
                     }

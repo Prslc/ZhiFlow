@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.parser.ContentParser
@@ -20,8 +19,6 @@ fun RichText(
     val elements = remember(segments) {
         ContentParser.transform(segments)
     }
-
-    val uriHandler = LocalUriHandler.current
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         elements.forEach { element ->
@@ -46,10 +43,7 @@ fun RichText(
                 }
 
                 is RichTextElement.BulletItem -> {
-                    BulletItemRow(
-                        item = element,
-                        uriHandler = uriHandler
-                    )
+                    BulletItemRow(element)
                 }
 
                 is RichTextElement.Image -> {
