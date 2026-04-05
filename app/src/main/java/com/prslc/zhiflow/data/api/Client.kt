@@ -36,6 +36,7 @@ object Client {
             header("x-zse-96", BuildConfig.x_zse_96)
             header("x-zse-93", BuildConfig.x_zse_93)
             header("authorization", BuildConfig.authorization)
+            header("x-app-za", HeaderProvider.xAppZa)
         }
     }
 }
