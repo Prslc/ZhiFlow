@@ -74,11 +74,12 @@ fun CommentBottomSheet(
                     .fillMaxHeight(0.95f)
                     .statusBarsPadding()
             ) {
-                BackHandler(enabled = uiState.selectedImageUrl != null) {
+
+                BackHandler(enabled = uiState.isLightboxVisible) {
                     viewModel.closeImageLightbox()
                 }
 
-                BackHandler(enabled = showComments && childUiState.isDetailMode && uiState.selectedImageUrl == null) {
+                BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
                     viewModel.backToMain()
                 }
 
@@ -161,10 +162,13 @@ fun CommentBottomSheet(
                 }
             }
         }
-        ImageLightbox(
-            imageUrl = uiState.selectedImageUrl,
-            onDismiss = { viewModel.closeImageLightbox() }
-        )
+        if (uiState.isLightboxVisible) {
+            ImageLightbox(
+                imageUrls = uiState.selectedImageUrls,
+                initialIndex = uiState.initialImageIndex,
+                onDismiss = { viewModel.closeImageLightbox() }
+            )
+        }
     }
 }
 

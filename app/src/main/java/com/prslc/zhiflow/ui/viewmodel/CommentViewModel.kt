@@ -22,7 +22,11 @@ class CommentViewModel : ViewModel() {
         val offset: String = "",
         val hasMore: Boolean = true,
         val error: Throwable? = null,
-        val selectedImageUrl: String? = null
+        val selectedImageUrl: String? = null,
+
+        val isLightboxVisible: Boolean = false,
+        val selectedImageUrls: List<String> = emptyList(),
+        val initialImageIndex: Int = 0
     )
 
     data class ChildCommentUiState(
@@ -44,11 +48,18 @@ class CommentViewModel : ViewModel() {
 
 
     fun openImageLightbox(url: String) {
-        uiState = uiState.copy(selectedImageUrl = url)
+        uiState = uiState.copy(
+            selectedImageUrls = listOf(url),
+            initialImageIndex = 0,
+            isLightboxVisible = true
+        )
     }
 
     fun closeImageLightbox() {
-        uiState = uiState.copy(selectedImageUrl = null)
+        uiState = uiState.copy(
+            isLightboxVisible = false,
+            selectedImageUrls = emptyList()
+        )
     }
 
     // load
