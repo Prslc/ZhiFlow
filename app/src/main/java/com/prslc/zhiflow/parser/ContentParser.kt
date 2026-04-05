@@ -44,7 +44,7 @@ sealed interface RichTextElement {
     data class Table(
         val rows: Int,
         val cols: Int,
-        val cells: List<String>,
+        val cells: List<AnnotatedString>,
         val hasHeader: Boolean
     ) : RichTextElement
 
@@ -113,7 +113,9 @@ object ContentParser {
                             RichTextElement.Table(
                                 rows = it.rowCount,
                                 cols = it.columnCount,
-                                cells = it.cells,
+                                cells = it.cells.map { cellText ->
+                                    parseContent(cellText, emptyList())
+                                },
                                 hasHeader = it.hasHeadRow
                             )
                         )
