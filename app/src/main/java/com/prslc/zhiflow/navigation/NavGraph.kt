@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.navigation
+package com.prslc.zhiflow.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController

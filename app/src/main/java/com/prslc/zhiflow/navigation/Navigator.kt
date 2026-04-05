@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.navigation
+package com.prslc.zhiflow.navigation
 
 import android.content.Context
 import android.widget.Toast

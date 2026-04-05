@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.parser.RichTextElement
-import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.navigation.LocalNavigator
 
 @Composable
 fun BulletItemRow(
