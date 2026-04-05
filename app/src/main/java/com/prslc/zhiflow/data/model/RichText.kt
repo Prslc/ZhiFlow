@@ -91,7 +91,8 @@ data class Table(
     val cells: List<String>,
     @SerialName("column_count") val columnCount: Int,
     @SerialName("row_count") val rowCount: Int,
-    @SerialName("head_row") val hasHeadRow: Boolean = true
+    @SerialName("head_row") val hasHeadRow: Boolean = true,
+    val interlaced: Boolean = false
 )
 
 @Serializable

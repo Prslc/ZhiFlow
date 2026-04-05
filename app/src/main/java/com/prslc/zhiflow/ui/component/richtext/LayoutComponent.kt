@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,8 +29,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prslc.zhiflow.parser.RichTextElement
 import com.prslc.zhiflow.navigation.LocalNavigator
+import com.prslc.zhiflow.parser.RichTextElement
 
 @Composable
 fun Divider() {
@@ -80,6 +79,7 @@ fun BlockquoteComponent(
 
 @Composable
 fun TableComponent(element: RichTextElement.Table) {
+    val navigator = LocalNavigator.current
     val scrollState = rememberScrollState()
 
     Box(
@@ -106,9 +106,9 @@ fun TableComponent(element: RichTextElement.Table) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             for (colIndex in 0 until element.cols) {
-                                val cellText =
+                                val cellText: AnnotatedString =
                                     element.cells.getOrNull(rowIndex * element.cols + colIndex)
-                                        ?: ""
+                                        ?: AnnotatedString("")
 
                                 Box(
                                     modifier = Modifier
@@ -117,11 +117,14 @@ fun TableComponent(element: RichTextElement.Table) {
                                         .padding(8.dp),
                                     contentAlignment = Alignment.CenterStart
                                 ) {
-                                    Text(
-                                        text = cellText,
+                                    ClickableText(
+                                        content = cellText,
                                         style = MaterialTheme.typography.bodySmall.copy(
                                             fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal
-                                        )
+                                        ),
+                                        onClick = { url ->
+                                            navigator.handleUrl(url)
+                                        }
                                     )
                                 }
 

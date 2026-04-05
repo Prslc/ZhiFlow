@@ -90,13 +90,18 @@ fun RichTextComponent(
 
 @Composable
 fun Heading(element: RichTextElement.Heading) {
-    Text(
-        text = element.content,
+    val navigator = LocalNavigator.current
+
+    ClickableText(
+        content = element.content,
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
             fontSize = if (element.level == 3) 20.sp else 22.sp
         ),
-        modifier = Modifier.padding(top = 8.dp)
+        modifier = Modifier.padding(top = 8.dp),
+        onClick = { url ->
+            navigator.handleUrl(url)
+        }
     )
 }
 
