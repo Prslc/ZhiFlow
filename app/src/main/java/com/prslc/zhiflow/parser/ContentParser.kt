@@ -277,21 +277,20 @@ object ContentParser {
     fun parseCommentHtml(html: String): CommentContent {
         val extractedImages = mutableListOf<ZhihuImage>()
 
-        val aTagRegex = """<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>""".toRegex()
+        val imgRegex = """<a[^>]+class="comment_img"[^>]*>.*?</a>""".toRegex()
+        val hrefRegex = """href="([^"]+)"""".toRegex()
         val widthRegex = """data-width="(\d+)"""".toRegex()
         val heightRegex = """data-height="(\d+)"""".toRegex()
 
         var processedHtml = html
-
-        aTagRegex.findAll(html).forEach { match ->
+        imgRegex.findAll(html).forEach { match ->
             val fullTag = match.value
-            val url = match.groupValues[1]
+            val url = hrefRegex.find(fullTag)?.groupValues?.get(1) ?: ""
 
             if (url.isNotEmpty()) {
                 val w = widthRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
                 val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-
-                val isGif = fullTag.contains("comment_gif") || url.lowercase().contains(".gif")
+                val isGif = url.lowercase().contains(".gif")
 
                 extractedImages.add(
                     ZhihuImage(
@@ -299,23 +298,39 @@ object ContentParser {
                         width = w,
                         height = h,
                         isGif = isGif,
-                        description = ""
+                        description = "",
                     )
                 )
             }
-
             processedHtml = processedHtml.replace(fullTag, "")
         }
 
-        val rawText = Html.fromHtml(processedHtml, Html.FROM_HTML_MODE_COMPACT)
-            .toString()
-            .trim()
+        // Text
+        val spanned = Html.fromHtml(processedHtml, Html.FROM_HTML_MODE_COMPACT)
 
-        val annotatedText = EmojiParser.parse(rawText)
+        val annotatedText = buildAnnotatedString {
+            val rawText = spanned.toString().trim()
+            append(EmojiParser.parse(rawText))
 
-        return CommentContent(
-            text = annotatedText,
-            images = extractedImages
-        )
+            if (spanned is android.text.Spanned) {
+                val spans =
+                    spanned.getSpans(0, spanned.length, android.text.style.URLSpan::class.java)
+                spans.forEach { span ->
+                    val start = spanned.getSpanStart(span)
+                    val end = spanned.getSpanEnd(span)
+
+                    addStringAnnotation("URL", span.url, start, end)
+                    addStyle(
+                        SpanStyle(
+                            color = Color(0xFF1E88E5),
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        start, end
+                    )
+                }
+            }
+        }
+
+        return CommentContent(text = annotatedText, images = extractedImages)
     }
 }

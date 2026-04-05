@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.component.comment
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,20 +18,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
+import com.prslc.zhiflow.navigation.LocalNavigator
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.utils.formatToDate
@@ -46,6 +53,9 @@ fun CommentItem(
     onImageClick: (String) -> Unit = {},
     onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
+    val navigator = LocalNavigator.current
+    var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
     val parsedContent = remember(comment.content) {
         ContentParser.parseCommentHtml(comment.content)
     }
@@ -56,7 +66,8 @@ fun CommentItem(
         val text = parsedContent.text
 
         text.getStringAnnotations("EMOJI_PATH", 0, text.length).forEach { pathAnno ->
-            val idAnno = text.getStringAnnotations("EMOJI_ID", pathAnno.start, pathAnno.end).firstOrNull()
+            val idAnno =
+                text.getStringAnnotations("EMOJI_ID", pathAnno.start, pathAnno.end).firstOrNull()
 
             if (idAnno != null) {
                 val inlineId = idAnno.item
@@ -131,7 +142,23 @@ fun CommentItem(
                 text = parsedContent.text,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                inlineContent = inlineContent
+                inlineContent = inlineContent,
+                onTextLayout = { layoutResult = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(parsedContent.text) {
+                        detectTapGestures { pos ->
+                            layoutResult?.let { result ->
+                                val offset = result.getOffsetForPosition(pos)
+                                if (offset < parsedContent.text.length) {
+                                    parsedContent.text.getStringAnnotations("URL", offset, offset)
+                                        .firstOrNull()?.let { annotation ->
+                                            navigator.handleUrl(annotation.item)
+                                        }
+                                }
+                            }
+                        }
+                    }
             )
 
             // images
@@ -171,7 +198,10 @@ fun CommentItem(
 
                 if (!isChild && comment.childCount > 0 && showReplyButton) {
                     Text(
-                        text = stringResource(R.string.comment_reply_count_with_arrow, comment.childCount),
+                        text = stringResource(
+                            R.string.comment_reply_count_with_arrow,
+                            comment.childCount
+                        ),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
