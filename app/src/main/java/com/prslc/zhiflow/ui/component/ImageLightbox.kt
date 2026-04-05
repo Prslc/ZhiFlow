@@ -62,15 +62,10 @@ fun ImageLightbox(
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
 
-    val zoomableImageState = rememberZoomableImageState(rememberZoomableState())
     val successText = stringResource(R.string.lightbox_image_save_success)
     val failedText = stringResource(R.string.lightbox_image_save_failed)
 
     val isDarkTheme = isSystemInDarkTheme()
-
-    val isZoomed by remember {
-        derivedStateOf { (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f }
-    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -80,15 +75,17 @@ fun ImageLightbox(
         )
     ) {
         val dialogView = LocalView.current
-        val dialogWindow = (dialogView.parent as? DialogWindowProvider)?.window
+        val dialogWindow = remember(dialogView) {
+            (dialogView.parent as? DialogWindowProvider)?.window
+        }
 
         val barsType =
             WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
 
-        LaunchedEffect(isZoomed, dialogWindow) {
+        LaunchedEffect(isCurrentPageZoomed, dialogWindow) {
             dialogWindow?.let { window ->
                 val controller = WindowCompat.getInsetsController(window, dialogView)
-                if (isZoomed) {
+                if (isCurrentPageZoomed) {
                     // Hide status bars during zoom for immersive viewing with swipe-to-show behavior
                     controller.hide(barsType)
                     controller.systemBarsBehavior =
