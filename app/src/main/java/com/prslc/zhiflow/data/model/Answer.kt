@@ -81,10 +81,10 @@ data class ContentEndInfo(
 
 @Serializable
 data class ZhihuImage(
-    val description: String,
     val urls: List<String>,
     val width: Int,
     val height: Int,
+    val description: String,
     @SerialName("is_gif") val isGif: Boolean,
 )
 
