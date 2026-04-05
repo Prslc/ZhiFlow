@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,13 +37,22 @@ fun ImageComponent(
         }
     } ?: return
 
+    val aspectRatio = remember(image) {
+        val w = image?.width ?: 0
+        val h = image?.height ?: 0
+        if (w > 0 && h > 0) w.toFloat() / h.toFloat() else 1.77f    // 16:9
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Card(
-            modifier = Modifier.clickable { onImageClick(displayUrl) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(aspectRatio)
+                .clickable { onImageClick(displayUrl) },
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
