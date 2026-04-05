@@ -277,8 +277,7 @@ object ContentParser {
     fun parseCommentHtml(html: String): CommentContent {
         val extractedImages = mutableListOf<ZhihuImage>()
 
-        val aTagRegex = """<a[^>]+class="[^"]*comment_img[^"]*"[^>]*>.*?</a>""".toRegex()
-        val hrefRegex = """href="([^"]+)"""".toRegex()
+        val aTagRegex = """<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>""".toRegex()
         val widthRegex = """data-width="(\d+)"""".toRegex()
         val heightRegex = """data-height="(\d+)"""".toRegex()
 
@@ -286,18 +285,20 @@ object ContentParser {
 
         aTagRegex.findAll(html).forEach { match ->
             val fullTag = match.value
-
-            val url = hrefRegex.find(fullTag)?.groupValues?.get(1) ?: ""
-            val w = widthRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-            val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+            val url = match.groupValues[1]
 
             if (url.isNotEmpty()) {
+                val w = widthRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+
+                val isGif = fullTag.contains("comment_gif") || url.lowercase().contains(".gif")
+
                 extractedImages.add(
                     ZhihuImage(
                         urls = listOf(url),
                         width = w,
                         height = h,
-                        isGif = false,
+                        isGif = isGif,
                         description = ""
                     )
                 )
