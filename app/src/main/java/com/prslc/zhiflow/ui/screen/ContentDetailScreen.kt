@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.screen
 
-import com.prslc.zhiflow.ui.viewmodel.ContentViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -61,12 +60,13 @@ import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ImageLightbox
-import com.prslc.zhiflow.ui.component.richtext.RichText
 import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.component.common.BottomBar
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.richtext.RichText
 import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
+import com.prslc.zhiflow.ui.viewmodel.ContentViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,22 +82,22 @@ fun ContentDetailScreen(
     var showCollectionSheet by rememberSaveable { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
 
-    LaunchedEffect(showComments) {
-        if (showComments && commentState.comments.isEmpty()) {
-            commentViewModel.loadComments(id, contentType)
-        }
-    }
-
     val currentContent = viewModel.content
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    var selectedImageUrl by rememberSaveable { mutableStateOf<String?>(null) }
+    var currentImageIndex by rememberSaveable { mutableIntStateOf(0) }
+    var isLightboxVisible by rememberSaveable { mutableStateOf(false) }
 
-    BackHandler(enabled = selectedImageUrl != null || currentContent != null) {
-        if (selectedImageUrl != null) {
-            selectedImageUrl = null
-        } else {
-            onBack()
+    var currentProgress by remember { mutableIntStateOf(0) }
+
+    val imageUrls = remember(currentContent) {
+        currentContent?.structuredContent?.segments
+            ?.mapNotNull { it.image?.urls?.firstOrNull() } ?: emptyList()
+    }
+
+    LaunchedEffect(showComments) {
+        if (showComments && commentState.comments.isEmpty()) {
+            commentViewModel.loadComments(id, contentType)
         }
     }
 
@@ -105,7 +105,9 @@ fun ContentDetailScreen(
         viewModel.loadContent(id, contentType)
     }
 
-    var currentProgress by remember { mutableIntStateOf(0) }
+    BackHandler(enabled = isLightboxVisible) {
+        isLightboxVisible = false
+    }
 
     DisposableEffect(id) {
         viewModel.updateReadProgress(id, contentType, 0)
@@ -271,8 +273,13 @@ fun ContentDetailScreen(
                                             RichText(
                                                 segments = answer.structuredContent.segments,
                                                 onImageClick = { url ->
-                                                    selectedImageUrl = url
-                                                })
+                                                    val index = imageUrls.indexOf(url)
+                                                    if (index != -1) {
+                                                        currentImageIndex = index
+                                                        isLightboxVisible = true
+                                                    }
+                                                }
+                                            )
                                         }
                                     }
 
@@ -328,8 +335,13 @@ fun ContentDetailScreen(
             )
 
             // light box
-            ImageLightbox(
-                imageUrl = selectedImageUrl, onDismiss = { selectedImageUrl = null })
+            if (isLightboxVisible) {
+                ImageLightbox(
+                    imageUrls = imageUrls,
+                    initialIndex = currentImageIndex,
+                    onDismiss = { isLightboxVisible = false }
+                )
+            }
         }
     }
 }
