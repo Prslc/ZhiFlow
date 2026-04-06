@@ -277,20 +277,20 @@ object ContentParser {
     fun parseCommentHtml(html: String): CommentContent {
         val extractedImages = mutableListOf<ZhihuImage>()
 
-        val imgRegex = """<a[^>]+class="comment_img"[^>]*>.*?</a>""".toRegex()
+        val aTagRegex = """<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>""".toRegex()
         val hrefRegex = """href="([^"]+)"""".toRegex()
         val widthRegex = """data-width="(\d+)"""".toRegex()
         val heightRegex = """data-height="(\d+)"""".toRegex()
 
         var processedHtml = html
-        imgRegex.findAll(html).forEach { match ->
+        aTagRegex.findAll(html).forEach { match ->
             val fullTag = match.value
             val url = hrefRegex.find(fullTag)?.groupValues?.get(1) ?: ""
 
             if (url.isNotEmpty()) {
                 val w = widthRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
                 val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-                val isGif = url.lowercase().contains(".gif")
+                val isGif = fullTag.contains("comment_gif") || url.lowercase().contains(".gif")
 
                 extractedImages.add(
                     ZhihuImage(
@@ -321,10 +321,7 @@ object ContentParser {
 
                     addStringAnnotation("URL", span.url, start, end)
                     addStyle(
-                        SpanStyle(
-                            color = Color(0xFF1E88E5),
-                            textDecoration = TextDecoration.Underline
-                        ),
+                        SpanStyle(color = Color(0xFF1E88E5)),
                         start, end
                     )
                 }
