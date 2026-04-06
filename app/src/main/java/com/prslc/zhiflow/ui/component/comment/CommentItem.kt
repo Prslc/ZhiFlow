@@ -38,7 +38,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.navigation.LocalNavigator
-import com.prslc.zhiflow.parser.ContentParser
+import com.prslc.zhiflow.parser.commentParse
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.utils.formatToDate
 
@@ -57,7 +57,7 @@ fun CommentItem(
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     val parsedContent = remember(comment.content) {
-        ContentParser.parseCommentHtml(comment.content)
+        commentParse(comment.content)
     }
 
     // emoji
