@@ -25,10 +25,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DebugScreen(
-    onNavigateToContent: (String, String) -> Unit
+    onHandleUrl: (String) -> Unit
 ) {
-    var activeDialogType by remember { mutableStateOf<String?>(null) }
-    var inputId by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var inputUrl by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -36,62 +36,50 @@ fun DebugScreen(
             .padding(16.dp)
     ) {
         DebugItem(
-            title = "Test Answer Page",
-            subtitle = "Jump directly via Answer ID",
+            title = "Open Link",
+            subtitle = "Paste a Zhihu URL to test LinkParser",
             onClick = {
-                activeDialogType = "answer"
-                inputId = ""
-            }
-        )
-
-        DebugItem(
-            title = "Test Article Page",
-            subtitle = "Jump directly via Article ID",
-            onClick = {
-                activeDialogType = "article"
-                inputId = ""
+                inputUrl = ""
+                showDialog = true
             }
         )
     }
 
-    // Dialog
-    activeDialogType?.let { type ->
-        val isArticle = type == "article"
-        val label = if (isArticle) "Article" else "Answer"
-
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { activeDialogType = null },
-            title = { Text("Navigate to $label") },
+            onDismissRequest = { showDialog = false },
+            title = { Text("Debug Navigator") },
             text = {
                 Column {
                     Text(
-                        text = "Enter the target $label ID below",
+                        text = "Enter any URL (Answer, Article, or External)",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = inputId,
-                        onValueChange = { inputId = it },
-                        label = { Text("$label ID") },
-                        placeholder = { Text("e.g. 123456") },
-                        singleLine = true
+                        value = inputUrl,
+                        onValueChange = { inputUrl = it },
+                        label = { Text("URL") },
+                        placeholder = { Text("https://www.zhihu.com/question/...") },
+                        singleLine = false,
+                        maxLines = 3
                     )
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (inputId.isNotBlank()) {
-                            onNavigateToContent(inputId, type)
-                            activeDialogType = null
+                        if (inputUrl.isNotBlank()) {
+                            onHandleUrl(inputUrl.trim())
+                            showDialog = false
                         }
                     }
                 ) {
-                    Text("Navigate")
+                    Text("Go")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { activeDialogType = null }) {
+                TextButton(onClick = { showDialog = false }) {
                     Text("Cancel")
                 }
             }
@@ -100,7 +88,11 @@ fun DebugScreen(
 }
 
 @Composable
-private fun DebugItem(title: String, subtitle: String, onClick: () -> Unit) {
+private fun DebugItem(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(subtitle) },

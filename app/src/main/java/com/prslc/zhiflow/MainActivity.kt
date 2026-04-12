@@ -163,7 +163,9 @@ fun MainScreen() {
                 )
 
                 DebugTab -> DebugScreen(
-                    onNavigateToContent = { id, type -> navigator.navigateToContent(id, type) }
+                    onHandleUrl = { url ->
+                        navigator.handleUrl(url)
+                    }
                 )
                 ProfileTab -> ProfileScreen(
                     viewModel = profileViewModel,
