@@ -38,7 +38,7 @@ fun Heading(element: RichTextElement.Heading) {
     ClickableText(
         content = element.content,
         style = MaterialTheme.typography.titleLarge.copy(
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             fontSize = if (element.level == 3) 20.sp else 22.sp
         ),
         modifier = Modifier.padding(top = 8.dp),
