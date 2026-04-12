@@ -5,7 +5,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.MaterialTheme
@@ -45,14 +44,14 @@ fun LatexComponent(
 
     if (isInline) {
         LatexAutoWrap(
-            latex = formula.content,
+            latex = formula.content.cleanLatex(),
             modifier = modifier,
             config = config
         )
     } else {
         Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
             LatexAutoWrap(
-                latex = formula.content,
+                latex = formula.content.cleanLatex(),
                 config = config
             )
         }
@@ -82,10 +81,13 @@ fun FormulaTextSection(
         content.getStringAnnotations("INLINE_FORMULA_DATA", 0, content.length)
             .forEach { annotation ->
                 val formula = Json.decodeFromString<Formula>(annotation.item)
-                val dims = measurer.measure(formula.content, config)
+                val cleaned = formula.content.cleanLatex()
+                val dims = measurer.measure(cleaned, config)
 
                 if (dims != null) {
-                    val inlineId = "f_${annotation.start}"
+                    val hashCode = formula.content.hashCode()
+                    val inlineId = "f_${annotation.start}_$hashCode"
+
                     map[inlineId] = InlineTextContent(
                         placeholder = Placeholder(
                             width = with(density) { dims.widthPx.toSp() },
@@ -133,4 +135,14 @@ fun FormulaTextSection(
             letterSpacing = 0.25.sp
         )
     )
+}
+
+fun String.cleanLatex(): String {
+    return this
+        .replace("\\,", " ")
+        .replace("\\;", " ")
+        .replace("\\{", "\\lbrace ")
+        .replace("\\}", "\\rbrace ")
+        .replace("\\mid", " | ")
+        .trimEnd('\\')
 }
