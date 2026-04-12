@@ -149,17 +149,54 @@ object ContentParser {
     private fun processParagraph(paragraph: Paragraph?): List<RichTextElement> {
         if (paragraph == null) return emptyList()
 
-        val formulaMark = paragraph.marks.find { it.type == "formula" }
-        if (paragraph.text.trim() == "[公式]" && formulaMark != null) {
-            val formulaData = formulaMark.formula
-            return if (formulaData != null) {
-                listOf(RichTextElement.FormulaBlock(formulaData))
-            } else {
-                emptyList()
+        val rawText = paragraph.text
+        val marks = paragraph.marks
+
+        val isStrictBlock = rawText.trim() == "[公式]" && marks.any { it.type == "formula" }
+
+        val blockFormulaMarks = marks.filter { mark ->
+            mark.type == "formula" && mark.formula?.let {
+                it.content.contains("\\\\") ||
+                        it.content.contains("\\begin{") ||
+                        isStrictBlock
+            } == true
+        }.sortedBy { it.start }
+
+        if (blockFormulaMarks.isEmpty()) {
+            return listOf(RichTextElement.Text(parseContent(rawText, marks)))
+        }
+
+
+        val elements = mutableListOf<RichTextElement>()
+        var lastIndex = 0
+
+        blockFormulaMarks.forEach { mark ->
+            if (mark.start > lastIndex) {
+                val subText = rawText.substring(lastIndex, mark.start)
+                val subMarks = marks.filter { it.start >= lastIndex && it.end <= mark.start }
+                    .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
+
+                if (subText.isNotBlank() && subText != "\n") {
+                    elements.add(RichTextElement.Text(parseContent(subText, subMarks)))
+                }
+            }
+            mark.formula?.let {
+                elements.add(RichTextElement.FormulaBlock(it))
+            }
+            lastIndex = mark.end
+        }
+
+        if (lastIndex < rawText.length) {
+            val subText = rawText.substring(lastIndex)
+            val subMarks = marks.filter { it.start >= lastIndex }
+                .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
+
+            if (subText.isNotBlank() && subText != "\n") {
+                elements.add(RichTextElement.Text(parseContent(subText, subMarks)))
             }
         }
 
-        return listOf(RichTextElement.Text(parseContent(paragraph.text, paragraph.marks)))
+        return elements
     }
 
     private class OrderedListCounter {
@@ -185,7 +222,7 @@ object ContentParser {
 
                 val formulaData = mark.formula!!
                 val placeholderPos = length
-                val inlineId = "f_$placeholderPos"
+                val inlineId = "f_${placeholderPos}_${formulaData.content.hashCode()}"
 
                 appendInlineContent(inlineId, "[f]")
 
