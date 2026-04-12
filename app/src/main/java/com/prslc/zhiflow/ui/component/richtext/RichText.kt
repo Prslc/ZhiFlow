@@ -68,8 +68,7 @@ fun RichText(
                 is RichTextElement.FormulaBlock -> {
                     LatexComponent(
                         formula = element.data,
-                        isInline = false,
-                        modifier = Modifier.padding(vertical = 12.dp)
+                        isInline = false
                     )
                 }
 

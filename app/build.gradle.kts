@@ -111,4 +111,9 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.network.ktor)
     implementation(libs.telephoto.zoomable.image.coil)
+
+    // latex
+    implementation(libs.latex.base)
+    implementation(libs.latex.renderer)
+    implementation(libs.latex.parser)
 }
