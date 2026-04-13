@@ -17,6 +17,11 @@ data class ProcessedText(
     val inlineMetas: List<InlineFormulaMeta> = emptyList()
 )
 
+sealed class DetailElement {
+    data class Text(val content: AnnotatedString) : DetailElement()
+    data class Image(val image: ZhihuImage) : DetailElement()
+}
+
 sealed interface RichTextElement {
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     data class Image(val data: ZhihuImage) : RichTextElement

@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.navigation.NavHostController
 import com.prslc.zhiflow.parser.LinkDestination
 import com.prslc.zhiflow.parser.LinkParser
+import com.prslc.zhiflow.ui.screen.QuestionDetailScreen
 
 val LocalNavigator = staticCompositionLocalOf<Navigator> {
     error("NavController not provided")
@@ -39,6 +40,7 @@ class Navigator(
             "answer" -> navController.navigate(AnswerDetail(id))
             "article" -> navController.navigate(ArticleDetail(id))
             "pin" -> navController.navigate(PinDetail(id))
+            "question" -> navController.navigate(QuestionDetail(id))
             else -> Toast.makeText(context, "Unknown type: $type", Toast.LENGTH_SHORT).show()
         }
     }

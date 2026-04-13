@@ -13,6 +13,8 @@ data class ArticleDetail(val id: String)
 @Serializable
 data class PinDetail(val id: String)
 @Serializable
+data class QuestionDetail(val id: String)
+@Serializable
 object HomeTab
 @Serializable
 object DebugTab
