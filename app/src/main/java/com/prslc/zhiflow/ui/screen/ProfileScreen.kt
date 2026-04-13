@@ -85,7 +85,8 @@ fun ProfileScreen(
                             )
                         )
                         Text(
-                            text = user.headline ?: stringResource(R.string.profile_default_headline),
+                            text = user.headline
+                                ?: stringResource(R.string.profile_default_headline),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -99,13 +100,28 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    StatItem(Modifier.weight(1f), stringResource(R.string.profile_stat_following), user.followingCount)
-                    StatItem(Modifier.weight(1f), stringResource(R.string.profile_stat_followers), user.followerCount)
-                    StatItem(Modifier.weight(1f), stringResource(R.string.profile_stat_favorites), user.favoriteCount)
+                    StatItem(
+                        Modifier.weight(1f),
+                        stringResource(R.string.profile_stat_following),
+                        user.followingCount
+                    )
+                    StatItem(
+                        Modifier.weight(1f),
+                        stringResource(R.string.profile_stat_followers),
+                        user.followerCount
+                    )
+                    StatItem(
+                        Modifier.weight(1f),
+                        stringResource(R.string.profile_stat_favorites),
+                        user.favoriteCount
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
             }
         } else if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -141,6 +157,10 @@ fun StatItem(modifier: Modifier, label: String, count: Int) {
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
             color = MaterialTheme.colorScheme.primary
         )
-        Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }

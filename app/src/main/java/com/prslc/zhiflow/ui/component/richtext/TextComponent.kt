@@ -19,19 +19,6 @@ import com.prslc.zhiflow.parser.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
-fun RichTextComponent(
-    content: AnnotatedString,
-    onImageClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    FormulaTextSection(
-        content = content,
-        onImageClick = onImageClick,
-        modifier = modifier
-    )
-}
-
-@Composable
 fun Heading(element: RichTextElement.Heading) {
     val navigator = LocalNavigator.current
 

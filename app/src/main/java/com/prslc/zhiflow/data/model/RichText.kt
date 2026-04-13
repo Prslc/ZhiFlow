@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.TextUnit
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -114,6 +116,18 @@ data class Formula(
     @SerialName("img_url") val imgUrl: String? = null,
     val width: Int = 0,
     val height: Int = 0
+)
+
+data class FormulaRenderMeta(
+    val formula: Formula,
+    val inlineId: String,
+    val widthSp: TextUnit,
+    val heightSp: TextUnit
+)
+
+data class RichTextState(
+    val annotatedString: AnnotatedString,
+    val formulaMetas: List<FormulaRenderMeta>
 )
 
 @Serializable

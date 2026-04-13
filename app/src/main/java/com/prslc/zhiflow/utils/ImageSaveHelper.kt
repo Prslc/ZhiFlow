@@ -16,39 +16,44 @@ import java.io.FileInputStream
 
 object ImageSaveHelper {
 
-    suspend fun saveImageToGallery(context: Context, url: String): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val loader = SingletonImageLoader.get(context)
-            val request = ImageRequest.Builder(context)
-                .data(url)
-                .build()
+    suspend fun saveImageToGallery(context: Context, url: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val loader = SingletonImageLoader.get(context)
+                val request = ImageRequest.Builder(context)
+                    .data(url)
+                    .build()
 
-            val result = loader.execute(request)
+                val result = loader.execute(request)
 
-            if (result is SuccessResult) {
-                val diskCache = loader.diskCache
-                val cacheKey = result.diskCacheKey
+                if (result is SuccessResult) {
+                    val diskCache = loader.diskCache
+                    val cacheKey = result.diskCacheKey
 
-                val cacheFile = if (diskCache != null && cacheKey != null) {
-                    diskCache.openSnapshot(cacheKey)?.use { snapshot ->
-                        snapshot.data.toFile().takeIf { it.exists() }
+                    val cacheFile = if (diskCache != null && cacheKey != null) {
+                        diskCache.openSnapshot(cacheKey)?.use { snapshot ->
+                            snapshot.data.toFile().takeIf { it.exists() }
+                        }
+                    } else null
+
+                    if (cacheFile != null) {
+                        saveFileToMediaStore(context, cacheFile, url)
+                    } else {
+                        Result.failure(Exception("Unable to find cache file"))
                     }
-                } else null
-
-                if (cacheFile != null) {
-                    saveFileToMediaStore(context, cacheFile, url)
                 } else {
-                    Result.failure(Exception("Unable to find cache file"))
+                    Result.failure(Exception("Image failed to load"))
                 }
-            } else {
-                Result.failure(Exception("Image failed to load"))
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
-    }
 
-    private fun saveFileToMediaStore(context: Context, sourceFile: File, url: String): Result<Unit> {
+    private fun saveFileToMediaStore(
+        context: Context,
+        sourceFile: File,
+        url: String
+    ): Result<Unit> {
         val extension = if (url.contains(".gif", ignoreCase = true)) "gif" else "jpg"
         val mimeType = if (extension == "gif") "image/gif" else "image/jpeg"
         val fileName = "ZhiFlow_${System.currentTimeMillis()}.$extension"
@@ -57,7 +62,10 @@ object ImageSaveHelper {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
             put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/ZhiFlow")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/ZhiFlow"
+                )
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
             }
         }

@@ -43,7 +43,7 @@ fun ZhihuFeedItem(
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
@@ -57,7 +57,11 @@ fun ZhihuFeedItem(
                     target.id?.let { id ->
                         clipboardManager.setText(AnnotatedString(id.toString()))
 
-                        Toast.makeText(context, "ID has been copied to the clipboard", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "ID has been copied to the clipboard",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             )

@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.api
 
-import android.os.Build
 import android.content.res.Resources
+import android.os.Build
 
 object HeaderProvider {
 

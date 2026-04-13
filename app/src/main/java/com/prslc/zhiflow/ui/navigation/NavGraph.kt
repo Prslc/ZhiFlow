@@ -16,12 +16,18 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<AnswerDetail> { backStackEntry ->
         val route: AnswerDetail = backStackEntry.toRoute()
-        ContentDetailScreen(id = route.id, contentType = ContentType.ANSWER, onBack = { navController.popBackStack() })
+        ContentDetailScreen(
+            id = route.id,
+            contentType = ContentType.ANSWER,
+            onBack = { navController.popBackStack() })
     }
 
     composable<ArticleDetail> { backStackEntry ->
         val route: ArticleDetail = backStackEntry.toRoute()
-        ContentDetailScreen(id = route.id, contentType = ContentType.ARTICLE, onBack = { navController.popBackStack() })
+        ContentDetailScreen(
+            id = route.id,
+            contentType = ContentType.ARTICLE,
+            onBack = { navController.popBackStack() })
     }
 
     composable<Settings> {

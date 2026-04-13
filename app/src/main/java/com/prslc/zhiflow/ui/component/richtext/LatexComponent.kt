@@ -15,17 +15,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.sp
 import com.hrm.latex.renderer.LatexAutoWrap
-import com.hrm.latex.renderer.measure.rememberLatexMeasurer
 import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.data.model.Formula
+import com.prslc.zhiflow.parser.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.utils.cleanLatex
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -60,50 +59,30 @@ fun LatexComponent(
 
 @Composable
 fun FormulaTextSection(
-    content: AnnotatedString,
+    element: RichTextElement.ParsedText,
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
-    val config = LatexConfig(
-        color = if (isDark) Color.White else Color.Black,
-        darkColor = Color.White
-    )
 
     val navigator = LocalNavigator.current
-    val density = LocalDensity.current
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val measurer = rememberLatexMeasurer(config)
-
-    val inlineContentMap = remember(content, config) {
-        val map = mutableMapOf<String, InlineTextContent>()
-        content.getStringAnnotations("INLINE_FORMULA_DATA", 0, content.length)
-            .forEach { annotation ->
-                val formula = Json.decodeFromString<Formula>(annotation.item)
-                val cleaned = formula.content.cleanLatex()
-                val dims = measurer.measure(cleaned, config)
-
-                if (dims != null) {
-                    val hashCode = formula.content.hashCode()
-                    val inlineId = "f_${annotation.start}_$hashCode"
-
-                    map[inlineId] = InlineTextContent(
-                        placeholder = Placeholder(
-                            width = with(density) { dims.widthPx.toSp() },
-                            height = with(density) { dims.heightPx.toSp() },
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
-                        )
-                    ) {
-                        LatexComponent(
-                            formula = formula,
-                            isInline = true,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
+    val inlineContentMap = remember(element) {
+        element.inlineMetas.associate { meta ->
+            meta.inlineId to InlineTextContent(
+                placeholder = Placeholder(
+                    width = meta.width,
+                    height = meta.height,
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+                )
+            ) {
+                LatexComponent(
+                    formula = meta.formula,
+                    isInline = true,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
-        map
+        }
     }
 
     val dynamicLineHeight = remember(inlineContentMap) {
@@ -112,15 +91,15 @@ fun FormulaTextSection(
     }
 
     Text(
-        text = content,
-        modifier = modifier.pointerInput(content) {
+        text = element.content,
+        modifier = modifier.pointerInput(element.content) {
             detectTapGestures { pos ->
                 layoutResult.value?.let { layout ->
                     val offset = layout.getOffsetForPosition(pos)
-                    content.getStringAnnotations("URL", offset, offset)
+                    element.content.getStringAnnotations("URL", offset, offset)
                         .firstOrNull()?.let { navigator.handleUrl(it.item) }
 
-                    content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
+                    element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
                         .firstOrNull()?.let { annotation ->
                             runCatching { Json.decodeFromString<Formula>(annotation.item) }
                                 .getOrNull()?.imgUrl?.let { onImageClick(it) }
@@ -135,14 +114,4 @@ fun FormulaTextSection(
             letterSpacing = 0.25.sp
         )
     )
-}
-
-fun String.cleanLatex(): String {
-    return this
-        .replace("\\,", " ")
-        .replace("\\;", " ")
-        .replace("\\{", "\\lbrace ")
-        .replace("\\}", "\\rbrace ")
-        .replace("\\mid", " | ")
-        .trimEnd('\\')
 }
