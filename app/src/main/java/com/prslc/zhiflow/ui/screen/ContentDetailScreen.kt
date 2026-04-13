@@ -64,7 +64,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet

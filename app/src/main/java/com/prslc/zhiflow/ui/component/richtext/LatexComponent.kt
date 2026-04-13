@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.hrm.latex.renderer.LatexAutoWrap
 import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.data.model.Formula
-import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.utils.cleanLatex
 import kotlinx.serialization.json.Json
