@@ -16,6 +16,7 @@ import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.data.model.ZhihuImage
 import com.prslc.zhiflow.ui.theme.TextStyles
+import com.prslc.zhiflow.utils.JsonHelper
 import com.prslc.zhiflow.utils.cleanLatex
 
 data class InlineFormulaMeta(
@@ -175,6 +176,22 @@ object ContentParser {
                                 RichTextElement.TableCell(processed.content, processed.inlineMetas)
                             },
                             hasHeader = table.hasHeadRow
+                        )
+                    )
+                } ?: emptyList()
+
+                "card" -> segment.card?.let { card ->
+                    val extra = JsonHelper.parseExtraInfo(card.extraInfo)
+                    val finalCover = extra?.cover?.takeIf { it.isNotBlank() } ?: card.cover
+
+                    listOf(
+                        RichTextElement.Card(
+                            cardType = card.cardType,
+                            title = card.title ?: extra?.title ?: "No title",
+                            url = card.url ?: extra?.url ?: "",
+                            cover = finalCover,
+                            desc = JsonHelper.cleanHtmlDesc(extra?.desc),
+                            contentType = card.contentType ?: extra?.contentType
                         )
                     )
                 } ?: emptyList()

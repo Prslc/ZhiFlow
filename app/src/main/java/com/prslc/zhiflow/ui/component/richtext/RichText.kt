@@ -1,22 +1,15 @@
 package com.prslc.zhiflow.ui.component.richtext
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.parser.RichTextElement
 
 @Composable
 fun RichTextSingleElement(
     element: RichTextElement,
     onImageClick: (String) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     when (element) {
-        is RichTextElement.ParsedText -> {
-            FormulaTextSection(element, onImageClick, modifier.padding(vertical = 4.dp))
-        }
-
+        is RichTextElement.ParsedText -> { FormulaTextSection(element, onImageClick) }
         is RichTextElement.Heading -> Heading(element)
         is RichTextElement.FormulaBlock -> LatexComponent(element.data, isInline = false)
         is RichTextElement.Image -> ImageComponent(element.data, onImageClick)
