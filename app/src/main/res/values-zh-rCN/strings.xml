@@ -46,7 +46,7 @@
     <string name="lightbox_image_save_failed">保存失败</string>
 
     <!-- profile -->
-    <string name="profile_default_username">知乎用户</string>
+    <string name="profile_default_username">用户</string>
     <string name="profile_default_headline">添加一句话介绍</string>
     <string name="profile_stat_following">关注</string>
     <string name="profile_stat_followers">粉丝</string>
@@ -79,4 +79,10 @@
 
     <!-- RichText -->
     <string name="richtext_references">参考</string>
+
+    <!-- question -->
+    <string name="action_expand">展开全部</string>
+    <string name="action_collapse">收起详情</string>
+    <string name="question_stats_answers">%1$d 个回答</string>
+    <string name="question_stats_followers">%1$d 人关注</string>
 </resources>
