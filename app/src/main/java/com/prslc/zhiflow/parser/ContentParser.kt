@@ -9,14 +9,24 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.hrm.latex.renderer.measure.LatexMeasurerState
+import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.data.model.Mark
 import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.data.model.ZhihuImage
-import com.prslc.zhiflow.utils.JsonHelper
-import kotlinx.serialization.json.Json
+import com.prslc.zhiflow.utils.cleanLatex
+
+data class InlineFormulaMeta(
+    val formula: Formula,
+    val inlineId: String,
+    val width: TextUnit,
+    val height: TextUnit
+)
 
 data class CommentContent(
     val text: AnnotatedString,
@@ -24,7 +34,6 @@ data class CommentContent(
 )
 
 sealed interface RichTextElement {
-    data class Text(val content: AnnotatedString) : RichTextElement
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     data class Image(val data: ZhihuImage) : RichTextElement
     data class FormulaBlock(val data: Formula) : RichTextElement
@@ -37,7 +46,7 @@ sealed interface RichTextElement {
         val content: AnnotatedString,
         val level: Int,
         val isOrdered: Boolean,
-        val index: Int = 0  // ordered list
+        val index: Int = 0
     ) : RichTextElement
 
     data class Table(
@@ -55,28 +64,49 @@ sealed interface RichTextElement {
         val desc: String?,
         val contentType: String?
     ) : RichTextElement
+
+    data class ParsedText(
+        val content: AnnotatedString,
+        val inlineMetas: List<InlineFormulaMeta>
+    ) : RichTextElement
 }
 
-object ContentParser {
+data class ProcessedText(
+    val content: AnnotatedString,
+    val inlineMetas: List<InlineFormulaMeta>
+)
 
-    fun transform(segments: List<Segment>): List<RichTextElement> {
+object ContentParser {
+    fun transform(
+        segments: List<Segment>,
+        measurer: LatexMeasurerState,
+        density: Density,
+        config: LatexConfig,
+        isDark: Boolean = false
+    ): List<RichTextElement> {
         return segments.flatMap { segment ->
             when (segment.type) {
-                "paragraph" -> {
-                    processParagraph(segment.paragraph)
-                }
+                "paragraph" -> processParagraph(
+                    segment.paragraph,
+                    measurer,
+                    density,
+                    config,
+                    isDark
+                )
 
-                "heading" -> {
-                    segment.heading?.let {
-                        listOf(RichTextElement.Heading(parseContent(it.text, it.marks), it.level))
-                    } ?: emptyList()
-                }
+                "heading" -> segment.heading?.let {
+                    val processed =
+                        parseContent(it.text, it.marks, measurer, density, config, isDark)
+                    listOf(RichTextElement.Heading(processed.content, it.level))
+                } ?: emptyList()
 
                 "list_node" -> {
                     val counter = OrderedListCounter()
                     segment.listNode?.items?.map { item ->
+                        val processed =
+                            parseContent(item.text, item.marks, measurer, density, config, isDark)
                         RichTextElement.BulletItem(
-                            content = parseContent(item.text, item.marks),
+                            content = processed.content,
                             level = item.indentLevel,
                             isOrdered = segment.listNode.type == "ordered",
                             index = counter.next(item.indentLevel)
@@ -84,61 +114,56 @@ object ContentParser {
                     } ?: emptyList()
                 }
 
-                "blockquote" -> {
-                    segment.blockquote?.let {
-                        listOf(RichTextElement.Blockquote(parseContent(it.text, it.marks)))
-                    } ?: emptyList()
-                }
+                "blockquote" -> segment.blockquote?.let {
+                    val processed =
+                        parseContent(it.text, it.marks, measurer, density, config, isDark)
+                    listOf(RichTextElement.Blockquote(processed.content))
+                } ?: emptyList()
 
-                "image" -> {
-                    segment.image?.let { listOf(RichTextElement.Image(it)) } ?: emptyList()
-                }
+                "image" -> segment.image?.let { listOf(RichTextElement.Image(it)) } ?: emptyList()
 
-                "code_block" -> {
-                    segment.codeBlock?.let { listOf(RichTextElement.Code(it.content, it.language)) }
-                        ?: emptyList()
-                }
-
-                "reference_block" -> {
-                    segment.referenceBlock?.let { block ->
-                        val items = block.items.map { parseContent(it.text, it.marks) }
-                        listOf(RichTextElement.Reference(items))
-                    } ?: emptyList()
-                }
-
-                "table" -> {
-                    segment.table?.let {
-                        listOf(
-                            RichTextElement.Table(
-                                rows = it.rowCount,
-                                cols = it.columnCount,
-                                cells = it.cells.map { cellText ->
-                                    parseContent(cellText, emptyList())
-                                },
-                                hasHeader = it.hasHeadRow
-                            )
+                "code_block" -> segment.codeBlock?.let {
+                    listOf(
+                        RichTextElement.Code(
+                            it.content,
+                            it.language
                         )
-                    } ?: emptyList()
-                }
+                    )
+                } ?: emptyList()
 
-                "card" -> {
-                    segment.card?.let { card ->
-                        val extra = JsonHelper.parseExtraInfo(card.extraInfo)
+                "reference_block" -> segment.referenceBlock?.let { block ->
+                    val items = block.items.map {
+                        parseContent(
+                            it.text,
+                            it.marks,
+                            measurer,
+                            density,
+                            config,
+                            isDark
+                        ).content
+                    }
+                    listOf(RichTextElement.Reference(items))
+                } ?: emptyList()
 
-                        val finalCover = extra?.cover?.takeIf { it.isNotBlank() } ?: card.cover
-
-                        listOf(
-                            RichTextElement.Card(
-                                cardType = card.cardType,
-                                title = card.title ?: extra?.title ?: "No title",
-                                url = card.url ?: extra?.url ?: "",
-                                cover = finalCover,
-                                desc = JsonHelper.cleanHtmlDesc(extra?.desc),
-                                contentType = card.contentType ?: extra?.contentType
-                            )
+                "table" -> segment.table?.let { table ->
+                    listOf(
+                        RichTextElement.Table(
+                            rows = table.rowCount,
+                            cols = table.columnCount,
+                            cells = table.cells.map {
+                                parseContent(
+                                    it,
+                                    emptyList(),
+                                    measurer,
+                                    density,
+                                    config,
+                                    isDark
+                                ).content
+                            },
+                            hasHeader = table.hasHeadRow
                         )
-                    } ?: emptyList()
-                }
+                    )
+                } ?: emptyList()
 
                 "hr" -> listOf(RichTextElement.Divider)
                 else -> emptyList()
@@ -146,26 +171,29 @@ object ContentParser {
         }
     }
 
-    private fun processParagraph(paragraph: Paragraph?): List<RichTextElement> {
+    private fun processParagraph(
+        paragraph: Paragraph?,
+        measurer: LatexMeasurerState,
+        density: Density,
+        config: LatexConfig,
+        isDark: Boolean
+    ): List<RichTextElement> {
         if (paragraph == null) return emptyList()
 
         val rawText = paragraph.text
         val marks = paragraph.marks
 
         val isStrictBlock = rawText.trim() == "[公式]" && marks.any { it.type == "formula" }
-
         val blockFormulaMarks = marks.filter { mark ->
             mark.type == "formula" && mark.formula?.let {
-                it.content.contains("\\\\") ||
-                        it.content.contains("\\begin{") ||
-                        isStrictBlock
+                it.content.contains("\\\\") || it.content.contains("\\begin{") || isStrictBlock
             } == true
         }.sortedBy { it.start }
 
         if (blockFormulaMarks.isEmpty()) {
-            return listOf(RichTextElement.Text(parseContent(rawText, marks)))
+            val processed = parseContent(rawText, marks, measurer, density, config, isDark)
+            return listOf(RichTextElement.ParsedText(processed.content, processed.inlineMetas))
         }
-
 
         val elements = mutableListOf<RichTextElement>()
         var lastIndex = 0
@@ -177,12 +205,17 @@ object ContentParser {
                     .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
 
                 if (subText.isNotBlank() && subText != "\n") {
-                    elements.add(RichTextElement.Text(parseContent(subText, subMarks)))
+                    val processed =
+                        parseContent(subText, subMarks, measurer, density, config, isDark)
+                    elements.add(
+                        RichTextElement.ParsedText(
+                            processed.content,
+                            processed.inlineMetas
+                        )
+                    )
                 }
             }
-            mark.formula?.let {
-                elements.add(RichTextElement.FormulaBlock(it))
-            }
+            mark.formula?.let { elements.add(RichTextElement.FormulaBlock(it)) }
             lastIndex = mark.end
         }
 
@@ -192,28 +225,27 @@ object ContentParser {
                 .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
 
             if (subText.isNotBlank() && subText != "\n") {
-                elements.add(RichTextElement.Text(parseContent(subText, subMarks)))
+                val processed = parseContent(subText, subMarks, measurer, density, config, isDark)
+                elements.add(RichTextElement.ParsedText(processed.content, processed.inlineMetas))
             }
         }
 
         return elements
     }
 
-    private class OrderedListCounter {
-        private val counts = mutableMapOf<Int, Int>()
-        fun next(level: Int): Int {
-            val nextIdx = (counts[level] ?: 0) + 1
-            counts[level] = nextIdx
-            counts.keys.removeAll { it > level }
-            return nextIdx
-        }
-    }
+    private fun parseContent(
+        rawText: String,
+        marks: List<Mark>,
+        measurer: LatexMeasurerState,
+        density: Density,
+        config: LatexConfig,
+        isDark: Boolean
+    ): ProcessedText {
+        val inlineMetas = mutableListOf<InlineFormulaMeta>()
 
-    private fun parseContent(rawText: String, marks: List<Mark>): AnnotatedString {
-        return buildAnnotatedString {
-            val formulaMarks = marks.filter { it.type == "formula" && it.formula != null }
-                .sortedBy { it.start }
-
+        val annotated = buildAnnotatedString {
+            val formulaMarks =
+                marks.filter { it.type == "formula" && it.formula != null }.sortedBy { it.start }
             var currentRawIndex = 0
             val offsets = mutableListOf<Pair<Int, Int>>()
 
@@ -224,25 +256,32 @@ object ContentParser {
                 val placeholderPos = length
                 val inlineId = "f_${placeholderPos}_${formulaData.content.hashCode()}"
 
-                appendInlineContent(inlineId, "[f]")
+                // measurement
+                val dims = measurer.measure(formulaData.content.cleanLatex(), config, isDark)
+                val widthSp = with(density) { dims?.widthPx?.toSp() ?: 20.sp }
+                val heightSp = with(density) { dims?.heightPx?.toSp() ?: 20.sp }
 
-                addStringAnnotation(
-                    tag = "INLINE_FORMULA_DATA",
-                    annotation = Json.encodeToString(formulaData),
-                    start = placeholderPos,
-                    end = placeholderPos + 1
-                )
+                if (dims != null) {
+                    inlineMetas.add(
+                        InlineFormulaMeta(
+                            formula = formulaData,
+                            inlineId = inlineId,
+                            width = widthSp,
+                            height = heightSp
+                        )
+                    )
+                    appendInlineContent(inlineId, "\uFFFD")
+                    addStringAnnotation("INLINE_ID", inlineId, placeholderPos, placeholderPos + 1)
+                }
 
                 offsets.add(mark.start to (mark.end - mark.start - 1))
                 currentRawIndex = mark.end
             }
-
             append(rawText.substring(currentRawIndex))
 
             marks.filter { it.type != "formula" }.forEach { mark ->
                 val newStart = calculateNewIndex(mark.start, offsets)
                 val newEnd = calculateNewIndex(mark.end, offsets)
-
                 val safeStart = newStart.coerceIn(0, length)
                 val safeEnd = newEnd.coerceIn(0, length)
                 if (safeStart >= safeEnd) return@forEach
@@ -275,16 +314,20 @@ object ContentParser {
 
                     "reference" -> {
                         addStyle(
-                            style = SpanStyle(
+                            SpanStyle(
                                 fontSize = 12.sp,
                                 baselineShift = androidx.compose.ui.text.style.BaselineShift.Superscript,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E88E5)
-                            ),
-                            safeStart, safeEnd
+                            ), safeStart, safeEnd
                         )
-                        mark.reference?.title?.let { title ->
-                            addStringAnnotation("REF_TITLE", title, safeStart, safeEnd)
+                        mark.reference?.title?.let {
+                            addStringAnnotation(
+                                "REF_TITLE",
+                                it,
+                                safeStart,
+                                safeEnd
+                            )
                         }
                     }
 
@@ -298,15 +341,24 @@ object ContentParser {
                 }
             }
         }
+        return ProcessedText(annotated, inlineMetas)
     }
 
     private fun calculateNewIndex(oldIndex: Int, offsets: List<Pair<Int, Int>>): Int {
         var totalShift = 0
         for ((origStart, reduced) in offsets) {
-            if (oldIndex > origStart) {
-                totalShift += reduced
-            } else break
+            if (oldIndex > origStart) totalShift += reduced else break
         }
         return (oldIndex - totalShift).coerceAtLeast(0)
+    }
+
+    private class OrderedListCounter {
+        private val counts = mutableMapOf<Int, Int>()
+        fun next(level: Int): Int {
+            val nextIdx = (counts[level] ?: 0) + 1
+            counts[level] = nextIdx
+            counts.keys.removeAll { it > level }
+            return nextIdx
+        }
     }
 }

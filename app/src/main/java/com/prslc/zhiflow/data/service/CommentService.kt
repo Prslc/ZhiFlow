@@ -27,11 +27,12 @@ suspend fun getRootComments(
 
     val tag = "commentService"
     return try {
-        val response = Client.client.get("comment_v5/${contentType.apiPath}/$answerId/root_comment") {
-            parameter("order_by", orderBy)
-            parameter("limit", limit)
-            parameter("offset", offset)
-        }
+        val response =
+            Client.client.get("comment_v5/${contentType.apiPath}/$answerId/root_comment") {
+                parameter("order_by", orderBy)
+                parameter("limit", limit)
+                parameter("offset", offset)
+            }
 
         if (response.status.value != 200) {
             Log.e(tag, "Request failed with status: ${response.status}")

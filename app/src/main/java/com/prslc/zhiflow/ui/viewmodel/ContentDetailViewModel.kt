@@ -4,8 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.Density
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hrm.latex.renderer.measure.LatexMeasurerState
+import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.data.exception.ApiException
 import com.prslc.zhiflow.data.exception.toApiException
 import com.prslc.zhiflow.data.model.ContentType
@@ -15,6 +18,9 @@ import com.prslc.zhiflow.data.service.addReadHistory
 import com.prslc.zhiflow.data.service.getAnswerDetail
 import com.prslc.zhiflow.data.service.getArticleDetail
 import com.prslc.zhiflow.data.service.voteAction
+import com.prslc.zhiflow.parser.ContentParser
+import com.prslc.zhiflow.parser.RichTextElement
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -33,6 +39,9 @@ class ContentViewModel : ViewModel() {
     var isDownvoted by mutableStateOf(false)
     var isFaved by mutableStateOf(false)
     private var upvoteOffset by mutableIntStateOf(0)
+
+    var richTextElements by mutableStateOf<List<RichTextElement>>(emptyList())
+        private set
 
     val displayUpvoteCount: Int
         get() = (content?.reaction?.statistics?.upVoteCount ?: 0) + upvoteOffset
@@ -69,6 +78,29 @@ class ContentViewModel : ViewModel() {
             }
             // finally
             isLoading = false
+        }
+    }
+
+    fun parseRichText(
+        measurer: LatexMeasurerState,
+        density: Density,
+        config: LatexConfig,
+        isDark: Boolean
+    ) {
+        val currentContent = this.content ?: return
+        val segments = currentContent.structuredContent.segments
+
+        viewModelScope.launch(Dispatchers.Default) {
+            val result = ContentParser.transform(
+                segments = segments,
+                measurer = measurer,
+                density = density,
+                config = config,
+                isDark = isDark
+            )
+            withContext(Dispatchers.Main) {
+                richTextElements = result
+            }
         }
     }
 
@@ -116,6 +148,7 @@ class ContentViewModel : ViewModel() {
 
     private fun resetStates() {
         content = null
+        richTextElements = emptyList()
         error = null
         isUpvoted = false
         isDownvoted = false

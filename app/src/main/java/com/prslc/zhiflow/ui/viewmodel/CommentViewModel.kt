@@ -85,10 +85,12 @@ class CommentViewModel : ViewModel() {
             try {
                 val response = getRootComments(answerId, contentType, uiState.offset)
                 if (response != null) {
-                    val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val nextOffset =
+                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
 
-                    val updatedComments = if (isNewOrRefresh) response.data else uiState.comments + response.data
+                    val updatedComments =
+                        if (isNewOrRefresh) response.data else uiState.comments + response.data
 
                     uiState = uiState.copy(
                         comments = updatedComments,
@@ -126,10 +128,12 @@ class CommentViewModel : ViewModel() {
 
             try {
                 val currentOffset = if (forceRefresh) "" else childUiState.offset
-                val response = getChildComments(rootCommentId = rootComment.id, offset = currentOffset)
+                val response =
+                    getChildComments(rootCommentId = rootComment.id, offset = currentOffset)
 
                 if (response != null) {
-                    val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val nextOffset =
+                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
 
                     childUiState = childUiState.copy(
@@ -171,7 +175,9 @@ class CommentViewModel : ViewModel() {
                 if (isLike) {
                     comment.copy(
                         liked = active,
-                        likeCount = if (active) comment.likeCount + 1 else (comment.likeCount - 1).coerceAtLeast(0)
+                        likeCount = if (active) comment.likeCount + 1 else (comment.likeCount - 1).coerceAtLeast(
+                            0
+                        )
                     )
                 } else {
                     // TODO

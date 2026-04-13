@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -45,26 +47,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.hrm.latex.renderer.measure.rememberLatexMeasurer
+import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.parser.RichTextElement
 import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ImageLightbox
 import com.prslc.zhiflow.ui.component.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.component.common.BottomBar
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
-import com.prslc.zhiflow.ui.component.richtext.RichText
+import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 import com.prslc.zhiflow.ui.viewmodel.ContentViewModel
 
@@ -90,9 +97,23 @@ fun ContentDetailScreen(
 
     var currentProgress by remember { mutableIntStateOf(0) }
 
-    val imageUrls = remember(currentContent) {
-        currentContent?.structuredContent?.segments
-            ?.mapNotNull { it.image?.urls?.firstOrNull() } ?: emptyList()
+    val imageUrls = remember(viewModel.richTextElements) {
+        viewModel.richTextElements
+            .filterIsInstance<RichTextElement.Image>()
+            .mapNotNull { it.data.urls.firstOrNull() }
+    }
+
+    val density = LocalDensity.current
+    val measurer = rememberLatexMeasurer()
+    val isDark = isSystemInDarkTheme()
+    val latexConfig = remember(isDark) {
+        LatexConfig(color = if (isDark) Color.White else Color.Black)
+    }
+
+    LaunchedEffect(viewModel.content, isDark) {
+        viewModel.content?.let {
+            viewModel.parseRichText(measurer, density, latexConfig, isDark)
+        }
     }
 
     LaunchedEffect(showComments) {
@@ -264,14 +285,23 @@ fun ContentDetailScreen(
                                     }
 
                                     // Content
-                                    item {
+                                    itemsIndexed(
+                                        items = viewModel.richTextElements,
+                                        key = { index, element ->
+                                            when (element) {
+                                                is RichTextElement.Divider -> "divider_$index"
+                                                is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
+                                                else -> "${element.hashCode()}_$index"
+                                            }
+                                        }
+                                    ) { index, element ->
                                         Box(
                                             modifier = Modifier.padding(
                                                 horizontal = 20.dp, vertical = 16.dp
                                             )
                                         ) {
-                                            RichText(
-                                                segments = answer.structuredContent.segments,
+                                            RichTextSingleElement(
+                                                element = element,
                                                 onImageClick = { url ->
                                                     val index = imageUrls.indexOf(url)
                                                     if (index != -1) {

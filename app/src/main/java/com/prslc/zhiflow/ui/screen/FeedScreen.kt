@@ -24,9 +24,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.ApiException
 import com.prslc.zhiflow.data.exception.uiMessage
-import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.component.ZhihuFeedItem
+import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.viewmodel.FeedViewModel
 

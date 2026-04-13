@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                         Navigator(
                             navController = navController,
                             context = context,
-                            uriHandler =  uriHandler
+                            uriHandler = uriHandler
                         )
                     }
 
@@ -167,6 +167,7 @@ fun MainScreen() {
                         navigator.handleUrl(url)
                     }
                 )
+
                 ProfileTab -> ProfileScreen(
                     viewModel = profileViewModel,
                     onNavigateToSettings = { navigator.navigateToSettings() }

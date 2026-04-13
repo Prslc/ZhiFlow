@@ -14,6 +14,7 @@ fun Throwable.toApiException(): ApiException {
                 else -> ApiException.ServerException(response.status.value)
             }
         }
+
         is ServerResponseException -> ApiException.ServerException(response.status.value)
         is ApiException -> this
         else -> ApiException.UnknownException()

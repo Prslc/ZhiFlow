@@ -37,9 +37,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
-import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.parser.commentParse
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.utils.formatToDate
 
 @Composable
