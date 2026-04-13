@@ -23,6 +23,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Composable
 fun ImageComponent(
@@ -75,7 +76,7 @@ fun ImageComponent(
                     .padding(top = 8.dp, start = 16.dp, end = 16.dp),
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = 13.sp,
+                    fontSize = TextStyles.imageCaptionSize,
                     lineHeight = 18.sp
                 ),
                 textAlign = TextAlign.Center

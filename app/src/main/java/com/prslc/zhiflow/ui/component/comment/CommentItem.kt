@@ -33,13 +33,13 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.parser.commentParse
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.theme.TextStyles
 import com.prslc.zhiflow.utils.formatToDate
 
 @Composable
@@ -53,6 +53,12 @@ fun CommentItem(
     onImageClick: (String) -> Unit = {},
     onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
+
+    val metaStyle = MaterialTheme.typography.labelMedium.copy(
+        color = MaterialTheme.colorScheme.outline,
+        fontSize = TextStyles.commentMetaSize
+    )
+
     val navigator = LocalNavigator.current
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -72,7 +78,11 @@ fun CommentItem(
             if (idAnno != null) {
                 val inlineId = idAnno.item
                 map[inlineId] = InlineTextContent(
-                    placeholder = Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.Center),
+                    placeholder = Placeholder(
+                        width = TextStyles.emojiSize,
+                        height = TextStyles.emojiSize,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                    ),
                     children = {
                         AsyncImage(
                             model = pathAnno.item,
@@ -122,8 +132,10 @@ fun CommentItem(
                 comment.replyToAuthor?.let { replyTo ->
                     Text(
                         text = " ▸ ",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.outline,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.outline
+                        ),
                         modifier = Modifier.padding(horizontal = 4.dp)
                     )
                     Text(
@@ -184,14 +196,14 @@ fun CommentItem(
             ) {
                 Text(
                     text = formatToDate(comment.createdTime),
-                    fontSize = 12.sp,
+                    style = metaStyle,
                     color = MaterialTheme.colorScheme.outline
                 )
 
                 comment.tags.find { it.type == "ip_info" }?.text?.let { ip ->
                     Text(
                         text = ip,
-                        fontSize = 12.sp,
+                        style = metaStyle,
                         color = MaterialTheme.colorScheme.outline
                     )
                 }
@@ -202,9 +214,10 @@ fun CommentItem(
                             R.string.comment_reply_count_with_arrow,
                             comment.childCount
                         ),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        style = metaStyle.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        ),
                         modifier = Modifier
                             .clickable { onShowReplies(comment) }
                             .padding(vertical = 4.dp)
@@ -229,8 +242,10 @@ fun CommentItem(
             if (comment.likeCount > 0) {
                 Text(
                     text = comment.likeCount.toString(),
-                    fontSize = 11.sp,
-                    color = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = TextStyles.commentLikeSize,
+                        color = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                    )
                 )
             }
         }
