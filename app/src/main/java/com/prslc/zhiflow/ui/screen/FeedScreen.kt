@@ -39,13 +39,14 @@ fun FeedScreen(
     val items = viewModel.feedItems
     val apiError = viewModel.error
     val isRefreshing = viewModel.isRefreshing
+    val isEmpty = items.isEmpty()
 
     // init
     AutoLoadMoreEffect(viewModel)
 
     Box(Modifier.fillMaxSize()) {
         PullToRefreshBox(
-            isRefreshing = isRefreshing && items.isNotEmpty(),
+            isRefreshing = isRefreshing && !isEmpty,
             onRefresh = { viewModel.refresh() },
             modifier = Modifier.fillMaxSize()
         ) {
@@ -63,11 +64,13 @@ fun FeedScreen(
                     }
                 }
 
-                pagingFooter(
-                    isLoading = viewModel.isNextLoading,
-                    error = apiError,
-                    onRetry = { viewModel.loadMore() }
-                )
+                if (items.isNotEmpty()) {
+                    pagingFooter(
+                        isLoading = viewModel.isNextLoading,
+                        error = apiError,
+                        onRetry = { viewModel.loadMore() }
+                    )
+                }
             }
         }
 
@@ -77,12 +80,11 @@ fun FeedScreen(
                     LoadingView(modifier = Modifier.fillMaxSize())
                 }
 
-                apiError != null -> {
-                    ErrorView(
-                        message = apiError.uiMessage,
-                        onRetry = { viewModel.refresh() }
-                    )
-                }
+                apiError != null -> ErrorView(
+                    message = apiError.uiMessage,
+                    onRetry = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
