@@ -1,13 +1,14 @@
 package com.prslc.zhiflow.data.service
 
 import android.util.Log
-import com.prslc.zhiflow.data.api.Client
+import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.CommentResponse
 import com.prslc.zhiflow.data.model.ContentType
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
+import io.ktor.http.HttpMethod
 import io.ktor.http.isSuccess
 
 /**
@@ -83,7 +84,7 @@ suspend fun commentReaction(commentId: String, action: String, method: String = 
     val tag = "commentReaction"
     return try {
         val response = Client.client.request("reaction/comments/$commentId/$action") {
-            this.method = io.ktor.http.HttpMethod.parse(method)
+            this.method = HttpMethod.parse(method)
         }
         val isSuccess = response.status.isSuccess()
         Log.d(tag, "commentReaction $action ($method) on $commentId | Success: $isSuccess")

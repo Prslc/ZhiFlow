@@ -5,7 +5,7 @@ import com.hrm.latex.renderer.measure.LatexMeasurerState
 import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.parser.model.InlineFormulaMeta
-import com.prslc.zhiflow.utils.cleanLatex
+import com.prslc.zhiflow.core.utils.cleanLatex
 
 object FormulaHandler {
     fun prepareInlineMeta(

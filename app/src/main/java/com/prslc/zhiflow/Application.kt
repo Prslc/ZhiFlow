@@ -9,7 +9,7 @@ import coil3.disk.DiskCache
 import coil3.gif.AnimatedImageDecoder
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
-import com.prslc.zhiflow.data.api.Client
+import com.prslc.zhiflow.core.network.Client
 import okio.Path.Companion.toPath
 
 class ZhiFlowApplication : Application(), SingletonImageLoader.Factory {

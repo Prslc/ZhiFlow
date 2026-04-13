@@ -24,7 +24,7 @@ import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.utils.cleanLatex
+import com.prslc.zhiflow.core.utils.cleanLatex
 import kotlinx.serialization.json.Json
 
 @Composable
