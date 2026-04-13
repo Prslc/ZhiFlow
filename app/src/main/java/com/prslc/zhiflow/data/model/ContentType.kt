@@ -5,7 +5,8 @@ enum class ContentType(
     val apiPath: String
 ) {
     ARTICLE("article", "articles"),
-    ANSWER("answer", "answers");
+    ANSWER("answer", "answers"),
+    PIN("pin", "pins");
 
     companion object {
         fun from(value: String?): ContentType {

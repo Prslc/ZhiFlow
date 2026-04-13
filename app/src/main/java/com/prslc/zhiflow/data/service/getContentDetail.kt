@@ -5,6 +5,7 @@ import com.prslc.zhiflow.data.api.Client
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuArticle
 import com.prslc.zhiflow.data.model.ZhihuContent
+import com.prslc.zhiflow.data.model.ZhihuPin
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 
@@ -35,3 +36,4 @@ private suspend inline fun <reified T : ZhihuContent> fetchContent(
 
 suspend fun getAnswerDetail(id: String) = fetchContent<ZhihuAnswer>("answers/v2", id)
 suspend fun getArticleDetail(id: String) = fetchContent<ZhihuArticle>("articles/v2", id)
+suspend fun getPinDetail(id: String) = fetchContent<ZhihuPin>("pins/v2", id)

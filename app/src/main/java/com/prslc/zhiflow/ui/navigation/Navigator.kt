@@ -38,6 +38,7 @@ class Navigator(
         when (type.lowercase()) {
             "answer" -> navController.navigate(AnswerDetail(id))
             "article" -> navController.navigate(ArticleDetail(id))
+            "pin" -> navController.navigate(PinDetail(id))
             else -> Toast.makeText(context, "Unknown type: $type", Toast.LENGTH_SHORT).show()
         }
     }
