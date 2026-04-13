@@ -17,6 +17,7 @@ import com.prslc.zhiflow.data.model.ZhihuContent
 import com.prslc.zhiflow.data.service.addReadHistory
 import com.prslc.zhiflow.data.service.getAnswerDetail
 import com.prslc.zhiflow.data.service.getArticleDetail
+import com.prslc.zhiflow.data.service.getPinDetail
 import com.prslc.zhiflow.data.service.voteAction
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.parser.RichTextElement
@@ -62,6 +63,7 @@ class ContentViewModel : ViewModel() {
                 when (type) {
                     ContentType.ARTICLE -> getArticleDetail(id)
                     ContentType.ANSWER -> getAnswerDetail(id)
+                    ContentType.PIN -> getPinDetail(id)
                 }
             }
 

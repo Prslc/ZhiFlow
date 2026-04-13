@@ -30,6 +30,14 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
             onBack = { navController.popBackStack() })
     }
 
+    composable<PinDetail> { backStackEntry ->
+        val route: PinDetail = backStackEntry.toRoute()
+        ContentDetailScreen(
+            id = route.id,
+            contentType = ContentType.PIN,
+            onBack = { navController.popBackStack() })
+    }
+
     composable<Settings> {
         SettingsScreen(onBack = { navController.popBackStack() })
     }
