@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.CollectionDialog
 import com.prslc.zhiflow.ui.component.ImageLightbox
@@ -72,6 +74,7 @@ import com.prslc.zhiflow.ui.component.common.BottomBar
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.viewmodel.CommentViewModel
 import com.prslc.zhiflow.ui.viewmodel.ContentViewModel
 
@@ -84,6 +87,8 @@ fun ContentDetailScreen(
     viewModel: ContentViewModel = viewModel(),
     commentViewModel: CommentViewModel = viewModel()
 ) {
+    val navigator = LocalNavigator.current
+
     val commentState = commentViewModel.uiState
 
     var showCollectionSheet by rememberSaveable { mutableStateOf(false) }
@@ -176,21 +181,37 @@ fun ContentDetailScreen(
                             }
 
                             val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
-
-                            Text(
-                                text = titleText,
-                                modifier = Modifier.padding(
-                                    end = 10.dp
-                                ),
-                                style = if (isCollapsed) {
-                                    MaterialTheme.typography.titleMedium
-                                } else {
-                                    MaterialTheme.typography.headlineSmall
-                                },
-                                fontWeight = FontWeight.Bold,
-                                maxLines = if (isCollapsed) 1 else 3,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .then(
+                                        if (contentType == ContentType.ANSWER && currentContent is ZhihuAnswer) {
+                                            Modifier.clickable(
+                                                onClick = {
+                                                    (currentContent).question?.id?.let { qId ->
+                                                        navigator.navigateToContent(qId, "question")
+                                                    }
+                                                }
+                                            )
+                                        } else Modifier
+                                    )
+                                    .padding(end = 10.dp)
+                            ) {
+                                Text(
+                                    text = titleText,
+                                    modifier = Modifier.padding(
+                                        end = 10.dp
+                                    ),
+                                    style = if (isCollapsed) {
+                                        MaterialTheme.typography.titleMedium
+                                    } else {
+                                        MaterialTheme.typography.headlineSmall
+                                    },
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = if (isCollapsed) 1 else 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         },
                         navigationIcon = {
                             IconButton(onClick = onBack) {
