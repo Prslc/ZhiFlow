@@ -12,7 +12,7 @@ import com.prslc.zhiflow.parser.engine.FormulaHandler
 import com.prslc.zhiflow.parser.engine.TableParser
 import com.prslc.zhiflow.parser.model.ProcessedText
 import com.prslc.zhiflow.parser.model.RichTextElement
-import com.prslc.zhiflow.utils.JsonHelper
+import com.prslc.zhiflow.core.utils.JsonHelper
 
 object ContentParser {
     fun transform(

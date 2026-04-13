@@ -6,6 +6,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.parser.emoji.EmojiParser
 
 fun commentParse(html: String): CommentContent {
     val extractedImages = mutableListOf<ZhihuImage>()

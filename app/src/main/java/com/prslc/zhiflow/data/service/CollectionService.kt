@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.service
 
-import com.prslc.zhiflow.data.api.Client
+import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.CollectionResponse
 import com.prslc.zhiflow.data.model.ContentType
 import io.ktor.client.call.body

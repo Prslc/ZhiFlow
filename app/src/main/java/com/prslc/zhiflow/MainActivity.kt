@@ -41,11 +41,11 @@ import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
 import com.prslc.zhiflow.ui.navigation.contentGraph
-import com.prslc.zhiflow.ui.screen.DebugScreen
-import com.prslc.zhiflow.ui.screen.FeedScreen
-import com.prslc.zhiflow.ui.screen.ProfileScreen
+import com.prslc.zhiflow.ui.page.debug.DebugScreen
+import com.prslc.zhiflow.ui.page.feed.FeedScreen
+import com.prslc.zhiflow.ui.page.profile.ProfileScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
-import com.prslc.zhiflow.ui.viewmodel.ProfileViewModel
+import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {

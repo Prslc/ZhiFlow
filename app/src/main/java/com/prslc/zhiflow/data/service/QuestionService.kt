@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.service
 
 import android.util.Log
-import com.prslc.zhiflow.data.api.Client
+import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.QuestionFeedResponse
 import io.ktor.client.call.body

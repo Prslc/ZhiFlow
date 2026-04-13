@@ -8,6 +8,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.parser.emoji.EmojiParser
 import com.prslc.zhiflow.parser.model.DetailElement
 
 object QuestionParser {

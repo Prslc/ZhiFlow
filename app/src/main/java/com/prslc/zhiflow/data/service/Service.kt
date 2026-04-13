@@ -1,12 +1,13 @@
 package com.prslc.zhiflow.data.service
 
 import android.util.Log
-import com.prslc.zhiflow.data.api.Client
+import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import io.ktor.client.request.post
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
+import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
@@ -49,7 +50,7 @@ suspend fun voteAction(
     val tag = "voteService"
     return try {
         val response = Client.client.request("reaction/${contentType.apiPath}/$id/vote/$action") {
-            this.method = io.ktor.http.HttpMethod.parse(method)
+            this.method = HttpMethod.parse(method)
         }
         val isSuccess = response.status.isSuccess()
         isSuccess

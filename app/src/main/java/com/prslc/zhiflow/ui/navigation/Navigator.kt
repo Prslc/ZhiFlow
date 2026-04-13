@@ -7,7 +7,6 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.navigation.NavHostController
 import com.prslc.zhiflow.parser.LinkDestination
 import com.prslc.zhiflow.parser.LinkParser
-import com.prslc.zhiflow.ui.screen.QuestionDetailScreen
 
 val LocalNavigator = staticCompositionLocalOf<Navigator> {
     error("NavController not provided")
