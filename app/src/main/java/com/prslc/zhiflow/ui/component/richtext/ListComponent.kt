@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,47 +20,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.parser.RichTextElement
-import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
-fun BulletItemRow(
-    item: RichTextElement.BulletItem,
-) {
-    val navigator = LocalNavigator.current
-    val indentation = (maxOf(0, item.level - 1) * 12).dp
+fun BulletItemRow(element: RichTextElement.BulletItem) {
 
+    val indentation = (maxOf(0, element.level - 1) * 12).dp
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = indentation, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Text(
-            text = if (item.isOrdered) "${item.index}." else "•",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier.widthIn(min = 16.dp)
-        )
+        val bulletLabel = if (element.isOrdered) "${element.index}." else "•"
 
-        ClickableText(
-            content = item.content,
-            onClick = { url -> navigator.handleUrl(url) },
-            style = MaterialTheme.typography.bodyLarge.copy(
-                lineHeight = 24.sp
+        Text(
+            text = bulletLabel,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             ),
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 2.dp)
+            modifier = Modifier.width(24.dp)
+        )
+        ZRichText(
+            content = element.content,
+            inlineMetas = element.inlineMetas,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                lineHeight = 22.sp
+            ),
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
 fun ReferenceSection(items: List<AnnotatedString>) {
-    val navigator = LocalNavigator.current
-
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             text = stringResource(R.string.richtext_references),
@@ -79,19 +72,13 @@ fun ReferenceSection(items: List<AnnotatedString>) {
                 }
             }
 
-            ClickableText(
+            ZRichText(
                 content = fullAnnotatedString,
                 style = MaterialTheme.typography.bodySmall.copy(
                     lineHeight = 20.sp,
                     color = Color.Gray
                 ),
-                onClick = { url ->
-                    try {
-                        navigator.handleUrl(url)
-                    } catch (e: Exception) {
-                        throw e
-                    }
-                }
+                modifier = Modifier.padding(vertical = 2.dp)
             )
         }
     }

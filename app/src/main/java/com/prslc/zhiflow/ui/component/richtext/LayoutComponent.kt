@@ -25,12 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.parser.RichTextElement
-import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun Divider() {
@@ -42,11 +40,19 @@ fun Divider() {
 }
 
 @Composable
-fun BlockquoteComponent(
-    content: AnnotatedString
-) {
-    val navigator = LocalNavigator.current
+fun Heading(element: RichTextElement.Heading) {
+    ZRichText(
+        content = element.content,
+        style = MaterialTheme.typography.titleLarge.copy(
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = if (element.level == 3) 20.sp else 22.sp
+        ),
+        modifier = Modifier.padding(top = 8.dp)
+    )
+}
 
+@Composable
+fun BlockquoteComponent(element: RichTextElement.Blockquote) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,9 +71,9 @@ fun BlockquoteComponent(
             )
         }
 
-        ClickableText(
-            content = content,
-            onClick = { url -> navigator.handleUrl(url) },
+        ZRichText(
+            content = element.content,
+            inlineMetas = element.inlineMetas,
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 lineHeight = 24.sp
@@ -79,7 +85,6 @@ fun BlockquoteComponent(
 
 @Composable
 fun TableComponent(element: RichTextElement.Table) {
-    val navigator = LocalNavigator.current
     val scrollState = rememberScrollState()
 
     Box(
@@ -106,9 +111,7 @@ fun TableComponent(element: RichTextElement.Table) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             for (colIndex in 0 until element.cols) {
-                                val cellText: AnnotatedString =
-                                    element.cells.getOrNull(rowIndex * element.cols + colIndex)
-                                        ?: AnnotatedString("")
+                                val cell = element.cells.getOrNull(rowIndex * element.cols + colIndex)
 
                                 Box(
                                     modifier = Modifier
@@ -117,25 +120,23 @@ fun TableComponent(element: RichTextElement.Table) {
                                         .padding(8.dp),
                                     contentAlignment = Alignment.CenterStart
                                 ) {
-                                    ClickableText(
-                                        content = cellText,
-                                        style = MaterialTheme.typography.bodySmall.copy(
-                                            fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal
-                                        ),
-                                        onClick = { url ->
-                                            navigator.handleUrl(url)
-                                        }
-                                    )
+                                    cell?.let { nonNullCell ->
+                                        ZRichText(
+                                            content = nonNullCell.content,
+                                            inlineMetas = nonNullCell.inlineMetas,
+                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        )
+                                    }
                                 }
 
-                                // VerticalDivider
                                 if (colIndex < element.cols - 1) {
                                     VerticalDivider(modifier = Modifier.fillMaxHeight())
                                 }
                             }
                         }
 
-                        // HorizontalDivider
                         if (rowIndex < element.rows - 1) {
                             HorizontalDivider(thickness = 0.5.dp)
                         }
