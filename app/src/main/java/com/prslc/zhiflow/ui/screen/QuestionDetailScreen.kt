@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -283,7 +285,9 @@ private fun ExpandableText(
     showToggle: Boolean,
     onExpandChange: (Boolean) -> Unit
 ) {
+    val navigator = LocalNavigator.current
     var canExpand by remember(content) { mutableStateOf(false) }
+    var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     Column {
         SelectionContainer {
@@ -293,9 +297,21 @@ private fun ExpandableText(
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                onTextLayout = { result: TextLayoutResult ->
+                onTextLayout = { result ->
+                    layoutResult = result
                     if (!isExpanded) {
                         canExpand = result.didOverflowHeight || result.lineCount > 3
+                    }
+                },
+                modifier = Modifier.pointerInput(content) {
+                    detectTapGestures { offset ->
+                        layoutResult?.let { result ->
+                            val position = result.getOffsetForPosition(offset)
+                            content.getStringAnnotations("URL", position, position)
+                                .firstOrNull()?.let { annotation ->
+                                    navigator.handleUrl(annotation.item)
+                                }
+                        }
                     }
                 }
             )
