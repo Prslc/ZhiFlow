@@ -13,7 +13,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import com.prslc.zhiflow.parser.InlineFormulaMeta
+import com.prslc.zhiflow.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 /**

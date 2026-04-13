@@ -20,7 +20,7 @@ import com.prslc.zhiflow.data.service.getArticleDetail
 import com.prslc.zhiflow.data.service.getPinDetail
 import com.prslc.zhiflow.data.service.voteAction
 import com.prslc.zhiflow.parser.ContentParser
-import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.parser.model.RichTextElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable

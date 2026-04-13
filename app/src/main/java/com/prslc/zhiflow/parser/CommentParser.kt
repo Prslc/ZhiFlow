@@ -4,6 +4,7 @@ import android.text.Html
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ZhihuImage
 
 fun commentParse(html: String): CommentContent {

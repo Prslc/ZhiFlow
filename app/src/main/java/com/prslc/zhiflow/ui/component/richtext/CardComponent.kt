@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
 
