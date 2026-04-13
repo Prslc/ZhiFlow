@@ -15,8 +15,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prslc.zhiflow.navigation.LocalNavigator
 import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun RichTextComponent(

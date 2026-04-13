@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.navigation
+package com.prslc.zhiflow.ui.navigation
 
 import kotlinx.serialization.Serializable
 
