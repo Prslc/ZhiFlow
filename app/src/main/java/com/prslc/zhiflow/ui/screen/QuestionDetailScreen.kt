@@ -52,7 +52,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -157,6 +156,7 @@ private fun QuestionContentList(
     onImageClick: (String) -> Unit
 ) {
     val navigator = LocalNavigator.current
+    var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -170,18 +170,42 @@ private fun QuestionContentList(
             if (isExpanded || index == 0) {
                 Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                     when (element) {
-                        is DetailElement.Text -> ExpandableText(
-                            content = element.content,
-                            isExpanded = isExpanded,
-                            showToggle = index == 0,
-                            onExpandChange = onExpandChange
-                        )
-
-                        is DetailElement.Image -> if (isExpanded) {
+                        is DetailElement.Text -> {
+                            SelectionContainer {
+                                Text(
+                                    text = element.content,
+                                    maxLines = if (isExpanded) Int.MAX_VALUE else 3,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                                    onTextLayout = { layoutResult = it },
+                                    modifier = Modifier.pointerInput(element.content) {
+                                        detectTapGestures { offset ->
+                                            layoutResult?.let { result ->
+                                                val position = result.getOffsetForPosition(offset)
+                                                element.content.getStringAnnotations("URL", position, position)
+                                                    .firstOrNull()?.let { annotation ->
+                                                        navigator.handleUrl(annotation.item)
+                                                    }
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        is DetailElement.Image -> {
                             ImageItem(element.image, onImageClick)
                         }
                     }
                 }
+            }
+        }
+        if (state.elements.size > 1) {
+            item(key = "description_toggle") {
+                ExpandToggleButton(
+                    isExpanded = isExpanded,
+                    onClick = { onExpandChange(!isExpanded) }
+                )
             }
         }
 
@@ -279,66 +303,33 @@ private fun LoadingFooter() {
 }
 
 @Composable
-private fun ExpandableText(
-    content: AnnotatedString,
+private fun ExpandToggleButton(
     isExpanded: Boolean,
-    showToggle: Boolean,
-    onExpandChange: (Boolean) -> Unit
+    onClick: () -> Unit
 ) {
-    val navigator = LocalNavigator.current
-    var canExpand by remember(content) { mutableStateOf(false) }
-    var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
-
-    Column {
-        SelectionContainer {
-            Text(
-                text = content,
-                maxLines = if (isExpanded) Int.MAX_VALUE else 3,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                onTextLayout = { result ->
-                    layoutResult = result
-                    if (!isExpanded) {
-                        canExpand = result.didOverflowHeight || result.lineCount > 3
-                    }
-                },
-                modifier = Modifier.pointerInput(content) {
-                    detectTapGestures { offset ->
-                        layoutResult?.let { result ->
-                            val position = result.getOffsetForPosition(offset)
-                            content.getStringAnnotations("URL", position, position)
-                                .firstOrNull()?.let { annotation ->
-                                    navigator.handleUrl(annotation.item)
-                                }
-                        }
-                    }
-                }
-            )
-        }
-        if (showToggle && canExpand) {
-            Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .clickable { onExpandChange(!isExpanded) },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (isExpanded) stringResource(R.string.action_collapse) else stringResource(
-                        R.string.action_expand
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = if (isExpanded) {
+                stringResource(R.string.action_collapse)
+            } else {
+                stringResource(R.string.action_expand)
+            },
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Icon(
+            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 
