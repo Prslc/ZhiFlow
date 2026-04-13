@@ -1,13 +1,9 @@
 package com.prslc.zhiflow.parser
 
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -19,6 +15,7 @@ import com.prslc.zhiflow.data.model.Mark
 import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.ui.theme.TextStyles
 import com.prslc.zhiflow.utils.cleanLatex
 
 data class InlineFormulaMeta(
@@ -304,17 +301,9 @@ object ContentParser {
                 if (safeStart >= safeEnd) return@forEach
 
                 when (mark.type) {
-                    "bold" -> addStyle(
-                        SpanStyle(fontWeight = FontWeight.ExtraBold),
-                        safeStart,
-                        safeEnd
-                    )
+                    "bold" -> addStyle(TextStyles.boldStyle, safeStart, safeEnd)
 
-                    "italic" -> addStyle(
-                        SpanStyle(fontStyle = FontStyle.Italic),
-                        safeStart,
-                        safeEnd
-                    )
+                    "italic" -> addStyle(TextStyles.italicStyle, safeStart, safeEnd)
 
                     "strikethrough" -> addStyle(
                         SpanStyle(textDecoration = TextDecoration.LineThrough),
@@ -323,28 +312,19 @@ object ContentParser {
                     )
 
                     "code" -> addStyle(
-                        SpanStyle(
-                            fontFamily = FontFamily.Monospace,
-                            background = Color.Gray.copy(alpha = 0.1f)
-                        ), safeStart, safeEnd
+                        TextStyles.codeStyle(isDark),
+                        safeStart,
+                        safeEnd
                     )
 
                     "reference" -> {
                         addStyle(
-                            SpanStyle(
-                                fontSize = 12.sp,
-                                baselineShift = androidx.compose.ui.text.style.BaselineShift.Superscript,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E88E5)
-                            ), safeStart, safeEnd
+                            TextStyles.referenceStyle(isDark),
+                            safeStart,
+                            safeEnd
                         )
                         mark.reference?.title?.let {
-                            addStringAnnotation(
-                                "REF_TITLE",
-                                it,
-                                safeStart,
-                                safeEnd
-                            )
+                            addStringAnnotation("REF_TITLE", it, safeStart, safeEnd)
                         }
                     }
 
@@ -352,7 +332,11 @@ object ContentParser {
                         val url = mark.link?.href ?: mark.entityWord?.url
                         if (!url.isNullOrEmpty()) {
                             addStringAnnotation("URL", url, safeStart, safeEnd)
-                            addStyle(SpanStyle(color = Color(0xFF1E88E5)), safeStart, safeEnd)
+                            addStyle(
+                                TextStyles.linkStyle(isDark),
+                                safeStart,
+                                safeEnd
+                            )
                         }
                     }
                 }

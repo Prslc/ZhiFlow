@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.parser.RichTextElement
+import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Composable
 fun Divider() {
@@ -43,10 +44,7 @@ fun Divider() {
 fun Heading(element: RichTextElement.Heading) {
     ZRichText(
         content = element.content,
-        style = MaterialTheme.typography.titleLarge.copy(
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = if (element.level == 3) 20.sp else 22.sp
-        ),
+        style = TextStyles.headingStyle(element.level),
         modifier = Modifier.padding(top = 8.dp)
     )
 }

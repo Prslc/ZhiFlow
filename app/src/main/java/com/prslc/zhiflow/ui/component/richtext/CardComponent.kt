@@ -23,13 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.parser.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Composable
 fun CardComponent(
@@ -82,8 +81,8 @@ fun CardComponent(
                 Text(
                     text = element.title,
                     style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 18.sp
+                        fontWeight = TextStyles.cardTitleBold,
+                        lineHeight = TextStyles.cardTitleLineHeight
                     ),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -95,7 +94,7 @@ fun CardComponent(
                         text = element.desc,
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 12.sp
+                            fontSize = TextStyles.cardDescSize
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
