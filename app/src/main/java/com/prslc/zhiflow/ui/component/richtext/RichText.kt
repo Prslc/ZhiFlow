@@ -22,7 +22,7 @@ fun RichTextSingleElement(
         is RichTextElement.Image -> ImageComponent(element.data, onImageClick)
         is RichTextElement.Code -> CodeBlock(element.code, element.lang)
         is RichTextElement.BulletItem -> BulletItemRow(element)
-        is RichTextElement.Blockquote -> BlockquoteComponent(element.content)
+        is RichTextElement.Blockquote -> BlockquoteComponent(element)
         is RichTextElement.Card -> CardComponent(element)
         is RichTextElement.Table -> TableComponent(element)
         is RichTextElement.Reference -> ReferenceSection(element.items)

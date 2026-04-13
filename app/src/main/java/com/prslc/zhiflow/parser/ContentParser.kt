@@ -37,22 +37,32 @@ sealed interface RichTextElement {
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     data class Image(val data: ZhihuImage) : RichTextElement
     data class FormulaBlock(val data: Formula) : RichTextElement
-    data class Blockquote(val content: AnnotatedString) : RichTextElement
     data class Code(val code: String, val lang: String?) : RichTextElement
     data class Reference(val items: List<AnnotatedString>) : RichTextElement
     data object Divider : RichTextElement
 
+    data class Blockquote(
+        val content: AnnotatedString,
+        val inlineMetas: List<InlineFormulaMeta>
+    ) : RichTextElement
+
     data class BulletItem(
         val content: AnnotatedString,
+        val inlineMetas: List<InlineFormulaMeta>,
         val level: Int,
         val isOrdered: Boolean,
         val index: Int = 0
     ) : RichTextElement
 
+    data class TableCell(
+        val content: AnnotatedString,
+        val inlineMetas: List<InlineFormulaMeta>
+    )
+
     data class Table(
         val rows: Int,
         val cols: Int,
-        val cells: List<AnnotatedString>,
+        val cells: List<TableCell>,
         val hasHeader: Boolean
     ) : RichTextElement
 
@@ -107,6 +117,7 @@ object ContentParser {
                             parseContent(item.text, item.marks, measurer, density, config, isDark)
                         RichTextElement.BulletItem(
                             content = processed.content,
+                            inlineMetas = processed.inlineMetas,
                             level = item.indentLevel,
                             isOrdered = segment.listNode.type == "ordered",
                             index = counter.next(item.indentLevel)
@@ -117,7 +128,12 @@ object ContentParser {
                 "blockquote" -> segment.blockquote?.let {
                     val processed =
                         parseContent(it.text, it.marks, measurer, density, config, isDark)
-                    listOf(RichTextElement.Blockquote(processed.content))
+                    listOf(
+                        RichTextElement.Blockquote(
+                            content = processed.content,
+                            inlineMetas = processed.inlineMetas
+                        )
+                    )
                 } ?: emptyList()
 
                 "image" -> segment.image?.let { listOf(RichTextElement.Image(it)) } ?: emptyList()
@@ -150,15 +166,16 @@ object ContentParser {
                         RichTextElement.Table(
                             rows = table.rowCount,
                             cols = table.columnCount,
-                            cells = table.cells.map {
-                                parseContent(
-                                    it,
+                            cells = table.cells.map { cellRawText ->
+                                val processed = parseContent(
+                                    cellRawText,
                                     emptyList(),
                                     measurer,
                                     density,
                                     config,
                                     isDark
-                                ).content
+                                )
+                                RichTextElement.TableCell(processed.content, processed.inlineMetas)
                             },
                             hasHeader = table.hasHeadRow
                         )
