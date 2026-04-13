@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,8 +38,11 @@ fun ZhihuFeedItem(
     onClick: (String, String) -> Unit   // id, type
 ) {
     val target = item.target ?: return
-    val type = target.type ?: "answer"
-    val title = target.question?.title ?: target.title ?: stringResource(R.string.unknown_content)
+    val (type, title) = remember(item) {
+        val type = target.type ?: "answer"
+        val title = target.question?.title ?: target.title ?: ""
+        type to title
+    }
 
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
