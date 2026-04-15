@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.data.service
 
-import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.CollectionResponse
 import com.prslc.zhiflow.data.model.ContentType
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
@@ -12,56 +12,31 @@ import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 
-/**
- * Retrieve the list of collections (favorites) for a specific content item
- * @param id Content ID
- * @param contentType "answer" or "article"
- */
-suspend fun getCollectionsForContent(
-    id: String,
-    contentType: ContentType
-): CollectionResponse? {
+class CollectionService(private val client: HttpClient) {
 
-    return try {
-        val response = Client.client.get("collections/contents/${contentType.type}/$id") {
-            parameter("ever_top", 1)
-        }
-
-        if (response.status.isSuccess()) {
-            response.body<CollectionResponse>()
-        } else {
-            null
-        }
-    } catch (e: Exception) {
-        null
+    suspend fun getCollectionsForContent(id: String, contentType: ContentType): CollectionResponse? {
+        return try {
+            val response = client.get("collections/contents/${contentType.type}/$id") {
+                parameter("ever_top", 1)
+            }
+            if (response.status.isSuccess()) response.body() else null
+        } catch (e: Exception) { null }
     }
-}
 
-/**
- * Update the collection (favorite) status of a content item (add/remove from collections)
- * @param id Content ID
- * @param contentType "answer" or "article"
- */
-suspend fun updateContentCollections(
-    id: String,
-    contentType: ContentType,
-    addIds: List<Long>,
-    removeIds: List<Long>
-): Boolean {
-
-    return try {
-        val response = Client.client.put("v2/collections/contents/${contentType.type}/$id") {
-            setBody(FormDataContent(Parameters.build {
-                if (addIds.isNotEmpty()) {
-                    append("add_collections", addIds.joinToString(","))
-                }
-                if (removeIds.isNotEmpty()) {
-                    append("remove_collections", removeIds.joinToString(","))
-                }
-            }))
-        }
-        response.status.isSuccess()
-    } catch (e: Exception) {
-        false
+    suspend fun updateContentCollections(
+        id: String,
+        contentType: ContentType,
+        addIds: List<Long>,
+        removeIds: List<Long>
+    ): Boolean {
+        return try {
+            val response = client.put("v2/collections/contents/${contentType.type}/$id") {
+                setBody(FormDataContent(Parameters.build {
+                    if (addIds.isNotEmpty()) append("add_collections", addIds.joinToString(","))
+                    if (removeIds.isNotEmpty()) append("remove_collections", removeIds.joinToString(","))
+                }))
+            }
+            response.status.isSuccess()
+        } catch (e: Exception) { false }
     }
 }

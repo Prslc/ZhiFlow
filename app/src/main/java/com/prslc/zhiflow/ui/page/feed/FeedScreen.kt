@@ -20,18 +20,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.component.common.ErrorView
+import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
-    viewModel: FeedViewModel = viewModel(),
+    viewModel: FeedViewModel = koinViewModel(),
     onItemClick: (String, String) -> Unit
 ) {
     val items = viewModel.feedItems
