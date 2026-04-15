@@ -10,9 +10,22 @@ import coil3.gif.AnimatedImageDecoder
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.di.appModule
 import okio.Path.Companion.toPath
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 
-class ZhiFlowApplication : Application(), SingletonImageLoader.Factory {
+class Application : Application(), SingletonImageLoader.Factory {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        // koin
+        startKoin {
+            androidContext(this@Application)
+            modules(appModule)
+        }
+    }
 
     @OptIn(ExperimentalCoilApi::class)
     override fun newImageLoader(context: PlatformContext): ImageLoader {
@@ -24,7 +37,7 @@ class ZhiFlowApplication : Application(), SingletonImageLoader.Factory {
             .diskCache {
                 DiskCache.Builder()
                     .directory(context.cacheDir.resolve("image_cache").absolutePath.toPath())
-                    .maxSizeBytes(64 * 1024 * 1024) // 64MB
+                    .maxSizeBytes(64 * 1024 * 1024)
                     .build()
             }
             .crossfade(true)

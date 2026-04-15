@@ -10,10 +10,10 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.FeedItem
-import com.prslc.zhiflow.data.service.getRecommendFeed
+import com.prslc.zhiflow.data.repository.FeedRepository
 import kotlinx.coroutines.launch
 
-class FeedViewModel : ViewModel() {
+class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
 
     var feedItems = mutableStateListOf<FeedItem>()
 
@@ -33,47 +33,32 @@ class FeedViewModel : ViewModel() {
     fun refresh() {
         if (isRefreshing) return
         viewModelScope.launch {
-            try {
-                isRefreshing = true
-                error = null
-                val response = getRecommendFeed(
-                    isRefresh = true,
-                    nextUrl = null
-                )
+            isRefreshing = true
+            error = null
 
-                if (response != null) {
+            repository.fetchFeeds(isRefresh = true, nextUrl = null)
+                .onSuccess { response ->
                     feedItems.clear()
-                    val items = response.data.filter { it.target != null }
-                    feedItems.addAll(items)
-
+                    feedItems.addAll(response.data)
                     nextPageUrl = response.paging.next
                 }
-            } catch (e: Exception) {
-                error = e.toApiException()
-                e.printStackTrace()
-            } finally {
-                isRefreshing = false
-            }
+                .onFailure { error = it.toApiException() }
+
+            isRefreshing = false
         }
     }
 
     fun loadMore() {
         if (isNextLoading || nextPageUrl == null) return
         viewModelScope.launch {
-            try {
-                isNextLoading = true
-                val response = getRecommendFeed(nextUrl = nextPageUrl)
-
-                if (response != null) {
-                    val items = response.data.filter { it.target != null }
-                    feedItems.addAll(items)
+            isNextLoading = true
+            repository.fetchFeeds(isRefresh = false, nextUrl = nextPageUrl)
+                .onSuccess { response ->
+                    feedItems.addAll(response.data)
                     nextPageUrl = response.paging.next
                 }
-            } catch (e: Exception) {
-                error = e.toApiException()
-            } finally {
-                isNextLoading = false
-            }
+                .onFailure { error = it.toApiException() }
+            isNextLoading = false
         }
     }
 }
