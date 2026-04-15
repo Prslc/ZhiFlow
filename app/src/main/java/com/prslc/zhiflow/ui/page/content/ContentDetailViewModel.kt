@@ -13,9 +13,8 @@ import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.ZhihuContent
+import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
-import com.prslc.zhiflow.data.service.addReadHistory
-import com.prslc.zhiflow.data.service.voteAction
 import com.prslc.zhiflow.parser.ContentParser
 import com.prslc.zhiflow.parser.model.RichTextElement
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +24,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
-class ContentViewModel(private val repository: ContentRepository) : ViewModel() {
+class ContentViewModel(
+    private val repository: ContentRepository,
+    private val actionRepository: ActionRepository
+) : ViewModel() {
 
     data class ContentUiState(
         val isLoading: Boolean = false,
@@ -111,14 +113,14 @@ class ContentViewModel(private val repository: ContentRepository) : ViewModel() 
     fun updateVote(targetAction: String, contentType: ContentType) {
         val currentContent = uiState.content ?: return
         val id = currentContent.id
-
+        
         val wasUpvoted = uiState.isUpvoted
         val wasDownvoted = uiState.isDownvoted
         val wasOffset = uiState.upvoteOffset
 
         var newUpvoted = wasUpvoted
         var newDownvoted = wasDownvoted
-        var newOffset = uiState.upvoteOffset
+        var newOffset = wasOffset
 
         when (targetAction) {
             "up" -> {
@@ -142,11 +144,14 @@ class ContentViewModel(private val repository: ContentRepository) : ViewModel() 
         )
 
         viewModelScope.launch {
-            try {
-                val isActive = if (targetAction == "up") wasUpvoted else wasDownvoted
-                val method = if (isActive) "DELETE" else "POST"
-                voteAction(id, contentType, targetAction, method)
-            } catch (e: Exception) {
+            val isActive = if (targetAction == "up") wasUpvoted else wasDownvoted
+
+            actionRepository.vote(
+                id = id,
+                type = contentType,
+                action = targetAction,
+                isRevoke = isActive
+            ).onFailure { e ->
                 if (e is CancellationException) throw e
                 uiState = uiState.copy(
                     isUpvoted = wasUpvoted,
@@ -161,11 +166,9 @@ class ContentViewModel(private val repository: ContentRepository) : ViewModel() 
     fun updateReadProgress(contentToken: String, contentType: ContentType, progress: Int) {
         viewModelScope.launch {
             withContext(NonCancellable) {
-                try {
-                    addReadHistory(ReadHistoryRequest(contentToken, contentType.type, progress))
-                } catch (e: Exception) {
-
-                }
+                actionRepository.syncHistory(
+                    ReadHistoryRequest(contentToken, contentType.type, progress)
+                )
             }
         }
     }

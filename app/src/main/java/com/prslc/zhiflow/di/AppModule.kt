@@ -1,12 +1,14 @@
 package com.prslc.zhiflow.di
 
 import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
 import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.repository.UserRepository
+import com.prslc.zhiflow.data.service.ActionService
 import com.prslc.zhiflow.data.service.CollectionService
 import com.prslc.zhiflow.data.service.CommentService
 import com.prslc.zhiflow.data.service.ContentService
@@ -56,4 +58,9 @@ val appModule = module {
     singleOf(::QuestionService)
     singleOf(::QuestionRepository)
     viewModelOf(::QuestionViewModel)
+
+    // Action
+    singleOf(::ActionService)
+    singleOf(::ActionRepository)
+    viewModelOf(::ContentViewModel)
 }
