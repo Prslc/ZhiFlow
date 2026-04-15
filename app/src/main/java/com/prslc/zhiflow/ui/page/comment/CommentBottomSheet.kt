@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox
-import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

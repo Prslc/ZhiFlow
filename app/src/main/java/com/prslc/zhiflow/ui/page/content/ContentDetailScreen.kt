@@ -67,15 +67,16 @@ import com.prslc.zhiflow.data.model.AnswerAuthor
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.parser.model.RichTextElement
-import com.prslc.zhiflow.ui.component.widget.ImageLightbox
-import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
-import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
+import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
+import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +85,7 @@ fun ContentDetailScreen(
     contentType: ContentType,
     onBack: () -> Unit,
     viewModel: ContentViewModel = viewModel(),
-    commentViewModel: CommentViewModel = viewModel()
+    commentViewModel: CommentViewModel = koinViewModel()
 ) {
     val navigator = LocalNavigator.current
 
