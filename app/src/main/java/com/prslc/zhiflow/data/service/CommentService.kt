@@ -1,9 +1,8 @@
 package com.prslc.zhiflow.data.service
 
-import android.util.Log
-import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.CommentResponse
 import com.prslc.zhiflow.data.model.ContentType
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -11,86 +10,52 @@ import io.ktor.client.request.request
 import io.ktor.http.HttpMethod
 import io.ktor.http.isSuccess
 
-/**
- * Fetch root comments of an answer (supports pagination)
- * @param answerId Answer ID
- * @param offset Pagination offset
- * @param orderBy Sorting method (e.g., "score", "ts")
- * @param limit Number of comments per request
- */
-suspend fun getRootComments(
-    answerId: String,
-    contentType: ContentType,
-    offset: String = "",
-    orderBy: String = "score",
-    limit: Int = 20
-): CommentResponse? {
+class CommentService(private val client: HttpClient) {
 
-    val tag = "commentService"
-    return try {
-        val response =
-            Client.client.get("comment_v5/${contentType.apiPath}/$answerId/root_comment") {
+    suspend fun getRootComments(
+        id: String,
+        contentType: ContentType,
+        offset: String = "",
+        orderBy: String = "score",
+        limit: Int = 20
+    ): CommentResponse? {
+        return try {
+            val response = client.get("comment_v5/${contentType.apiPath}/$id/root_comment") {
                 parameter("order_by", orderBy)
                 parameter("limit", limit)
                 parameter("offset", offset)
             }
-
-        if (response.status.value != 200) {
-            Log.e(tag, "Request failed with status: ${response.status}")
-            return null
+            if (response.status.isSuccess()) response.body() else null
+        } catch (e: Exception) {
+            null
         }
-
-        response.body<CommentResponse>()
-    } catch (e: Exception) {
-        Log.e(tag, "Failed to fetch comments $answerId", e)
-        throw e
     }
-}
 
-/**
- * Fetch child comments of a root comment (supports pagination)
- * @param rootCommentId Root comment ID
- * @param offset Pagination offset
- * @param limit Number of comments per request
- */
-suspend fun getChildComments(
-    rootCommentId: String,
-    offset: String = "",
-    limit: Int = 20
-): CommentResponse? {
-    val tag = "commentService"
-    return try {
-        val response = Client.client.get("comment_v5/comment/$rootCommentId/child_comment") {
-            parameter("order_by", "ts")
-            parameter("limit", limit)
-            parameter("offset", offset)
+    suspend fun getChildComments(
+        rootCommentId: String,
+        offset: String = "",
+        limit: Int = 20
+    ): CommentResponse? {
+        return try {
+            val response = client.get("comment_v5/comment/$rootCommentId/child_comment") {
+                parameter("order_by", "ts")
+                parameter("limit", limit)
+                parameter("offset", offset)
+            }
+            if (response.status.isSuccess()) response.body() else null
+        } catch (e: Exception) {
+            null
         }
-
-        if (response.status.value != 200) return null
-        response.body<CommentResponse>()
-    } catch (e: Exception) {
-        Log.e(tag, "Failed to fetch child comments", e)
-        null
     }
-}
 
-/**
- * Perform comment reaction (like/unlike)
- * @param commentId Comment ID
- * @param action Reaction type (e.g., "like")
- * @param method "POST" to like, "DELETE" to unlike
- */
-suspend fun commentReaction(commentId: String, action: String, method: String = "POST"): Boolean {
-    val tag = "commentReaction"
-    return try {
-        val response = Client.client.request("reaction/comments/$commentId/$action") {
-            this.method = HttpMethod.parse(method)
+    suspend fun commentReaction(commentId: String, action: String, method: HttpMethod): Boolean {
+        return try {
+            val response = client.request("reaction/comments/$commentId/$action") {
+                this.method = method
+            }
+            response.status.isSuccess()
+        } catch (e: Exception) {
+            false
         }
-        val isSuccess = response.status.isSuccess()
-        Log.d(tag, "commentReaction $action ($method) on $commentId | Success: $isSuccess")
-        isSuccess
-    } catch (e: Exception) {
-        Log.e(tag, "commentReaction network error: $action ($method)", e)
-        false
     }
 }
