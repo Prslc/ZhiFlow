@@ -57,7 +57,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.hrm.latex.renderer.measure.rememberLatexMeasurer
 import com.hrm.latex.renderer.model.LatexConfig
@@ -84,17 +83,19 @@ fun ContentDetailScreen(
     id: String,
     contentType: ContentType,
     onBack: () -> Unit,
-    viewModel: ContentViewModel = viewModel(),
+    viewModel: ContentViewModel = koinViewModel(),
     commentViewModel: CommentViewModel = koinViewModel()
 ) {
     val navigator = LocalNavigator.current
+
+    val uiState = viewModel.uiState
+    val currentContent = uiState.content
 
     val commentState = commentViewModel.uiState
 
     var showCollectionSheet by rememberSaveable { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
 
-    val currentContent = viewModel.content
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     var currentImageIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -102,8 +103,8 @@ fun ContentDetailScreen(
 
     var currentProgress by remember { mutableIntStateOf(0) }
 
-    val imageUrls = remember(viewModel.richTextElements) {
-        viewModel.richTextElements
+    val imageUrls = remember(uiState.richTextElements) {
+        uiState.richTextElements
             .filterIsInstance<RichTextElement.Image>()
             .mapNotNull { it.data.urls.firstOrNull() }
     }
@@ -115,8 +116,8 @@ fun ContentDetailScreen(
         LatexConfig(color = if (isDark) Color.White else Color.Black)
     }
 
-    LaunchedEffect(viewModel.content, isDark) {
-        viewModel.content?.let {
+    LaunchedEffect(uiState.content, isDark) {
+        uiState.content?.let {
             viewModel.parseRichText(measurer, density, latexConfig, isDark)
         }
     }
@@ -176,7 +177,7 @@ fun ContentDetailScreen(
                         title = {
                             val titleText = when {
                                 currentContent != null -> currentContent.displayTitle
-                                viewModel.isLoading -> ""
+                                uiState.isLoading -> ""
                                 else -> stringResource(R.string.question_title_filed)
                             }
 
@@ -238,13 +239,13 @@ fun ContentDetailScreen(
                     ) {
                         currentContent?.let {
                             BottomBar(
-                                isUpvoted = viewModel.isUpvoted,
-                                isDownvoted = viewModel.isDownvoted,
-                                isFaved = viewModel.isFaved,
+                                isUpvoted = uiState.isUpvoted,
+                                isDownvoted = uiState.isDownvoted,
+                                isFaved = uiState.isFaved,
                                 upvoteCount = viewModel.displayUpvoteCount,
-                                favCount = viewModel.content?.reaction?.statistics?.favoritesCount
+                                favCount = uiState.content.reaction?.statistics?.favoritesCount
                                     ?: 0,
-                                commentCount = viewModel.content?.reaction?.statistics?.commentCount
+                                commentCount = uiState.content.reaction?.statistics?.commentCount
                                     ?: 0,
                                 onVoteClick = { type -> viewModel.updateVote(type, contentType) },
                                 onStarClick = { showCollectionSheet = true },
@@ -254,13 +255,13 @@ fun ContentDetailScreen(
                     }
                 }) { padding ->
                 when {
-                    viewModel.isLoading && currentContent == null -> {
+                    uiState.isLoading && currentContent == null -> {
                         LoadingView(modifier = Modifier.fillMaxSize())
                     }
 
-                    viewModel.error != null && currentContent == null -> {
+                    uiState.error != null && currentContent == null -> {
                         ErrorView(
-                            message = viewModel.error!!.uiMessage,
+                            message = uiState.error.uiMessage,
                             onRetry = { viewModel.loadContent(id, contentType) },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -307,7 +308,7 @@ fun ContentDetailScreen(
 
                                     // Content
                                     itemsIndexed(
-                                        items = viewModel.richTextElements,
+                                        items = uiState.richTextElements,
                                         key = { index, element ->
                                             when (element) {
                                                 is RichTextElement.Divider -> "divider_$index"
@@ -369,7 +370,7 @@ fun ContentDetailScreen(
                     contentType = contentType,
                     onDismissRequest = { showCollectionSheet = false },
                     onResult = { isFavedNow ->
-                        viewModel.isFaved = isFavedNow
+                        viewModel.updateFavoriteStatus(isFavedNow)
                     }
                 )
             }

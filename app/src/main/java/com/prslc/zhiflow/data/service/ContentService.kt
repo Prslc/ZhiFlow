@@ -1,39 +1,29 @@
 package com.prslc.zhiflow.data.service
 
-import android.util.Log
-import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuArticle
 import com.prslc.zhiflow.data.model.ZhihuContent
 import com.prslc.zhiflow.data.model.ZhihuPin
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.http.isSuccess
 
-/**
- * Generic content retrieval function
- * @param path API endpoint path, e.g., "answers/v2" or "articles/v2"
- * @param id Content ID
- */
-private suspend inline fun <reified T : ZhihuContent> fetchContent(
-    path: String,
-    id: String
-): T? {
-    val tag = "ContentService"
-    return try {
-        val response = Client.client.get("$path/$id")
+class ContentService(private val client: HttpClient) {
 
-        if (response.status.value != 200) {
-            Log.e(tag, "Request failed with status: ${response.status}")
-            return null
+    private suspend inline fun <reified T : ZhihuContent> fetchContent(
+        path: String,
+        id: String
+    ): T? {
+        return try {
+            val response = client.get("$path/$id")
+            if (response.status.isSuccess()) response.body<T>() else null
+        } catch (e: Exception) {
+            null
         }
-
-        response.body<T>()
-    } catch (e: Exception) {
-        Log.e(tag, "Failed to fetch profile", e)
-        throw e
     }
-}
 
-suspend fun getAnswerDetail(id: String) = fetchContent<ZhihuAnswer>("answers/v2", id)
-suspend fun getArticleDetail(id: String) = fetchContent<ZhihuArticle>("articles/v2", id)
-suspend fun getPinDetail(id: String) = fetchContent<ZhihuPin>("pins/v2", id)
+    suspend fun getAnswerDetail(id: String) = fetchContent<ZhihuAnswer>("answers", id)
+    suspend fun getArticleDetail(id: String) = fetchContent<ZhihuArticle>("articles", id)
+    suspend fun getPinDetail(id: String) = fetchContent<ZhihuPin>("pins", id)
+}
