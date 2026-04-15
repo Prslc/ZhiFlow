@@ -31,10 +31,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CollectionItem(
@@ -105,7 +105,7 @@ fun CollectionDialog(
     contentType: ContentType,
     onDismissRequest: () -> Unit,
     onResult: (Boolean) -> Unit,
-    viewModel: CollectionViewModel = viewModel()
+    viewModel: CollectionViewModel = koinViewModel()
 ) {
     LaunchedEffect(id) {
         viewModel.loadCollections(id, contentType)
