@@ -38,7 +38,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -58,36 +57,36 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.Topic
 import com.prslc.zhiflow.data.model.ZhihuImage
 import com.prslc.zhiflow.parser.model.DetailElement
-import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuestionDetailScreen(
     id: String,
     onBack: () -> Unit,
-    viewModel: QuestionViewModel = viewModel(),
+    viewModel: QuestionViewModel = koinViewModel(),
 ) {
+    val uiState = viewModel.uiState
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     var isLightboxVisible by rememberSaveable { mutableStateOf(false) }
     var currentImageIndex by rememberSaveable { mutableIntStateOf(0) }
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
-    val imageUrls by remember(viewModel.uiState) {
-        derivedStateOf {
-            (viewModel.uiState as? QuestionUiState.Success)?.elements
-                ?.filterIsInstance<DetailElement.Image>()
-                ?.flatMap { it.image.urls } ?: emptyList()
-        }
+    val imageUrls = remember(uiState.elements) {
+        uiState.elements.filterIsInstance<DetailElement.Image>()
+            .flatMap { it.image.urls }
     }
 
     LaunchedEffect(id) { viewModel.loadQuestion(id) }
@@ -109,17 +108,21 @@ fun QuestionDetailScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            when (val state = viewModel.uiState) {
-                is QuestionUiState.Loading -> LoadingView(Modifier.fillMaxSize())
-                is QuestionUiState.Error -> ErrorView(
-                    message = state.exception.message ?: "Unknown Error",
-                    onRetry = { viewModel.loadQuestion(id) },
-                    modifier = Modifier.fillMaxSize()
-                )
+            when {
+                uiState.isLoading && uiState.question == null -> {
+                    LoadingView(Modifier.fillMaxSize())
+                }
 
-                is QuestionUiState.Success -> {
+                uiState.error != null && uiState.question == null -> {
+                    ErrorView(
+                        message = uiState.error.uiMessage,
+                        onRetry = { viewModel.loadQuestion(id) }
+                    )
+                }
+
+                uiState.question != null -> {
                     QuestionContentList(
-                        state = state,
+                        state = uiState,
                         viewModel = viewModel,
                         id = id,
                         isExpanded = isExpanded,
@@ -145,7 +148,7 @@ fun QuestionDetailScreen(
 
 @Composable
 private fun QuestionContentList(
-    state: QuestionUiState.Success,
+    state: QuestionUiState,
     viewModel: QuestionViewModel,
     id: String,
     isExpanded: Boolean,
@@ -180,7 +183,11 @@ private fun QuestionContentList(
                                         detectTapGestures { offset ->
                                             layoutResult?.let { result ->
                                                 val position = result.getOffsetForPosition(offset)
-                                                element.content.getStringAnnotations("URL", position, position)
+                                                element.content.getStringAnnotations(
+                                                    "URL",
+                                                    position,
+                                                    position
+                                                )
                                                     .firstOrNull()?.let { annotation ->
                                                         navigator.handleUrl(annotation.item)
                                                     }
@@ -190,6 +197,7 @@ private fun QuestionContentList(
                                 )
                             }
                         }
+
                         is DetailElement.Image -> {
                             ImageItem(element.image, onImageClick)
                         }
@@ -207,31 +215,35 @@ private fun QuestionContentList(
         }
 
         // topic tab
-        if (state.question.topics.isNotEmpty()) {
-            item(key = "topics_row") {
-                TopicRow(topics = state.question.topics)
+        state.question?.let { question ->
+            if (question.topics.isNotEmpty()) {
+                item(key = "topics_row") {
+                    TopicRow(topics = question.topics)
+                }
             }
         }
 
         // stats
-        item(key = "stats_section") {
-            Column {
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                )
-                QuestionStatsSection(state.question)
-                HorizontalDivider(
-                    thickness = 8.dp,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                )
+        state.question?.let { question ->
+            item(key = "stats_section") {
+                Column {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
+                    QuestionStatsSection(question)
+                    HorizontalDivider(
+                        thickness = 8.dp,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    )
+                }
             }
         }
 
         // question list
         itemsIndexed(
-            items = viewModel.answerItems,
+            items = state.answers,
             key = { _, item -> item.target.id }
         ) { index, feedItem ->
             if (feedItem.targetType == "answer") {
@@ -243,15 +255,15 @@ private fun QuestionContentList(
                 )
                 AnswerDivider()
             }
-            if (index >= viewModel.answerItems.size - 2) {
-                LaunchedEffect(viewModel.answerItems.size) {
+            if (index >= state.answers.size - 2) {
+                LaunchedEffect(state.answers.size) {
                     viewModel.loadMore(id)
                 }
             }
         }
 
         // loading
-        if (viewModel.isNextLoading) {
+        if (state.isNextLoading) {
             item(key = "loading_indicator") {
                 LoadingFooter()
             }
@@ -339,7 +351,7 @@ private fun QuestionTopBar(
 ) {
     LargeTopAppBar(
         title = {
-            val titleText = (state as? QuestionUiState.Success)?.question?.title ?: ""
+            val titleText = state.question?.title ?: ""
             val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
             Text(
                 text = titleText,

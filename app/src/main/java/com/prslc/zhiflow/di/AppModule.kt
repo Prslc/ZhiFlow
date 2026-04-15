@@ -5,17 +5,20 @@ import com.prslc.zhiflow.data.repository.CollectionRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
+import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import com.prslc.zhiflow.data.service.CollectionService
 import com.prslc.zhiflow.data.service.CommentService
 import com.prslc.zhiflow.data.service.ContentService
 import com.prslc.zhiflow.data.service.FeedService
+import com.prslc.zhiflow.data.service.QuestionService
 import com.prslc.zhiflow.data.service.UserService
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
+import com.prslc.zhiflow.ui.page.question.QuestionViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -48,4 +51,9 @@ val appModule = module {
     singleOf(::ContentService)
     singleOf(::ContentRepository)
     viewModelOf(::ContentViewModel)
+
+    // Question
+    singleOf(::QuestionService)
+    singleOf(::QuestionRepository)
+    viewModelOf(::QuestionViewModel)
 }
