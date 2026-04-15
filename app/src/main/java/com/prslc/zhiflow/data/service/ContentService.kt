@@ -16,7 +16,7 @@ class ContentService(private val client: HttpClient) {
         id: String
     ): T? {
         return try {
-            val response = client.get("$path/$id")
+            val response = client.get("$path/v2/$id")
             if (response.status.isSuccess()) response.body<T>() else null
         } catch (e: Exception) {
             null
