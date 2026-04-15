@@ -29,21 +29,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.core.utils.formatCount
+import com.prslc.zhiflow.ui.component.common.ErrorView
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onNavigateToSettings: () -> Unit,
-    viewModel: ProfileViewModel = viewModel(),
+    viewModel: ProfileViewModel = koinViewModel(),
 ) {
-    val user = viewModel.user
-    val isLoading = viewModel.isLoading
+    val uiState = viewModel.uiState
+    val user = uiState.user
+    val isLoading = uiState.isLoading
 
     LaunchedEffect(Unit) {
         if (user == null) viewModel.loadProfile()
@@ -126,7 +126,7 @@ fun ProfileScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
-                message = viewModel.error?.uiMessage ?: stringResource(R.string.error_unknown),
+                message = uiState.error?.message ?: stringResource(R.string.error_unknown),
                 onRetry = { viewModel.loadProfile() },
                 modifier = Modifier.align(Alignment.Center)
             )
