@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.prslc.zhiflow.ui.navigation.DebugTab
@@ -44,9 +43,10 @@ import com.prslc.zhiflow.ui.navigation.contentGraph
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
-import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
+import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,7 +117,7 @@ fun MainScreen() {
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
-    val profileViewModel: ProfileViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = koinViewModel()
 
     NavigationSuiteScaffold(
         layoutType = NavigationSuiteType.NavigationBar,
