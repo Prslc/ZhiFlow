@@ -7,8 +7,8 @@ import io.ktor.client.request.get
 import io.ktor.http.isSuccess
 
 class UserService(private val client: HttpClient) {
-    suspend fun getUserDetail(): ZhihuUser? {
-        val response = client.get("people/self")
+    suspend fun getUserDetail(urlToken: String): ZhihuUser? {
+        val response = client.get("people/$urlToken")
         return if (response.status.isSuccess()) response.body() else null
     }
 }

@@ -15,6 +15,8 @@ data class PinDetail(val id: String)
 @Serializable
 data class QuestionDetail(val id: String)
 @Serializable
+data class PeopleDetail(val urlToken: String)
+@Serializable
 object HomeTab
 @Serializable
 object DebugTab

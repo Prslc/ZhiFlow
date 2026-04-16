@@ -73,6 +73,7 @@ import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -296,7 +297,10 @@ fun ContentDetailScreen(
                                 ) {
                                     // author
                                     item {
-                                        AuthorSection(answer.author)
+                                        AuthorSection(
+                                            author = answer.author,
+                                            navigator = navigator
+                                        )
                                         HorizontalDivider(
                                             modifier = Modifier.padding(horizontal = 20.dp),
                                             thickness = 0.5.dp,
@@ -399,7 +403,10 @@ fun ContentDetailScreen(
 }
 
 @Composable
-fun AuthorSection(author: AnswerAuthor) {
+fun AuthorSection(
+    author: AnswerAuthor,
+    navigator: Navigator
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -412,6 +419,7 @@ fun AuthorSection(author: AnswerAuthor) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
+                .clickable { navigator.navigateToPeople(author.urlToken) }
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
