@@ -37,6 +37,122 @@ import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
+fun CollectionDialog(
+    id: String,
+    contentType: ContentType,
+    onDismissRequest: () -> Unit,
+    onResult: (Boolean) -> Unit,
+    viewModel: CollectionViewModel = koinViewModel()
+) {
+    LaunchedEffect(id) {
+        viewModel.loadCollections(id, contentType)
+    }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp)
+        ) {
+            Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                // Header
+                Text(
+                    text = stringResource(R.string.collection_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // List Area
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 200.dp, max = 400.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when {
+                        viewModel.isLoading && viewModel.collectionList.isEmpty() -> {
+                            CircularProgressIndicator(strokeWidth = 3.dp)
+                        }
+
+                        viewModel.collectionList.isEmpty() -> {
+                            Text(
+                                text = stringResource(R.string.collection_item_empty),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+
+                        else -> {
+                            LazyColumn {
+                                items(
+                                    items = viewModel.collectionList,
+                                    key = { it.id }
+                                ) { collection ->
+                                    CollectionItem(
+                                        title = collection.title,
+                                        itemCount = collection.itemCount,
+                                        isPublic = collection.isPublic,
+                                        isDefault = collection.isDefault,
+                                        isSelected = viewModel.selectedIds.contains(collection.id),
+                                        onToggle = {
+                                            if (!viewModel.isLoading) {
+                                                viewModel.toggleSelection(collection.id)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Actions
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text(stringResource(R.string.general_back))
+                    }
+
+                    Spacer(Modifier.width(8.dp))
+
+                    TextButton(
+                        onClick = {
+                            viewModel.updateCollectionStatus(id, contentType) { isFaved ->
+                                onResult(isFaved)
+                                onDismissRequest()
+                            }
+                        },
+                        enabled = !viewModel.isLoading && viewModel.hasChanges()
+                    ) {
+                        if (viewModel.isLoading && viewModel.collectionList.isNotEmpty()) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.collection_done),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun CollectionItem(
     title: String,
     itemCount: Int,
@@ -96,108 +212,5 @@ fun CollectionItem(
             checked = isSelected,
             onCheckedChange = { onToggle() }
         )
-    }
-}
-
-@Composable
-fun CollectionDialog(
-    id: String,
-    contentType: ContentType,
-    onDismissRequest: () -> Unit,
-    onResult: (Boolean) -> Unit,
-    viewModel: CollectionViewModel = koinViewModel()
-) {
-    LaunchedEffect(id) {
-        viewModel.loadCollections(id, contentType)
-    }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.collection_title),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp)
-                ) {
-                    if (viewModel.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            strokeWidth = 3.dp
-                        )
-                    } else {
-                        LazyColumn {
-                            items(viewModel.collectionList) { collection ->
-                                CollectionItem(
-                                    title = collection.title,
-                                    itemCount = collection.itemCount,
-                                    isPublic = collection.isPublic,
-                                    isDefault = collection.isDefault,
-                                    isSelected = viewModel.tempSelectedIds.contains(collection.id),
-                                    onToggle = {
-                                        val id = collection.id
-                                        if (viewModel.tempSelectedIds.contains(id)) {
-                                            viewModel.tempSelectedIds.remove(id)
-                                        } else {
-                                            viewModel.tempSelectedIds.add(id)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text(stringResource(R.string.general_back))
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    TextButton(
-                        onClick = {
-                            viewModel.updateCollectionStatus(id, contentType) { isFaved ->
-                                onResult(isFaved)
-                                onDismissRequest()
-                            }
-                        },
-                        enabled = !viewModel.isLoading
-                    ) {
-                        Text(
-                            text = stringResource(R.string.collection_done),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-        }
     }
 }

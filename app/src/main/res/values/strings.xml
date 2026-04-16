@@ -64,6 +64,7 @@
     <!-- collection -->
     <string name="collection_title">Save to Collections</string>
     <string name="collection_done">Done</string>
+    <string name="collection_item_empty">No favorites yet</string>
     <string name="collection_item_count">%1$d items</string>
     <string name="collection_default_label">Default</string>
     <string name="collection_private_desc">Private collection</string>
