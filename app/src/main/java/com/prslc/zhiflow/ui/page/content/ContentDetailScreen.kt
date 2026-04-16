@@ -85,8 +85,11 @@ fun ContentDetailScreen(
 ) {
     val navigator = LocalNavigator.current
 
-    val uiState = viewModel.uiState
-    val currentContent = uiState.content
+    val loadingState = viewModel.loadingState
+    val interaction = viewModel.interactionState
+    val richTextElements = viewModel.richTextElements
+
+    val currentContent = loadingState.content
 
     val commentState = commentViewModel.uiState
 
@@ -100,16 +103,16 @@ fun ContentDetailScreen(
 
     var currentProgress by remember { mutableIntStateOf(0) }
 
-    val imageUrls = remember(uiState.richTextElements) {
-        uiState.richTextElements
+    val imageUrls = remember(richTextElements) {
+        richTextElements
             .filterIsInstance<RichTextElement.Image>()
             .mapNotNull { it.data.urls.firstOrNull() }
     }
 
     val isDark = isSystemInDarkTheme()
 
-    LaunchedEffect(uiState.content, isDark) {
-        uiState.content?.let {
+    LaunchedEffect(currentContent, isDark) {
+        currentContent?.let {
             viewModel.parseRichText(isDark)
         }
     }
@@ -169,7 +172,7 @@ fun ContentDetailScreen(
                         title = {
                             val titleText = when {
                                 currentContent != null -> currentContent.displayTitle
-                                uiState.isLoading -> ""
+                                loadingState.isLoading -> ""
                                 else -> stringResource(R.string.question_title_filed)
                             }
 
@@ -229,15 +232,15 @@ fun ContentDetailScreen(
                         enter = slideInVertically(initialOffsetY = { it }),
                         exit = slideOutVertically(targetOffsetY = { it }),
                     ) {
-                        currentContent?.let {
+                        currentContent?.let { content ->
                             BottomBar(
-                                isUpvoted = uiState.isUpvoted,
-                                isDownvoted = uiState.isDownvoted,
-                                isFaved = uiState.isFaved,
+                                isUpvoted = interaction.isUpvoted,
+                                isDownvoted = interaction.isDownvoted,
+                                isFaved = interaction.isFaved,
                                 upvoteCount = viewModel.displayUpvoteCount,
-                                favCount = uiState.content.reaction?.statistics?.favoritesCount
+                                favCount = content.reaction?.statistics?.favoritesCount
                                     ?: 0,
-                                commentCount = uiState.content.reaction?.statistics?.commentCount
+                                commentCount = content.reaction?.statistics?.commentCount
                                     ?: 0,
                                 onVoteClick = { type -> viewModel.updateVote(type, contentType) },
                                 onStarClick = { showCollectionSheet = true },
@@ -247,13 +250,13 @@ fun ContentDetailScreen(
                     }
                 }) { padding ->
                 when {
-                    uiState.isLoading && currentContent == null -> {
+                    loadingState.isLoading && currentContent == null -> {
                         LoadingView(modifier = Modifier.fillMaxSize())
                     }
 
-                    uiState.error != null && currentContent == null -> {
+                    loadingState.error != null && currentContent == null -> {
                         ErrorView(
-                            message = uiState.error.uiMessage,
+                            message = loadingState.error.uiMessage,
                             onRetry = { viewModel.loadContent(id, contentType) },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -303,14 +306,15 @@ fun ContentDetailScreen(
 
                                     // Content
                                     itemsIndexed(
-                                        items = uiState.richTextElements,
+                                        items = richTextElements,
                                         key = { index, element ->
                                             when (element) {
                                                 is RichTextElement.Divider -> "divider_$index"
                                                 is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
                                                 else -> "${element.hashCode()}_$index"
                                             }
-                                        }
+                                        },
+                                        contentType = { _, element -> element::class.simpleName }
                                     ) { _, element ->
                                         Box(
                                             modifier = Modifier.padding(
