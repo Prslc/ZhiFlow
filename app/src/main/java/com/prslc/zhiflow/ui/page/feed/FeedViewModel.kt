@@ -11,54 +11,71 @@ import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.FeedItem
 import com.prslc.zhiflow.data.repository.FeedRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
 
-    var feedItems = mutableStateListOf<FeedItem>()
+    data class FeedUiState(
+        val items: List<FeedItem> = emptyList(),
+        val isRefreshing: Boolean = false,
+        val isNextLoading: Boolean = false,
+        val error: ApiException? = null
+    )
 
-    var error by mutableStateOf<ApiException?>(null)
+    private val _uiState = MutableStateFlow(FeedUiState())
+    val uiState = _uiState.asStateFlow()
 
     val listState = LazyListState()
-    var isRefreshing by mutableStateOf(false)
-    var isNextLoading by mutableStateOf(false)
     private var nextPageUrl: String? = null
 
     fun loadIfEmpty() {
-        if (feedItems.isEmpty()) {
+        if (uiState.value.items.isEmpty()) {
             refresh()
         }
     }
 
     fun refresh() {
-        if (isRefreshing) return
+        if (_uiState.value.isRefreshing) return
         viewModelScope.launch {
-            isRefreshing = true
-            error = null
+            _uiState.update { it.copy(isRefreshing = true, error = null) }
 
             repository.fetchFeeds(isRefresh = true, nextUrl = null)
                 .onSuccess { response ->
-                    feedItems.clear()
-                    feedItems.addAll(response.data)
                     nextPageUrl = response.paging.next
+                    _uiState.update {
+                        it.copy(items = response.data, isRefreshing = false)
+                    }
                 }
-                .onFailure { error = it.toApiException() }
-
-            isRefreshing = false
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(error = e.toApiException(), isRefreshing = false)
+                    }
+                }
         }
     }
 
     fun loadMore() {
-        if (isNextLoading || nextPageUrl == null) return
+        val state = _uiState.value
+        if (state.isNextLoading || nextPageUrl == null) return
+
         viewModelScope.launch {
-            isNextLoading = true
+            _uiState.update { it.copy(isNextLoading = true) }
+
             repository.fetchFeeds(isRefresh = false, nextUrl = nextPageUrl)
                 .onSuccess { response ->
-                    feedItems.addAll(response.data)
                     nextPageUrl = response.paging.next
+                    _uiState.update {
+                        it.copy(items = it.items + response.data, isNextLoading = false)
+                    }
                 }
-                .onFailure { error = it.toApiException() }
-            isNextLoading = false
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(error = e.toApiException(), isNextLoading = false)
+                    }
+                }
         }
     }
 }
