@@ -1,9 +1,16 @@
 package com.prslc.zhiflow.parser
 
 import androidx.core.net.toUri
+import com.prslc.zhiflow.ui.navigation.AnswerDetail
+import com.prslc.zhiflow.ui.navigation.ArticleDetail
+import com.prslc.zhiflow.ui.navigation.PeopleDetail
+import com.prslc.zhiflow.ui.navigation.PinDetail
+import com.prslc.zhiflow.ui.navigation.QuestionDetail
 
 sealed class LinkDestination {
-    data class Internal(val id: String, val type: String) : LinkDestination()
+    // Internal route object (e.g. PeopleDetail)
+    data class Internal(val route: Any) : LinkDestination()
+    // Fallback external URL
     data class External(val url: String) : LinkDestination()
 }
 
@@ -11,7 +18,7 @@ object LinkParser {
     fun parse(url: String, contentType: String? = null): LinkDestination {
         val uri = url.toUri()
 
-        // Redirect
+        // Handle Zhihu's redirect service
         val finalUrl = if (uri.host == "link.zhihu.com") {
             uri.getQueryParameter("target") ?: url
         } else {
@@ -22,52 +29,63 @@ object LinkParser {
         val host = finalUri.host ?: ""
         val path = finalUrl.substringBefore("?")
 
-        /** Dirty data alert: metadata says ANSWER, but it's an external redirect.
-         *  We must verify if it's actually a Zhihu link before internal navigation.
-         */
+        // Security check: only allow internal navigation for zhihu.com
         if (!host.contains("zhihu.com")) {
             return LinkDestination.External(finalUrl)
         }
 
-        val metadataType = when (contentType?.uppercase()) {
-            "ANSWER" -> "answer"
-            "ARTICLE", "POST" -> "article"
-            "QUESTION" -> "question"
-            "PIN" -> "pin"
-            else -> null
-        }
-
         val id = extractId(path)
+        val type = contentType?.lowercase() ?: detectTypeFromPath(path)
 
-        return if (metadataType != null && id != null) {
-            LinkDestination.Internal(id, metadataType)
-        } else {
-            parseFromPath(finalUrl, path)
-        }
-    }
-
-    private fun parseFromPath(originalUrl: String, path: String): LinkDestination {
-        val id = extractId(path) ?: return LinkDestination.External(originalUrl)
-
-        val type = when {
-            path.contains("/answer/") -> "answer"
-            path.contains("/p/") || path.contains("zhuanlan.zhihu.com") -> "article"
-            path.contains("/question/") -> "question"
-            path.contains("/pin/") -> "pin"
-            else -> null
-        }
-
-        return if (type != null) {
-            LinkDestination.Internal(id, type)
-        } else {
-            LinkDestination.External(originalUrl)
-        }
-    }
-
-    private fun extractId(path: String): String? {
-        val lastSegment = path.trimEnd('/').split("/").lastOrNull().orEmpty()
-        return if (lastSegment.isNotEmpty() && lastSegment.all { it.isDigit() }) {
-            lastSegment
+        // Map to type-safe route
+        val route = if (id != null && type != null) {
+            mapToRoute(id, type)
         } else null
+
+        return if (route != null) {
+            LinkDestination.Internal(route)
+        } else {
+            LinkDestination.External(finalUrl)
+        }
+    }
+
+    /**
+     * Map type and ID to a specific Navigation route.
+     */
+    private fun mapToRoute(id: String, type: String): Any? = when (type) {
+        "people" -> PeopleDetail(id)
+        "answer" -> AnswerDetail(id)
+        "article", "post" -> ArticleDetail(id)
+        "question" -> QuestionDetail(id)
+        "pin" -> PinDetail(id)
+        else -> null
+    }
+
+    /**
+     * Identify content type from URL path patterns.
+     */
+    private fun detectTypeFromPath(path: String): String? = when {
+        path.contains("/people/") -> "people"
+        path.contains("/answer/") -> "answer"
+        path.contains("/p/") || path.contains("zhuanlan.zhihu.com") -> "article"
+        path.contains("/question/") -> "question"
+        path.contains("/pin/") -> "pin"
+        else -> null
+    }
+
+    /**
+     * Extracts ID. 'people' allows alphanumeric; others must be numeric.
+     */
+    private fun extractId(path: String): String? {
+        val segments = path.substringBefore("?").split("/").filter { it.isNotEmpty() }
+        if (segments.isEmpty()) return null
+
+        val peopleIndex = segments.indexOf("people")
+        if (peopleIndex != -1) {
+            return segments.getOrNull(peopleIndex + 1)
+        }
+
+        val last = segments.last()
+        return if (last.all { it.isDigit() }) last else null
     }
 }

@@ -26,7 +26,7 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     fun loadProfile() {
         uiState = uiState.copy(isLoading = true)
         viewModelScope.launch {
-            repository.getUserDetail()
+            repository.getMyDetail()
                 .onSuccess { user ->
                     uiState = uiState.copy(user = user, isLoading = false)
                 }

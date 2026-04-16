@@ -19,6 +19,7 @@ import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
+import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import com.prslc.zhiflow.ui.page.question.QuestionViewModel
 import org.koin.core.module.dsl.singleOf
@@ -62,5 +63,7 @@ val appModule = module {
     // Action
     singleOf(::ActionService)
     singleOf(::ActionRepository)
-    viewModelOf(::ContentViewModel)
+
+    // People
+    viewModelOf(::PeopleViewModel)
 }

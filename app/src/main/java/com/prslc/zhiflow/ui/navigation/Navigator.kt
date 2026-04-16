@@ -21,7 +21,7 @@ class Navigator(
     fun handleUrl(url: String, contentType: String? = null) {
         when (val dest = LinkParser.parse(url, contentType)) {
             is LinkDestination.Internal -> {
-                navigateToContent(dest.id, dest.type)
+                navController.navigate(dest.route)
             }
 
             is LinkDestination.External -> {
@@ -42,6 +42,10 @@ class Navigator(
             "question" -> navController.navigate(QuestionDetail(id))
             else -> Toast.makeText(context, "Unknown type: $type", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun navigateToPeople(urlToken: String) {
+        navController.navigate(PeopleDetail(urlToken))
     }
 
     fun navigateToSettings() = navController.navigate(Settings)

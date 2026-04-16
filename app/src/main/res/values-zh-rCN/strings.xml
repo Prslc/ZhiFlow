@@ -85,4 +85,14 @@
     <string name="action_collapse">收起详情</string>
     <string name="question_stats_answers">%1$d 个回答</string>
     <string name="question_stats_followers">%1$d 人关注</string>
+
+    <!-- popele -->
+    <string name="people_stat_voteup">获赞</string>
+    <string name="people_stat_following">关注</string>
+    <string name="people_stat_followers">被关注</string>
+    <string name="people_action_follow">关注</string>
+    <string name="people_action_message">私信</string>
+    <string name="people_tab_work">创作</string>
+    <string name="people_tab_dynamic">动态</string>
+    <string name="people_tab_upvoted">赞同</string>
 </resources>

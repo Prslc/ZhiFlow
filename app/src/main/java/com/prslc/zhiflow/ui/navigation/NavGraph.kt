@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
+import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 
@@ -43,6 +44,14 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: QuestionDetail = backStackEntry.toRoute()
         QuestionDetailScreen(
             id = route.id,
+            onBack = { navController.popBackStack() }
+        )
+    }
+
+    composable<PeopleDetail> { backStackEntry ->
+        val route: PeopleDetail = backStackEntry.toRoute()
+        PeopleScreen(
+            urlToken = route.urlToken,
             onBack = { navController.popBackStack() }
         )
     }
