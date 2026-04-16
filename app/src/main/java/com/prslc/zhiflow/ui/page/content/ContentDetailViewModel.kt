@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.content
 
+import android.util.LruCache
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,24 +27,39 @@ class ContentViewModel(
     private val actionRepository: ActionRepository
 ) : ViewModel() {
 
-    data class ContentUiState(
+    companion object {
+        private val parsingCache = LruCache<String, List<RichTextElement>>(20)
+    }
+
+    data class LoadingState(
         val isLoading: Boolean = false,
         val content: ZhihuContent? = null,
-        val richTextElements: List<RichTextElement> = emptyList(),
-        val error: ApiException? = null,
+        val error: ApiException? = null
+    )
+
+    var loadingState by mutableStateOf(LoadingState())
+        private set
+
+    data class InteractionState(
         val isUpvoted: Boolean = false,
         val isDownvoted: Boolean = false,
         val isFaved: Boolean = false,
         val upvoteOffset: Int = 0
     )
 
-    var uiState by mutableStateOf(ContentUiState())
+    var interactionState by mutableStateOf(InteractionState())
+        private set
+
+    // 核心内容（解析后的元素列表）
+    var richTextElements by mutableStateOf<List<RichTextElement>>(emptyList())
         private set
 
     private var loadJob: Job? = null
+    private var parseJob: Job? = null
 
     val displayUpvoteCount: Int
-        get() = (uiState.content?.reaction?.statistics?.upVoteCount ?: 0) + uiState.upvoteOffset
+        get() = (loadingState.content?.reaction?.statistics?.upVoteCount
+            ?: 0) + interactionState.upvoteOffset
 
     /**
      * Load data by content type
@@ -52,105 +68,103 @@ class ContentViewModel(
      */
     fun loadContent(id: String, type: ContentType) {
         loadJob?.cancel()
-
         resetStates()
-        uiState = ContentUiState(isLoading = true)
+
+        loadingState = LoadingState(isLoading = true)
 
         loadJob = viewModelScope.launch {
-            val result: Result<ZhihuContent> = when (type) {
+            val result = when (type) {
                 ContentType.ARTICLE -> repository.getArticle(id)
                 ContentType.ANSWER -> repository.getAnswer(id)
                 ContentType.PIN -> repository.getPin(id)
             }
 
-            result.onSuccess { data: ZhihuContent ->
+            result.onSuccess { data ->
                 val rel = data.reaction?.relation
-                uiState = uiState.copy(
-                    isLoading = false,
-                    content = data,
+                loadingState = LoadingState(content = data)
+                interactionState = InteractionState(
                     isUpvoted = rel?.vote == "UP",
                     isDownvoted = rel?.vote == "DOWN",
                     isFaved = rel?.faved ?: false
                 )
+                parsingCache.get(data.id)?.let {
+                    richTextElements = it
+                }
             }.onFailure { e ->
                 if (e is CancellationException) throw e
-                uiState = uiState.copy(
-                    isLoading = false,
-                    error = e.toApiException()
-                )
+                loadingState = loadingState.copy(isLoading = false, error = e.toApiException())
             }
         }
     }
 
-    fun parseRichText(
-        isDark: Boolean
-    ) {
-        val currentContent = uiState.content ?: return
-        val segments = currentContent.structuredContent.segments
+    fun parseRichText(isDark: Boolean) {
+        val content = loadingState.content ?: return
+        val segments = content.structuredContent.segments
 
-        viewModelScope.launch(Dispatchers.Default) {
-            val result = withContext(Dispatchers.Default) {
-                ContentParser.transform(
-                    segments = segments,
-                    isDark = isDark
-                )
+        if (richTextElements.isNotEmpty() && parsingCache.get(content.id) != null) return
+
+        parseJob?.cancel()
+        parseJob = viewModelScope.launch(Dispatchers.Default) {
+            val fullList = mutableListOf<RichTextElement>()
+
+            segments.chunked(10).forEachIndexed { _, chunk ->
+                val chunkResult = ContentParser.transform(chunk, isDark)
+                fullList.addAll(chunkResult)
+
+                val currentSnapshot = fullList.toList()
+                withContext(Dispatchers.Main) {
+                    richTextElements = currentSnapshot
+                }
             }
-            withContext(Dispatchers.Main) {
-                uiState = uiState.copy(richTextElements = result)
-            }
+            parsingCache.put(content.id, fullList)
         }
     }
 
 
     // vote
     fun updateVote(targetAction: String, contentType: ContentType) {
-        val currentContent = uiState.content ?: return
-        val id = currentContent.id
-        
-        val wasUpvoted = uiState.isUpvoted
-        val wasDownvoted = uiState.isDownvoted
-        val wasOffset = uiState.upvoteOffset
+        val currentContent = loadingState.content ?: return
+        val contentId = currentContent.id
 
-        var newUpvoted = wasUpvoted
-        var newDownvoted = wasDownvoted
-        var newOffset = wasOffset
+        val was = interactionState
+
+        var newUpvoted = was.isUpvoted
+        var newDownvoted = was.isDownvoted
+        var newOffset = was.upvoteOffset
 
         when (targetAction) {
             "up" -> {
-                newUpvoted = !wasUpvoted
+                newUpvoted = !was.isUpvoted
                 newOffset += if (newUpvoted) 1 else -1
                 if (newUpvoted) newDownvoted = false
             }
+
             "down" -> {
-                newDownvoted = !wasDownvoted
-                if (newDownvoted && wasUpvoted) {
+                newDownvoted = !was.isDownvoted
+                if (newDownvoted && was.isUpvoted) {
                     newUpvoted = false
                     newOffset--
                 }
             }
         }
 
-        uiState = uiState.copy(
+        interactionState = was.copy(
             isUpvoted = newUpvoted,
             isDownvoted = newDownvoted,
             upvoteOffset = newOffset
         )
 
         viewModelScope.launch {
-            val isActive = if (targetAction == "up") wasUpvoted else wasDownvoted
+            val isActive = if (targetAction == "up") was.isUpvoted else was.isDownvoted
 
             actionRepository.vote(
-                id = id,
+                id = contentId,
                 type = contentType,
                 action = targetAction,
                 isRevoke = isActive
             ).onFailure { e ->
                 if (e is CancellationException) throw e
-                uiState = uiState.copy(
-                    isUpvoted = wasUpvoted,
-                    isDownvoted = wasDownvoted,
-                    upvoteOffset = wasOffset
-                )
+                interactionState = was
             }
         }
     }
@@ -167,10 +181,13 @@ class ContentViewModel(
     }
 
     fun updateFavoriteStatus(isFaved: Boolean) {
-        uiState = uiState.copy(isFaved = isFaved)
+        interactionState = interactionState.copy(isFaved = isFaved)
     }
 
     private fun resetStates() {
-        uiState = ContentUiState()
+        loadingState = LoadingState()
+        interactionState = InteractionState()
+        richTextElements = emptyList()
+        parseJob?.cancel()
     }
 }
