@@ -1,6 +1,13 @@
 package com.prslc.zhiflow.ui.page.question
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +29,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -38,6 +44,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -60,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.isOverflowed
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.Topic
 import com.prslc.zhiflow.data.model.ZhihuImage
@@ -156,57 +165,62 @@ private fun QuestionContentList(
     onImageClick: (String) -> Unit
 ) {
     val navigator = LocalNavigator.current
-    var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    var firstItemOverflowed by remember { mutableStateOf(false) }
+
+    val showExpandButton by remember(state.elements.size, isExpanded, firstItemOverflowed) {
+        derivedStateOf {
+            state.elements.size > 1 || firstItemOverflowed
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 32.dp)
     ) {
-        // question content
-        itemsIndexed(
-            items = state.elements,
-            key = { index, _ -> "element_$index" }
-        ) { index, element ->
-            if (isExpanded || index == 0) {
-                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                    when (element) {
-                        is DetailElement.Text -> {
-                            SelectionContainer {
-                                Text(
-                                    text = element.content,
-                                    maxLines = if (isExpanded) Int.MAX_VALUE else 3,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                                    onTextLayout = { layoutResult = it },
-                                    modifier = Modifier.pointerInput(element.content) {
-                                        detectTapGestures { offset ->
-                                            layoutResult?.let { result ->
-                                                val position = result.getOffsetForPosition(offset)
-                                                element.content.getStringAnnotations(
-                                                    "URL",
-                                                    position,
-                                                    position
-                                                )
-                                                    .firstOrNull()?.let { annotation ->
-                                                        navigator.handleUrl(annotation.item)
-                                                    }
-                                            }
-                                        }
-                                    }
-                                )
-                            }
-                        }
+        item(key = "element_header") {
+            state.elements.firstOrNull()?.let { first ->
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .animateContentSize()
+                ) {
+                    QuestionElement(
+                        element = first,
+                        isExpanded = isExpanded,
+                        onOverflow = { firstItemOverflowed = it },
+                        onImageClick = onImageClick,
+                        onUrlClick = { url -> navigator.handleUrl(url) }
+                    )
+                }
+            }
+        }
 
-                        is DetailElement.Image -> {
-                            ImageItem(element.image, onImageClick)
+        item(key = "element_remaining") {
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column {
+                    state.elements.drop(1).forEachIndexed { _, element ->
+                        Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                            QuestionElement(
+                                element = element,
+                                isExpanded = true,
+                                onOverflow = {},
+                                onImageClick = onImageClick,
+                                onUrlClick = { url -> navigator.handleUrl(url) }
+                            )
                         }
                     }
                 }
             }
         }
-        if (state.elements.size > 1) {
-            item(key = "description_toggle") {
+
+        // toggle expand
+        item(key = "description_toggle") {
+            if (showExpandButton) {
                 ExpandToggleButton(
                     isExpanded = isExpanded,
                     onClick = { onExpandChange(!isExpanded) }
@@ -272,6 +286,54 @@ private fun QuestionContentList(
 }
 
 @Composable
+private fun QuestionElement(
+    element: DetailElement,
+    isExpanded: Boolean,
+    onOverflow: (Boolean) -> Unit,
+    onImageClick: (String) -> Unit,
+    onUrlClick: (String) -> Unit
+) {
+
+    var localLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    when (element) {
+        is DetailElement.Text -> {
+            SelectionContainer {
+                Text(
+                    text = element.content,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 3,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                    onTextLayout = {
+                        localLayoutResult = it
+                        if (!isExpanded) {
+                            onOverflow(it.isOverflowed())
+                        }
+                    },
+                    modifier = Modifier.pointerInput(element.content) {
+                        detectTapGestures { offset ->
+                            localLayoutResult?.let { result ->
+                                val position = result.getOffsetForPosition(offset)
+                                element.content.getStringAnnotations(
+                                    tag = "URL",
+                                    start = position,
+                                    end = position
+                                ).firstOrNull()?.let { annotation ->
+                                    onUrlClick(annotation.item)
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        is DetailElement.Image -> ImageItem(element.image, onImageClick)
+    }
+}
+
+@Composable
 private fun TopicRow(topics: List<Topic>) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
@@ -316,29 +378,46 @@ private fun ExpandToggleButton(
     isExpanded: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
+    // animate
+    val rotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "rotation"
+    )
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 20.dp, vertical = 4.dp),
+        contentAlignment = Alignment.CenterStart
     ) {
-        Text(
-            text = if (isExpanded) {
-                stringResource(R.string.action_collapse)
-            } else {
-                stringResource(R.string.action_expand)
-            },
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Icon(
-            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
-        )
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { onClick() }
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = if (isExpanded) {
+                    stringResource(R.string.action_collapse)
+                } else {
+                    stringResource(R.string.action_expand)
+                },
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(20.dp)
+                    .rotate(rotation)
+            )
+        }
     }
 }
 
