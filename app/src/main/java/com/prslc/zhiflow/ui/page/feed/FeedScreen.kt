@@ -15,11 +15,13 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -34,9 +36,12 @@ fun FeedScreen(
     viewModel: FeedViewModel = koinViewModel(),
     onItemClick: (String, String) -> Unit
 ) {
-    val items = viewModel.feedItems
-    val apiError = viewModel.error
-    val isRefreshing = viewModel.isRefreshing
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val items = uiState.items
+    val apiError = uiState.error
+    val isRefreshing = uiState.isRefreshing
+    val isNextLoading = uiState.isNextLoading
     val isEmpty = items.isEmpty()
 
     // init
@@ -57,14 +62,14 @@ fun FeedScreen(
                     items = items,
                     key = { it.target?.id ?: it.hashCode() }
                 ) { item ->
-                    ZhihuFeedItem(item = item) { id, type ->
+                    FeedItem(item = item) { id, type ->
                         onItemClick(id, type)
                     }
                 }
 
                 if (items.isNotEmpty()) {
                     pagingFooter(
-                        isLoading = viewModel.isNextLoading,
+                        isLoading = isNextLoading,
                         error = apiError,
                         onRetry = { viewModel.loadMore() }
                     )
@@ -122,17 +127,20 @@ private fun LazyListScope.pagingFooter(
 @Composable
 private fun AutoLoadMoreEffect(viewModel: FeedViewModel) {
     val listState = viewModel.listState
-    val shouldLoadMore = remember {
+
+    val shouldLoadMore by remember {
         derivedStateOf {
-            val totalItemsCount = listState.layoutInfo.totalItemsCount
-            val lastVisibleItemIndex =
-                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val layoutInfo = listState.layoutInfo
+            val totalItemsCount = layoutInfo.totalItemsCount
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
         }
     }
 
-    LaunchedEffect(shouldLoadMore.value) {
-        if (shouldLoadMore.value && !viewModel.isNextLoading && !viewModel.isRefreshing) {
+    LaunchedEffect(shouldLoadMore) {
+        val currentState = viewModel.uiState.value
+
+        if (shouldLoadMore && !currentState.isNextLoading && !currentState.isRefreshing) {
             viewModel.loadMore()
         }
     }
