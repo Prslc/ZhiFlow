@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.ui.page.content
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -15,34 +15,47 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
     var collectionList by mutableStateOf<List<ZhihuCollection>>(emptyList())
         private set
 
-    val tempSelectedIds = mutableStateListOf<Long>()
+    private val _selectedIds = mutableStateMapOf<Long, Boolean>()
+    val selectedIds: Set<Long> get() = _selectedIds.filterValues { it }.keys
 
     var isLoading by mutableStateOf(false)
+        private set
+
+    fun hasChanges(): Boolean {
+        val initialIds = collectionList.filter { it.isFavorited }.map { it.id }.toSet()
+        return initialIds != selectedIds
+    }
+
+    fun toggleSelection(id: Long) {
+        val current = _selectedIds[id] ?: false
+        _selectedIds[id] = !current
+    }
 
     fun loadCollections(contentId: String, contentType: ContentType) {
         viewModelScope.launch {
-            isLoading = true
-            repository.getCollections(contentId, contentType)
-                .onSuccess { response ->
-                    collectionList = response.data
-                    tempSelectedIds.clear()
-                    tempSelectedIds.addAll(collectionList.filter { it.isFavorited }.map { it.id })
-                }
-                .onFailure {
-                    // TODO
-                }
-            isLoading = false
+            try {
+                isLoading = true
+                repository.getCollections(contentId, contentType)
+                    .onSuccess { response ->
+                        collectionList = response.data
+                        _selectedIds.clear()
+                        response.data.forEach {
+                            _selectedIds[it.id] = it.isFavorited
+                        }
+                    }
+            } finally {
+                isLoading = false
+            }
         }
     }
 
-    // submit
     fun updateCollectionStatus(
         contentId: String,
         contentType: ContentType,
-        onComplete: (Boolean) -> Unit
+        onComplete: (isFaved: Boolean) -> Unit
     ) {
         val initialIds = collectionList.filter { it.isFavorited }.map { it.id }.toSet()
-        val currentIds = tempSelectedIds.toSet()
+        val currentIds = selectedIds
 
         val addIds = (currentIds - initialIds).toList()
         val removeIds = (initialIds - currentIds).toList()
@@ -53,10 +66,15 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         }
 
         viewModelScope.launch {
-            val success = repository.updateCollections(contentId, contentType, addIds, removeIds)
-            if (success) {
-                onComplete(currentIds.isNotEmpty())
-                loadCollections(contentId, contentType)
+            isLoading = true
+            try {
+                val success = repository.updateCollections(contentId, contentType, addIds, removeIds)
+                if (success) {
+                    onComplete(currentIds.isNotEmpty())
+                    loadCollections(contentId, contentType)
+                }
+            } finally {
+                isLoading = false
             }
         }
     }
