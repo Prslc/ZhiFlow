@@ -3,11 +3,8 @@ package com.prslc.zhiflow.ui.page.content
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.Density
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hrm.latex.renderer.measure.LatexMeasurerState
-import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.ContentType
@@ -86,22 +83,18 @@ class ContentViewModel(
     }
 
     fun parseRichText(
-        measurer: LatexMeasurerState,
-        density: Density,
-        config: LatexConfig,
         isDark: Boolean
     ) {
         val currentContent = uiState.content ?: return
         val segments = currentContent.structuredContent.segments
 
         viewModelScope.launch(Dispatchers.Default) {
-            val result = ContentParser.transform(
-                segments = segments,
-                measurer = measurer,
-                density = density,
-                config = config,
-                isDark = isDark
-            )
+            val result = withContext(Dispatchers.Default) {
+                ContentParser.transform(
+                    segments = segments,
+                    isDark = isDark
+                )
+            }
             withContext(Dispatchers.Main) {
                 uiState = uiState.copy(richTextElements = result)
             }
