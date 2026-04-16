@@ -7,7 +7,9 @@ import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.gif.AnimatedImageDecoder
+import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.allowHardware
 import coil3.request.crossfade
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.di.appModule
@@ -34,6 +36,11 @@ class Application : Application(), SingletonImageLoader.Factory {
                 add(KtorNetworkFetcherFactory(Client.client))
                 add(AnimatedImageDecoder.Factory())
             }
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(context, 0.25)
+                    .build()
+            }
             .diskCache {
                 DiskCache.Builder()
                     .directory(context.cacheDir.resolve("image_cache").absolutePath.toPath())
@@ -41,6 +48,7 @@ class Application : Application(), SingletonImageLoader.Factory {
                     .build()
             }
             .crossfade(true)
+            .allowHardware(true)
             .build()
     }
 }
