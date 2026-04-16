@@ -1,15 +1,12 @@
 package com.prslc.zhiflow.parser.model
 
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.TextUnit
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.data.model.ZhihuImage
 
 data class InlineFormulaMeta(
     val formula: Formula,
-    val inlineId: String,
-    val width: TextUnit,
-    val height: TextUnit
+    val inlineId: String
 )
 
 data class ProcessedText(

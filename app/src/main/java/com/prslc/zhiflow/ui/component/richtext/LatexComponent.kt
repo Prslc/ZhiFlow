@@ -10,21 +10,28 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.hrm.latex.renderer.LatexAutoWrap
+import com.hrm.latex.renderer.measure.rememberLatexMeasurer
 import com.hrm.latex.renderer.model.LatexConfig
+import com.prslc.zhiflow.core.utils.cleanLatex
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.core.utils.cleanLatex
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -63,19 +70,46 @@ fun FormulaTextSection(
     onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val navigator = LocalNavigator.current
-    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+    val density = LocalDensity.current
+    val isDark = isSystemInDarkTheme()
 
-    val inlineContentMap = remember(element) {
-        element.inlineMetas.associate { meta ->
-            meta.inlineId to InlineTextContent(
-                placeholder = Placeholder(
-                    width = meta.width,
-                    height = meta.height,
+    val config = remember(isDark) {
+        LatexConfig(
+            color = if (isDark) Color.White else Color.Black,
+            darkColor = Color.White
+        )
+    }
+    val measurer = rememberLatexMeasurer(config)
+
+    var measuredPlaceholders by remember(element.inlineMetas) {
+        mutableStateOf<Map<String, Placeholder>>(emptyMap())
+    }
+
+    LaunchedEffect(element.inlineMetas, config) {
+        val results = element.inlineMetas.associate { meta ->
+            val dims = measurer.measure(meta.formula.content.cleanLatex(), config)
+            val placeholder = with(density) {
+                Placeholder(
+                    width = dims?.widthPx?.toSp() ?: 20.sp,
+                    height = dims?.heightPx?.toSp() ?: 20.sp,
                     placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
                 )
-            ) {
+            }
+            meta.inlineId to placeholder
+        }
+        measuredPlaceholders = results
+    }
+
+    val inlineContentMap = remember(measuredPlaceholders) {
+        element.inlineMetas.associate { meta ->
+            val placeholder = measuredPlaceholders[meta.inlineId] ?: Placeholder(
+                width = 2.em,
+                height = 1.2.em,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+            )
+
+            meta.inlineId to InlineTextContent(placeholder) {
                 LatexComponent(
                     formula = meta.formula,
                     isInline = true,
@@ -85,33 +119,37 @@ fun FormulaTextSection(
         }
     }
 
-    val dynamicLineHeight = remember(inlineContentMap) {
-        val maxH = inlineContentMap.values.maxOfOrNull { it.placeholder.height.value } ?: 0f
+    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    val dynamicLineHeight = remember(measuredPlaceholders) {
+        val maxH = measuredPlaceholders.values.maxOfOrNull { it.height.value } ?: 0f
         if (maxH > 26f) (maxH + 2f).sp else 26.sp
     }
 
-    Text(
-        text = element.content,
-        modifier = modifier.pointerInput(element.content) {
-            detectTapGestures { pos ->
-                layoutResult.value?.let { layout ->
-                    val offset = layout.getOffsetForPosition(pos)
-                    element.content.getStringAnnotations("URL", offset, offset)
-                        .firstOrNull()?.let { navigator.handleUrl(it.item) }
+    key(measuredPlaceholders.size) {
+        Text(
+            text = element.content,
+            modifier = modifier.pointerInput(element.content) {
+                detectTapGestures { pos ->
+                    layoutResult.value?.let { layout ->
+                        val offset = layout.getOffsetForPosition(pos)
+                        element.content.getStringAnnotations("URL", offset, offset)
+                            .firstOrNull()?.let { navigator.handleUrl(it.item) }
 
-                    element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
-                        .firstOrNull()?.let { annotation ->
-                            runCatching { Json.decodeFromString<Formula>(annotation.item) }
-                                .getOrNull()?.imgUrl?.let { onImageClick(it) }
-                        }
+                        element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
+                            .firstOrNull()?.let { annotation ->
+                                runCatching { Json.decodeFromString<Formula>(annotation.item) }
+                                    .getOrNull()?.imgUrl?.let { onImageClick(it) }
+                            }
+                    }
                 }
-            }
-        },
-        inlineContent = inlineContentMap,
-        onTextLayout = { layoutResult.value = it },
-        style = MaterialTheme.typography.bodyLarge.copy(
-            lineHeight = dynamicLineHeight,
-            letterSpacing = 0.25.sp
+            },
+            inlineContent = inlineContentMap,
+            onTextLayout = { layoutResult.value = it },
+            style = MaterialTheme.typography.bodyLarge.copy(
+                lineHeight = dynamicLineHeight,
+                letterSpacing = 0.25.sp
+            )
         )
-    )
+    }
 }

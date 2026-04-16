@@ -48,18 +48,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.hrm.latex.renderer.measure.rememberLatexMeasurer
-import com.hrm.latex.renderer.model.LatexConfig
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.AnswerAuthor
@@ -110,16 +106,11 @@ fun ContentDetailScreen(
             .mapNotNull { it.data.urls.firstOrNull() }
     }
 
-    val density = LocalDensity.current
-    val measurer = rememberLatexMeasurer()
     val isDark = isSystemInDarkTheme()
-    val latexConfig = remember(isDark) {
-        LatexConfig(color = if (isDark) Color.White else Color.Black)
-    }
 
     LaunchedEffect(uiState.content, isDark) {
         uiState.content?.let {
-            viewModel.parseRichText(measurer, density, latexConfig, isDark)
+            viewModel.parseRichText(isDark)
         }
     }
 
@@ -320,7 +311,7 @@ fun ContentDetailScreen(
                                                 else -> "${element.hashCode()}_$index"
                                             }
                                         }
-                                    ) { index, element ->
+                                    ) { _, element ->
                                         Box(
                                             modifier = Modifier.padding(
                                                 horizontal = 20.dp, vertical = 16.dp
