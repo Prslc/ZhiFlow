@@ -20,14 +20,15 @@ data class CommentContent(
 @Serializable
 data class ZhihuComment(
     val id: String,
-    val content: String,    // html
+    val content: String,
     @SerialName("reply_to_author") val replyToAuthor: Author? = null,
     @SerialName("created_time") val createdTime: Long,
     @SerialName("like_count") val likeCount: Int,
     val author: CommentAuthor,
     @SerialName("comment_tag") val tags: List<CommentTag> = emptyList(),
     @SerialName("child_comment_count") val childCount: Int = 0,
-    val liked: Boolean = false
+    val liked: Boolean = false,
+    @SerialName("featured") val isFeatured: Boolean = false
 )
 
 @Serializable
@@ -36,6 +37,16 @@ data class CommentCounts(
     @SerialName("collapsed_counts") val collapsed: Int = 0,
     @SerialName("reviewing_counts") val reviewing: Int = 0,
     @SerialName("segment_comment_counts") val segment: Int = 0
+)
+
+@Serializable
+data class CommentAuthor(
+    val id: String,
+    val name: String,
+    @SerialName("avatar_url") val avatarUrl: String = "",
+    val headline: String? = "",
+    @SerialName("vip_info") val vipInfo: VipInfo? = null,
+    @SerialName("user_type") val userType: String? = null
 )
 
 @Serializable
@@ -69,16 +80,6 @@ data class AtmosphereEmoji(
     @SerialName("emoji_level") val level: String = "",
     val title: String = "",
     @SerialName("normal_icon") val icon: String = ""
-)
-
-@Serializable
-data class CommentAuthor(
-    val id: String,
-    val name: String,
-    @SerialName("avatar_url") val avatarUrl: String,
-    val headline: String? = "",
-    @SerialName("vip_info") val vipInfo: VipInfo? = null,
-    @SerialName("exposed_medal") val medal: ExposedMedal? = null
 )
 
 @Serializable

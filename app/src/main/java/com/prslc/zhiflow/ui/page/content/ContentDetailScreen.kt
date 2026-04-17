@@ -381,7 +381,7 @@ fun ContentDetailScreen(
                 showComments = showComments,
                 onDismissRequest = {
                     showComments = false
-                    commentViewModel.resetState()
+                    commentViewModel.onSheetDismissed()
                 }
             )
 

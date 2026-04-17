@@ -123,7 +123,7 @@ fun CommentBottomSheet(
                         }
                     } else {
                         Column(modifier = Modifier.fillMaxWidth()) {
-                            val currentRootId = childUiState.rootComment?.id
+                            val currentRootId = childUiState.rootComment?.comment?.id
 
                             LaunchedEffect(currentRootId) {
                                 if (currentRootId != null) {
@@ -148,7 +148,7 @@ fun CommentBottomSheet(
                                 },
                                 onImageClick = { url -> viewModel.openImageLightbox(url) },
                                 onLoadMore = {
-                                    childUiState.rootComment?.let { root ->
+                                    childUiState.rootComment?.comment?.let { root ->
                                         viewModel.loadChildComments(root, forceRefresh = false)
                                     }
                                 },
