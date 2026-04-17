@@ -35,16 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.model.ZhihuComment
-import com.prslc.zhiflow.parser.commentParse
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
-import com.prslc.zhiflow.core.utils.formatToDate
 
 @Composable
 fun CommentItem(
-    comment: ZhihuComment,
+    model: CommentViewModel.CommentUiModel,
     modifier: Modifier = Modifier,
     isChild: Boolean = false,
     showReplyButton: Boolean = true,
@@ -53,6 +52,8 @@ fun CommentItem(
     onImageClick: (String) -> Unit = {},
     onShowReplies: (ZhihuComment) -> Unit = {}
 ) {
+    val comment = model.comment
+    val parsedContent = model.parsedContent
 
     val metaStyle = MaterialTheme.typography.labelMedium.copy(
         color = MaterialTheme.colorScheme.outline,
@@ -61,10 +62,6 @@ fun CommentItem(
 
     val navigator = LocalNavigator.current
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
-
-    val parsedContent = remember(comment.content) {
-        commentParse(comment.content)
-    }
 
     // emoji
     val inlineContent = remember(parsedContent.text) {

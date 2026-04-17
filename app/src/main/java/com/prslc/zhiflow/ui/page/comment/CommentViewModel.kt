@@ -6,19 +6,20 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.data.repository.CommentRepository
+import com.prslc.zhiflow.parser.commentParse
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
 
-    /**
-     * UI state for the main comment list
-     */
     data class CommentUiState(
         val isLoading: Boolean = false,
-        val comments: List<ZhihuComment> = emptyList(),
+        val comments: List<CommentUiModel> = emptyList(),
         val totalCount: Int = 0,
         val offset: String = "",
         val hasMore: Boolean = true,
@@ -28,16 +29,18 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val initialImageIndex: Int = 0
     )
 
-    /**
-     * UI state for the child comment (replies) view
-     */
     data class ChildCommentUiState(
         val isLoading: Boolean = false,
-        val comments: List<ZhihuComment> = emptyList(),
-        val rootComment: ZhihuComment? = null,
+        val comments: List<CommentUiModel> = emptyList(),
+        val rootComment: CommentUiModel? = null,
         val offset: String = "",
         val hasMore: Boolean = true,
         val isDetailMode: Boolean = false
+    )
+
+    data class CommentUiModel(
+        val comment: ZhihuComment,
+        val parsedContent: CommentContent
     )
 
     var uiState by mutableStateOf(CommentUiState())
@@ -47,6 +50,17 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         private set
 
     private var lastLoadedAnswerId: String? = null
+    private val pendingReactions = mutableSetOf<String>()
+
+    private suspend fun List<ZhihuComment>.toUiModels(): List<CommentUiModel> =
+        withContext(Dispatchers.Default) {
+            map { CommentUiModel(it, commentParse(it.content)) }
+        }
+
+    private suspend fun ZhihuComment.toUiModel(): CommentUiModel =
+        withContext(Dispatchers.Default) {
+            CommentUiModel(this@toUiModel, commentParse(this@toUiModel.content))
+        }
 
     fun openImageLightbox(url: String) {
         uiState = uiState.copy(
@@ -57,10 +71,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     fun closeImageLightbox() {
-        uiState = uiState.copy(
-            isLightboxVisible = false,
-            selectedImageUrls = emptyList()
-        )
+        uiState = uiState.copy(isLightboxVisible = false, selectedImageUrls = emptyList())
     }
 
     fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
@@ -83,12 +94,13 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         viewModelScope.launch {
             repository.getRootComments(answerId, contentType, uiState.offset)
                 .onSuccess { response ->
-                    val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val processed = response.data.toUiModels()
+                    val nextOffset =
+                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
-                    val updatedComments = if (isNewOrRefresh) response.data else uiState.comments + response.data
 
                     uiState = uiState.copy(
-                        comments = updatedComments,
+                        comments = if (isNewOrRefresh) processed else uiState.comments + processed,
                         totalCount = response.counts.total,
                         offset = nextOffset,
                         hasMore = hasNext,
@@ -103,30 +115,32 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     fun loadChildComments(rootComment: ZhihuComment, forceRefresh: Boolean = false) {
-        if (forceRefresh) {
-            childUiState = ChildCommentUiState(
-                rootComment = rootComment,
-                isDetailMode = true,
-                isLoading = true,
-                comments = emptyList(),
-                hasMore = true,
-                offset = ""
-            )
-        }
-
-        if (childUiState.isLoading && !forceRefresh) return
-
         viewModelScope.launch {
+            if (forceRefresh) {
+                val rootUiModel = rootComment.toUiModel()
+                childUiState = ChildCommentUiState(
+                    rootComment = rootUiModel,
+                    isDetailMode = true,
+                    isLoading = true,
+                    comments = emptyList(),
+                    hasMore = true,
+                    offset = ""
+                )
+            }
+
+            if (childUiState.isLoading && !forceRefresh) return@launch
             if (!forceRefresh) childUiState = childUiState.copy(isLoading = true)
 
             val currentOffset = if (forceRefresh) "" else childUiState.offset
             repository.getChildComments(rootComment.id, currentOffset)
                 .onSuccess { response ->
-                    val nextOffset = response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                    val processed = response.data.toUiModels()
+                    val nextOffset =
+                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
 
                     childUiState = childUiState.copy(
-                        comments = if (forceRefresh) response.data else childUiState.comments + response.data,
+                        comments = if (forceRefresh) processed else childUiState.comments + processed,
                         offset = nextOffset,
                         hasMore = hasNext,
                         isLoading = false
@@ -139,40 +153,44 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     fun updateCommentReaction(commentId: String, isLikeAction: Boolean) {
-        // Find the target comment in either root or child lists
-        val targetComment = uiState.comments.find { it.id == commentId }
-            ?: childUiState.comments.find { it.id == commentId }
-            ?: childUiState.rootComment?.takeIf { it.id == commentId }
+        if (pendingReactions.contains(commentId)) return
+
+        val targetModel = uiState.comments.find { it.comment.id == commentId }
+            ?: childUiState.comments.find { it.comment.id == commentId }
+            ?: childUiState.rootComment?.takeIf { it.comment.id == commentId }
             ?: return
 
-        // Business logic: if currently liked, this action will "unlike" it
-        val isCurrentlyActive = if (isLikeAction) targetComment.liked else false
+        val isCurrentlyActive = if (isLikeAction) targetModel.comment.liked else false
         val shouldBeActive = !isCurrentlyActive
 
-        // Optimistic UI update
         updateLocalStatus(commentId, isLikeAction, shouldBeActive)
+        pendingReactions.add(commentId)
 
         viewModelScope.launch {
-            val success = repository.toggleLike(commentId, shouldBeActive)
-            if (!success) {
-                // Rollback on failure
-                updateLocalStatus(commentId, isLikeAction, isCurrentlyActive)
+            try {
+                val success = repository.toggleLike(commentId, shouldBeActive)
+                if (!success) {
+                    updateLocalStatus(commentId, isLikeAction, isCurrentlyActive)
+                }
+            } finally {
+                pendingReactions.remove(commentId)
             }
         }
     }
 
     private fun updateLocalStatus(id: String, isLike: Boolean, active: Boolean) {
-        val mapper = { comment: ZhihuComment ->
-            if (comment.id == id) {
-                if (isLike) {
-                    comment.copy(
+        val mapper = { model: CommentUiModel ->
+            if (model.comment.id == id) {
+                val updatedComment = if (isLike) {
+                    model.comment.copy(
                         liked = active,
-                        likeCount = if (active) comment.likeCount + 1 else (comment.likeCount - 1).coerceAtLeast(0)
+                        likeCount = if (active) model.comment.likeCount + 1
+                        else (model.comment.likeCount - 1).coerceAtLeast(0)
                     )
-                } else {
-                    comment // TODO: Add support for other reactions
-                }
-            } else comment
+                } else model.comment
+
+                model.copy(comment = updatedComment)
+            } else model
         }
 
         uiState = uiState.copy(comments = uiState.comments.map(mapper))
@@ -183,20 +201,13 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     fun backToMain() {
-        childUiState = childUiState.copy(
-            isDetailMode = false,
-            rootComment = null,
-            comments = emptyList()
-        )
-    }
-
-    fun resetState() {
-        uiState = CommentUiState()
+        childUiState = childUiState.copy(isDetailMode = false, rootComment = null)
     }
 
     fun onSheetDismissed() {
         uiState = CommentUiState()
         childUiState = ChildCommentUiState()
         lastLoadedAnswerId = null
+        pendingReactions.clear()
     }
 }

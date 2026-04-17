@@ -31,8 +31,8 @@ import com.prslc.zhiflow.ui.component.common.LoadingView
 @Composable
 fun CommentList(
     modifier: Modifier = Modifier,
-    comments: List<ZhihuComment>,
-    rootComment: ZhihuComment? = null,
+    comments: List<CommentViewModel.CommentUiModel>, // 修改类型
+    rootComment: CommentViewModel.CommentUiModel? = null,
     isLoading: Boolean,             // track loading state
     hasMore: Boolean,               // check if pagination ended
     onLoadMore: () -> Unit,         // trigger next page
@@ -67,10 +67,10 @@ fun CommentList(
                     ) {
                         // Pin
                         if (rootComment != null) {
-                            item(key = "root_${rootComment.id}") {
+                            item(key = "root_${rootComment.comment.id}") {
                                 Column {
                                     CommentItem(
-                                        comment = rootComment,
+                                        model = rootComment,
                                         isChild = false,
                                         showReplyButton = false,
                                         onLikeClick = onLikeClick,
@@ -87,8 +87,8 @@ fun CommentList(
 
                         itemsIndexed(
                             items = comments,
-                            key = { _, item -> item.id }
-                        ) { index, comment ->
+                            key = { _, item -> item.comment.id }
+                        ) { index, model ->
 
                             // load more
                             if (index >= comments.size - 3 && !isLoading && hasMore) {
@@ -97,7 +97,7 @@ fun CommentList(
                                 }
                             }
                             CommentItem(
-                                comment = comment,
+                                model = model,
                                 isChild = isChild,
                                 onShowReplies = onShowReplies,
                                 onAuthorClick = onAuthorClick,
