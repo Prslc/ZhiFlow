@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -69,9 +68,7 @@ fun CollectionDialog(
 
                 // List Area
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 200.dp, max = 400.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     when {
@@ -120,7 +117,7 @@ fun CollectionDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismissRequest) {
-                        Text(stringResource(R.string.general_back))
+                        Text(stringResource(android.R.string.cancel))
                     }
 
                     Spacer(Modifier.width(8.dp))
@@ -141,7 +138,7 @@ fun CollectionDialog(
                             )
                         } else {
                             Text(
-                                text = stringResource(R.string.collection_done),
+                                text = stringResource(android.R.string.ok),
                                 fontWeight = FontWeight.Bold
                             )
                         }

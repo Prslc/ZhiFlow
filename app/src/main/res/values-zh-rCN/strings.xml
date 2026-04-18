@@ -64,7 +64,6 @@
 
     <!-- collection -->
     <string name="collection_title">收藏到文件夹</string>
-    <string name="collection_done">完成</string>
     <string name="collection_item_count">%1$d 条内容</string>
     <string name="collection_default_label">默认</string>
     <string name="collection_private_desc">私密收藏夹</string>
