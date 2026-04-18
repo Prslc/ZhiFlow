@@ -4,21 +4,30 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 object MainContainer
+
 @Serializable
 object Settings
+
 @Serializable
 data class AnswerDetail(val id: String)
+
 @Serializable
 data class ArticleDetail(val id: String)
+
 @Serializable
 data class PinDetail(val id: String)
+
 @Serializable
 data class QuestionDetail(val id: String)
+
 @Serializable
 data class PeopleDetail(val urlToken: String)
+
 @Serializable
 object HomeTab
+
 @Serializable
 object DebugTab
+
 @Serializable
 object ProfileTab
