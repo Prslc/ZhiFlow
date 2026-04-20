@@ -8,7 +8,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.gif.AnimatedImageDecoder
 import coil3.memory.MemoryCache
-import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import com.prslc.zhiflow.core.network.Client
@@ -33,7 +33,7 @@ class Application : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .components {
-                add(KtorNetworkFetcherFactory(Client.client))
+                add(OkHttpNetworkFetcherFactory(Client.okHttpClient))
                 add(AnimatedImageDecoder.Factory())
             }
             .memoryCache {

@@ -1,14 +1,34 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.ZhihuUser
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.http.isSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
-class UserService(private val client: HttpClient) {
-    suspend fun getUserDetail(urlToken: String): ZhihuUser? {
-        val response = client.get("people/$urlToken")
-        return if (response.status.isSuccess()) response.body() else null
+/**
+ * Service for retrieving user profile information and social data.
+ */
+class UserService(private val okHttpClient: OkHttpClient) {
+
+    /**
+     * Fetches detailed profile information for a specific user.
+     *
+     * @param urlToken The unique alphanumeric identifier for a user profile.
+     * @return A [ZhihuUser] object containing biography, followers, etc., or null on failure.
+     */
+    suspend fun getUserDetail(urlToken: String): ZhihuUser? = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder()
+                .url("https://api.zhihu.com/people/$urlToken")
+                .get()
+                .build()
+
+            okHttpClient.newCall(request).execute().body<ZhihuUser>()
+        } catch (e: Exception) {
+            // Failure usually implies 404 (user not found) or 403 (blocked)
+            null
+        }
     }
 }
