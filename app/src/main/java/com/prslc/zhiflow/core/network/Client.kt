@@ -1,15 +1,9 @@
 package com.prslc.zhiflow.core.network
 
 import com.prslc.zhiflow.BuildConfig
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.header
-import io.ktor.http.HttpHeaders
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 object Client {
     val jsonInstance = Json {
@@ -19,24 +13,21 @@ object Client {
         encodeDefaults = true       // Default value
     }
 
-    val client = HttpClient(Android) {
-        install(ContentNegotiation) {
-            json(jsonInstance)
-        }
-
-        install(HttpTimeout) {
-            requestTimeoutMillis = 15000
-            connectTimeoutMillis = 10000
-        }
-
-        defaultRequest {
-            url("https://api.zhihu.com")
-            header(HttpHeaders.Cookie, BuildConfig.cookie)
-            header(HttpHeaders.UserAgent, BuildConfig.ua)
-            header("x-zse-96", BuildConfig.x_zse_96)
-            header("x-zse-93", BuildConfig.x_zse_93)
-            header("authorization", BuildConfig.authorization)
-            header("x-app-za", HeaderProvider.xAppZa)
-        }
+    val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("Cookie", BuildConfig.cookie)
+                    .header("User-Agent", BuildConfig.ua)
+                    .header("Authorization", BuildConfig.authorization)
+                    .header("x-zse-96", BuildConfig.x_zse_96)
+                    .header("x-zse-93", BuildConfig.x_zse_93)
+                    .header("x-app-za", HeaderProvider.xAppZa)
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
     }
 }

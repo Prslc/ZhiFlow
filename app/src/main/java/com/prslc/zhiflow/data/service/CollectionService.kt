@@ -1,42 +1,81 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.CollectionResponse
 import com.prslc.zhiflow.data.model.ContentType
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.forms.FormDataContent
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
-import io.ktor.http.Parameters
-import io.ktor.http.isSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.FormBody
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
-class CollectionService(private val client: HttpClient) {
+/**
+ * Service managing user collections (folders) and content categorization.
+ */
+class CollectionService(private val okHttpClient: OkHttpClient) {
 
-    suspend fun getCollectionsForContent(id: String, contentType: ContentType): CollectionResponse? {
-        return try {
-            val response = client.get("collections/contents/${contentType.type}/$id") {
-                parameter("ever_top", 1)
+    /**
+     * Retrieves the list of collections associated with a specific piece of content.
+     *
+     * @param id The ID of the content.
+     * @param contentType The [ContentType] of the target item.
+     * @return A [CollectionResponse] containing collection details or null on failure.
+     */
+    suspend fun getCollectionsForContent(id: String, contentType: ContentType): CollectionResponse? =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "https://api.zhihu.com/collections/contents/${contentType.type}/$id"
+                    .toHttpUrl()
+                    .newBuilder()
+                    .addQueryParameter("ever_top", "1")
+                    .build()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .get()
+                    .build()
+
+                okHttpClient.newCall(request).execute().body<CollectionResponse>()
+            } catch (e: Exception) {
+                null
             }
-            if (response.status.isSuccess()) response.body() else null
-        } catch (e: Exception) { null }
-    }
+        }
 
+    /**
+     * Updates the collections for a specific content item by adding or removing it from folders.
+     *
+     * @param id The ID of the content.
+     * @param contentType The [ContentType] of the target item.
+     * @param addIds List of collection IDs to add the content to.
+     * @param removeIds List of collection IDs to remove the content from.
+     * @return True if the update was successful.
+     */
     suspend fun updateContentCollections(
         id: String,
         contentType: ContentType,
         addIds: List<Long>,
         removeIds: List<Long>
-    ): Boolean {
-        return try {
-            val response = client.put("v2/collections/contents/${contentType.type}/$id") {
-                setBody(FormDataContent(Parameters.build {
-                    if (addIds.isNotEmpty()) append("add_collections", addIds.joinToString(","))
-                    if (removeIds.isNotEmpty()) append("remove_collections", removeIds.joinToString(","))
-                }))
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // Build the FormBody equivalent to Ktor's FormDataContent
+            val formBuilder = FormBody.Builder()
+
+            if (addIds.isNotEmpty()) {
+                formBuilder.add("add_collections", addIds.joinToString(","))
             }
-            response.status.isSuccess()
-        } catch (e: Exception) { false }
+            if (removeIds.isNotEmpty()) {
+                formBuilder.add("remove_collections", removeIds.joinToString(","))
+            }
+
+            val request = Request.Builder()
+                .url("https://api.zhihu.com/v2/collections/contents/${contentType.type}/$id")
+                .put(formBuilder.build())
+                .build()
+
+            okHttpClient.newCall(request).execute().use { it.isSuccessful }
+        } catch (e: Exception) {
+            false
+        }
     }
 }

@@ -95,11 +95,9 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation(libs.androidx.navigation.compose)
 
-    // Ktor
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
+    // okhttp
+    implementation(libs.okhttp.core)
+    implementation(libs.okhttp.logging)
 
     // Koin
     implementation(platform(libs.koin.bom))
@@ -112,7 +110,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-    implementation(libs.coil.network.ktor)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.telephoto.zoomable.image.coil)
 
     // latex

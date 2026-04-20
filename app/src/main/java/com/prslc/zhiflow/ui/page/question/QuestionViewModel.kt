@@ -44,34 +44,42 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         uiState = QuestionUiState(isLoading = true)
 
         loadJob = viewModelScope.launch {
-            val detailDeferred = async { repository.getQuestion(id) }
-            val feedDeferred = async { repository.getQuestionFeed(id) }
+            try {
+                val detailDeferred = async { repository.getQuestion(id) }
+                val feedDeferred = async { repository.getQuestionFeed(id) }
 
-            val detailResult = detailDeferred.await()
-            val feedResult = feedDeferred.await()
+                val detailResult = detailDeferred.await()
+                val feedResult = feedDeferred.await()
 
-            if (detailResult.isSuccess && feedResult.isSuccess) {
-                val detailData = detailResult.getOrThrow()
-                val feedResponse = feedResult.getOrThrow()
+                if (detailResult.isSuccess && feedResult.isSuccess) {
+                    val detailData = detailResult.getOrNull()
+                    val feedResponse = feedResult.getOrNull()
 
-                val elements = withContext(Dispatchers.Default) {
-                    QuestionParser.parse(detailData.detail)
+                    val elements = withContext(Dispatchers.Default) {
+                        QuestionParser.parse(detailData?.detail)
+                    }
+
+                    nextPageUrl = feedResponse?.paging?.next
+
+                    uiState = uiState.copy(
+                        isLoading = false,
+                        question = detailData,
+                        elements = elements,
+                        answers = feedResponse?.data ?: emptyList(),
+                        hasMore = feedResponse?.paging?.isEnd == false
+                    )
+                } else {
+                    val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull())
+                    uiState = uiState.copy(
+                        isLoading = false,
+                        error = error?.toApiException()
+                    )
                 }
-
-                nextPageUrl = feedResponse.paging.next
-
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 uiState = uiState.copy(
                     isLoading = false,
-                    question = detailData,
-                    elements = elements,
-                    answers = feedResponse.data,
-                    hasMore = !feedResponse.paging.isEnd
-                )
-            } else {
-                val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull())
-                uiState = uiState.copy(
-                    isLoading = false,
-                    error = error?.toApiException()
+                    error = e.toApiException()
                 )
             }
         }
@@ -86,12 +94,16 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         viewModelScope.launch {
             repository.getQuestionFeed(id, nextUrl = url)
                 .onSuccess { response ->
-                    nextPageUrl = response.paging.next
-                    uiState = uiState.copy(
-                        isNextLoading = false,
-                        answers = uiState.answers + response.data,
-                        hasMore = !response.paging.isEnd
-                    )
+                    if (response != null) {
+                        nextPageUrl = response.paging.next
+                        uiState = uiState.copy(
+                            isNextLoading = false,
+                            answers = uiState.answers + response.data,
+                            hasMore = !response.paging.isEnd
+                        )
+                    } else {
+                        uiState = uiState.copy(isNextLoading = false, hasMore = false)
+                    }
                 }
                 .onFailure { e ->
                     if (e is CancellationException) throw e

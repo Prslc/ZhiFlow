@@ -1,18 +1,23 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.CommentResponse
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.service.CommentService
-import io.ktor.http.HttpMethod
 
+/**
+ * Repository responsible for orchestrating comment data from [CommentService].
+ * It wraps responses in [Result] and handles domain-specific error mapping.
+ */
 class CommentRepository(private val service: CommentService) {
 
     /**
-     * Retrieve root comments for a content item
-     * @param id Content ID
-     * @param type Content type (answer/article)
-     * @param offset Pagination offset
-     * @return [Result] wrapping [CommentResponse]
+     * Retrieve root comments for a content item.
+     *
+     * @param id Content ID.
+     * @param type Content type (answer/article).
+     * @param offset Pagination offset.
+     * @return [Result] wrapping [CommentResponse].
      */
     suspend fun getRootComments(
         id: String,
@@ -24,18 +29,21 @@ class CommentRepository(private val service: CommentService) {
             if (response != null) {
                 Result.success(response)
             } else {
+                // You can pass a specific message or use your ApiException
                 Result.failure(Exception("Failed to fetch comments"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            // Converts IOException/etc to your custom ApiException
+            Result.failure(e.toApiException())
         }
     }
 
     /**
-     * Retrieve replies for a specific comment
-     * @param rootCommentId Root comment ID
-     * @param offset Pagination offset
-     * @return [Result] wrapping [CommentResponse]
+     * Retrieve replies for a specific comment.
+     *
+     * @param rootCommentId Root comment ID.
+     * @param offset Pagination offset.
+     * @return [Result] wrapping [CommentResponse].
      */
     suspend fun getChildComments(
         rootCommentId: String,
@@ -49,18 +57,21 @@ class CommentRepository(private val service: CommentService) {
                 Result.failure(Exception("Failed to fetch replies"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(e.toApiException())
         }
     }
 
     /**
-     * Toggle the like status of a comment
-     * @param commentId Target comment ID
-     * @param isLike True to like, false to unlike
-     * @return True if operation succeeded
+     * Toggle the like status of a comment.
+     *
+     * @param commentId Target comment ID.
+     * @param isLike True to like, false to unlike.
+     * @return True if the operation succeeded.
      */
     suspend fun toggleLike(commentId: String, isLike: Boolean): Boolean {
-        val method = if (isLike) HttpMethod.Post else HttpMethod.Delete
+        // Updated to use String as per our new CommentService implementation
+        val method = if (isLike) "POST" else "DELETE"
+
         return service.commentReaction(
             commentId = commentId,
             action = "like",

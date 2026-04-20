@@ -28,7 +28,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     // HttpClient
-    single { Client.client }
+    single { Client.okHttpClient }
 
     // Feed
     singleOf(::FeedService)
