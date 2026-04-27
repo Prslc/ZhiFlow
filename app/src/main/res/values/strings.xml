@@ -38,7 +38,8 @@
 
     <!-- answer -->
     <string name="question_title_filed">Title loading failed</string>
-    <string name="answer_published_format">Posted in %1$s · %2$s</string>
+    <string name="answer_published_with_ip">Posted in %1$s · %2$s</string>
+    <string name="answer_published_no_ip">Posted in %1$s</string>
 
     <!-- light box -->
     <string name="lightbox_image_save_success">Saved to gallery</string>

@@ -330,26 +330,34 @@ fun ContentDetailScreen(
                                     // end
                                     item {
                                         answer.contentEnd?.let { contentEnd ->
-                                            Column(modifier = Modifier.padding(20.dp)) {
-                                                val timeDisplay = when {
-                                                    !contentEnd.updateTime.isNullOrBlank() -> contentEnd.updateTime
-                                                    !contentEnd.createTime.isNullOrBlank() -> contentEnd.createTime
-                                                    else -> ""
-                                                }
+                                            val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
+                                                ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
 
-                                                Text(
-                                                    text = stringResource(
-                                                        R.string.answer_published_format,
-                                                        contentEnd.ipInfo,
-                                                        timeDisplay
-                                                    ),
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = MaterialTheme.colorScheme.outline
-                                                )
+                                            if (!timeDisplay.isNullOrBlank()) {
+                                                Column(modifier = Modifier.padding(20.dp)) {
+                                                    val text = if (contentEnd.ipInfo.isNotEmpty()) {
+                                                        stringResource(
+                                                            R.string.answer_published_with_ip,
+                                                            contentEnd.ipInfo,
+                                                            timeDisplay
+                                                        )
+                                                    } else {
+                                                        stringResource(
+                                                            R.string.answer_published_no_ip,
+                                                            timeDisplay
+                                                        )
+                                                    }
+
+                                                    Text(
+                                                        text = text,
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = MaterialTheme.colorScheme.outline
+                                                    )
+                                                }
                                             }
                                         }
                                     }
-                                }
+                                    }
                             }
                         }
                     }
