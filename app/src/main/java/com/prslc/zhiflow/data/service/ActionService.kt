@@ -1,11 +1,11 @@
 package com.prslc.zhiflow.data.service
 
 import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -30,7 +30,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
             val body = jsonBody.toRequestBody(jsonMediaType)
 
             val httpRequest = Request.Builder()
-                .url("https://api.zhihu.com/read_history/add")
+                .apiUrl("/read_history/add")
                 .post(body)
                 .build()
 
@@ -60,7 +60,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
             val emptyBody = "".toRequestBody(null)
 
             val httpRequest = Request.Builder()
-                .url("https://api.zhihu.com/reaction/${contentType.apiPath}/$id/vote/$action")
+                .apiUrl("/reaction/${contentType.apiPath}/$id/vote/$action")
                 .method(method, if (method == "GET") null else emptyBody)
                 .build()
 

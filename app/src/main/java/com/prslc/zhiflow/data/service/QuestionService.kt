@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.QuestionFeedResponse
@@ -22,7 +24,7 @@ class QuestionService(private val okHttpClient: OkHttpClient) {
     suspend fun getQuestionDetail(id: String): QuestionDetail? = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
-                .url("https://api.zhihu.com/questions/$id")
+                .apiUrl("/questions/$id")
                 .get()
                 .build()
 
@@ -43,7 +45,7 @@ class QuestionService(private val okHttpClient: OkHttpClient) {
         withContext(Dispatchers.IO) {
             try {
                 // If nextUrl is provided, use it directly; otherwise, construct the initial URL
-                val requestUrl = nextUrl ?: "https://api.zhihu.com/questions/$id/feeds"
+                val requestUrl = nextUrl ?: "${Client.BASE_URL}/questions/$id/feeds"
 
                 val request = Request.Builder()
                     .url(requestUrl)
