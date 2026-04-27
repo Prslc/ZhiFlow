@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatToDate
-import com.prslc.zhiflow.data.model.ZhihuComment
+
 import com.prslc.zhiflow.ui.component.richtext.ImageComponent
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -47,10 +47,7 @@ fun CommentItem(
     modifier: Modifier = Modifier,
     isChild: Boolean = false,
     showReplyButton: Boolean = true,
-    onAuthorClick: (String) -> Unit = {},
-    onLikeClick: (String) -> Unit = {},
-    onImageClick: (String) -> Unit = {},
-    onShowReplies: (ZhihuComment) -> Unit = {}
+    onEvent: (CommentEvent) -> Unit = {}
 ) {
     val comment = model.comment
     val parsedContent = model.parsedContent
@@ -110,7 +107,7 @@ fun CommentItem(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .clickable { onAuthorClick(comment.author.id) },
+                .clickable { onEvent(CommentEvent.ShowAuthor(comment.author.id)) },
             contentScale = ContentScale.Crop
         )
 
@@ -123,7 +120,7 @@ fun CommentItem(
                 Text(
                     text = comment.author.name,
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.clickable { onAuthorClick(comment.author.id) }
+                    modifier = Modifier.clickable { onEvent(CommentEvent.ShowAuthor(comment.author.id)) }
                 )
 
                 comment.replyToAuthor?.let { replyTo ->
@@ -141,7 +138,7 @@ fun CommentItem(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         ),
-                        modifier = Modifier.clickable { onAuthorClick(replyTo.id) }
+                        modifier = Modifier.clickable { onEvent(CommentEvent.ShowAuthor(replyTo.id)) }
                     )
                 }
             }
@@ -179,7 +176,7 @@ fun CommentItem(
                     parsedContent.images.forEach { zhihuImage ->
                         ImageComponent(
                             image = zhihuImage,
-                            onImageClick = onImageClick
+                            onImageClick = { url -> onEvent(CommentEvent.OpenImage(url)) }
                         )
                     }
                 }
@@ -216,7 +213,7 @@ fun CommentItem(
                             color = MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier
-                            .clickable { onShowReplies(comment) }
+                            .clickable { onEvent(CommentEvent.LoadChildComments(comment, true)) }
                             .padding(vertical = 4.dp)
                     )
                 }
@@ -228,7 +225,7 @@ fun CommentItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(top = 4.dp)
-                .clickable { onLikeClick(comment.id) }
+                .clickable { onEvent(CommentEvent.ToggleLike(comment.id)) }
         ) {
             Icon(
                 imageVector = if (comment.liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
