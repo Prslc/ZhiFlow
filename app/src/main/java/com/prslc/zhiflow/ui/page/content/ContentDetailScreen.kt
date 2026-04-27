@@ -38,10 +38,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -71,6 +69,7 @@ import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
+import com.prslc.zhiflow.ui.page.comment.CommentEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -88,20 +87,13 @@ fun ContentDetailScreen(
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
     val richTextElements = viewModel.richTextElements
+    val presentation = viewModel.presentation
 
     val currentContent = loadingState.content
 
     val commentState = commentViewModel.uiState
 
-    var showCollectionSheet by rememberSaveable { mutableStateOf(false) }
-    var showComments by remember { mutableStateOf(false) }
-
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    var currentImageIndex by rememberSaveable { mutableIntStateOf(0) }
-    var isLightboxVisible by rememberSaveable { mutableStateOf(false) }
-
-    var currentProgress by remember { mutableIntStateOf(0) }
 
     val imageUrls = remember(richTextElements) {
         richTextElements
@@ -111,33 +103,29 @@ fun ContentDetailScreen(
 
     val isDark = isSystemInDarkTheme()
 
-    LaunchedEffect(currentContent, isDark) {
-        currentContent?.let {
-            viewModel.parseRichText(isDark)
-        }
+    LaunchedEffect(isDark) {
+        viewModel.onEvent(ContentEvent.SetDarkMode(isDark))
     }
 
-    LaunchedEffect(showComments) {
-        if (showComments && commentState.comments.isEmpty()) {
-            commentViewModel.loadComments(id, contentType)
+    LaunchedEffect(presentation.showComments) {
+        if (presentation.showComments && commentState.comments.isEmpty()) {
+            commentViewModel.onEvent(CommentEvent.LoadComments(id, contentType))
         }
     }
 
     LaunchedEffect(id) {
-        viewModel.loadContent(id, contentType)
+        viewModel.onEvent(ContentEvent.Load(id, contentType))
     }
 
-    BackHandler(enabled = isLightboxVisible) {
-        isLightboxVisible = false
+    BackHandler(enabled = presentation.isLightboxVisible) {
+        viewModel.onEvent(ContentEvent.DismissLightbox)
     }
 
     DisposableEffect(id) {
-        viewModel.updateReadProgress(id, contentType, 0)
+        viewModel.onEvent(ContentEvent.FlushProgress(id, contentType))
 
         onDispose {
-            if (currentProgress > 0) {
-                viewModel.updateReadProgress(id, contentType, currentProgress)
-            }
+            viewModel.onEvent(ContentEvent.FlushProgress(id, contentType))
         }
     }
 
@@ -242,9 +230,11 @@ fun ContentDetailScreen(
                                     ?: 0,
                                 commentCount = content.reaction?.statistics?.commentCount
                                     ?: 0,
-                                onVoteClick = { type -> viewModel.updateVote(type, contentType) },
-                                onStarClick = { showCollectionSheet = true },
-                                onCommentClick = { showComments = true }
+                                onVoteClick = { action ->
+                                    viewModel.onEvent(ContentEvent.Vote(action, contentType))
+                                },
+                                onStarClick = { viewModel.onEvent(ContentEvent.OpenCollection) },
+                                onCommentClick = { viewModel.onEvent(ContentEvent.OpenComments) }
                             )
                         }
                     }
@@ -257,7 +247,9 @@ fun ContentDetailScreen(
                     loadingState.error != null && currentContent == null -> {
                         ErrorView(
                             message = loadingState.error.uiMessage,
-                            onRetry = { viewModel.loadContent(id, contentType) },
+                            onRetry = {
+                                viewModel.onEvent(ContentEvent.Load(id, contentType))
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -278,7 +270,9 @@ fun ContentDetailScreen(
                                             ((lastVisible + 1).toFloat() / total * 100).toInt()
                                                 .coerceIn(0, 100)
                                         }
-                                    }.collect { currentProgress = it }
+                                    }.collect { progress ->
+                                        viewModel.onEvent(ContentEvent.TrackProgress(progress))
+                                    }
                                 }
 
                                 LazyColumn(
@@ -326,8 +320,7 @@ fun ContentDetailScreen(
                                                 onImageClick = { url ->
                                                     val index = imageUrls.indexOf(url)
                                                     if (index != -1) {
-                                                        currentImageIndex = index
-                                                        isLightboxVisible = true
+                                                        viewModel.onEvent(ContentEvent.OpenLightbox(index))
                                                     }
                                                 }
                                             )
@@ -363,13 +356,16 @@ fun ContentDetailScreen(
                 }
             }
 
-            if (showCollectionSheet) {
+            if (presentation.showCollectionSheet) {
                 CollectionDialog(
                     id = id,
                     contentType = contentType,
-                    onDismissRequest = { showCollectionSheet = false },
+                    onDismissRequest = {
+                        viewModel.onEvent(ContentEvent.DismissCollection)
+                    },
                     onResult = { isFavedNow ->
-                        viewModel.updateFavoriteStatus(isFavedNow)
+                        viewModel.onEvent(ContentEvent.ToggleFavorite(isFavedNow))
+                        viewModel.onEvent(ContentEvent.DismissCollection)
                     }
                 )
             }
@@ -378,19 +374,19 @@ fun ContentDetailScreen(
                 id = id,
                 contentType = contentType,
                 viewModel = commentViewModel,
-                showComments = showComments,
+                showComments = presentation.showComments,
                 onDismissRequest = {
-                    showComments = false
+                    viewModel.onEvent(ContentEvent.DismissComments)
                     commentViewModel.onSheetDismissed()
                 }
             )
 
             // light box
-            if (isLightboxVisible) {
+            if (presentation.isLightboxVisible) {
                 ImageLightbox(
                     imageUrls = imageUrls,
-                    initialIndex = currentImageIndex,
-                    onDismiss = { isLightboxVisible = false }
+                    initialIndex = presentation.currentImageIndex,
+                    onDismiss = { viewModel.onEvent(ContentEvent.DismissLightbox) }
                 )
             }
         }

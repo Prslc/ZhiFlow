@@ -59,7 +59,7 @@ fun CommentBottomSheet(
 
         ModalBottomSheet(
             onDismissRequest = {
-                viewModel.onSheetDismissed()
+                viewModel.onEvent(CommentEvent.Dismiss)
                 onDismissRequest()
             },
             sheetState = sheetState,
@@ -75,11 +75,11 @@ fun CommentBottomSheet(
             ) {
 
                 BackHandler(enabled = uiState.isLightboxVisible) {
-                    viewModel.closeImageLightbox()
+                    viewModel.onEvent(CommentEvent.CloseImage)
                 }
 
                 BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
-                    viewModel.backToMain()
+                    viewModel.onEvent(CommentEvent.BackToMain)
                 }
 
                 AnimatedContent(
@@ -109,16 +109,11 @@ fun CommentBottomSheet(
                                 comments = uiState.comments,
                                 isLoading = uiState.isLoading,
                                 hasMore = uiState.hasMore,
-                                onLoadMore = { viewModel.loadComments(id, contentType) },
-                                onAuthorClick = { /* TODO */ },
-                                onLikeClick = { commentId ->
-                                    viewModel.updateCommentReaction(commentId, true)
+                                onLoadMore = {
+                                    viewModel.onEvent(CommentEvent.LoadComments(id, contentType))
                                 },
-                                onImageClick = { url -> viewModel.openImageLightbox(url) },
+                                onEvent = { event -> viewModel.onEvent(event) },
                                 state = rootListState,
-                                onShowReplies = { root ->
-                                    viewModel.loadChildComments(root, forceRefresh = true)
-                                }
                             )
                         }
                     } else {
@@ -133,7 +128,7 @@ fun CommentBottomSheet(
 
                             CommentHeader(
                                 title = stringResource(R.string.comment_reply_detail),
-                                onClose = { viewModel.backToMain() },
+                                onClose = { viewModel.onEvent(CommentEvent.BackToMain) },
                                 isBackStyle = true
                             )
 
@@ -142,15 +137,9 @@ fun CommentBottomSheet(
                                 isLoading = childUiState.isLoading,
                                 hasMore = childUiState.hasMore,
                                 rootComment = childUiState.rootComment,
-                                onAuthorClick = { /* TODO */ },
-                                onLikeClick = { commentId ->
-                                    viewModel.updateCommentReaction(commentId, true)
-                                },
-                                onImageClick = { url -> viewModel.openImageLightbox(url) },
+                                onEvent = { event -> viewModel.onEvent(event) },
                                 onLoadMore = {
-                                    childUiState.rootComment?.comment?.let { root ->
-                                        viewModel.loadChildComments(root, forceRefresh = false)
-                                    }
+                                    viewModel.onEvent(CommentEvent.LoadMoreReplies)
                                 },
                                 state = childListState,
                                 isChild = true,
@@ -165,7 +154,7 @@ fun CommentBottomSheet(
             ImageLightbox(
                 imageUrls = uiState.selectedImageUrls,
                 initialIndex = uiState.initialImageIndex,
-                onDismiss = { viewModel.closeImageLightbox() }
+                onDismiss = { viewModel.onEvent(CommentEvent.CloseImage) }
             )
         }
     }

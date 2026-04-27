@@ -22,6 +22,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
+sealed interface ContentEvent {
+    data class Load(val id: String, val type: ContentType) : ContentEvent
+    data class SetDarkMode(val isDark: Boolean) : ContentEvent
+    data class Vote(val action: String, val contentType: ContentType) : ContentEvent
+    data class ToggleFavorite(val isFaved: Boolean) : ContentEvent
+    data class OpenLightbox(val index: Int) : ContentEvent
+    data object DismissLightbox : ContentEvent
+    data object OpenCollection : ContentEvent
+    data object DismissCollection : ContentEvent
+    data object OpenComments : ContentEvent
+    data object DismissComments : ContentEvent
+    data class TrackProgress(val progress: Int) : ContentEvent
+    data class FlushProgress(val id: String, val type: ContentType) : ContentEvent
+}
+
 class ContentViewModel(
     private val repository: ContentRepository,
     private val actionRepository: ActionRepository
@@ -54,6 +69,19 @@ class ContentViewModel(
     var richTextElements by mutableStateOf<List<RichTextElement>>(emptyList())
         private set
 
+    data class PresentationState(
+        val showCollectionSheet: Boolean = false,
+        val showComments: Boolean = false,
+        val isLightboxVisible: Boolean = false,
+        val currentImageIndex: Int = 0
+    )
+
+    var presentation by mutableStateOf(PresentationState())
+        private set
+
+    private var readProgress by mutableStateOf(0)
+    private var isDark by mutableStateOf(false)
+
     private var loadJob: Job? = null
     private var parseJob: Job? = null
 
@@ -61,12 +89,32 @@ class ContentViewModel(
         get() = (loadingState.content?.reaction?.statistics?.upVoteCount
             ?: 0) + interactionState.upvoteOffset
 
+    fun onEvent(event: ContentEvent) {
+        when (event) {
+            is ContentEvent.Load -> loadContent(event.id, event.type)
+            is ContentEvent.SetDarkMode -> setDarkMode(event.isDark)
+            is ContentEvent.Vote -> updateVote(event.action, event.contentType)
+            is ContentEvent.ToggleFavorite -> interactionState = interactionState.copy(isFaved = event.isFaved)
+            is ContentEvent.OpenLightbox -> presentation = presentation.copy(
+                isLightboxVisible = true,
+                currentImageIndex = event.index
+            )
+            is ContentEvent.DismissLightbox -> presentation = presentation.copy(isLightboxVisible = false)
+            is ContentEvent.OpenCollection -> presentation = presentation.copy(showCollectionSheet = true)
+            is ContentEvent.DismissCollection -> presentation = presentation.copy(showCollectionSheet = false)
+            is ContentEvent.OpenComments -> presentation = presentation.copy(showComments = true)
+            is ContentEvent.DismissComments -> presentation = presentation.copy(showComments = false)
+            is ContentEvent.TrackProgress -> readProgress = event.progress
+            is ContentEvent.FlushProgress -> sendReadProgress(event.id, event.type)
+        }
+    }
+
     /**
      * Load data by content type
      * @param id Content ID
      * @param type "answer" or "article"
      */
-    fun loadContent(id: String, type: ContentType) {
+    private fun loadContent(id: String, type: ContentType) {
         loadJob?.cancel()
         resetStates()
 
@@ -90,6 +138,7 @@ class ContentViewModel(
                 parsingCache.get(data.id)?.let {
                     richTextElements = it
                 }
+                parseRichText()
             }.onFailure { e ->
                 if (e is CancellationException) throw e
                 loadingState = loadingState.copy(isLoading = false, error = e.toApiException())
@@ -97,7 +146,13 @@ class ContentViewModel(
         }
     }
 
-    fun parseRichText(isDark: Boolean) {
+    private fun setDarkMode(dark: Boolean) {
+        if (isDark == dark) return
+        isDark = dark
+        if (loadingState.content != null) parseRichText()
+    }
+
+    private fun parseRichText() {
         val content = loadingState.content ?: return
         val segments = content.structuredContent.segments
 
@@ -120,9 +175,8 @@ class ContentViewModel(
         }
     }
 
-
     // vote
-    fun updateVote(targetAction: String, contentType: ContentType) {
+    private fun updateVote(targetAction: String, contentType: ContentType) {
         val currentContent = loadingState.content ?: return
         val contentId = currentContent.id
 
@@ -169,25 +223,22 @@ class ContentViewModel(
         }
     }
 
-
-    fun updateReadProgress(contentToken: String, contentType: ContentType, progress: Int) {
+    private fun sendReadProgress(contentToken: String, contentType: ContentType) {
         viewModelScope.launch {
             withContext(NonCancellable) {
                 actionRepository.syncHistory(
-                    ReadHistoryRequest(contentToken, contentType.type, progress)
+                    ReadHistoryRequest(contentToken, contentType.type, readProgress)
                 )
             }
         }
-    }
-
-    fun updateFavoriteStatus(isFaved: Boolean) {
-        interactionState = interactionState.copy(isFaved = isFaved)
     }
 
     private fun resetStates() {
         loadingState = LoadingState()
         interactionState = InteractionState()
         richTextElements = emptyList()
+        presentation = PresentationState()
+        readProgress = 0
         parseJob?.cancel()
     }
 }

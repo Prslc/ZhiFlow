@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.data.model.ZhihuComment
+
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 
@@ -38,10 +38,7 @@ fun CommentList(
     onLoadMore: () -> Unit,         // trigger next page
     state: LazyListState,
     isChild: Boolean = false,
-    onAuthorClick: (String) -> Unit = {},
-    onLikeClick: (String) -> Unit = {},
-    onImageClick: (String) -> Unit = {},
-    onShowReplies: (ZhihuComment) -> Unit = {}
+    onEvent: (CommentEvent) -> Unit = {}
 ) {
 
     val stateTarget = when {
@@ -73,9 +70,7 @@ fun CommentList(
                                         model = rootComment,
                                         isChild = false,
                                         showReplyButton = false,
-                                        onLikeClick = onLikeClick,
-                                        onAuthorClick = onAuthorClick,
-                                        onImageClick = onImageClick
+                                        onEvent = onEvent
                                     )
                                     HorizontalDivider(
                                         thickness = 4.dp,
@@ -99,10 +94,7 @@ fun CommentList(
                             CommentItem(
                                 model = model,
                                 isChild = isChild,
-                                onShowReplies = onShowReplies,
-                                onAuthorClick = onAuthorClick,
-                                onLikeClick = onLikeClick,
-                                onImageClick = onImageClick
+                                onEvent = onEvent
                             )
                             HorizontalDivider(
                                 thickness = 0.5.dp,
