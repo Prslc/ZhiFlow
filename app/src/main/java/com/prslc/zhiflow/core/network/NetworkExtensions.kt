@@ -1,12 +1,15 @@
 package com.prslc.zhiflow.core.network
 
-import kotlinx.serialization.decodeFromString
+import okhttp3.Request
 import okhttp3.Response
 
 /**
  * Extension properties and functions for OkHttp classes to streamline
  * data parsing and resource management.
  */
+
+fun Request.Builder.apiUrl(path: String): Request.Builder =
+    this.url("${Client.BASE_URL}$path")
 
 /**
  * Parses the [Response] body into a structured data object of type [T].

@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.CollectionResponse
 import com.prslc.zhiflow.data.model.ContentType
@@ -25,7 +27,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
     suspend fun getCollectionsForContent(id: String, contentType: ContentType): CollectionResponse? =
         withContext(Dispatchers.IO) {
             try {
-                val url = "https://api.zhihu.com/collections/contents/${contentType.type}/$id"
+                val url = "${Client.BASE_URL}/collections/contents/${contentType.type}/$id"
                     .toHttpUrl()
                     .newBuilder()
                     .addQueryParameter("ever_top", "1")
@@ -69,7 +71,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
             }
 
             val request = Request.Builder()
-                .url("https://api.zhihu.com/v2/collections/contents/${contentType.type}/$id")
+                .apiUrl("/v2/collections/contents/${contentType.type}/$id")
                 .put(formBuilder.build())
                 .build()
 

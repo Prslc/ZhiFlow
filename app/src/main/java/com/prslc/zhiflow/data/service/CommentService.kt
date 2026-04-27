@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.CommentResponse
 import com.prslc.zhiflow.data.model.ContentType
@@ -33,7 +35,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         limit: Int = 20
     ): CommentResponse? = withContext(Dispatchers.IO) {
         try {
-            val url = "https://api.zhihu.com/comment_v5/${contentType.apiPath}/$id/root_comment"
+            val url = "${Client.BASE_URL}/comment_v5/${contentType.apiPath}/$id/root_comment"
                 .toHttpUrl()
                 .newBuilder()
                 .addQueryParameter("order_by", orderBy)
@@ -57,7 +59,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         limit: Int = 20
     ): CommentResponse? = withContext(Dispatchers.IO) {
         try {
-            val url = "https://api.zhihu.com/comment_v5/comment/$rootCommentId/child_comment"
+            val url = "${Client.BASE_URL}/comment_v5/comment/$rootCommentId/child_comment"
                 .toHttpUrl()
                 .newBuilder()
                 .addQueryParameter("order_by", "ts")
@@ -83,7 +85,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
                 val emptyBody = "".toRequestBody(null)
 
                 val request = Request.Builder()
-                    .url("https://api.zhihu.com/reaction/comments/$commentId/$action")
+                    .apiUrl("/reaction/comments/$commentId/$action")
                     .method(method, if (method == "GET") null else emptyBody)
                     .build()
 

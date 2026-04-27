@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuArticle
@@ -31,10 +32,8 @@ class ContentService(private val okHttpClient: OkHttpClient) {
         id: String
     ): T? = withContext(Dispatchers.IO) {
         try {
-            val url = "https://api.zhihu.com/$path/v2/$id"
-
             val request = Request.Builder()
-                .url(url)
+                .apiUrl("/$path/v2/$id")
                 .get()
                 .build()
             okHttpClient.newCall(request).execute().body<T>()

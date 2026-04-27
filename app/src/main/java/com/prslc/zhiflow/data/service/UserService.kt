@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.ZhihuUser
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ class UserService(private val okHttpClient: OkHttpClient) {
     suspend fun getUserDetail(urlToken: String): ZhihuUser? = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
-                .url("https://api.zhihu.com/people/$urlToken")
+                .apiUrl("/people/$urlToken")
                 .get()
                 .build()
 

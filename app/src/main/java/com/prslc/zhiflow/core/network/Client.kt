@@ -6,6 +6,8 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 object Client {
+    const val BASE_URL = "https://api.zhihu.com"
+
     val jsonInstance = Json {
         ignoreUnknownKeys = true    // Skip undefined fields
         isLenient = true            // Permissive mode

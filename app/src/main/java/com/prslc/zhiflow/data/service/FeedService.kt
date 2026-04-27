@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.service
 
+import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.body
 import com.prslc.zhiflow.data.model.ZhihuResponse
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ class FeedService(private val okHttpClient: OkHttpClient) {
     ): ZhihuResponse? = withContext(Dispatchers.IO) {
         try {
             val baseUrl = nextUrl.takeUnless { isRefresh || nextUrl == null }
-                ?: "https://api.zhihu.com/topstory/recommend"
+                ?: "${Client.BASE_URL}/topstory/recommend"
 
             val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 
