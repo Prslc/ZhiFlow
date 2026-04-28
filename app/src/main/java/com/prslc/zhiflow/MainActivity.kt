@@ -4,10 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -19,15 +23,23 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -119,43 +131,25 @@ fun MainScreen() {
 
     val profileViewModel: ProfileViewModel = koinViewModel()
 
-    NavigationSuiteScaffold(
-        layoutType = NavigationSuiteType.NavigationBar,
-        navigationSuiteItems = {
-            tabs.forEachIndexed { index, tab ->
-                item(
-                    selected = pagerState.currentPage == index,
-                    onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                    icon = {
-                        Icon(
-                            when (tab) {
-                                HomeTab -> Icons.Default.Home
-                                DebugTab -> Icons.Default.BugReport
-                                ProfileTab -> Icons.Default.Person
-                                else -> Icons.Default.Error
-                            },
-                            null
-                        )
-                    },
-                    label = {
-                        val labelText = when (tab) {
-                            HomeTab -> stringResource(R.string.nav_home)
-                            DebugTab -> stringResource(R.string.nav_debug)
-                            ProfileTab -> stringResource(R.string.nav_profile)
-                            else -> "Unknown"
-                        }
-                        Text(labelText)
-                    },
-                    alwaysShowLabel = false
-                )
+    var isBottomBarVisible by remember { mutableStateOf(true) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y < -5) isBottomBarVisible = false
+                else if (available.y > 5) isBottomBarVisible = true
+                return Offset.Zero
             }
         }
-    ) {
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding(),
+                .statusBarsPadding()
+                .nestedScroll(nestedScrollConnection),
         ) { pageIndex ->
             when (tabs[pageIndex]) {
                 HomeTab -> FeedScreen(
@@ -172,6 +166,43 @@ fun MainScreen() {
                     viewModel = profileViewModel,
                     onNavigateToSettings = { navigator.navigateToSettings() }
                 )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = isBottomBarVisible,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it }),
+        ) {
+            NavigationBar {
+                tabs.forEachIndexed { index, tab ->
+                    NavigationBarItem(
+                        selected = pagerState.currentPage == index,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        icon = {
+                            Icon(
+                                when (tab) {
+                                    HomeTab -> Icons.Default.Home
+                                    DebugTab -> Icons.Default.BugReport
+                                    ProfileTab -> Icons.Default.Person
+                                    else -> Icons.Default.Error
+                                },
+                                null
+                            )
+                        },
+                        label = {
+                            val labelText = when (tab) {
+                                HomeTab -> stringResource(R.string.nav_home)
+                                DebugTab -> stringResource(R.string.nav_debug)
+                                ProfileTab -> stringResource(R.string.nav_profile)
+                                else -> "Unknown"
+                            }
+                            Text(labelText)
+                        },
+                        alwaysShowLabel = false
+                    )
+                }
             }
         }
     }
