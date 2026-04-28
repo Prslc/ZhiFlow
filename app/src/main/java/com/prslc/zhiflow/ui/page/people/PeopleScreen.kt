@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.ErrorView
@@ -67,24 +68,25 @@ fun PeopleScreen(
     ) { innerPadding ->
 
         Box(modifier = Modifier.fillMaxSize()) {
-            when (uiState) {
-                is PeopleViewModel.PeopleUiState.Loading -> {
-                    Box(Modifier.padding(innerPadding).fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                }
-                is PeopleViewModel.PeopleUiState.Success -> {
+            when {
+                uiState.user != null -> {
                     PeopleDetailContent(
                         user = uiState.user,
                         onBack = onBack,
                         bottomPadding = innerPadding.calculateBottomPadding()
                     )
                 }
-                is PeopleViewModel.PeopleUiState.Error -> {
+
+                uiState.isLoading -> {
+                    Box(Modifier.padding(innerPadding).fillMaxSize()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                }
+
+                uiState.error != null -> {
                     Box(Modifier.padding(innerPadding).fillMaxSize()) {
                         ErrorView(
-                            message = uiState.throwable.message
-                                ?: stringResource(R.string.error_unknown),
+                            message = uiState.error.uiMessage,
                             onRetry = { viewModel.loadPeople(urlToken) },
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -92,7 +94,7 @@ fun PeopleScreen(
                 }
             }
 
-            if (uiState !is PeopleViewModel.PeopleUiState.Success) {
+            if (uiState.user == null) {
                 IconButton(
                     onClick = onBack,
                     modifier = Modifier

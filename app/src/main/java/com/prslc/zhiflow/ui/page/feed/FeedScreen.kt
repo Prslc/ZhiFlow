@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -36,7 +36,7 @@ fun FeedScreen(
     viewModel: FeedViewModel = koinViewModel(),
     onItemClick: (String, String) -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState
 
     val items = uiState.items
     val apiError = uiState.error
@@ -138,7 +138,7 @@ private fun AutoLoadMoreEffect(viewModel: FeedViewModel) {
     }
 
     LaunchedEffect(shouldLoadMore) {
-        val currentState = viewModel.uiState.value
+        val currentState = viewModel.uiState
 
         if (shouldLoadMore && !currentState.isNextLoading && !currentState.isRefreshing) {
             viewModel.loadMore()

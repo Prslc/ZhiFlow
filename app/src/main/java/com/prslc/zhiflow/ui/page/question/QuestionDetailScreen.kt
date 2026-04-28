@@ -157,7 +157,7 @@ fun QuestionDetailScreen(
 
 @Composable
 private fun QuestionContentList(
-    state: QuestionUiState,
+    state: QuestionViewModel.QuestionUiState,
     viewModel: QuestionViewModel,
     id: String,
     isExpanded: Boolean,
@@ -424,7 +424,7 @@ private fun ExpandToggleButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun QuestionTopBar(
-    state: QuestionUiState,
+    state: QuestionViewModel.QuestionUiState,
     scrollBehavior: TopAppBarScrollBehavior,
     onBack: () -> Unit
 ) {

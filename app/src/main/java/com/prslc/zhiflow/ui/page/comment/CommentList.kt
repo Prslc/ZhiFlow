@@ -24,21 +24,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 
 @Composable
 fun CommentList(
     modifier: Modifier = Modifier,
-    comments: List<CommentViewModel.CommentUiModel>, // 修改类型
+    viewModel: CommentViewModel,
+    comments: List<CommentViewModel.CommentUiModel>,
     rootComment: CommentViewModel.CommentUiModel? = null,
-    isLoading: Boolean,             // track loading state
-    hasMore: Boolean,               // check if pagination ended
-    onLoadMore: () -> Unit,         // trigger next page
+    isLoading: Boolean,
+    hasMore: Boolean,
+    onLoadMore: () -> Unit,
     state: LazyListState,
-    isChild: Boolean = false,
-    onEvent: (CommentEvent) -> Unit = {}
+    isChild: Boolean = false
 ) {
 
     val stateTarget = when {
@@ -68,9 +67,9 @@ fun CommentList(
                                 Column {
                                     CommentItem(
                                         model = rootComment,
+                                        viewModel = viewModel,
                                         isChild = false,
-                                        showReplyButton = false,
-                                        onEvent = onEvent
+                                        showReplyButton = false
                                     )
                                     HorizontalDivider(
                                         thickness = 4.dp,
@@ -84,7 +83,6 @@ fun CommentList(
                             items = comments,
                             key = { _, item -> item.comment.id }
                         ) { index, model ->
-
                             // load more
                             if (index >= comments.size - 3 && !isLoading && hasMore) {
                                 LaunchedEffect(comments.size) {
@@ -93,8 +91,8 @@ fun CommentList(
                             }
                             CommentItem(
                                 model = model,
-                                isChild = isChild,
-                                onEvent = onEvent
+                                viewModel = viewModel,
+                                isChild = isChild
                             )
                             HorizontalDivider(
                                 thickness = 0.5.dp,

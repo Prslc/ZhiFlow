@@ -69,7 +69,6 @@ import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
-import com.prslc.zhiflow.ui.page.comment.CommentEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -104,28 +103,28 @@ fun ContentDetailScreen(
     val isDark = isSystemInDarkTheme()
 
     LaunchedEffect(isDark) {
-        viewModel.onEvent(ContentEvent.SetDarkMode(isDark))
+        viewModel.setDarkMode(isDark)
     }
 
     LaunchedEffect(presentation.showComments) {
         if (presentation.showComments && commentState.comments.isEmpty()) {
-            commentViewModel.onEvent(CommentEvent.LoadComments(id, contentType))
+            commentViewModel.loadComments(id, contentType)
         }
     }
 
     LaunchedEffect(id) {
-        viewModel.onEvent(ContentEvent.Load(id, contentType))
+        viewModel.loadContent(id, contentType)
     }
 
     BackHandler(enabled = presentation.isLightboxVisible) {
-        viewModel.onEvent(ContentEvent.DismissLightbox)
+        viewModel.dismissLightbox()
     }
 
     DisposableEffect(id) {
-        viewModel.onEvent(ContentEvent.FlushProgress(id, contentType))
+        viewModel.flushProgress(id, contentType)
 
         onDispose {
-            viewModel.onEvent(ContentEvent.FlushProgress(id, contentType))
+            viewModel.flushProgress(id, contentType)
         }
     }
 
@@ -231,10 +230,10 @@ fun ContentDetailScreen(
                                 commentCount = content.reaction?.statistics?.commentCount
                                     ?: 0,
                                 onVoteClick = { action ->
-                                    viewModel.onEvent(ContentEvent.Vote(action, contentType))
+                                    viewModel.vote(action, contentType)
                                 },
-                                onStarClick = { viewModel.onEvent(ContentEvent.OpenCollection) },
-                                onCommentClick = { viewModel.onEvent(ContentEvent.OpenComments) }
+                                onStarClick = { viewModel.openCollection() },
+                                onCommentClick = { viewModel.openComments() }
                             )
                         }
                     }
@@ -248,7 +247,7 @@ fun ContentDetailScreen(
                         ErrorView(
                             message = loadingState.error.uiMessage,
                             onRetry = {
-                                viewModel.onEvent(ContentEvent.Load(id, contentType))
+                                viewModel.loadContent(id, contentType)
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -271,7 +270,7 @@ fun ContentDetailScreen(
                                                 .coerceIn(0, 100)
                                         }
                                     }.collect { progress ->
-                                        viewModel.onEvent(ContentEvent.TrackProgress(progress))
+                                        viewModel.trackProgress(progress)
                                     }
                                 }
 
@@ -320,7 +319,7 @@ fun ContentDetailScreen(
                                                 onImageClick = { url ->
                                                     val index = imageUrls.indexOf(url)
                                                     if (index != -1) {
-                                                        viewModel.onEvent(ContentEvent.OpenLightbox(index))
+                                                        viewModel.openLightbox(index)
                                                     }
                                                 }
                                             )
@@ -369,11 +368,11 @@ fun ContentDetailScreen(
                     id = id,
                     contentType = contentType,
                     onDismissRequest = {
-                        viewModel.onEvent(ContentEvent.DismissCollection)
+                        viewModel.dismissCollection()
                     },
                     onResult = { isFavedNow ->
-                        viewModel.onEvent(ContentEvent.ToggleFavorite(isFavedNow))
-                        viewModel.onEvent(ContentEvent.DismissCollection)
+                        viewModel.setFaved(isFavedNow)
+                        viewModel.dismissCollection()
                     }
                 )
             }
@@ -384,7 +383,7 @@ fun ContentDetailScreen(
                 viewModel = commentViewModel,
                 showComments = presentation.showComments,
                 onDismissRequest = {
-                    viewModel.onEvent(ContentEvent.DismissComments)
+                    viewModel.dismissComments()
                     commentViewModel.onSheetDismissed()
                 }
             )
@@ -394,7 +393,7 @@ fun ContentDetailScreen(
                 ImageLightbox(
                     imageUrls = imageUrls,
                     initialIndex = presentation.currentImageIndex,
-                    onDismiss = { viewModel.onEvent(ContentEvent.DismissLightbox) }
+                    onDismiss = { viewModel.dismissLightbox() }
                 )
             }
         }

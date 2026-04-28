@@ -22,21 +22,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
-sealed interface ContentEvent {
-    data class Load(val id: String, val type: ContentType) : ContentEvent
-    data class SetDarkMode(val isDark: Boolean) : ContentEvent
-    data class Vote(val action: String, val contentType: ContentType) : ContentEvent
-    data class ToggleFavorite(val isFaved: Boolean) : ContentEvent
-    data class OpenLightbox(val index: Int) : ContentEvent
-    data object DismissLightbox : ContentEvent
-    data object OpenCollection : ContentEvent
-    data object DismissCollection : ContentEvent
-    data object OpenComments : ContentEvent
-    data object DismissComments : ContentEvent
-    data class TrackProgress(val progress: Int) : ContentEvent
-    data class FlushProgress(val id: String, val type: ContentType) : ContentEvent
-}
-
 class ContentViewModel(
     private val repository: ContentRepository,
     private val actionRepository: ActionRepository
@@ -65,7 +50,6 @@ class ContentViewModel(
     var interactionState by mutableStateOf(InteractionState())
         private set
 
-    // 核心内容（解析后的元素列表）
     var richTextElements by mutableStateOf<List<RichTextElement>>(emptyList())
         private set
 
@@ -89,37 +73,15 @@ class ContentViewModel(
         get() = (loadingState.content?.reaction?.statistics?.upVoteCount
             ?: 0) + interactionState.upvoteOffset
 
-    fun onEvent(event: ContentEvent) {
-        when (event) {
-            is ContentEvent.Load -> loadContent(event.id, event.type)
-            is ContentEvent.SetDarkMode -> setDarkMode(event.isDark)
-            is ContentEvent.Vote -> updateVote(event.action, event.contentType)
-            is ContentEvent.ToggleFavorite -> interactionState = interactionState.copy(isFaved = event.isFaved)
-            is ContentEvent.OpenLightbox -> presentation = presentation.copy(
-                isLightboxVisible = true,
-                currentImageIndex = event.index
-            )
-            is ContentEvent.DismissLightbox -> presentation = presentation.copy(isLightboxVisible = false)
-            is ContentEvent.OpenCollection -> presentation = presentation.copy(showCollectionSheet = true)
-            is ContentEvent.DismissCollection -> presentation = presentation.copy(showCollectionSheet = false)
-            is ContentEvent.OpenComments -> presentation = presentation.copy(showComments = true)
-            is ContentEvent.DismissComments -> presentation = presentation.copy(showComments = false)
-            is ContentEvent.TrackProgress -> readProgress = event.progress
-            is ContentEvent.FlushProgress -> sendReadProgress(event.id, event.type)
-        }
-    }
-
     /**
      * Load data by content type
      * @param id Content ID
      * @param type "answer" or "article"
      */
-    private fun loadContent(id: String, type: ContentType) {
+    fun loadContent(id: String, type: ContentType) {
         loadJob?.cancel()
         resetStates()
-
         loadingState = LoadingState(isLoading = true)
-
         loadJob = viewModelScope.launch {
             val result = when (type) {
                 ContentType.ARTICLE -> repository.getArticle(id)
@@ -146,37 +108,13 @@ class ContentViewModel(
         }
     }
 
-    private fun setDarkMode(dark: Boolean) {
+    fun setDarkMode(dark: Boolean) {
         if (isDark == dark) return
         isDark = dark
         if (loadingState.content != null) parseRichText()
     }
 
-    private fun parseRichText() {
-        val content = loadingState.content ?: return
-        val segments = content.structuredContent.segments
-
-        if (richTextElements.isNotEmpty() && parsingCache.get(content.id) != null) return
-
-        parseJob?.cancel()
-        parseJob = viewModelScope.launch(Dispatchers.Default) {
-            val fullList = mutableListOf<RichTextElement>()
-
-            segments.chunked(10).forEachIndexed { _, chunk ->
-                val chunkResult = ContentParser.transform(chunk, isDark)
-                fullList.addAll(chunkResult)
-
-                val currentSnapshot = fullList.toList()
-                withContext(Dispatchers.Main) {
-                    richTextElements = currentSnapshot
-                }
-            }
-            parsingCache.put(content.id, fullList)
-        }
-    }
-
-    // vote
-    private fun updateVote(targetAction: String, contentType: ContentType) {
+    fun vote(targetAction: String, contentType: ContentType) {
         val currentContent = loadingState.content ?: return
         val contentId = currentContent.id
 
@@ -223,13 +161,68 @@ class ContentViewModel(
         }
     }
 
-    private fun sendReadProgress(contentToken: String, contentType: ContentType) {
+    fun setFaved(isFaved: Boolean) {
+        interactionState = interactionState.copy(isFaved = isFaved)
+    }
+
+    fun openLightbox(index: Int) {
+        presentation = presentation.copy(isLightboxVisible = true, currentImageIndex = index)
+    }
+
+    fun dismissLightbox() {
+        presentation = presentation.copy(isLightboxVisible = false)
+    }
+
+    fun openCollection() {
+        presentation = presentation.copy(showCollectionSheet = true)
+    }
+
+    fun dismissCollection() {
+        presentation = presentation.copy(showCollectionSheet = false)
+    }
+
+    fun openComments() {
+        presentation = presentation.copy(showComments = true)
+    }
+
+    fun dismissComments() {
+        presentation = presentation.copy(showComments = false)
+    }
+
+    fun trackProgress(progress: Int) {
+        readProgress = progress
+    }
+
+    fun flushProgress(contentToken: String, contentType: ContentType) {
         viewModelScope.launch {
             withContext(NonCancellable) {
                 actionRepository.syncHistory(
                     ReadHistoryRequest(contentToken, contentType.type, readProgress)
                 )
             }
+        }
+    }
+
+    private fun parseRichText() {
+        val content = loadingState.content ?: return
+        val segments = content.structuredContent.segments
+
+        if (richTextElements.isNotEmpty() && parsingCache.get(content.id) != null) return
+
+        parseJob?.cancel()
+        parseJob = viewModelScope.launch(Dispatchers.Default) {
+            val fullList = mutableListOf<RichTextElement>()
+
+            segments.chunked(10).forEachIndexed { _, chunk ->
+                val chunkResult = ContentParser.transform(chunk, isDark)
+                fullList.addAll(chunkResult)
+
+                val currentSnapshot = fullList.toList()
+                withContext(Dispatchers.Main) {
+                    richTextElements = currentSnapshot
+                }
+            }
+            parsingCache.put(content.id, fullList)
         }
     }
 

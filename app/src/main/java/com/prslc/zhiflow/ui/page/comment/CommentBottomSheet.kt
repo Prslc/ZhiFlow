@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,14 +53,23 @@ fun CommentBottomSheet(
     val sheetState = rememberModalBottomSheetState()
 
     if (showComments) {
+        val navigator = LocalNavigator.current
         val uiState = viewModel.uiState
         val childUiState = viewModel.childUiState
         val rootListState = rememberLazyListState()
         val childListState = rememberLazyListState()
 
+        LaunchedEffect(uiState.navigateToUser) {
+            uiState.navigateToUser?.let {
+                onDismissRequest()
+                navigator.navigateToPeople(it)
+                viewModel.onNavigated()
+            }
+        }
+
         ModalBottomSheet(
             onDismissRequest = {
-                viewModel.onEvent(CommentEvent.Dismiss)
+                viewModel.onSheetDismissed()
                 onDismissRequest()
             },
             sheetState = sheetState,
@@ -75,11 +85,11 @@ fun CommentBottomSheet(
             ) {
 
                 BackHandler(enabled = uiState.isLightboxVisible) {
-                    viewModel.onEvent(CommentEvent.CloseImage)
+                    viewModel.closeImage()
                 }
 
                 BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
-                    viewModel.onEvent(CommentEvent.BackToMain)
+                    viewModel.backToMain()
                 }
 
                 AnimatedContent(
@@ -106,13 +116,13 @@ fun CommentBottomSheet(
                             )
                             CommentList(
                                 modifier = Modifier.weight(1f),
+                                viewModel = viewModel,
                                 comments = uiState.comments,
                                 isLoading = uiState.isLoading,
                                 hasMore = uiState.hasMore,
                                 onLoadMore = {
-                                    viewModel.onEvent(CommentEvent.LoadComments(id, contentType))
+                                    viewModel.loadComments(id, contentType)
                                 },
-                                onEvent = { event -> viewModel.onEvent(event) },
                                 state = rootListState,
                             )
                         }
@@ -128,22 +138,20 @@ fun CommentBottomSheet(
 
                             CommentHeader(
                                 title = stringResource(R.string.comment_reply_detail),
-                                onClose = { viewModel.onEvent(CommentEvent.BackToMain) },
+                                onClose = { viewModel.backToMain() },
                                 isBackStyle = true
                             )
 
                             CommentList(
+                                modifier = Modifier.weight(1f),
+                                viewModel = viewModel,
                                 comments = childUiState.comments,
                                 isLoading = childUiState.isLoading,
                                 hasMore = childUiState.hasMore,
                                 rootComment = childUiState.rootComment,
-                                onEvent = { event -> viewModel.onEvent(event) },
-                                onLoadMore = {
-                                    viewModel.onEvent(CommentEvent.LoadMoreReplies)
-                                },
+                                onLoadMore = { viewModel.loadMoreReplies() },
                                 state = childListState,
                                 isChild = true,
-                                modifier = Modifier.weight(1f)
                             )
                         }
                     }
@@ -154,7 +162,7 @@ fun CommentBottomSheet(
             ImageLightbox(
                 imageUrls = uiState.selectedImageUrls,
                 initialIndex = uiState.initialImageIndex,
-                onDismiss = { viewModel.onEvent(CommentEvent.CloseImage) }
+                onDismiss = { viewModel.closeImage() }
             )
         }
     }

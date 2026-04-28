@@ -19,17 +19,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
-data class QuestionUiState(
-    val isLoading: Boolean = false,
-    val isNextLoading: Boolean = false,
-    val question: QuestionDetail? = null,
-    val elements: List<DetailElement> = emptyList(),
-    val answers: List<QuestionFeedItem> = emptyList(),
-    val error: ApiException? = null,
-    val hasMore: Boolean = false
-)
-
 class QuestionViewModel(private val repository: QuestionRepository) : ViewModel() {
+
+    data class QuestionUiState(
+        val isLoading: Boolean = false,
+        val isNextLoading: Boolean = false,
+        val question: QuestionDetail? = null,
+        val elements: List<DetailElement> = emptyList(),
+        val answers: List<QuestionFeedItem> = emptyList(),
+        val error: ApiException? = null,
+        val hasMore: Boolean = false
+    )
 
     var uiState by mutableStateOf(QuestionUiState())
         private set
