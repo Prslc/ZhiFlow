@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import org.koin.androidx.compose.koinViewModel
@@ -126,7 +127,7 @@ fun ProfileScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
-                message = uiState.error?.message ?: stringResource(R.string.error_unknown),
+                message = uiState.error?.uiMessage ?: stringResource(R.string.error_unknown),
                 onRetry = { viewModel.loadProfile() },
                 modifier = Modifier.align(Alignment.Center)
             )

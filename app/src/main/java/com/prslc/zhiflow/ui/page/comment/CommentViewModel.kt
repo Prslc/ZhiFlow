@@ -6,26 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.data.repository.CommentRepository
-import com.prslc.zhiflow.parser.commentParse
+import com.prslc.zhiflow.parser.CommentParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-sealed interface CommentEvent {
-    data class LoadComments(val id: String, val contentType: ContentType) : CommentEvent
-    data class LoadChildComments(val root: ZhihuComment, val forceRefresh: Boolean) : CommentEvent
-    data object LoadMoreReplies : CommentEvent
-    data class ToggleLike(val commentId: String) : CommentEvent
-    data class OpenImage(val url: String) : CommentEvent
-    data object CloseImage : CommentEvent
-    data object BackToMain : CommentEvent
-    data object Dismiss : CommentEvent
-    data class ShowAuthor(val urlToken: String) : CommentEvent
-}
+import kotlin.coroutines.cancellation.CancellationException
 
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
 
@@ -35,10 +26,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val totalCount: Int = 0,
         val offset: String = "",
         val hasMore: Boolean = true,
-        val error: Throwable? = null,
+        val error: ApiException? = null,
         val isLightboxVisible: Boolean = false,
         val selectedImageUrls: List<String> = emptyList(),
-        val initialImageIndex: Int = 0
+        val initialImageIndex: Int = 0,
+        val navigateToUser: String? = null
     )
 
     data class ChildCommentUiState(
@@ -67,41 +59,15 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
     private suspend fun List<ZhihuComment>.toUiModels(): List<CommentUiModel> =
         withContext(Dispatchers.Default) {
-            map { CommentUiModel(it, commentParse(it.content)) }
+            map { CommentUiModel(it, CommentParser.parse(it.content)) }
         }
 
     private suspend fun ZhihuComment.toUiModel(): CommentUiModel =
         withContext(Dispatchers.Default) {
-            CommentUiModel(this@toUiModel, commentParse(this@toUiModel.content))
+            CommentUiModel(this@toUiModel, CommentParser.parse(this@toUiModel.content))
         }
 
-    fun onEvent(event: CommentEvent) {
-        when (event) {
-            is CommentEvent.LoadComments -> loadComments(event.id, event.contentType)
-            is CommentEvent.LoadChildComments -> loadChildComments(event.root, event.forceRefresh)
-            is CommentEvent.LoadMoreReplies -> loadMoreReplies()
-            is CommentEvent.ToggleLike -> updateCommentReaction(event.commentId)
-            is CommentEvent.OpenImage -> openImageLightbox(event.url)
-            is CommentEvent.CloseImage -> closeImageLightbox()
-            is CommentEvent.BackToMain -> backToMain()
-            is CommentEvent.Dismiss -> onSheetDismissed()
-            is CommentEvent.ShowAuthor -> { /* TODO */ }
-        }
-    }
-
-    private fun openImageLightbox(url: String) {
-        uiState = uiState.copy(
-            selectedImageUrls = listOf(url),
-            initialImageIndex = 0,
-            isLightboxVisible = true
-        )
-    }
-
-    private fun closeImageLightbox() {
-        uiState = uiState.copy(isLightboxVisible = false, selectedImageUrls = emptyList())
-    }
-
-    private fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
+    fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
         val isNewOrRefresh = forceRefresh || answerId != lastLoadedAnswerId
         if (!forceRefresh && !isNewOrRefresh && uiState.isLoading) return
 
@@ -137,16 +103,17 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                     )
                 }
                 .onFailure { e ->
-                    uiState = uiState.copy(isLoading = false, error = e)
+                    if (e is CancellationException) throw e
+                    uiState = uiState.copy(isLoading = false, error = e.toApiException())
                 }
         }
     }
 
-    private fun loadMoreReplies() {
+    fun loadMoreReplies() {
         childUiState.rootComment?.comment?.let { loadChildComments(it, forceRefresh = false) }
     }
 
-    private fun loadChildComments(rootComment: ZhihuComment, forceRefresh: Boolean = false) {
+    fun loadChildComments(rootComment: ZhihuComment, forceRefresh: Boolean = false) {
         viewModelScope.launch {
             if (forceRefresh) {
                 val rootUiModel = rootComment.toUiModel()
@@ -178,13 +145,14 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         isLoading = false
                     )
                 }
-                .onFailure {
+                .onFailure { e ->
+                    if (e is CancellationException) throw e
                     childUiState = childUiState.copy(isLoading = false)
                 }
         }
     }
 
-    private fun updateCommentReaction(commentId: String) {
+    fun toggleLike(commentId: String) {
         if (pendingReactions.contains(commentId)) return
 
         val targetModel = uiState.comments.find { it.comment.id == commentId }
@@ -210,6 +178,38 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         }
     }
 
+    fun openImage(url: String) {
+        uiState = uiState.copy(
+            selectedImageUrls = listOf(url),
+            initialImageIndex = 0,
+            isLightboxVisible = true
+        )
+    }
+
+    fun closeImage() {
+        uiState = uiState.copy(isLightboxVisible = false, selectedImageUrls = emptyList())
+    }
+
+    fun backToMain() {
+        childUiState = childUiState.copy(isDetailMode = false, rootComment = null)
+    }
+
+    fun showAuthor(urlToken: String) {
+        uiState = uiState.copy(navigateToUser = urlToken)
+    }
+
+    fun onNavigated() {
+        uiState = uiState.copy(navigateToUser = null)
+    }
+
+    fun onSheetDismissed() {
+        uiState = CommentUiState()
+        childUiState = ChildCommentUiState()
+        lastLoadedAnswerId = null
+        lastContentType = null
+        pendingReactions.clear()
+    }
+
     private fun updateLocalStatus(id: String, active: Boolean) {
         val mapper = { model: CommentUiModel ->
             if (model.comment.id == id) {
@@ -227,17 +227,5 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             rootComment = childUiState.rootComment?.let(mapper),
             comments = childUiState.comments.map(mapper)
         )
-    }
-
-    private fun backToMain() {
-        childUiState = childUiState.copy(isDetailMode = false, rootComment = null)
-    }
-
-    fun onSheetDismissed() {
-        uiState = CommentUiState()
-        childUiState = ChildCommentUiState()
-        lastLoadedAnswerId = null
-        lastContentType = null
-        pendingReactions.clear()
     }
 }

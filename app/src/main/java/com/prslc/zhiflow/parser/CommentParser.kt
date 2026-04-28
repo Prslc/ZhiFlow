@@ -8,7 +8,8 @@ import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ZhihuImage
 import com.prslc.zhiflow.parser.emoji.EmojiParser
 
-fun commentParse(html: String): CommentContent {
+object CommentParser {
+    fun parse(html: String): CommentContent {
     val extractedImages = mutableListOf<ZhihuImage>()
 
     val aTagRegex = """<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>""".toRegex()
@@ -64,4 +65,5 @@ fun commentParse(html: String): CommentContent {
     }
 
     return CommentContent(text = annotatedText, images = extractedImages)
+    }
 }

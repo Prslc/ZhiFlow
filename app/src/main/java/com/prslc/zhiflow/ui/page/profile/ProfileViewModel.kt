@@ -5,19 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.ZhihuUser
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
-    /**
-     * UI state for the user
-     */
     data class UserUiState(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,
-        val error: Throwable? = null
+        val error: ApiException? = null
     )
 
     var uiState by mutableStateOf(UserUiState())
@@ -31,7 +31,8 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
                     uiState = uiState.copy(user = user, isLoading = false)
                 }
                 .onFailure { e ->
-                    uiState = uiState.copy(error = e, isLoading = false)
+                    if (e is CancellationException) throw e
+                    uiState = uiState.copy(error = e.toApiException(), isLoading = false)
                 }
         }
     }
