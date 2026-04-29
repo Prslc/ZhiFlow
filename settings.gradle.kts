@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ZhiFlow"
 include(":app")
-include(":app:baselineprofile")
+ 

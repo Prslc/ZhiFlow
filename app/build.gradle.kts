@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.baselineprofile)
 }
 
 val localProperties = Properties().apply {
@@ -26,7 +25,7 @@ val escapedCookie = rawCookie.replace("\"", "\\\"")
 @file:Suppress("UnstableApiUsage")
 android {
     namespace = "com.prslc.zhiflow"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.prslc.zhiflow"
@@ -57,8 +56,10 @@ android {
         }
 
         debug {
+            applicationIdSuffix = ".debug"
             isDebuggable = true
             isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
     compileOptions {
@@ -93,7 +94,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.profileinstaller)
 
     // okhttp
     implementation(libs.okhttp.core)
@@ -115,5 +115,4 @@ dependencies {
 
     // latex
     implementation(libs.latex.renderer)
-    "baselineProfile"(project(":app:baselineprofile"))
 }
