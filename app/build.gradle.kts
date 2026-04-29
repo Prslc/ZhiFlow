@@ -25,7 +25,7 @@ val escapedCookie = rawCookie.replace("\"", "\\\"")
 @file:Suppress("UnstableApiUsage")
 android {
     namespace = "com.prslc.zhiflow"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.prslc.zhiflow"
@@ -56,21 +56,13 @@ android {
         }
 
         debug {
-            applicationIdSuffix = ".debug"
             isDebuggable = true
             isMinifyEnabled = false
-            isShrinkResources = false
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    packaging {
-        resources {
-            excludes += "**"
-        }
     }
 
     buildFeatures {
