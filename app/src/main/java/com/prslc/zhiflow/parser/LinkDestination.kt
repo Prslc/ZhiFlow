@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.parser
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
 import com.prslc.zhiflow.ui.navigation.AnswerDetail
 import com.prslc.zhiflow.ui.navigation.ArticleDetail
@@ -7,13 +9,16 @@ import com.prslc.zhiflow.ui.navigation.PeopleDetail
 import com.prslc.zhiflow.ui.navigation.PinDetail
 import com.prslc.zhiflow.ui.navigation.QuestionDetail
 
+@Stable
 sealed class LinkDestination {
     // Internal route object (e.g. PeopleDetail)
     data class Internal(val route: Any) : LinkDestination()
     // Fallback external URL
+    @Immutable
     data class External(val url: String) : LinkDestination()
 }
 
+@Stable
 object LinkParser {
     fun parse(url: String, contentType: String? = null): LinkDestination {
         val uri = url.toUri()

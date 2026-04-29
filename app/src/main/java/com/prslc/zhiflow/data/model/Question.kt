@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -16,6 +17,7 @@ data class QuestionDetail(
     @SerialName("updated_time") val updatedTime: Long = 0L
 )
 
+@Immutable
 @Serializable
 data class Topic(
     val id: String,

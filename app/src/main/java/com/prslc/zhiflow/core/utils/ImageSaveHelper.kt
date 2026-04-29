@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.core.utils
 
+import androidx.compose.runtime.Stable
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -14,6 +15,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 
+@Stable
 object ImageSaveHelper {
 
     suspend fun saveImageToGallery(context: Context, url: String): Result<Unit> =

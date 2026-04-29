@@ -1,9 +1,12 @@
 package com.prslc.zhiflow.parser.model
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.data.model.ZhihuImage
 
+@Immutable
 data class InlineFormulaMeta(
     val formula: Formula,
     val inlineId: String
@@ -14,17 +17,24 @@ data class ProcessedText(
     val inlineMetas: List<InlineFormulaMeta> = emptyList()
 )
 
+@Stable
 sealed class DetailElement {
+    @Immutable
     data class Text(val content: AnnotatedString) : DetailElement()
     data class Image(val image: ZhihuImage) : DetailElement()
 }
 
+@Stable
 sealed interface RichTextElement {
+    @Immutable
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     data class Image(val data: ZhihuImage) : RichTextElement
+    @Immutable
     data class FormulaBlock(val data: Formula) : RichTextElement
+    @Immutable
     data class Code(val code: String, val lang: String?) : RichTextElement
     data class Reference(val items: List<AnnotatedString>) : RichTextElement
+    @Immutable
     data object Divider : RichTextElement
 
     data class Blockquote(
@@ -52,6 +62,7 @@ sealed interface RichTextElement {
         val hasHeader: Boolean
     ) : RichTextElement
 
+    @Immutable
     data class Card(
         val cardType: String,
         val title: String,

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.content
 
+import androidx.compose.runtime.Immutable
 import android.util.LruCache
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ class ContentViewModel(
     var loadingState by mutableStateOf(LoadingState())
         private set
 
+    @Immutable
     data class InteractionState(
         val isUpvoted: Boolean = false,
         val isDownvoted: Boolean = false,
@@ -53,6 +55,7 @@ class ContentViewModel(
     var richTextElements by mutableStateOf<List<RichTextElement>>(emptyList())
         private set
 
+    @Immutable
     data class PresentationState(
         val showCollectionSheet: Boolean = false,
         val showComments: Boolean = false,

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,6 +18,7 @@ data class ZhihuAnswer(
         get() = question?.title ?: "No title"
 }
 
+@Immutable
 @Serializable
 data class AnswerAuthor(
     val fullname: String = "",
@@ -31,11 +33,13 @@ data class AnswerAuthor(
     val avatar: AvatarContainer? = null
 )
 
+@Immutable
 @Serializable
 data class AvatarContainer(
     @SerialName("avatar_image") val avatarImage: AvatarImage? = null
 )
 
+@Immutable
 @Serializable
 data class AvatarImage(
     val day: String? = null,
@@ -44,27 +48,32 @@ data class AvatarImage(
     val height: Int = 0
 )
 
+@Immutable
 @Serializable
 data class Header(
     val text: String, // question title
     @SerialName("sub_title") val subTitle: SubTitle? = null
 )
 
+@Immutable
 @Serializable
 data class SubTitle(val text: String)
 
+@Immutable
 @Serializable
 data class Reaction(
     val statistics: Statistics,
     val relation: Relation? = null
 )
 
+@Immutable
 @Serializable
 data class Relation(
     val vote: String? = "NEUTRAL",
     val faved: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class Statistics(
     @SerialName("favorites") val favoritesCount: Int,
@@ -72,6 +81,7 @@ data class Statistics(
     @SerialName("comment_count") val commentCount: Int,
 )
 
+@Immutable
 @Serializable
 data class ContentEndInfo(
     @SerialName("ip_info") val ipInfo: String,
@@ -88,6 +98,7 @@ data class ZhihuImage(
     @SerialName("is_gif") val isGif: Boolean,
 )
 
+@Immutable
 @Serializable
 data class ZhihuQuestion(
     val id: String,
