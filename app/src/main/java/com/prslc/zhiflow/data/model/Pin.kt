@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,6 +31,7 @@ data class ZhihuPin(
         get() = header?.text ?: excerpt?.take(20) ?: "Pin Content"
 }
 
+@Immutable
 @Serializable
 data class PinHeader(
     @SerialName("text") val text: String = "",
@@ -39,6 +41,7 @@ data class PinHeader(
     @SerialName("bold") val bold: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class PinCommentConfig(
     @SerialName("place_holder") val placeHolder: String? = null,
@@ -46,6 +49,7 @@ data class PinCommentConfig(
     @SerialName("can_segment_reply") val canSegmentReply: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class RelationshipTips(
     val text: String = "",

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -31,6 +32,7 @@ data class ZhihuComment(
     @SerialName("featured") val isFeatured: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class CommentCounts(
     @SerialName("total_counts") val total: Int = 0,
@@ -39,6 +41,7 @@ data class CommentCounts(
     @SerialName("segment_comment_counts") val segment: Int = 0
 )
 
+@Immutable
 @Serializable
 data class CommentAuthor(
     val id: String,
@@ -49,18 +52,21 @@ data class CommentAuthor(
     @SerialName("user_type") val userType: String? = null
 )
 
+@Immutable
 @Serializable
 data class VipInfo(
     @SerialName("is_vip") val isVip: Boolean = false,
     @SerialName("vip_icon") val vipIcon: VipIcon? = null
 )
 
+@Immutable
 @Serializable
 data class VipIcon(
     val url: String? = null,
     @SerialName("night_mode_url") val nightUrl: String? = null
 )
 
+@Immutable
 @Serializable
 data class ExposedMedal(
     @SerialName("medal_id") val id: String = "",
@@ -75,6 +81,7 @@ data class AtmosphereConfig(
     val detail: List<AtmosphereEmoji> = emptyList()
 )
 
+@Immutable
 @Serializable
 data class AtmosphereEmoji(
     @SerialName("emoji_level") val level: String = "",
@@ -82,12 +89,14 @@ data class AtmosphereEmoji(
     @SerialName("normal_icon") val icon: String = ""
 )
 
+@Immutable
 @Serializable
 data class CommentTag(
     val type: String,   // ip
     val text: String    // ip address
 )
 
+@Immutable
 @Serializable
 data class Author(
     val id: String,

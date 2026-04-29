@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -33,6 +34,7 @@ data class ThumbnailInfo(
     val thumbnails: List<ZhihuThumbnail> = emptyList()
 )
 
+@Immutable
 @Serializable
 data class ZhihuThumbnail(
     val url: String,

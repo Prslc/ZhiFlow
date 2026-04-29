@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.parser
 
+import androidx.compose.runtime.Stable
 import com.prslc.zhiflow.core.utils.JsonHelper
 import com.prslc.zhiflow.data.model.Card
 import com.prslc.zhiflow.data.model.Mark
@@ -11,6 +12,7 @@ import com.prslc.zhiflow.parser.engine.TableParser
 import com.prslc.zhiflow.parser.model.ProcessedText
 import com.prslc.zhiflow.parser.model.RichTextElement
 
+@Stable
 object ContentParser {
     fun transform(
         segments: List<Segment>,

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.TextUnit
 import kotlinx.serialization.SerialName
@@ -52,6 +53,7 @@ data class Heading(
     val marks: List<Mark> = emptyList()
 )
 
+@Immutable
 @Serializable
 data class Mark(
     val type: String, // bold, italic, code, link, entity_word, formula, reference
@@ -69,6 +71,7 @@ data class Blockquote(
     val marks: List<Mark> = emptyList()
 )
 
+@Immutable
 @Serializable
 data class CodeBlock(
     val content: String,
@@ -97,12 +100,14 @@ data class Table(
     val interlaced: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class Link(
     val href: String,
     @SerialName("icon_name") val iconName: String? = null
 )
 
+@Immutable
 @Serializable
 data class EntityWord(
     val word: String,
@@ -110,6 +115,7 @@ data class EntityWord(
     @SerialName("entity_id") val entityId: String? = null
 )
 
+@Immutable
 @Serializable
 data class Formula(
     val content: String, // LaTeX
@@ -118,6 +124,7 @@ data class Formula(
     val height: Int = 0
 )
 
+@Immutable
 data class FormulaRenderMeta(
     val formula: Formula,
     val inlineId: String,
@@ -130,6 +137,7 @@ data class RichTextState(
     val formulaMetas: List<FormulaRenderMeta>
 )
 
+@Immutable
 @Serializable
 data class Reference(
     val index: Int,
@@ -137,6 +145,7 @@ data class Reference(
     val href: String? = null
 )
 
+@Immutable
 @Serializable
 data class Card(
     @SerialName("card_type") val cardType: String, // link-card, free_column_card, etc.
@@ -148,6 +157,7 @@ data class Card(
     val cover: String? = null,
 )
 
+@Immutable
 @Serializable
 data class CardExtraInfo(
     val title: String? = null,

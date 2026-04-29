@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,6 +11,7 @@ data class CollectionResponse(
     val totals: Int = 0
 )
 
+@Immutable
 @Serializable
 data class ZhihuCollection(
     val id: Long,
@@ -23,6 +25,7 @@ data class ZhihuCollection(
     val creator: AnswerAuthor? = null
 )
 
+@Immutable
 @Serializable
 data class Paging(
     @SerialName("is_end") val isEnd: Boolean = false,

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,6 +18,7 @@ data class ZhihuArticle(
         get() = header?.text ?: "No Title"
 }
 
+@Immutable
 @Serializable
 data class ArticleHeader(
     @SerialName("text") val text: String = ""

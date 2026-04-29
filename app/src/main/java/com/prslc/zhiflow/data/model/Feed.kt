@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,6 +10,7 @@ data class ZhihuResponse(
     val paging: PagingData = PagingData()
 )
 
+@Immutable
 @Serializable
 data class PagingData(
     @SerialName("is_end") val isEnd: Boolean = false,
@@ -16,12 +18,14 @@ data class PagingData(
     val previous: String? = null // pre page
 )
 
+@Immutable
 @Serializable
 data class FeedItem(
     val target: FeedTarget? = null,
     val type: String? = null
 )
 
+@Immutable
 @Serializable
 data class FeedTarget(
     val id: Long? = 0,
@@ -35,9 +39,11 @@ data class FeedTarget(
     @SerialName("comment_count") val commentCount: Int = 0  // comment count
 )
 
+@Immutable
 @Serializable
 data class Question(val title: String? = null)
 
+@Immutable
 @Serializable
 data class FeedAuthor(
     val name: String = "Anonymous user",

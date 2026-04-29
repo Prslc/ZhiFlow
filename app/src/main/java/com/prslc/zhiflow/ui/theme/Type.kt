@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.theme
 
+import androidx.compose.runtime.Stable
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -37,6 +38,7 @@ val Typography = Typography(
     */
 )
 
+@Stable
 object TextStyles {
     val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
     val italicStyle = SpanStyle(fontStyle = FontStyle.Italic)
