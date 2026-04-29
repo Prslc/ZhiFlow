@@ -12,6 +12,7 @@ data class InlineFormulaMeta(
     val inlineId: String
 )
 
+@Stable
 data class ProcessedText(
     val content: AnnotatedString,
     val inlineMetas: List<InlineFormulaMeta> = emptyList()
@@ -21,6 +22,7 @@ data class ProcessedText(
 sealed class DetailElement {
     @Immutable
     data class Text(val content: AnnotatedString) : DetailElement()
+    @Stable
     data class Image(val image: ZhihuImage) : DetailElement()
 }
 
@@ -28,20 +30,24 @@ sealed class DetailElement {
 sealed interface RichTextElement {
     @Immutable
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
+    @Stable
     data class Image(val data: ZhihuImage) : RichTextElement
     @Immutable
     data class FormulaBlock(val data: Formula) : RichTextElement
     @Immutable
     data class Code(val code: String, val lang: String?) : RichTextElement
+    @Stable
     data class Reference(val items: List<AnnotatedString>) : RichTextElement
     @Immutable
     data object Divider : RichTextElement
 
+    @Stable
     data class Blockquote(
         val content: AnnotatedString,
         val inlineMetas: List<InlineFormulaMeta>
     ) : RichTextElement
 
+    @Stable
     data class BulletItem(
         val content: AnnotatedString,
         val inlineMetas: List<InlineFormulaMeta>,
@@ -50,11 +56,13 @@ sealed interface RichTextElement {
         val index: Int = 0
     ) : RichTextElement
 
+    @Stable
     data class TableCell(
         val content: AnnotatedString,
         val inlineMetas: List<InlineFormulaMeta>
     )
 
+    @Stable
     data class Table(
         val rows: Int,
         val cols: Int,
@@ -72,6 +80,7 @@ sealed interface RichTextElement {
         val contentType: String?
     ) : RichTextElement
 
+    @Stable
     data class ParsedText(
         val content: AnnotatedString,
         val inlineMetas: List<InlineFormulaMeta>

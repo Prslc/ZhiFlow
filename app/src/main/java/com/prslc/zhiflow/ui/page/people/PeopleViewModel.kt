@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.people
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +15,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
 
+    @Stable
     data class PeopleUiState(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,

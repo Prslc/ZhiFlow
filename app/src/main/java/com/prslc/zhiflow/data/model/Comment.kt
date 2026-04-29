@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -13,11 +14,13 @@ data class CommentResponse(
     @SerialName("atmosphere_voting_config") val atmosphere: AtmosphereConfig? = null
 )
 
+@Stable
 data class CommentContent(
     val text: AnnotatedString,
     val images: List<ZhihuImage>
 )
 
+@Stable
 @Serializable
 data class ZhihuComment(
     val id: String,

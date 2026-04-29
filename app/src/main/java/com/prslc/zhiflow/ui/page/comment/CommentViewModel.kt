@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.comment
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,6 +21,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
 
+    @Stable
     data class CommentUiState(
         val isLoading: Boolean = false,
         val comments: List<CommentUiModel> = emptyList(),
@@ -33,6 +35,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val navigateToUser: String? = null
     )
 
+    @Stable
     data class ChildCommentUiState(
         val isLoading: Boolean = false,
         val comments: List<CommentUiModel> = emptyList(),
@@ -42,6 +45,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val isDetailMode: Boolean = false
     )
 
+    @Stable
     data class CommentUiModel(
         val comment: ZhihuComment,
         val parsedContent: CommentContent

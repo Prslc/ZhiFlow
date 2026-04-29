@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.question
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,6 +22,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class QuestionViewModel(private val repository: QuestionRepository) : ViewModel() {
 
+    @Stable
     data class QuestionUiState(
         val isLoading: Boolean = false,
         val isNextLoading: Boolean = false,
