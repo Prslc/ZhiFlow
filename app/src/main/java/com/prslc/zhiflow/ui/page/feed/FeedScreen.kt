@@ -47,10 +47,14 @@ fun FeedScreen(
     // init
     AutoLoadMoreEffect(viewModel)
 
+    val onRefresh = remember { { viewModel.refresh() } }
+    val onLoadMoreRetry = remember { { viewModel.loadMore() } }
+    val onErrorRetry = remember { { viewModel.refresh() } }
+
     Box(Modifier.fillMaxSize()) {
         PullToRefreshBox(
             isRefreshing = isRefreshing && !isEmpty,
-            onRefresh = { viewModel.refresh() },
+            onRefresh = onRefresh,
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
@@ -71,7 +75,7 @@ fun FeedScreen(
                     pagingFooter(
                         isLoading = isNextLoading,
                         error = apiError,
-                        onRetry = { viewModel.loadMore() }
+                        onRetry = onLoadMoreRetry
                     )
                 }
             }
@@ -85,7 +89,7 @@ fun FeedScreen(
 
                 apiError != null -> ErrorView(
                     message = apiError.uiMessage,
-                    onRetry = { viewModel.refresh() },
+                    onRetry = onErrorRetry,
                     modifier = Modifier.fillMaxSize()
                 )
             }

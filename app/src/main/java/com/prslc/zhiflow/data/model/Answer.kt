@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -89,6 +90,7 @@ data class ContentEndInfo(
     @SerialName("update_time_text") val updateTime: String? = null
 )
 
+@Stable
 @Serializable
 data class ZhihuImage(
     val urls: List<String>,

@@ -220,6 +220,12 @@ fun ContentDetailScreen(
                         exit = slideOutVertically(targetOffsetY = { it }),
                     ) {
                         currentContent?.let { content ->
+                            val onVoteClick = remember {
+                                { action: String -> viewModel.vote(action, contentType) }
+                            }
+                            val onStarClick = remember { { viewModel.openCollection() } }
+                            val onCommentClick = remember { { viewModel.openComments() } }
+
                             BottomBar(
                                 isUpvoted = interaction.isUpvoted,
                                 isDownvoted = interaction.isDownvoted,
@@ -229,11 +235,9 @@ fun ContentDetailScreen(
                                     ?: 0,
                                 commentCount = content.reaction?.statistics?.commentCount
                                     ?: 0,
-                                onVoteClick = { action ->
-                                    viewModel.vote(action, contentType)
-                                },
-                                onStarClick = { viewModel.openCollection() },
-                                onCommentClick = { viewModel.openComments() }
+                                onVoteClick = onVoteClick,
+                                onStarClick = onStarClick,
+                                onCommentClick = onCommentClick
                             )
                         }
                     }

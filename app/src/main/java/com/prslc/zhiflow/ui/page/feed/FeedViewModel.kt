@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.feed
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +16,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
 
+    @Stable
     data class FeedUiState(
         val items: List<FeedItem> = emptyList(),
         val isRefreshing: Boolean = false,

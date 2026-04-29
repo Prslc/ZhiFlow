@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -114,15 +115,16 @@ fun CommentBottomSheet(
                                         .invokeOnCompletion { onDismissRequest() }
                                 }
                             )
+                            val onLoadMoreRoot = remember(id, contentType) {
+                                { viewModel.loadComments(id, contentType) }
+                            }
                             CommentList(
                                 modifier = Modifier.weight(1f),
                                 viewModel = viewModel,
                                 comments = uiState.comments,
                                 isLoading = uiState.isLoading,
                                 hasMore = uiState.hasMore,
-                                onLoadMore = {
-                                    viewModel.loadComments(id, contentType)
-                                },
+                                onLoadMore = onLoadMoreRoot,
                                 state = rootListState,
                             )
                         }
@@ -142,6 +144,7 @@ fun CommentBottomSheet(
                                 isBackStyle = true
                             )
 
+                            val onLoadMoreChild = remember { { viewModel.loadMoreReplies() } }
                             CommentList(
                                 modifier = Modifier.weight(1f),
                                 viewModel = viewModel,
@@ -149,7 +152,7 @@ fun CommentBottomSheet(
                                 isLoading = childUiState.isLoading,
                                 hasMore = childUiState.hasMore,
                                 rootComment = childUiState.rootComment,
-                                onLoadMore = { viewModel.loadMoreReplies() },
+                                onLoadMore = onLoadMoreChild,
                                 state = childListState,
                                 isChild = true,
                             )

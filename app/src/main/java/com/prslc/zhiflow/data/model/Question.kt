@@ -1,9 +1,11 @@
 package com.prslc.zhiflow.data.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Stable
 @Serializable
 data class QuestionDetail(
     val id: Long,

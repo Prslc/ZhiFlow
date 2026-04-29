@@ -1,15 +1,18 @@
 package com.prslc.zhiflow.data.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Stable
 @Serializable
 data class QuestionFeedResponse(
     val data: List<QuestionFeedItem>,
     val paging: Paging
 )
 
+@Stable
 @Serializable
 data class QuestionFeedItem(
     val type: String, // "question_feed_card"
@@ -17,6 +20,7 @@ data class QuestionFeedItem(
     val target: AnswerTarget
 )
 
+@Stable
 @Serializable
 data class AnswerTarget(
     val id: String,
@@ -29,6 +33,7 @@ data class AnswerTarget(
     @SerialName("thumbnail_info") val thumbnailInfo: ThumbnailInfo? = null
 )
 
+@Stable
 @Serializable
 data class ThumbnailInfo(
     val thumbnails: List<ZhihuThumbnail> = emptyList()

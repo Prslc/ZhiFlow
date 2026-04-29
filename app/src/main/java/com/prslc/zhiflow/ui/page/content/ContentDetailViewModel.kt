@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.content
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import android.util.LruCache
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,7 @@ class ContentViewModel(
         private val parsingCache = LruCache<String, List<RichTextElement>>(20)
     }
 
+    @Stable
     data class LoadingState(
         val isLoading: Boolean = false,
         val content: ZhihuContent? = null,
