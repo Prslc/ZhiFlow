@@ -55,6 +55,8 @@ fun CollectionDialog(
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
         ) {
+            val state = viewModel.uiState
+
             Column(modifier = Modifier.padding(vertical = 16.dp)) {
                 // Header
                 Text(
@@ -72,11 +74,11 @@ fun CollectionDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     when {
-                        viewModel.isLoading && viewModel.collectionList.isEmpty() -> {
+                        state.isLoading && state.collections.isEmpty() -> {
                             CircularProgressIndicator(strokeWidth = 3.dp)
                         }
 
-                        viewModel.collectionList.isEmpty() -> {
+                        state.collections.isEmpty() -> {
                             Text(
                                 text = stringResource(R.string.collection_item_empty),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -87,7 +89,7 @@ fun CollectionDialog(
                         else -> {
                             LazyColumn {
                                 items(
-                                    items = viewModel.collectionList,
+                                    items = state.collections,
                                     key = { it.id }
                                 ) { collection ->
                                     CollectionItem(
@@ -95,9 +97,9 @@ fun CollectionDialog(
                                         itemCount = collection.itemCount,
                                         isPublic = collection.isPublic,
                                         isDefault = collection.isDefault,
-                                        isSelected = viewModel.selectedIds.contains(collection.id),
+                                        isSelected = state.selectedIds[collection.id] == true,
                                         onToggle = {
-                                            if (!viewModel.isLoading) {
+                                            if (!state.isLoading) {
                                                 viewModel.toggleSelection(collection.id)
                                             }
                                         }
@@ -129,9 +131,9 @@ fun CollectionDialog(
                                 onDismissRequest()
                             }
                         },
-                        enabled = !viewModel.isLoading && viewModel.hasChanges()
+                        enabled = !state.isLoading && viewModel.hasChanges()
                     ) {
-                        if (viewModel.isLoading && viewModel.collectionList.isNotEmpty()) {
+                        if (state.isLoading && state.collections.isNotEmpty()) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),
                                 strokeWidth = 2.dp

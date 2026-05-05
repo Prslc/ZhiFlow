@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.ui.page.content
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -12,40 +12,45 @@ import com.prslc.zhiflow.data.repository.CollectionRepository
 import kotlinx.coroutines.launch
 
 class CollectionViewModel(private val repository: CollectionRepository) : ViewModel() {
-    var collectionList by mutableStateOf<List<ZhihuCollection>>(emptyList())
+
+    @Stable
+    data class CollectionUiState(
+        val collections: List<ZhihuCollection> = emptyList(),
+        val selectedIds: Map<Long, Boolean> = emptyMap(),
+        val isLoading: Boolean = false
+    )
+
+    var uiState by mutableStateOf(CollectionUiState())
         private set
 
-    private val _selectedIds = mutableStateMapOf<Long, Boolean>()
-    val selectedIds: Set<Long> get() = _selectedIds.filterValues { it }.keys
-
-    var isLoading by mutableStateOf(false)
-        private set
+    val selectedIds: Set<Long> get() = uiState.selectedIds.filterValues { it }.keys
 
     fun hasChanges(): Boolean {
-        val initialIds = collectionList.filter { it.isFavorited }.map { it.id }.toSet()
+        val initialIds = uiState.collections.filter { it.isFavorited }.map { it.id }.toSet()
         return initialIds != selectedIds
     }
 
     fun toggleSelection(id: Long) {
-        val current = _selectedIds[id] ?: false
-        _selectedIds[id] = !current
+        val current = uiState.selectedIds[id] ?: false
+        uiState = uiState.copy(
+            selectedIds = uiState.selectedIds + (id to !current)
+        )
     }
 
     fun loadCollections(contentId: String, contentType: ContentType) {
         viewModelScope.launch {
-            try {
-                isLoading = true
-                repository.getCollections(contentId, contentType)
-                    .onSuccess { response ->
-                        collectionList = response.data
-                        _selectedIds.clear()
-                        response.data.forEach {
-                            _selectedIds[it.id] = it.isFavorited
-                        }
-                    }
-            } finally {
-                isLoading = false
-            }
+            uiState = uiState.copy(isLoading = true)
+            repository.getCollections(contentId, contentType)
+                .onSuccess { response ->
+                    uiState = uiState.copy(
+                        collections = response.data,
+                        selectedIds = response.data.associate { it.id to it.isFavorited },
+                        isLoading = false
+                    )
+                }
+                .onFailure {
+                    uiState = uiState.copy(isLoading = false)
+                }
         }
     }
 
@@ -54,7 +59,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         contentType: ContentType,
         onComplete: (isFaved: Boolean) -> Unit
     ) {
-        val initialIds = collectionList.filter { it.isFavorited }.map { it.id }.toSet()
+        val initialIds = uiState.collections.filter { it.isFavorited }.map { it.id }.toSet()
         val currentIds = selectedIds
 
         val addIds = (currentIds - initialIds).toList()
@@ -66,7 +71,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         }
 
         viewModelScope.launch {
-            isLoading = true
+            uiState = uiState.copy(isLoading = true)
             try {
                 val success = repository.updateCollections(contentId, contentType, addIds, removeIds)
                 if (success) {
@@ -74,7 +79,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
                     loadCollections(contentId, contentType)
                 }
             } finally {
-                isLoading = false
+                uiState = uiState.copy(isLoading = false)
             }
         }
     }
