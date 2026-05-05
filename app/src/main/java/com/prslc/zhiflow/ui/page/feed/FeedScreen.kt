@@ -36,22 +36,17 @@ fun FeedScreen(
     viewModel: FeedViewModel = koinViewModel(),
     onItemClick: (String, String) -> Unit
 ) {
-    val uiState = viewModel.uiState
-
-    val items = uiState.items
-    val apiError = uiState.error
-    val isRefreshing = uiState.isRefreshing
-    val isNextLoading = uiState.isNextLoading
-    val isEmpty = items.isEmpty()
-
     // init
     AutoLoadMoreEffect(viewModel)
 
     val onRefresh = remember { { viewModel.refresh() } }
     val onLoadMoreRetry = remember { { viewModel.loadMore() } }
-    val onErrorRetry = remember { { viewModel.refresh() } }
 
     Box(Modifier.fillMaxSize()) {
+        val items = viewModel.uiState.items
+        val isRefreshing = viewModel.uiState.isRefreshing
+        val isEmpty = items.isEmpty()
+
         PullToRefreshBox(
             isRefreshing = isRefreshing && !isEmpty,
             onRefresh = onRefresh,
@@ -71,28 +66,27 @@ fun FeedScreen(
                     }
                 }
 
-                if (items.isNotEmpty()) {
+                if (!isEmpty) {
                     pagingFooter(
-                        isLoading = isNextLoading,
-                        error = apiError,
+                        isLoading = viewModel.uiState.isNextLoading,
+                        error = viewModel.uiState.error,
                         onRetry = onLoadMoreRetry
                     )
                 }
             }
         }
 
-        if (items.isEmpty()) {
-            when {
-                isRefreshing -> {
-                    LoadingView(modifier = Modifier.fillMaxSize())
-                }
+        if (isEmpty && isRefreshing) {
+            LoadingView(modifier = Modifier.fillMaxSize())
+        }
 
-                apiError != null -> ErrorView(
-                    message = apiError.uiMessage,
-                    onRetry = onErrorRetry,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+        val error = viewModel.uiState.error
+        if (isEmpty && error != null && !isRefreshing) {
+            ErrorView(
+                message = error.uiMessage,
+                onRetry = { viewModel.refresh() },
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
