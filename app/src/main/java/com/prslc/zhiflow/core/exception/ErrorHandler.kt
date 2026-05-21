@@ -15,6 +15,7 @@ import java.io.IOException
  */
 fun Throwable.toApiException(): ApiException {
     return when (this) {
+        is HttpStatusException -> response.toApiException() ?: ApiException.UnknownException()
         is IOException -> ApiException.NetworkException()
         is ApiException -> this
         else -> ApiException.UnknownException()

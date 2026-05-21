@@ -2,10 +2,9 @@ package com.prslc.zhiflow.data.service
 
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.apiUrl
+import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ReadHistoryRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,24 +21,18 @@ class ActionService(private val okHttpClient: OkHttpClient) {
      * Adds a content item to the user's read history.
      *
      * @param request The history data to be sent.
-     * @return True if the server responded with a 2xx status code.
+     * @return A [Result] containing true if the server responded with a 2xx status code.
      */
-    suspend fun addReadHistory(request: ReadHistoryRequest): Boolean = withContext(Dispatchers.IO) {
-        try {
+    suspend fun addReadHistory(request: ReadHistoryRequest): Result<Boolean> =
+        okHttpClient.safeExecute {
             val jsonBody = Client.jsonInstance.encodeToString(request)
             val body = jsonBody.toRequestBody(jsonMediaType)
 
-            val httpRequest = Request.Builder()
+            Request.Builder()
                 .apiUrl("/read_history/add")
                 .post(body)
                 .build()
-
-            val response = okHttpClient.newCall(httpRequest).execute()
-            response.use { it.isSuccessful }
-        } catch (e: Exception) {
-            false
-        }
-    }
+        }.map { response -> response.use { it.isSuccessful } }
 
     /**
      * Performs a voting action (upvote, downvote, or cancel) on a specific content type.
@@ -48,26 +41,19 @@ class ActionService(private val okHttpClient: OkHttpClient) {
      * @param contentType The type of content as defined in [ContentType].
      * @param action The vote action (e.g., "up", "down", "neutral").
      * @param method The HTTP method (POST or DELETE), defaults to POST.
-     * @return True if the action succeeded.
+     * @return A [Result] containing true if the action succeeded.
      */
     suspend fun voteAction(
         id: String,
         contentType: ContentType,
         action: String,
         method: String = "POST"
-    ): Boolean = withContext(Dispatchers.IO) {
-        try {
-            val emptyBody = "".toRequestBody(null)
+    ): Result<Boolean> = okHttpClient.safeExecute {
+        val emptyBody = "".toRequestBody(null)
 
-            val httpRequest = Request.Builder()
-                .apiUrl("/reaction/${contentType.apiPath}/$id/vote/$action")
-                .method(method, if (method == "GET") null else emptyBody)
-                .build()
-
-            val response = okHttpClient.newCall(httpRequest).execute()
-            response.use { it.isSuccessful }
-        } catch (e: Exception) {
-            false
-        }
-    }
+        Request.Builder()
+            .apiUrl("/reaction/${contentType.apiPath}/$id/vote/$action")
+            .method(method, if (method == "GET") null else emptyBody)
+            .build()
+    }.map { response -> response.use { it.isSuccessful } }
 }

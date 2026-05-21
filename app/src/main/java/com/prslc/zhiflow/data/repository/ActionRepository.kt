@@ -18,15 +18,14 @@ class ActionRepository(private val service: ActionService) {
         type: ContentType,
         action: String,
         isRevoke: Boolean = false
-    ): Result<Boolean> = runCatching {
+    ): Result<Boolean> {
         val method = if (isRevoke) "DELETE" else "POST"
-        service.voteAction(id, type, action, method)
+        return service.voteAction(id, type, action, method)
     }
 
     /**
      * Syncs the reading history of a content to the server.
      */
-    suspend fun syncHistory(request: ReadHistoryRequest): Result<Boolean> = runCatching {
+    suspend fun syncHistory(request: ReadHistoryRequest): Result<Boolean> =
         service.addReadHistory(request)
-    }
 }

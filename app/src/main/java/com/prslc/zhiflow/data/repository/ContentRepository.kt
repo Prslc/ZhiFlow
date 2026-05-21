@@ -10,7 +10,7 @@ class ContentRepository(private val service: ContentService) {
      * @param id The unique identifier of the answer
      * @return A [Result] containing [ZhihuAnswer] on success
      */
-    suspend fun getAnswer(id: String) = runCatching { service.getAnswerDetail(id)!! }
+    suspend fun getAnswer(id: String) = service.getAnswerDetail(id)
 
     /**
      * Fetch article detail by ID
@@ -18,7 +18,7 @@ class ContentRepository(private val service: ContentService) {
      * @param id The unique identifier of the article
      * @return A [Result] containing [ZhihuArticle] on success
      */
-    suspend fun getArticle(id: String) = runCatching { service.getArticleDetail(id)!! }
+    suspend fun getArticle(id: String) = service.getArticleDetail(id)
 
     /**
      * Fetch pin (thought) detail by ID
@@ -26,5 +26,5 @@ class ContentRepository(private val service: ContentService) {
      * @param id The unique identifier of the pin
      * @return A [Result] containing [ZhihuPin] on success
      */
-    suspend fun getPin(id: String) = runCatching { service.getPinDetail(id)!! }
+    suspend fun getPin(id: String) = service.getPinDetail(id)
 }

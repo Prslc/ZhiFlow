@@ -72,15 +72,14 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
 
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true)
-            try {
-                val success = repository.updateCollections(contentId, contentType, addIds, removeIds)
-                if (success) {
-                    onComplete(currentIds.isNotEmpty())
-                    loadCollections(contentId, contentType)
+            repository.updateCollections(contentId, contentType, addIds, removeIds)
+                .onSuccess { success ->
+                    if (success) {
+                        onComplete(currentIds.isNotEmpty())
+                        loadCollections(contentId, contentType)
+                    }
                 }
-            } finally {
-                uiState = uiState.copy(isLoading = false)
-            }
+            uiState = uiState.copy(isLoading = false)
         }
     }
 }

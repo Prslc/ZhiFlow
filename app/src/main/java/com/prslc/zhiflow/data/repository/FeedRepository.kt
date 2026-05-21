@@ -13,16 +13,7 @@ class FeedRepository(private val service: FeedService) {
     * @return A [Result] containing [ZhihuResponse] on success, or an exception on failure
     */
     suspend fun getFeeds(isRefresh: Boolean, nextUrl: String?): Result<ZhihuResponse> {
-        return try {
-            val response = service.getRecommendFeed(isRefresh, nextUrl)
-            if (response != null) {
-                val filteredData = response.data.filter { it.target != null }
-                Result.success(response.copy(data = filteredData))
-            } else {
-                Result.failure(Exception("Empty or invalid response from server"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return service.getRecommendFeed(isRefresh, nextUrl)
+            .map { response -> response.copy(data = response.data.filter { it.target != null }) }
     }
 }

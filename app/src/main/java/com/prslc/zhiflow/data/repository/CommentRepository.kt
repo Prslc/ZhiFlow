@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.CommentResponse
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.service.CommentService
@@ -23,20 +22,7 @@ class CommentRepository(private val service: CommentService) {
         id: String,
         type: ContentType,
         offset: String = ""
-    ): Result<CommentResponse> {
-        return try {
-            val response = service.getRootComments(id, type, offset = offset)
-            if (response != null) {
-                Result.success(response)
-            } else {
-                // You can pass a specific message or use your ApiException
-                Result.failure(Exception("Failed to fetch comments"))
-            }
-        } catch (e: Exception) {
-            // Converts IOException/etc to your custom ApiException
-            Result.failure(e.toApiException())
-        }
-    }
+    ): Result<CommentResponse> = service.getRootComments(id, type, offset = offset)
 
     /**
      * Retrieve replies for a specific comment.
@@ -48,28 +34,16 @@ class CommentRepository(private val service: CommentService) {
     suspend fun getChildComments(
         rootCommentId: String,
         offset: String = ""
-    ): Result<CommentResponse> {
-        return try {
-            val response = service.getChildComments(rootCommentId, offset)
-            if (response != null) {
-                Result.success(response)
-            } else {
-                Result.failure(Exception("Failed to fetch replies"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e.toApiException())
-        }
-    }
+    ): Result<CommentResponse> = service.getChildComments(rootCommentId, offset)
 
     /**
      * Toggle the like status of a comment.
      *
      * @param commentId Target comment ID.
      * @param isLike True to like, false to unlike.
-     * @return True if the operation succeeded.
+     * @return [Result] wrapping true if the operation succeeded.
      */
-    suspend fun toggleLike(commentId: String, isLike: Boolean): Boolean {
-        // Updated to use String as per our new CommentService implementation
+    suspend fun toggleLike(commentId: String, isLike: Boolean): Result<Boolean> {
         val method = if (isLike) "POST" else "DELETE"
 
         return service.commentReaction(
