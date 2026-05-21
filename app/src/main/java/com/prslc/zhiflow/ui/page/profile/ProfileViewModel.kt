@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.ZhihuUser
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.launch
@@ -34,7 +33,7 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
                 }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
-                    uiState = uiState.copy(error = e.toApiException(), isLoading = false)
+                    uiState = uiState.copy(error = e as? ApiException, isLoading = false)
                 }
         }
     }

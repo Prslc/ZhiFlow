@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.QuestionFeedItem
 import com.prslc.zhiflow.data.repository.QuestionRepository
@@ -71,17 +70,17 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         hasMore = feedResponse?.paging?.isEnd == false
                     )
                 } else {
-                    val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull())
+                    val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull()) as? ApiException
                     uiState = uiState.copy(
                         isLoading = false,
-                        error = error?.toApiException()
+                        error = error
                     )
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = e.toApiException()
+                    error = e as? ApiException
                 )
             }
         }
@@ -96,17 +95,13 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         viewModelScope.launch {
             repository.getQuestionFeed(id, nextUrl = url)
                 .onSuccess { response ->
-                    if (response != null) {
                         nextPageUrl = response.paging.next
                         uiState = uiState.copy(
                             isNextLoading = false,
                             answers = uiState.answers + response.data,
                             hasMore = !response.paging.isEnd
                         )
-                    } else {
-                        uiState = uiState.copy(isNextLoading = false, hasMore = false)
                     }
-                }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
                     uiState = uiState.copy(isNextLoading = false)

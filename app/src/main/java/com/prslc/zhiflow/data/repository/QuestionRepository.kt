@@ -12,9 +12,7 @@ class QuestionRepository(private val service: QuestionService) {
      * @param id The unique identifier of the question
      * @return A [Result] containing [QuestionDetail] on success, or an exception on failure
      */
-    suspend fun getQuestion(id: String) = runCatching {
-        service.getQuestionDetail(id)
-    }
+    suspend fun getQuestion(id: String): Result<QuestionDetail> = service.getQuestionDetail(id)
 
     /**
      * Fetch the answer feed for a specific question (supports pagination)
@@ -23,7 +21,6 @@ class QuestionRepository(private val service: QuestionService) {
      * @param nextUrl URL for the next page of answers; if null, fetches the first page
      * @return A [Result] containing [QuestionFeedResponse] on success, or an exception on failure
      */
-    suspend fun getQuestionFeed(id: String, nextUrl: String? = null) = runCatching {
+    suspend fun getQuestionFeed(id: String, nextUrl: String? = null): Result<QuestionFeedResponse> =
         service.getQuestionFeed(id, nextUrl)
-    }
 }

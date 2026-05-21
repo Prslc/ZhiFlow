@@ -1,7 +1,14 @@
 package com.prslc.zhiflow.core.network
 
+import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.HttpStatusException
+import com.prslc.zhiflow.core.exception.toApiException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.io.IOException
 
 /**
  * Extension properties and functions for OkHttp classes to streamline
@@ -17,19 +24,45 @@ fun Request.Builder.apiUrl(path: String): Request.Builder =
  * This function ensures that the [Response] and its underlying [okhttp3.ResponseBody]
  * are closed automatically using [.use] to prevent memory leaks.
  *
+ * Throws [HttpStatusException] on non-2xx responses, [IOException] on empty body,
+ * and propagates JSON parsing exceptions.
+ *
  * @param T The expected data model type.
- * @return The deserialized object of type [T], or null if the request was
- * unsuccessful or parsing failed.
+ * @return The deserialized object of type [T].
  */
-inline fun <reified T> Response.body(): T? {
+inline fun <reified T> Response.body(): T {
     return use { res ->
-        if (!res.isSuccessful) return null
-        val string = res.body?.string() ?: return null
-        return try {
-            Client.jsonInstance.decodeFromString<T>(string)
-        } catch (e: Exception) {
-            // Log the exception if a logger is available
-            null
-        }
+        if (!res.isSuccessful) throw HttpStatusException(res)
+        Client.jsonInstance.decodeFromString<T>(res.body.string())
+    }
+}
+
+/**
+ * Executes an OkHttp request on [Dispatchers.IO] and parses the response body.
+ * Failures (network errors, HTTP errors, parse errors) are caught and mapped
+ * to [ApiException] via [toApiException].
+ */
+suspend inline fun <reified T> OkHttpClient.safeApiCall(
+    crossinline requestBuilder: () -> Request
+): Result<T> = withContext(Dispatchers.IO) {
+    try {
+        Result.success(newCall(requestBuilder()).execute().body<T>())
+    } catch (e: Exception) {
+        Result.failure(e.toApiException())
+    }
+}
+
+/**
+ * Executes an OkHttp request on [Dispatchers.IO] and returns the raw [Response].
+ * Useful for endpoints where the caller needs to inspect the response manually
+ * (e.g., checking [Response.isSuccessful]).
+ */
+suspend fun OkHttpClient.safeExecute(
+    requestBuilder: () -> Request
+): Result<Response> = withContext(Dispatchers.IO) {
+    try {
+        Result.success(newCall(requestBuilder()).execute())
+    } catch (e: Exception) {
+        Result.failure(e.toApiException())
     }
 }

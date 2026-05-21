@@ -8,7 +8,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuComment
@@ -108,7 +107,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
-                    uiState = uiState.copy(isLoading = false, error = e.toApiException())
+                    uiState = uiState.copy(isLoading = false, error = e as? ApiException)
                 }
         }
     }
@@ -171,14 +170,16 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         pendingReactions.add(commentId)
 
         viewModelScope.launch {
-            try {
-                val success = repository.toggleLike(commentId, shouldBeActive)
-                if (!success) {
+            repository.toggleLike(commentId, shouldBeActive)
+                .onSuccess { success ->
+                    if (!success) {
+                        updateLocalStatus(commentId, isCurrentlyActive)
+                    }
+                }
+                .onFailure {
                     updateLocalStatus(commentId, isCurrentlyActive)
                 }
-            } finally {
-                pendingReactions.remove(commentId)
-            }
+            pendingReactions.remove(commentId)
         }
     }
 

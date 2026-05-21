@@ -1,13 +1,11 @@
 package com.prslc.zhiflow.data.service
 
 import com.prslc.zhiflow.core.network.apiUrl
-import com.prslc.zhiflow.core.network.body
+import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuArticle
 import com.prslc.zhiflow.data.model.ZhihuContent
 import com.prslc.zhiflow.data.model.ZhihuPin
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -25,21 +23,16 @@ class ContentService(private val okHttpClient: OkHttpClient) {
      * @param T The content model extending [ZhihuContent].
      * @param path The API endpoint prefix (e.g., "answers").
      * @param id The unique identifier of the content.
-     * @return The deserialized content object or null on failure.
+     * @return A [Result] containing the deserialized content object on success.
      */
     private suspend inline fun <reified T : ZhihuContent> fetchContent(
         path: String,
         id: String
-    ): T? = withContext(Dispatchers.IO) {
-        try {
-            val request = Request.Builder()
-                .apiUrl("/$path/v2/$id")
-                .get()
-                .build()
-            okHttpClient.newCall(request).execute().body<T>()
-        } catch (e: Exception) {
-            null
-        }
+    ): Result<T> = okHttpClient.safeApiCall {
+        Request.Builder()
+            .apiUrl("/$path/v2/$id")
+            .get()
+            .build()
     }
 
     /** Fetches details for a Zhihu Answer. */

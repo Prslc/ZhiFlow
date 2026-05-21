@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.ZhihuContent
@@ -108,7 +107,7 @@ class ContentViewModel(
                 parseRichText()
             }.onFailure { e ->
                 if (e is CancellationException) throw e
-                loadingState = loadingState.copy(isLoading = false, error = e.toApiException())
+                loadingState = loadingState.copy(isLoading = false, error = e as? ApiException)
             }
         }
     }

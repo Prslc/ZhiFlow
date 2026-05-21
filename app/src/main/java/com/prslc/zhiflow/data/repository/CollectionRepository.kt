@@ -11,11 +11,8 @@ class CollectionRepository(private val service: CollectionService) {
      * @param id Content ID
      * @param type Content type ([ContentType.ANSWER] or [ContentType.ARTICLE])
      */
-    suspend fun getCollections(id: String, type: ContentType): Result<CollectionResponse> {
-        val data = service.getCollectionsForContent(id, type)
-        return if (data != null) Result.success(data)
-        else Result.failure(Exception("Failed to retrieve favorites"))
-    }
+    suspend fun getCollections(id: String, type: ContentType): Result<CollectionResponse> =
+        service.getCollectionsForContent(id, type)
 
     /**
      * Update the collection status (add/remove) of a content item
@@ -29,7 +26,7 @@ class CollectionRepository(private val service: CollectionService) {
         type: ContentType,
         add: List<Long>,
         remove: List<Long>
-    ): Boolean {
+    ): Result<Boolean> {
         return service.updateContentCollections(
             id = id,
             contentType = type,
