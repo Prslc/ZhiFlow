@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.core.network
 
 import com.prslc.zhiflow.BuildConfig
+import com.prslc.zhiflow.core.network.HeaderProvider.zse96
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
@@ -20,13 +21,19 @@ object Client {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .header("Cookie", BuildConfig.cookie)
+                val original = chain.request()
+                val urlPath = original.url.encodedPath + original.url.encodedQuery?.let { "?$it" }.orEmpty()
+                val auth = BuildConfig.authorization
+
+                val request = original.newBuilder()
                     .header("User-Agent", BuildConfig.ua)
-                    .header("Authorization", BuildConfig.authorization)
-                    .header("x-zse-96", BuildConfig.x_zse_96)
-                    .header("x-zse-93", BuildConfig.x_zse_93)
+                    .header("x-app-version", HeaderProvider.APP_VERSION)
                     .header("x-app-za", HeaderProvider.xAppZa)
+                    .header("x-udid", BuildConfig.x_udid)
+                    .header("Cookie", BuildConfig.cookie)
+                    .header("Authorization", auth)
+                    .header("x-zse-96", zse96(auth, urlPath))
+                    .header("x-zse-93", HeaderProvider.ZSE_93)
                     .build()
                 chain.proceed(request)
             }
