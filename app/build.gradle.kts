@@ -1,5 +1,6 @@
 @file:Suppress("ANNOTATION_WITH_USE_SITE_TARGET_ON_EXPRESSION_WARNING")
 
+import com.android.build.gradle.tasks.PackageAndroidArtifact
 import java.util.Properties
 
 plugins {
@@ -34,6 +35,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        ndk {
+            abiFilters.add("arm64-v8a")
+        }
+
         buildConfigField("String", "cookie", "\"$escapedCookie\"")
         buildConfigField("String", "ua", "\"$ua\"")
         buildConfigField("String", "authorization", "\"$authorization\"")
@@ -63,6 +68,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
+    packaging {
+        resources { excludes += "**" }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -71,6 +80,11 @@ android {
     android.sourceSets.named("main") {
         jniLibs.directories += "libs"
     }
+}
+
+// https://stackoverflow.com/a/77745844
+tasks.withType<PackageAndroidArtifact> {
+    doFirst { appMetadata.asFile.orNull?.writeText("") }
 }
 
 dependencies {
