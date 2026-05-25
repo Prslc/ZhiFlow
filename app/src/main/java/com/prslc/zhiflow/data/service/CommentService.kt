@@ -76,5 +76,5 @@ class CommentService(private val okHttpClient: OkHttpClient) {
                 .apiUrl("/reaction/comments/$commentId/$action")
                 .method(method, if (method == "GET") null else emptyBody)
                 .build()
-        }.map { response -> response.use { it.isSuccessful } }
+        }
 }

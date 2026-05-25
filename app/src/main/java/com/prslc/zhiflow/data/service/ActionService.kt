@@ -32,7 +32,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
                 .apiUrl("/read_history/add")
                 .post(body)
                 .build()
-        }.map { response -> response.use { it.isSuccessful } }
+        }
 
     /**
      * Performs a voting action (upvote, downvote, or cancel) on a specific content type.
@@ -55,5 +55,5 @@ class ActionService(private val okHttpClient: OkHttpClient) {
             .apiUrl("/reaction/${contentType.apiPath}/$id/vote/$action")
             .method(method, if (method == "GET") null else emptyBody)
             .build()
-    }.map { response -> response.use { it.isSuccessful } }
+    }
 }
