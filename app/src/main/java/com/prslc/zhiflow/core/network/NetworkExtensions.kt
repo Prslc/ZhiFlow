@@ -53,15 +53,17 @@ suspend inline fun <reified T> OkHttpClient.safeApiCall(
 }
 
 /**
- * Executes an OkHttp request on [Dispatchers.IO] and returns the raw [Response].
- * Useful for endpoints where the caller needs to inspect the response manually
- * (e.g., checking [Response.isSuccessful]).
+ * Executes an OkHttp request on [Dispatchers.IO] and returns whether the
+ * response was successful. The response body is consumed and closed on IO
+ * to avoid [android.os.NetworkOnMainThreadException] during cleanup.
  */
 suspend fun OkHttpClient.safeExecute(
     requestBuilder: () -> Request
-): Result<Response> = withContext(Dispatchers.IO) {
+): Result<Boolean> = withContext(Dispatchers.IO) {
     try {
-        Result.success(newCall(requestBuilder()).execute())
+        newCall(requestBuilder()).execute().use { response ->
+            Result.success(response.isSuccessful)
+        }
     } catch (e: Exception) {
         Result.failure(e.toApiException())
     }

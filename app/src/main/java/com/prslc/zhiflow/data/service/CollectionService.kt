@@ -52,7 +52,6 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
         addIds: List<Long>,
         removeIds: List<Long>
     ): Result<Boolean> = okHttpClient.safeExecute {
-        // Build the FormBody equivalent to Ktor's FormDataContent
         val formBuilder = FormBody.Builder()
 
         if (addIds.isNotEmpty()) {
@@ -66,5 +65,5 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
             .apiUrl("/v2/collections/contents/${contentType.type}/$id")
             .put(formBuilder.build())
             .build()
-    }.map { response -> response.use { it.isSuccessful } }
+    }
 }
