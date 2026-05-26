@@ -6,6 +6,7 @@ import com.prslc.zhiflow.data.model.Card
 import com.prslc.zhiflow.data.model.Mark
 import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
+import com.prslc.zhiflow.data.model.ZhihuImage
 import com.prslc.zhiflow.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.parser.engine.FormulaHandler
 import com.prslc.zhiflow.parser.engine.TableParser
@@ -141,15 +142,32 @@ object ContentParser {
 
     private fun parseCard(card: Card?) = card?.let {
         val extra = JsonHelper.parseExtraInfo(it.extraInfo)
-        listOf(
-            RichTextElement.Card(
-                cardType = it.cardType,
-                title = it.title ?: extra?.title ?: "No title",
-                url = it.url ?: extra?.url ?: "",
-                cover = extra?.cover?.takeIf { c -> c.isNotBlank() } ?: it.cover,
-                desc = JsonHelper.cleanHtmlDesc(extra?.desc),
-                contentType = it.contentType ?: extra?.contentType
-            ))
+
+        if (it.cardType == "matrix-image-card") {
+            extra?.imageList?.images?.mapNotNull { img ->
+                val url = img.originalUrl ?: img.url
+                if (url.isBlank()) null
+                else RichTextElement.Image(
+                    ZhihuImage(
+                        urls = listOf(url),
+                        width = img.originalWidth ?: img.width,
+                        height = img.originalHeight ?: img.height,
+                        description = "",
+                        isGif = img.suffix == "gif"
+                    )
+                )
+            } ?: emptyList()
+        } else {
+            listOf(
+                RichTextElement.Card(
+                    cardType = it.cardType,
+                    title = it.title ?: extra?.title ?: "No title",
+                    url = it.url ?: extra?.url ?: "",
+                    cover = extra?.cover?.takeIf { c -> c.isNotBlank() } ?: it.cover,
+                    desc = JsonHelper.cleanHtmlDesc(extra?.desc),
+                    contentType = it.contentType ?: extra?.contentType
+                ))
+        }
     } ?: emptyList()
 
     private class OrderedListCounter {
