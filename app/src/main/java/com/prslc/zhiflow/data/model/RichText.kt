@@ -168,5 +168,27 @@ data class CardExtraInfo(
     @SerialName("data-content-type") val contentType: String? = null,
     @SerialName("column_title") val columnTitle: String? = null,
     @SerialName("column_desc") val columnDesc: String? = null,
-    @SerialName("action_url") val actionUrl: String? = null
+    @SerialName("action_url") val actionUrl: String? = null,
+    @SerialName("image_list") val imageList: CardImageList? = null
+)
+
+@Immutable
+@Serializable
+data class CardImageList(
+    val count: Int = 0,
+    @SerialName("is_grid") val isGrid: Boolean = true,
+    val images: List<CardImageItem> = emptyList()
+)
+
+@Immutable
+@Serializable
+data class CardImageItem(
+    val token: String? = null,
+    val url: String = "",
+    val width: Int = 0,
+    val height: Int = 0,
+    val suffix: String? = null,
+    @SerialName("original_url") val originalUrl: String? = null,
+    @SerialName("original_width") val originalWidth: Int? = null,
+    @SerialName("original_height") val originalHeight: Int? = null
 )
