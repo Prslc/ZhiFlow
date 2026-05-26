@@ -35,6 +35,7 @@
     <!-- type -->
     <string name="type_answer">回答</string>
     <string name="type_article">文章</string>
+    <string name="type_thought">想法</string>
     <string name="type_unknown">内容</string>
 
     <!-- answer -->
@@ -86,6 +87,14 @@
     <string name="action_collapse">收起详情</string>
     <string name="question_stats_answers">%1$d 个回答</string>
     <string name="question_stats_followers">%1$d 人关注</string>
+
+    <!-- moment -->
+    <string name="moment_title">动态</string>
+    <string name="moment_stat_vote">赞同</string>
+    <string name="people_works_empty">暂无内容</string>
+    <string name="moment_stat_comment">评论</string>
+    <string name="moment_stat_collect">收藏</string>
+    <string name="moment_pin">置顶</string>
 
     <!-- popele -->
     <string name="people_stat_voteup">获赞</string>
