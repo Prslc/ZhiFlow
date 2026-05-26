@@ -53,6 +53,13 @@ object ContentParser {
                     listOf(RichTextElement.Code(it.content, it.language))
                 } ?: emptyList()
 
+                "reference_block" -> segment.referenceBlock?.let { block ->
+                    val items = block.items.map {
+                        parseContent(it.text, it.marks, isDark).content
+                    }
+                    listOf(RichTextElement.Reference(items))
+                } ?: emptyList()
+
                 "hr" -> listOf(RichTextElement.Divider)
                 else -> emptyList()
             }
