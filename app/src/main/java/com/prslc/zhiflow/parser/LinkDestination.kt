@@ -74,7 +74,7 @@ object LinkParser {
         path.contains("/answer/") -> "answer"
         path.contains("/p/") || path.contains("zhuanlan.zhihu.com") -> "article"
         path.contains("/question/") -> "question"
-        path.contains("/pin/") -> "pin"
+        path.contains("/pin/") || path.contains("/pins/") -> "pin"
         else -> null
     }
 
