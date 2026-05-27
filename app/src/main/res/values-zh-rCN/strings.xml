@@ -4,6 +4,8 @@
 
     <!-- general -->
     <string name="general_back">返回</string>
+    <string name="general_more">更多</string>
+    <string name="general_undeveloped">未开发</string>
     <string name="general_loading">加载中…</string>
     <string name="published_format">发布于 %1$s · %2$s</string>
 
@@ -102,7 +104,7 @@
     <string name="people_stat_followers">被关注</string>
     <string name="people_action_follow">关注</string>
     <string name="people_action_message">私信</string>
-    <string name="people_tab_work">创作</string>
-    <string name="people_tab_dynamic">动态</string>
+    <string name="people_tab_post">创作</string>
+    <string name="people_tab_activity">动态</string>
     <string name="people_tab_upvoted">赞同</string>
 </resources>

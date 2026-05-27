@@ -12,7 +12,26 @@ class MomentRepository(private val service: MomentService) {
      * @param nextUrl URL for the next page; if null, fetch the first page.
      * @return A [Result] containing [MomentsResponse] on success, or an exception on failure.
      */
-    suspend fun getMoment(urlToken: String, nextUrl: String? = null): Result<MomentsResponse> =
-        service.getMoment(urlToken, nextUrl)
-}
+    suspend fun getUserPost(urlToken: String, nextUrl: String? = null): Result<MomentsResponse> =
+        service.getUserPosts(urlToken, nextUrl)
 
+    /**
+     * Fetch the user's activity stream (e.g. publication history and interactions).
+     *
+     * @param urlToken The user's unique URL token.
+     * @param nextUrl URL for the next page; if null, fetch the first page.
+     * @return A [Result] containing [MomentsResponse] on success, or an exception on failure.
+     */
+    suspend fun getUserActivities(urlToken: String, nextUrl: String? = null): Result<MomentsResponse> =
+        service.getUserActivities(urlToken, nextUrl)
+
+    /**
+     * Fetch the upvoted content of a user.
+     *
+     * @param urlToken The user's unique URL token.
+     * @param nextUrl URL for the next page; if null, fetch the first page.
+     * @return A [Result] containing [MomentsResponse] on success, or an exception on failure.
+     */
+    suspend fun getUserVote(urlToken: String, nextUrl: String? = null): Result<MomentsResponse> =
+        service.getUserVote(urlToken, nextUrl)
+}

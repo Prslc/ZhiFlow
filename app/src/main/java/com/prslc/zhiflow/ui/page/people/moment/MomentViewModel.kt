@@ -38,7 +38,7 @@ class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
         uiState = MomentUiState(isLoading = true, error = null)
 
         viewModelScope.launch {
-            repository.getMoment(urlToken)
+            repository.getUserPost(urlToken)
                 .onSuccess { response ->
                     nextUrl = response.paging.next
                     isEnd = response.paging.isEnd
@@ -60,12 +60,11 @@ class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
         uiState = uiState.copy(isNextLoading = true)
 
         viewModelScope.launch {
-            repository.getMoment(token, nextUrl)
+            repository.getUserPost(token, nextUrl)
                 .onSuccess { response ->
                     nextUrl = response.paging.next
                     isEnd = response.paging.isEnd
 
-                    // 💡 同样在这里完成增量数据的转换
                     val moreCleanMoments = response.data.map { it.toItemState() }
                     uiState = uiState.copy(
                         moments = uiState.moments + moreCleanMoments,

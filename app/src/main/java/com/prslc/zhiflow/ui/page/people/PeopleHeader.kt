@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -36,31 +35,26 @@ import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.ZhihuUser
 
 @Composable
-fun PeopleHeader(
-    user: ZhihuUser
-) {
+fun PeopleHeader(user: ZhihuUser) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             AsyncImage(
                 model = user.coverUrl,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp),
                 contentScale = ContentScale.Crop
             )
-        }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .offset(y = (-30).dp)
-        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(horizontal = 20.dp)
+                    .offset(y = 42.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 Surface(
@@ -80,7 +74,7 @@ fun PeopleHeader(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(bottom = 4.dp),
+                        .align(Alignment.Bottom),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     StatItem(stringResource(R.string.people_stat_voteup), user.voteupCount)
@@ -88,9 +82,15 @@ fun PeopleHeader(
                     StatItem(stringResource(R.string.people_stat_following), user.followingCount)
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(54.dp))
 
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+        ) {
             Text(
                 text = user.name ?: stringResource(R.string.profile_default_username),
                 style = MaterialTheme.typography.headlineSmall,
@@ -107,9 +107,7 @@ fun PeopleHeader(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Button(
-                    onClick = {},
-                    modifier = Modifier.weight(1.3f),
-                    shape = CircleShape
+                    onClick = {}, modifier = Modifier.weight(1.3f), shape = CircleShape
                 ) {
                     Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
@@ -119,9 +117,7 @@ fun PeopleHeader(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 FilledTonalButton(
-                    onClick = {},
-                    modifier = Modifier.weight(0.7f),
-                    shape = CircleShape
+                    onClick = {}, modifier = Modifier.weight(0.7f), shape = CircleShape
                 ) {
                     Icon(Icons.Default.MailOutline, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
