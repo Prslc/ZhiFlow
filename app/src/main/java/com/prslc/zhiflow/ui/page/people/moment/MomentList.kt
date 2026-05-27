@@ -23,6 +23,7 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.MediaImage
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
+import com.prslc.zhiflow.ui.component.common.LoadingView
 
 enum class MomentContentType {
     ANSWER,
@@ -54,7 +55,7 @@ data class MomentItemState(
 
 @Composable
 fun AutoLoadMoreEffect(viewModel: MomentViewModel, selectedTab: Int) {
-    if (selectedTab != 1) return
+    if (selectedTab != 0) return
 
     val shouldLoadMore by remember {
         derivedStateOf {
@@ -86,7 +87,7 @@ fun LazyListScope.momentsContent(
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    LoadingView()
                 }
             }
         }

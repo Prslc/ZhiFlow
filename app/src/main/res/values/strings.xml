@@ -3,6 +3,8 @@
 
     <!-- general -->
     <string name="general_back">back</string>
+    <string name="general_more">more</string>
+    <string name="general_undeveloped">Undeveloped</string>
     <string name="general_loading">loading…</string>
     <string name="published_format">Posted in %1$s · %2$s</string>
 
@@ -101,7 +103,7 @@
     <string name="people_stat_followers">Followers</string>
     <string name="people_action_follow">Follow</string>
     <string name="people_action_message">Message</string>
-    <string name="people_tab_work">Works</string>
-    <string name="people_tab_dynamic">Moments</string>
+    <string name="people_tab_post">Posts</string>
+    <string name="people_tab_activity">Activities</string>
     <string name="people_tab_upvoted">Upvotes</string>
 </resources>
