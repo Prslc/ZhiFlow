@@ -2,7 +2,6 @@ package com.prslc.zhiflow.ui.page.people
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -49,9 +47,9 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
-import com.prslc.zhiflow.ui.page.people.moment.AutoLoadMoreEffect
-import com.prslc.zhiflow.ui.page.people.moment.MomentViewModel
-import com.prslc.zhiflow.ui.page.people.moment.momentsContent
+import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
+import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
+import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -65,12 +63,10 @@ fun PeopleScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PeopleViewModel = koinViewModel(),
-    momentViewModel: MomentViewModel = koinViewModel()
 ) {
     val uiState = viewModel.uiState
     val pagerState = rememberPagerState(pageCount = { TAB_COUNT })
     val coroutineScope = rememberCoroutineScope()
-    val listState = momentViewModel.listState
     val density = LocalDensity.current
 
     val statusBarHeightPx = WindowInsets.statusBars.getTop(density)
@@ -126,30 +122,23 @@ fun PeopleScreen(
 
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
-        momentViewModel.loadMoment(urlToken)
     }
-
-    AutoLoadMoreEffect(momentViewModel, pagerState.currentPage)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding())
                 .nestedScroll(nestedScrollConnection)
         ) {
-            val screenHeight = maxHeight
-            val pagerContainerHeight = screenHeight - with(density) { totalTopHeightPx.toDp() }
-
             when {
                 uiState.user != null -> {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(pagerContainerHeight)
+                            .fillMaxSize()
                             .graphicsLayer {
                                 translationY = headerHeightPx + headerScrollOffset
                                 alpha = if (headerHeightPx > 0f) 1f else 0f
@@ -168,30 +157,9 @@ fun PeopleScreen(
                             modifier = Modifier.fillMaxSize()
                         ) { page ->
                             when (page) {
-                                0 -> {
-                                    LazyColumn(
-                                        state = listState,
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        momentsContent(
-                                            urlToken = urlToken,
-                                            state = momentViewModel.uiState,
-                                            viewModel = momentViewModel
-                                        )
-                                    }
-                                }
-
-                                1, 2 -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = stringResource(R.string.general_undeveloped),
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-                                    }
-                                }
+                                0 -> PeoplePostsTab(urlToken = urlToken)
+                                1 -> PeopleActivitiesTab(urlToken = urlToken)
+                                2 -> PeopleUpvotesTab(urlToken = urlToken)
                             }
                         }
                     }

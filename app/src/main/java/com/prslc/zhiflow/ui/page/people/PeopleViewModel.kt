@@ -24,7 +24,12 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
     var uiState by mutableStateOf(PeopleUiState(isLoading = true))
         private set
 
+    private var currentUrlToken: String? = null
+
     fun loadPeople(urlToken: String) {
+        if (currentUrlToken == urlToken && !uiState.isLoading && uiState.user != null && uiState.error == null) return
+        currentUrlToken = urlToken
+
         uiState = PeopleUiState(isLoading = true)
 
         viewModelScope.launch {
@@ -39,3 +44,4 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
         }
     }
 }
+
