@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -33,15 +34,22 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
+    onItemClick: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel(),
-    onItemClick: (String, String) -> Unit
 ) {
-    // init
-    AutoLoadMoreEffect(viewModel)
+    LaunchedEffect(Unit) {
+        viewModel.loadIfEmpty()
+    }
+
+    val shouldLoadMore by remember { viewModel.listState.shouldLoadMore() }
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            viewModel.loadMore()
+        }
+    }
 
     val stableOnItemClick = remember(onItemClick) { onItemClick }
-    val onRefresh = remember { { viewModel.refresh() } }
-    val onLoadMoreRetry = remember { { viewModel.loadMore() } }
 
     val items = viewModel.uiState.items
     val isRefreshing = viewModel.uiState.isRefreshing
@@ -49,11 +57,10 @@ fun FeedScreen(
     val loadMoreError = viewModel.uiState.loadMoreError
     val isEmpty = items.isEmpty()
 
-    Box(Modifier.fillMaxSize()) {
-
+    Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
             isRefreshing = isRefreshing && !isEmpty,
-            onRefresh = onRefresh,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
@@ -61,22 +68,29 @@ fun FeedScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                items(
+                itemsIndexed(
                     items = items,
-                    key = { it.target?.id ?: "virtual_stable_id_${it.hashCode()}" },
-                    contentType = { "FeedItem" }
-                ) { item ->
+                    key = { index, item -> item.target?.id ?: "feed_fallback_index_$index" },
+                    contentType = { _, _ -> "FeedItem" }
+                ) { index, item ->
                     FeedItem(
                         item = item,
                         onClick = stableOnItemClick
                     )
-                }
 
+                    if (index < items.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                    }
+                }
                 if (!isEmpty) {
                     pagingFooter(
                         isLoading = viewModel.uiState.isNextLoading,
                         error = loadMoreError,
-                        onRetry = onLoadMoreRetry
+                        onRetry = { viewModel.loadMore() }
                     )
                 }
             }
@@ -89,7 +103,7 @@ fun FeedScreen(
         if (isEmpty && globalError != null && !isRefreshing) {
             ErrorView(
                 message = globalError.uiMessage,
-                onRetry = onRefresh,
+                onRetry = { viewModel.refresh() },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -102,57 +116,30 @@ private fun LazyListScope.pagingFooter(
     onRetry: () -> Unit
 ) {
     if (isLoading) {
-        item(
-            key = "footer_loading",
-            contentType = "PagingFooterLoading"
-        ) {
+        item(key = "footer_loading", contentType = "PagingFooterLoading") {
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(16.dp), contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                LoadingView(modifier = Modifier.size(24.dp))
             }
         }
     } else if (error != null) {
-        item(
-            key = "footer_error",
-            contentType = "PagingFooterError"
-        ) {
+        item(key = "footer_error", contentType = "PagingFooterError") {
             val message = if (error is ApiException) {
                 error.uiMessage
             } else {
                 error.message ?: stringResource(R.string.error_unknown)
             }
-            LoadMoreErrorItem(
-                message = message,
-                onRetry = onRetry
-            )
+            LoadMoreErrorItem(message = message, onRetry = onRetry)
         }
     }
 }
 
-@Composable
-private fun AutoLoadMoreEffect(viewModel: FeedViewModel) {
-    val listState = viewModel.listState
-
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val totalItemsCount = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = listState.firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size
-            totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
-        }
-    }
-
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
-            viewModel.loadMore()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadIfEmpty()
-    }
+fun LazyListState.shouldLoadMore() = derivedStateOf {
+    val layoutInfo = this.layoutInfo
+    val totalItemsCount = layoutInfo.totalItemsCount
+    val lastVisibleItemIndex = firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size
+    totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
 }
