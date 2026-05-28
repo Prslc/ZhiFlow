@@ -20,7 +20,8 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
         val items: List<FeedItem> = emptyList(),
         val isRefreshing: Boolean = false,
         val isNextLoading: Boolean = false,
-        val error: ApiException? = null
+        val globalError: ApiException? = null,
+        val loadMoreError: ApiException? = null
     )
 
     var uiState by mutableStateOf(FeedUiState())
@@ -38,25 +39,29 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
     fun refresh() {
         if (uiState.isRefreshing) return
         viewModelScope.launch {
-            uiState = uiState.copy(isRefreshing = true, error = null)
+            uiState = uiState.copy(isRefreshing = true, globalError = null)
 
             repository.getFeeds(isRefresh = true, nextUrl = null)
                 .onSuccess { response ->
                     nextPageUrl = response.paging.next
-                    uiState = uiState.copy(items = response.data, isRefreshing = false)
+                    uiState = uiState.copy(
+                        items = response.data,
+                        isRefreshing = false,
+                        loadMoreError = null
+                    )
                 }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
-                    uiState = uiState.copy(error = e as? ApiException, isRefreshing = false)
+                    uiState = uiState.copy(globalError = e as? ApiException, isRefreshing = false)
                 }
         }
     }
 
     fun loadMore() {
-        if (uiState.isNextLoading || nextPageUrl == null) return
+        if (uiState.isNextLoading || uiState.isRefreshing || nextPageUrl == null) return
 
         viewModelScope.launch {
-            uiState = uiState.copy(isNextLoading = true)
+            uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
 
             repository.getFeeds(isRefresh = false, nextUrl = nextPageUrl)
                 .onSuccess { response ->
@@ -68,7 +73,7 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
                 }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
-                    uiState = uiState.copy(error = e as? ApiException, isNextLoading = false)
+                    uiState = uiState.copy(loadMoreError = e as? ApiException, isNextLoading = false)
                 }
         }
     }

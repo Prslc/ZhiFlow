@@ -39,13 +39,17 @@ fun FeedScreen(
     // init
     AutoLoadMoreEffect(viewModel)
 
+    val stableOnItemClick = remember(onItemClick) { onItemClick }
     val onRefresh = remember { { viewModel.refresh() } }
     val onLoadMoreRetry = remember { { viewModel.loadMore() } }
 
+    val items = viewModel.uiState.items
+    val isRefreshing = viewModel.uiState.isRefreshing
+    val globalError = viewModel.uiState.globalError
+    val loadMoreError = viewModel.uiState.loadMoreError
+    val isEmpty = items.isEmpty()
+
     Box(Modifier.fillMaxSize()) {
-        val items = viewModel.uiState.items
-        val isRefreshing = viewModel.uiState.isRefreshing
-        val isEmpty = items.isEmpty()
 
         PullToRefreshBox(
             isRefreshing = isRefreshing && !isEmpty,
@@ -59,17 +63,19 @@ fun FeedScreen(
             ) {
                 items(
                     items = items,
-                    key = { it.target?.id ?: it.hashCode() }
+                    key = { it.target?.id ?: "virtual_stable_id_${it.hashCode()}" },
+                    contentType = { "FeedItem" }
                 ) { item ->
-                    FeedItem(item = item) { id, type ->
-                        onItemClick(id, type)
-                    }
+                    FeedItem(
+                        item = item,
+                        onClick = stableOnItemClick
+                    )
                 }
 
                 if (!isEmpty) {
                     pagingFooter(
                         isLoading = viewModel.uiState.isNextLoading,
-                        error = viewModel.uiState.error,
+                        error = loadMoreError,
                         onRetry = onLoadMoreRetry
                     )
                 }
@@ -80,11 +86,10 @@ fun FeedScreen(
             LoadingView(modifier = Modifier.fillMaxSize())
         }
 
-        val error = viewModel.uiState.error
-        if (isEmpty && error != null && !isRefreshing) {
+        if (isEmpty && globalError != null && !isRefreshing) {
             ErrorView(
-                message = error.uiMessage,
-                onRetry = { viewModel.refresh() },
+                message = globalError.uiMessage,
+                onRetry = onRefresh,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -97,7 +102,10 @@ private fun LazyListScope.pagingFooter(
     onRetry: () -> Unit
 ) {
     if (isLoading) {
-        item(key = "footer_loading") {
+        item(
+            key = "footer_loading",
+            contentType = "PagingFooterLoading"
+        ) {
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -108,7 +116,10 @@ private fun LazyListScope.pagingFooter(
             }
         }
     } else if (error != null) {
-        item(key = "footer_error") {
+        item(
+            key = "footer_error",
+            contentType = "PagingFooterError"
+        ) {
             val message = if (error is ApiException) {
                 error.uiMessage
             } else {
@@ -130,15 +141,13 @@ private fun AutoLoadMoreEffect(viewModel: FeedViewModel) {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val totalItemsCount = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val lastVisibleItemIndex = listState.firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size
             totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
         }
     }
 
     LaunchedEffect(shouldLoadMore) {
-        val currentState = viewModel.uiState
-
-        if (shouldLoadMore && !currentState.isNextLoading && !currentState.isRefreshing) {
+        if (shouldLoadMore) {
             viewModel.loadMore()
         }
     }
