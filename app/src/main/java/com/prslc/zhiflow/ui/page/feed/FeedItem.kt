@@ -31,8 +31,8 @@ import com.prslc.zhiflow.data.model.FeedItem
 @Composable
 fun FeedItem(
     item: FeedItem,
+    modifier: Modifier = Modifier,
     onClick: (String, String) -> Unit,   // id, type
-    modifier: Modifier = Modifier
 ) {
     val target = item.target ?: return
 
@@ -55,69 +55,67 @@ fun FeedItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = stableClick)
+            .padding(20.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-
-            // title
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TypeLabel(target.type)
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // avatar
-                AsyncImage(
-                    model = target.author?.avatarUrl,
-                    contentDescription = stringResource(R.string.avatar_desc),
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clip(CircleShape),
-                    contentScale = Crop
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // author
-                Text(
-                    text = target.author?.name ?: stringResource(R.string.anonymous_user),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Content
+        // title
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TypeLabel(target.type)
             Text(
-                text = target.excerpt ?: "",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // bottom
-            Text(
-                text = stringResource(
-                    R.string.feed_meta,
-                    target.voteCount,
-                    target.commentCount
-                ),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.outline
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // avatar
+            AsyncImage(
+                model = target.author?.avatarUrl,
+                contentDescription = stringResource(R.string.avatar_desc),
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape),
+                contentScale = Crop
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // author
+            Text(
+                text = target.author?.name ?: stringResource(R.string.anonymous_user),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Content
+        Text(
+            text = target.excerpt ?: "",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // bottom
+        Text(
+            text = stringResource(
+                R.string.feed_meta,
+                target.voteCount,
+                target.commentCount
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.outline
+        )
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
             thickness = 0.5.dp,
@@ -127,7 +125,10 @@ fun FeedItem(
 }
 
 @Composable
-fun TypeLabel(type: String?) {
+fun TypeLabel(
+    type: String?,
+    modifier: Modifier = Modifier
+) {
     val (label, containerColor, contentColor) = when (type) {
         "answer" -> Triple(
             stringResource(R.string.type_answer),
@@ -152,7 +153,7 @@ fun TypeLabel(type: String?) {
         color = containerColor,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.extraSmall,
-        modifier = Modifier.padding(end = 6.dp)
+        modifier = modifier.padding(end = 6.dp)
     ) {
         Text(
             text = label,
