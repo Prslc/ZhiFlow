@@ -26,10 +26,10 @@ import com.prslc.zhiflow.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 /**
- * A wrapper class that bundles the resolved [InlineTextContent] map along with a
- * dynamic refresh key. This state package ensures that the rendering layer can
- * precisely react when asynchronous layout dimensions transition from generic
- * fallbacks to accurate physical pixels.
+ * Layout and lifecycle container for resolved inline assets.
+ *
+ * Provides a reactive [refreshKey] to force-reset the parent text layout
+ * once the dimensions transition from placeholders to actual measured pixels.
  */
 class MeasuredInlineData(
     val inlineContent: Map<String, InlineTextContent>,
@@ -37,17 +37,10 @@ class MeasuredInlineData(
 )
 
 /**
- * Asynchronously measures inline formulas and converts them into a [Map] of [InlineTextContent].
+ * Measures inline formula bounds asynchronously without blocking the main thread.
  *
- * This implementation achieves:
- * 1. **Decoupling**: The parser layer provides metadata only, while the UI layer handles
- * measurement based on the current [LocalDensity].
- * 2. **Performance**: Measurement is offloaded to a [LaunchedEffect] to avoid blocking
- * the main thread during initial composition.
- * 3. **Reactivity**: Automatically updates `measuredPlaceholders` once dimensions are
- * available, triggering a recomposition with correct physical sizes.
- * 4. **Theme Decoupling**: Utilizes a lightweight, color-agnostic [LatexConfig] solely
- * dedicated to geometric layout math, preventing unnecessary recalculations when switching themes.
+ * - Isolates calculation from theme/color changes by using a geometric-only [LatexConfig].
+ * - Automatically scales dimensions using the ambient [LocalDensity] and provided [fontSize].
  */
 @Composable
 fun List<InlineFormulaMeta>.rememberMeasuredInlineContent(
@@ -107,18 +100,11 @@ fun List<InlineFormulaMeta>.rememberMeasuredInlineContent(
 }
 
 /**
- * A unified rich text rendering component for ZhiFlow.
+ * Rich text display engine with native support for asynchronous inline formulas.
  *
- * Enhancements over standard [androidx.compose.material3.Text]:
- * 1. **Async Inline Formulas**: Uses [rememberMeasuredInlineContent] to resolve formula
- * dimensions on-demand, breaking the circular dependency between parsing and UI density.
- * 2. **Precise Layout Control**: Utilizes [key] to wrap the [Text] component. This ensures
- * that once async measurements complete, the [Text] layout is invalidated and recalculated
- * to prevent overlapping or squeezed inline assets.
- * 3. **Interactive Annotations**: Built-in tap detection for "URL" and "FORMULA" tags,
- * delegating navigation to [LocalNavigator].
- * 4. **Theme Awareness**: Synchronizes LaTeX rendering colors automatically by relying on
- * standard adaptive components internally, maintaining separation of concerns between Text and Math.
+ * - Extends [Text] with interceptors for `URL` and `FORMULA` spatial gestures.
+ * - Enforces an internal `key` reset on measurement resolution to prevent inline layout overlaps.
+ * - Decouples layout measurements from drawing color environments to bypass redundant recompositions.
  */
 @Composable
 fun ZRichText(
@@ -133,10 +119,8 @@ fun ZRichText(
     val measuredData = inlineMetas.rememberMeasuredInlineContent(fontSize = style.fontSize)
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    // CRITICAL: Changing the key when the async measurements complete (transitioning from false to true)
-    // forces the Text component to be fully recreated. This is necessary because Compose's Text engine
-    // often fails to update inline placeholder positions dynamically when dimensions change post-initial-layout.
-    // Relying strictly on map.size is insufficient since the count remains constant before and after layout evaluation.
+    // CRITICAL: Force rebuild the Text node via `key` when async measurement finishes.
+    // Native Compose Text engine fails to refresh inline asset layout boundaries on dynamic size updates.
     key(measuredData.refreshKey) {
         Text(
             text = content,
