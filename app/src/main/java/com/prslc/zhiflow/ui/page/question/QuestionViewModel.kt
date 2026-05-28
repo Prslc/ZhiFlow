@@ -19,6 +19,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
+sealed interface QuestionUiEvent {
+    data class LoadMore(val id: String) : QuestionUiEvent
+}
+
 class QuestionViewModel(private val repository: QuestionRepository) : ViewModel() {
 
     @Stable
