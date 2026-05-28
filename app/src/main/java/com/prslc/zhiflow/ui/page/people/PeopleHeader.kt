@@ -35,8 +35,11 @@ import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.ZhihuUser
 
 @Composable
-fun PeopleHeader(user: ZhihuUser) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+fun PeopleHeader(
+    user: ZhihuUser,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -129,8 +132,15 @@ fun PeopleHeader(user: ZhihuUser) {
 }
 
 @Composable
-fun StatItem(label: String, count: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+fun StatItem(
+    label: String,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = formatCount(count),
             style = MaterialTheme.typography.titleMedium,

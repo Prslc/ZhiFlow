@@ -25,13 +25,14 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DebugScreen(
+    modifier: Modifier = Modifier,
     onHandleUrl: (String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var inputUrl by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
@@ -91,12 +92,13 @@ fun DebugScreen(
 private fun DebugItem(
     title: String,
     subtitle: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(subtitle) },
         leadingContent = { Icon(Icons.Default.BugReport, null) },
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick)
     )
 }
