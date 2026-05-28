@@ -19,10 +19,11 @@ import com.prslc.zhiflow.R
 @Composable
 fun LoadMoreErrorItem(
     message: String,
+    modifier: Modifier = Modifier,
     onRetry: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onRetry() }
             .padding(16.dp),

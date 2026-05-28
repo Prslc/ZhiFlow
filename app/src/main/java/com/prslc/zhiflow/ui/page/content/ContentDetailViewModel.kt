@@ -47,7 +47,7 @@ class ContentViewModel(
     data class InteractionState(
         val isUpvoted: Boolean = false,
         val isDownvoted: Boolean = false,
-        val isFaved: Boolean = false,
+        val isFavorite: Boolean = false,
         val upvoteOffset: Int = 0
     )
 
@@ -100,7 +100,7 @@ class ContentViewModel(
                 interactionState = InteractionState(
                     isUpvoted = rel?.vote == "UP",
                     isDownvoted = rel?.vote == "DOWN",
-                    isFaved = rel?.faved ?: false
+                    isFavorite = rel?.faved ?: false
                 )
                 parsingCache.get(data.id)?.let {
                     richTextElements = it
@@ -166,8 +166,8 @@ class ContentViewModel(
         }
     }
 
-    fun setFaved(isFaved: Boolean) {
-        interactionState = interactionState.copy(isFaved = isFaved)
+    fun setFaved(isFavorite: Boolean) {
+        interactionState = interactionState.copy(isFavorite = isFavorite)
     }
 
     fun openLightbox(index: Int) {

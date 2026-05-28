@@ -41,6 +41,7 @@ fun CollectionDialog(
     contentType: ContentType,
     onDismissRequest: () -> Unit,
     onResult: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: CollectionViewModel = koinViewModel()
 ) {
     LaunchedEffect(id) {
@@ -51,7 +52,7 @@ fun CollectionDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
         ) {
@@ -126,8 +127,8 @@ fun CollectionDialog(
 
                     TextButton(
                         onClick = {
-                            viewModel.updateCollectionStatus(id, contentType) { isFaved ->
-                                onResult(isFaved)
+                            viewModel.updateCollectionStatus(id, contentType) { isFavorite ->
+                                onResult(isFavorite)
                                 onDismissRequest()
                             }
                         },
@@ -158,10 +159,11 @@ fun CollectionItem(
     isPublic: Boolean,
     isDefault: Boolean,
     isSelected: Boolean,
+    modifier: Modifier = Modifier,
     onToggle: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onToggle() }
             .padding(horizontal = 20.dp, vertical = 12.dp),
