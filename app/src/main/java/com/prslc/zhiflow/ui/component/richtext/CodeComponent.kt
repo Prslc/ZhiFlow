@@ -32,7 +32,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun CodeBlock(
     code: String,
-    lang: String?
+    lang: String?,
+    modifier: Modifier = Modifier
 ) {
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
@@ -42,7 +43,7 @@ fun CodeBlock(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Column {
             Row(

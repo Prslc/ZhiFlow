@@ -22,11 +22,13 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.parser.model.RichTextElement
 
 @Composable
-fun BulletItemRow(element: RichTextElement.BulletItem) {
-
+fun BulletItemRow(
+    element: RichTextElement.BulletItem,
+    modifier: Modifier = Modifier
+) {
     val indentation = (maxOf(0, element.level - 1) * 12).dp
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = indentation, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.Top
@@ -53,8 +55,11 @@ fun BulletItemRow(element: RichTextElement.BulletItem) {
 }
 
 @Composable
-fun ReferenceSection(items: List<AnnotatedString>) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+fun ReferenceSection(
+    items: List<AnnotatedString>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.padding(vertical = 8.dp)) {
         Text(
             text = stringResource(R.string.richtext_references),
             style = MaterialTheme.typography.titleSmall.copy(
