@@ -2,7 +2,6 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -17,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.Placeholder
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.hrm.latex.renderer.LatexAutoWrap
 import com.hrm.latex.renderer.measure.rememberLatexMeasurer
 import com.hrm.latex.renderer.model.LatexConfig
+import com.hrm.latex.renderer.model.LatexTheme
 import com.prslc.zhiflow.core.utils.cleanLatex
 import com.prslc.zhiflow.data.model.Formula
 import com.prslc.zhiflow.parser.model.RichTextElement
@@ -40,13 +39,7 @@ fun LatexComponent(
     modifier: Modifier = Modifier,
     isInline: Boolean = false,
 ) {
-    val isDark = isSystemInDarkTheme()
-    val config = remember(isDark) {
-        LatexConfig(
-            color = if (isDark) Color.White else Color.Black,
-            darkColor = Color.White
-        )
-    }
+    val config = remember { LatexConfig(theme = LatexTheme.auto()) }
 
     if (isInline) {
         LatexAutoWrap(
@@ -72,14 +65,8 @@ fun FormulaTextSection(
 ) {
     val navigator = LocalNavigator.current
     val density = LocalDensity.current
-    val isDark = isSystemInDarkTheme()
 
-    val config = remember(isDark) {
-        LatexConfig(
-            color = if (isDark) Color.White else Color.Black,
-            darkColor = Color.White
-        )
-    }
+    val config = remember { LatexConfig(theme = LatexTheme.auto()) }
     val measurer = rememberLatexMeasurer(config)
 
     var measuredPlaceholders by remember(element.inlineMetas) {
