@@ -5,13 +5,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,22 +49,11 @@ data class MomentItemState(
     val isTopping: Boolean
 )
 
-@Composable
-fun AutoLoadMoreEffect(viewModel: MomentViewModel) {
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val layoutInfo = viewModel.listState.layoutInfo
-            val totalItemsCount = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
-        }
-    }
-
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
-            viewModel.loadMore()
-        }
-    }
+fun LazyListState.shouldLoadMore() = derivedStateOf {
+    val layoutInfo = this.layoutInfo
+    val totalItemsCount = layoutInfo.totalItemsCount
+    val lastVisibleItemIndex = firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size
+    totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
 }
 
 fun LazyListScope.momentsContent(
