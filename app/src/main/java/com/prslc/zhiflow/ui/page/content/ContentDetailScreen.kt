@@ -50,6 +50,7 @@ import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
+import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -59,9 +60,13 @@ fun ContentDetailScreen(
     id: String,
     contentType: ContentType,
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: ContentViewModel = koinViewModel(),
     commentViewModel: CommentViewModel = koinViewModel()
 ) {
+    val uiState = commentViewModel.uiState
+    val childUiState = commentViewModel.childUiState
+
     val navigator = LocalNavigator.current
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
@@ -126,7 +131,7 @@ fun ContentDetailScreen(
     val onCommentClick = remember { { viewModel.openComments() } }
 
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
         color = MaterialTheme.colorScheme.background
@@ -208,11 +213,28 @@ fun ContentDetailScreen(
             CommentBottomSheet(
                 id = id,
                 contentType = contentType,
-                viewModel = commentViewModel,
+                uiState = uiState,
+                childUiState = childUiState,
                 showComments = presentation.showComments,
                 onDismissRequest = {
                     viewModel.dismissComments()
                     commentViewModel.onSheetDismissed()
+                },
+
+                onEvent = { event ->
+                    when (event) {
+                        CommentUiEvent.DismissSheet -> commentViewModel.onSheetDismissed()
+                        CommentUiEvent.BackToMain -> commentViewModel.backToMain()
+                        CommentUiEvent.CloseImage -> commentViewModel.closeImage()
+                        CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
+
+                        is CommentUiEvent.LoadRootComments -> commentViewModel.loadComments(event.id, event.contentType)
+                        is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
+                        is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
+                        is CommentUiEvent.OpenImage -> commentViewModel.openImage(event.url)
+                        is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
+                        is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
+                    }
                 }
             )
 

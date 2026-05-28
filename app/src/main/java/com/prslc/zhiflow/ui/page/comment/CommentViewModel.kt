@@ -18,6 +18,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
+sealed interface CommentUiEvent {
+    data object DismissSheet : CommentUiEvent
+    data object BackToMain : CommentUiEvent
+    data object CloseImage : CommentUiEvent
+    data object LoadMoreReplies : CommentUiEvent
+    data class LoadRootComments(val id: String, val contentType: ContentType) : CommentUiEvent
+    data class NavigatedToUser(val userId: String) : CommentUiEvent
+    data class ToggleLike(val commentId: String) : CommentUiEvent
+    data class OpenImage(val url: String) : CommentUiEvent
+    data class ShowAuthor(val urlToken: String) : CommentUiEvent
+    data class LoadChildComments(val rootComment: ZhihuComment) : CommentUiEvent
+}
+
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
 
     @Stable

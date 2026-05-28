@@ -29,17 +29,16 @@ import com.prslc.zhiflow.ui.component.common.LoadingView
 
 @Composable
 fun CommentList(
-    modifier: Modifier = Modifier,
-    viewModel: CommentViewModel,
+    onEvent: (CommentUiEvent) -> Unit,
     comments: List<CommentViewModel.CommentUiModel>,
-    rootComment: CommentViewModel.CommentUiModel? = null,
     isLoading: Boolean,
     hasMore: Boolean,
     onLoadMore: () -> Unit,
     state: LazyListState,
+    modifier: Modifier = Modifier,
+    rootComment: CommentViewModel.CommentUiModel? = null,
     isChild: Boolean = false
 ) {
-
     val stateTarget = when {
         isLoading && comments.isEmpty() -> "LOADING"
         comments.isNotEmpty() -> "CONTENT"
@@ -67,7 +66,7 @@ fun CommentList(
                                 Column {
                                     CommentItem(
                                         model = rootComment,
-                                        viewModel = viewModel,
+                                        onEvent = onEvent,
                                         isChild = false,
                                         showReplyButton = false
                                     )
@@ -91,7 +90,7 @@ fun CommentList(
                             }
                             CommentItem(
                                 model = model,
-                                viewModel = viewModel,
+                                onEvent = onEvent,
                                 isChild = isChild
                             )
                             HorizontalDivider(
