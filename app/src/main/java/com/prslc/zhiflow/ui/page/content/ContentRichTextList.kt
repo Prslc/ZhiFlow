@@ -45,6 +45,7 @@ fun ContentRichTextList(
     navigator: Navigator,
     topPadding: Dp,
     onImageClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
     onProgress: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -65,7 +66,7 @@ fun ContentRichTextList(
 
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(top = topPadding),
         contentPadding = PaddingValues(bottom = 80.dp)
@@ -88,7 +89,7 @@ fun ContentRichTextList(
                 when (element) {
                     is RichTextElement.Divider -> "divider_$index"
                     is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
-                    else -> "${element.hashCode()}_$index"
+                    else -> "content_${element::class.simpleName}_$index"
                 }
             },
             contentType = { _, element -> element::class.simpleName }
@@ -138,11 +139,12 @@ fun ContentRichTextList(
 @Composable
 fun AuthorSection(
     author: AnswerAuthor,
-    navigator: Navigator
+    navigator: Navigator,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(20.dp)
     ) {

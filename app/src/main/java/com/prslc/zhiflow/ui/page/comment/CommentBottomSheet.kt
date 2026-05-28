@@ -46,17 +46,18 @@ import kotlinx.coroutines.launch
 fun CommentBottomSheet(
     id: String,
     contentType: ContentType,
-    viewModel: CommentViewModel,
+    uiState: CommentViewModel.CommentUiState,
+    childUiState: CommentViewModel.ChildCommentUiState,
     showComments: Boolean,
-    onDismissRequest: () -> Unit,
+    onEvent: (CommentUiEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
 
     if (showComments) {
         val navigator = LocalNavigator.current
-        val uiState = viewModel.uiState
-        val childUiState = viewModel.childUiState
         val rootListState = rememberLazyListState()
         val childListState = rememberLazyListState()
 
@@ -64,13 +65,13 @@ fun CommentBottomSheet(
             uiState.navigateToUser?.let {
                 onDismissRequest()
                 navigator.navigateToPeople(it)
-                viewModel.onNavigated()
+                onEvent(CommentUiEvent.NavigatedToUser(it))
             }
         }
 
         ModalBottomSheet(
             onDismissRequest = {
-                viewModel.onSheetDismissed()
+                onEvent(CommentUiEvent.DismissSheet)
                 onDismissRequest()
             },
             sheetState = sheetState,
@@ -79,18 +80,18 @@ fun CommentBottomSheet(
             dragHandle = null
         ) {
             Column(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.95f)
                     .statusBarsPadding()
             ) {
 
                 BackHandler(enabled = uiState.isLightboxVisible) {
-                    viewModel.closeImage()
+                    onEvent(CommentUiEvent.CloseImage)
                 }
 
                 BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
-                    viewModel.backToMain()
+                    onEvent(CommentUiEvent.BackToMain)
                 }
 
                 AnimatedContent(
@@ -116,11 +117,11 @@ fun CommentBottomSheet(
                                 }
                             )
                             val onLoadMoreRoot = remember(id, contentType) {
-                                { viewModel.loadComments(id, contentType) }
+                                { onEvent(CommentUiEvent.LoadRootComments(id, contentType)) }
                             }
                             CommentList(
                                 modifier = Modifier.weight(1f),
-                                viewModel = viewModel,
+                                onEvent = onEvent,
                                 comments = uiState.comments,
                                 isLoading = uiState.isLoading,
                                 hasMore = uiState.hasMore,
@@ -140,14 +141,14 @@ fun CommentBottomSheet(
 
                             CommentHeader(
                                 title = stringResource(R.string.comment_reply_detail),
-                                onClose = { viewModel.backToMain() },
+                                onClose = { onEvent(CommentUiEvent.BackToMain) },
                                 isBackStyle = true
                             )
 
-                            val onLoadMoreChild = remember { { viewModel.loadMoreReplies() } }
+                            val onLoadMoreChild = remember { { onEvent(CommentUiEvent.LoadMoreReplies) } }
                             CommentList(
                                 modifier = Modifier.weight(1f),
-                                viewModel = viewModel,
+                                onEvent = onEvent,
                                 comments = childUiState.comments,
                                 isLoading = childUiState.isLoading,
                                 hasMore = childUiState.hasMore,
@@ -165,7 +166,7 @@ fun CommentBottomSheet(
             ImageLightbox(
                 imageUrls = uiState.selectedImageUrls,
                 initialIndex = uiState.initialImageIndex,
-                onDismiss = { viewModel.closeImage() }
+                onDismiss = { onEvent(CommentUiEvent.CloseImage) }
             )
         }
     }
@@ -175,10 +176,11 @@ fun CommentBottomSheet(
 fun CommentHeader(
     title: String,
     onClose: () -> Unit,
+    modifier: Modifier = Modifier,
     isBackStyle: Boolean = false
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,

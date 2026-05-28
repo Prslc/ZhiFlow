@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import android.util.LruCache
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -67,7 +68,7 @@ class ContentViewModel(
     var presentation by mutableStateOf(PresentationState())
         private set
 
-    private var readProgress by mutableStateOf(0)
+    private var readProgress by mutableIntStateOf(0)
     private var isDark by mutableStateOf(false)
 
     private var loadJob: Job? = null
