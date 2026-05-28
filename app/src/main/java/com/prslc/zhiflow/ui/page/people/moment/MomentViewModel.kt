@@ -9,11 +9,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.data.mapper.toItemState
+import com.prslc.zhiflow.data.model.MomentsResponse
 import com.prslc.zhiflow.data.repository.MomentRepository
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
-class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
+open class MomentViewModel(
+    private val repository: MomentRepository,
+    private val fetchSource: suspend (repository: MomentRepository, urlToken: String, nextUrl: String?) -> Result<MomentsResponse>
+) : ViewModel() {
 
     @Stable
     data class MomentUiState(
@@ -27,6 +31,7 @@ class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
         private set
 
     val listState = LazyListState()
+
     private var nextUrl: String? = null
     private var isEnd: Boolean = false
     private var currentUrlToken: String? = null
@@ -38,7 +43,7 @@ class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
         uiState = MomentUiState(isLoading = true, error = null)
 
         viewModelScope.launch {
-            repository.getUserPost(urlToken)
+            fetchSource(repository, urlToken, null)
                 .onSuccess { response ->
                     nextUrl = response.paging.next
                     isEnd = response.paging.isEnd
@@ -60,7 +65,7 @@ class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
         uiState = uiState.copy(isNextLoading = true)
 
         viewModelScope.launch {
-            repository.getUserPost(token, nextUrl)
+            fetchSource(repository, token, nextUrl)
                 .onSuccess { response ->
                     nextUrl = response.paging.next
                     isEnd = response.paging.isEnd
@@ -81,3 +86,21 @@ class MomentViewModel(private val repository: MomentRepository) : ViewModel() {
         }
     }
 }
+
+class PostsViewModel(repository: MomentRepository) :
+    MomentViewModel(
+        repository = repository,
+        fetchSource = { repo, token, nextUrl -> repo.getUserPost(token, nextUrl) }
+    )
+
+class ActivitiesViewModel(repository: MomentRepository) :
+    MomentViewModel(
+        repository = repository,
+        fetchSource = { repo, token, nextUrl -> repo.getUserActivities(token, nextUrl) }
+    )
+
+class UpvotesViewModel(repository: MomentRepository) :
+    MomentViewModel(
+        repository = repository,
+        fetchSource = { repo, token, nextUrl -> repo.getUserVote(token, nextUrl) }
+    )

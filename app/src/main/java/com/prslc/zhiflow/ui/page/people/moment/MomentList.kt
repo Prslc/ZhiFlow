@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,9 +53,7 @@ data class MomentItemState(
 )
 
 @Composable
-fun AutoLoadMoreEffect(viewModel: MomentViewModel, selectedTab: Int) {
-    if (selectedTab != 0) return
-
+fun AutoLoadMoreEffect(viewModel: MomentViewModel) {
     val shouldLoadMore by remember {
         derivedStateOf {
             val layoutInfo = viewModel.listState.layoutInfo
@@ -122,10 +119,13 @@ private fun LazyListScope.pagingFooter(
 ) {
     if (isLoading) {
         item(key = "footer_loading") {
-            Box(Modifier
-                .fillMaxWidth()
-                .padding(16.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingView(modifier = Modifier.size(24.dp))
             }
         }
     } else if (error != null) {
