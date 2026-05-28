@@ -12,6 +12,7 @@ telephoto = "0.19.0"
 navigation-compose = "2.9.8"
 latex = "1.4.3"
 okhttp = "5.3.2"
+compose-lint = "1.5.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -52,3 +53,6 @@ latex-renderer = { module = "io.github.huarangmeng:latex-renderer", version.ref 
 # okhttp
 okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# lint
+compose-lint = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "compose-lint"}
