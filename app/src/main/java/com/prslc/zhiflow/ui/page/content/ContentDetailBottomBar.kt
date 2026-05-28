@@ -26,7 +26,7 @@ fun ContentDetailBottomBar(
             BottomBar(
                 isUpvoted = interaction.isUpvoted,
                 isDownvoted = interaction.isDownvoted,
-                isFaved = interaction.isFaved,
+                isFavorite = interaction.isFavorite,
                 upvoteCount = displayUpvoteCount,
                 favCount = content.reaction?.statistics?.favoritesCount ?: 0,
                 commentCount = content.reaction?.statistics?.commentCount ?: 0,

@@ -45,12 +45,13 @@ import com.prslc.zhiflow.core.utils.formatCount
 fun BottomBar(
     isUpvoted: Boolean,
     isDownvoted: Boolean,
-    isFaved: Boolean,
+    isFavorite: Boolean,
     upvoteCount: Int,
     favCount: Int,
     commentCount: Int,
     onVoteClick: (String) -> Unit,
     onStarClick: () -> Unit,
+    modifier: Modifier = Modifier,
     onCommentClick: () -> Unit
 ) {
     val upvoteBgColor by animateColorAsState(
@@ -65,7 +66,7 @@ fun BottomBar(
     )
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         tonalElevation = 2.dp,
         shadowElevation = 12.dp
     ) {
@@ -143,9 +144,9 @@ fun BottomBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BottomActionItem(
-                    icon = if (isFaved) Icons.Filled.Star else Icons.Default.Star,
+                    icon = if (isFavorite) Icons.Filled.Star else Icons.Default.Star,
                     label = formatCount(favCount),
-                    iconTint = if (isFaved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    iconTint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onStarClick
                 )
                 BottomActionItem(

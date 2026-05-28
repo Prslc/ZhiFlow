@@ -51,6 +51,7 @@ import me.saket.telephoto.zoomable.rememberZoomableState
 fun ImageLightbox(
     imageUrls: List<String>,
     initialIndex: Int,
+    modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 ) {
     if (imageUrls.isEmpty()) return
@@ -111,7 +112,10 @@ fun ImageLightbox(
             }
         }
 
-        Surface(color = Color.Black, modifier = Modifier.fillMaxSize()) {
+        Surface(
+            color = Color.Black,
+            modifier = modifier.fillMaxSize()
+        ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 HorizontalPager(
                     state = pagerState,

@@ -57,7 +57,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
     fun updateCollectionStatus(
         contentId: String,
         contentType: ContentType,
-        onComplete: (isFaved: Boolean) -> Unit
+        onComplete: (isFavorite: Boolean) -> Unit
     ) {
         val initialIds = uiState.collections.filter { it.isFavorited }.map { it.id }.toSet()
         val currentIds = selectedIds
