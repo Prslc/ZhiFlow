@@ -120,7 +120,7 @@ fun CommentList(
 
                 "LOADING" -> {
                     LoadingView(
-                        modifier = modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp),
                     )
@@ -131,7 +131,7 @@ fun CommentList(
                         message = if (isChild) stringResource(R.string.comment_empty_child) else stringResource(
                             R.string.comment_empty_root
                         ),
-                        modifier = modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp),
                     )

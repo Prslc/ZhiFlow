@@ -40,7 +40,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ProfileScreen(
     onNavigateToSettings: () -> Unit,
-    viewModel: ProfileViewModel = koinViewModel(),
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     val uiState = viewModel.uiState
     val user = uiState.user
@@ -51,7 +52,7 @@ fun ProfileScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         if (user != null) {
             Column(
@@ -101,19 +102,19 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     StatItem(
-                        Modifier.weight(1f),
                         stringResource(R.string.profile_stat_following),
-                        user.followingCount
+                        user.followingCount,
+                        Modifier.weight(1f)
                     )
                     StatItem(
-                        Modifier.weight(1f),
                         stringResource(R.string.profile_stat_followers),
-                        user.followerCount
+                        user.followerCount,
+                        Modifier.weight(1f),
                     )
                     StatItem(
-                        Modifier.weight(1f),
                         stringResource(R.string.profile_stat_favorites),
-                        user.favoriteCount
+                        user.favoriteCount,
+                        Modifier.weight(1f),
                     )
                 }
 
@@ -150,7 +151,11 @@ fun ProfileScreen(
 }
 
 @Composable
-fun StatItem(modifier: Modifier, label: String, count: Int) {
+fun StatItem(
+    label: String,
+    count: Int,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = formatCount(count),
