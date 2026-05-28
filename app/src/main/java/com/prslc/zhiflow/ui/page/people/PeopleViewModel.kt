@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.page.people
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,8 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
 
     var uiState by mutableStateOf(PeopleUiState(isLoading = true))
         private set
+
+    var headerScrollOffset by mutableFloatStateOf(0f)
 
     private var currentUrlToken: String? = null
 

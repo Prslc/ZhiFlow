@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,11 +30,13 @@ fun PeopleTabBar(
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tabs = listOf(
-        stringResource(R.string.people_tab_post),
-        stringResource(R.string.people_tab_activity),
-        stringResource(R.string.people_tab_upvoted)
-    )
+    val tabResIds = remember {
+        listOf(
+            R.string.people_tab_post,
+            R.string.people_tab_activity,
+            R.string.people_tab_upvoted
+        )
+    }
 
     Surface(modifier = modifier.fillMaxWidth()) {
         SecondaryTabRow(
@@ -41,8 +44,8 @@ fun PeopleTabBar(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.primary,
             indicator = {
-                val customIndicatorModifier = remember(pagerState) {
-                    Modifier.tabIndicatorLayout { measurable, constraints, tabPositions ->
+                TabRowDefaults.SecondaryIndicator(
+                    modifier = Modifier.tabIndicatorLayout { measurable, constraints, tabPositions ->
                         if (tabPositions.isEmpty()) {
                             return@tabIndicatorLayout layout(0, 0) {}
                         }
@@ -52,6 +55,7 @@ fun PeopleTabBar(
 
                         val safeCurrentPage = minOf(tabPositions.lastIndex, currentPage)
                         val currentTab = tabPositions[safeCurrentPage]
+
                         val targetPage =
                             if (fraction < 0) safeCurrentPage - 1 else safeCurrentPage + 1
                         val targetTab = tabPositions.getOrNull(targetPage) ?: currentTab
@@ -76,26 +80,32 @@ fun PeopleTabBar(
                         layout(constraints.maxWidth, placeable.height) {
                             placeable.placeRelative(indicatorOffset.roundToPx(), 0)
                         }
-                    }
-                }
-
-                TabRowDefaults.SecondaryIndicator(
-                    modifier = customIndicatorModifier,
+                    },
                     color = MaterialTheme.colorScheme.primary,
                     height = INDICATOR_HEIGHT
                 )
             }
         ) {
-            tabs.forEachIndexed { index, title ->
+            tabResIds.forEachIndexed { index, resId ->
                 val isSelected = pagerState.currentPage == index
+
                 Tab(
                     selected = isSelected,
                     onClick = { onTabSelected(index) },
                     text = {
                         Text(
-                            text = title,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            text = stringResource(resId),
+                            fontWeight = FontWeight.Medium,
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.graphicsLayer {
+                                val scale = if (isSelected) 1.05f else 1.0f
+                                scaleX = scale
+                                scaleY = scale
+                            }
                         )
                     }
                 )

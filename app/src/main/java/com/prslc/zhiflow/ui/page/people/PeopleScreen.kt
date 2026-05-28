@@ -23,20 +23,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -69,56 +62,16 @@ fun PeopleScreen(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
 
+    val scrollState = remember(viewModel) {
+        PeopleTabBarState(
+            onOffsetChanged = { viewModel.headerScrollOffset = it },
+            getOffset = { viewModel.headerScrollOffset }
+        )
+    }
+
     val statusBarHeightPx = WindowInsets.statusBars.getTop(density)
     val topBarHeightPx = with(density) { TOP_BAR_HEIGHT.toPx() }
-    val totalTopHeightPx = statusBarHeightPx + topBarHeightPx
-
-    var headerHeightPx by remember { mutableFloatStateOf(0f) }
-    val maxUpwardScrollPx = remember(headerHeightPx, totalTopHeightPx) {
-        (headerHeightPx - totalTopHeightPx).coerceAtLeast(0f)
-    }
-
-    var headerScrollOffset by remember { mutableFloatStateOf(0f) }
-
-    val nestedScrollConnection = remember(maxUpwardScrollPx) {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                if (delta < 0 && maxUpwardScrollPx > 0f) {
-                    val previousOffset = headerScrollOffset
-                    headerScrollOffset =
-                        (headerScrollOffset + delta).coerceIn(-maxUpwardScrollPx, 0f)
-                    return Offset(0f, headerScrollOffset - previousOffset)
-                }
-                return Offset.Zero
-            }
-
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                val delta = available.y
-                if (delta > 0 && maxUpwardScrollPx > 0f) {
-                    val previousOffset = headerScrollOffset
-                    headerScrollOffset =
-                        (headerScrollOffset + delta).coerceIn(-maxUpwardScrollPx, 0f)
-                    return Offset(0f, headerScrollOffset - previousOffset)
-                }
-                return Offset.Zero
-            }
-        }
-    }
-
-    val topBarAlpha by remember(maxUpwardScrollPx) {
-        derivedStateOf {
-            if (maxUpwardScrollPx > 0f) (-headerScrollOffset / maxUpwardScrollPx).coerceIn(0f, 1f) else 0f
-        }
-    }
-
-    val isTabsPinned by remember(maxUpwardScrollPx) {
-        derivedStateOf { maxUpwardScrollPx > 0f && headerScrollOffset <= -maxUpwardScrollPx }
-    }
+    scrollState.totalTopHeightPx = statusBarHeightPx + topBarHeightPx
 
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
@@ -132,7 +85,7 @@ fun PeopleScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding())
-                .nestedScroll(nestedScrollConnection)
+                .nestedScroll(scrollState.nestedScrollConnection)
         ) {
             when {
                 uiState.user != null -> {
@@ -140,8 +93,9 @@ fun PeopleScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .graphicsLayer {
-                                translationY = headerHeightPx + headerScrollOffset
-                                alpha = if (headerHeightPx > 0f) 1f else 0f
+                                translationY =
+                                    scrollState.compensatedHeaderHeight + viewModel.headerScrollOffset
+                                alpha = if (scrollState.compensatedHeaderHeight > 0f) 1f else 0f
                             }
                     ) {
                         PeopleTabBar(
@@ -149,7 +103,7 @@ fun PeopleScreen(
                             onTabSelected = { index ->
                                 coroutineScope.launch { pagerState.animateScrollToPage(index) }
                             },
-                            modifier = Modifier.shadow(if (isTabsPinned) 2.dp else 0.dp)
+                            modifier = Modifier.shadow(if (scrollState.isTabsPinned) 2.dp else 0.dp)
                         )
 
                         HorizontalPager(
@@ -164,20 +118,20 @@ fun PeopleScreen(
                         }
                     }
 
-                    // header
+                   // header
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onSizeChanged { headerHeightPx = it.height.toFloat() }
-                            .graphicsLayer { translationY = headerScrollOffset }
+                            .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() }
+                            .graphicsLayer { translationY = viewModel.headerScrollOffset }
                     ) {
                         PeopleHeader(user = uiState.user)
                     }
 
                     // topbar
                     Surface(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = topBarAlpha),
-                        shadowElevation = if (topBarAlpha > 0.9f && !isTabsPinned) 2.dp else 0.dp
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = scrollState.topBarAlpha),
+                        shadowElevation = if (scrollState.topBarAlpha > 0.9f && !scrollState.isTabsPinned) 2.dp else 0.dp
                     ) {
                         Box(
                             modifier = Modifier
@@ -192,11 +146,11 @@ fun PeopleScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = stringResource(R.string.general_back),
-                                    tint = if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
+                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
                                 )
                             }
 
-                            if (topBarAlpha > 0.8f) {
+                            if (scrollState.topBarAlpha > 0.8f) {
                                 Text(
                                     text = uiState.user.name.orEmpty(),
                                     modifier = Modifier.align(Alignment.Center),
@@ -212,7 +166,7 @@ fun PeopleScreen(
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
                                     contentDescription = stringResource(R.string.general_more),
-                                    tint = if (topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
+                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
                                 )
                             }
                         }
@@ -220,9 +174,10 @@ fun PeopleScreen(
                 }
 
                 uiState.isLoading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LoadingView()
-                    }
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) { LoadingView() }
                 }
 
                 uiState.error != null -> {
