@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
 open class MomentViewModel(
+    val tabKeyPrefix: String,
     private val repository: MomentRepository,
     private val fetchSource: suspend (repository: MomentRepository, urlToken: String, nextUrl: String?) -> Result<MomentsResponse>
 ) : ViewModel() {
@@ -89,18 +90,21 @@ open class MomentViewModel(
 
 class PostsViewModel(repository: MomentRepository) :
     MomentViewModel(
+        tabKeyPrefix = "post",
         repository = repository,
         fetchSource = { repo, token, nextUrl -> repo.getUserPost(token, nextUrl) }
     )
 
 class ActivitiesViewModel(repository: MomentRepository) :
     MomentViewModel(
+        tabKeyPrefix = "activity",
         repository = repository,
         fetchSource = { repo, token, nextUrl -> repo.getUserActivities(token, nextUrl) }
     )
 
 class UpvotesViewModel(repository: MomentRepository) :
     MomentViewModel(
+        tabKeyPrefix = "upvote",
         repository = repository,
         fetchSource = { repo, token, nextUrl -> repo.getUserVote(token, nextUrl) }
     )

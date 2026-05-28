@@ -75,9 +75,11 @@ fun LazyListScope.momentsContent(
     state: MomentViewModel.MomentUiState,
     viewModel: MomentViewModel
 ) {
+    val prefix = viewModel.tabKeyPrefix
+
     when {
         state.isLoading && state.moments.isEmpty() -> {
-            item(key = "initial_loading") {
+            item(key = "${prefix}_initial_loading") {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -90,7 +92,7 @@ fun LazyListScope.momentsContent(
         }
 
         state.error != null && state.moments.isEmpty() -> {
-            item(key = "initial_error") {
+            item(key = "${prefix}_initial_error") {
                 ErrorView(
                     message = state.error.uiMessage,
                     onRetry = { viewModel.loadMoment(urlToken) },
@@ -100,10 +102,15 @@ fun LazyListScope.momentsContent(
         }
 
         else -> {
-            itemsIndexed(items = state.moments, key = { _, item -> item.id }) { _, item ->
+            itemsIndexed(
+                items = state.moments,
+                key = { _, item -> "${prefix}_${item.id}" }
+            ) { _, item ->
                 MomentCard(state = item, modifier = Modifier.fillMaxWidth())
             }
+
             pagingFooter(
+                keyPrefix = prefix,
                 isLoading = state.isNextLoading,
                 error = state.error.takeIf { state.moments.isNotEmpty() },
                 onRetry = { viewModel.loadMore() }
@@ -113,12 +120,13 @@ fun LazyListScope.momentsContent(
 }
 
 private fun LazyListScope.pagingFooter(
+    keyPrefix: String,
     isLoading: Boolean,
     error: Throwable?,
     onRetry: () -> Unit
 ) {
     if (isLoading) {
-        item(key = "footer_loading") {
+        item(key = "${keyPrefix}_footer_loading") {
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -129,7 +137,7 @@ private fun LazyListScope.pagingFooter(
             }
         }
     } else if (error != null) {
-        item(key = "footer_error") {
+        item(key = "${keyPrefix}_footer_error") {
             val message = if (error is ApiException) error.uiMessage else error.message
                 ?: stringResource(R.string.error_unknown)
             LoadMoreErrorItem(message = message, onRetry = onRetry)
