@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun MainScreen() {
+fun MainScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
 
     val tabs = listOf(HomeTab, DebugTab, ProfileTab)
@@ -143,7 +143,7 @@ fun MainScreen() {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier

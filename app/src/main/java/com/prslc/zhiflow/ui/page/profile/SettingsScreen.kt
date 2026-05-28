@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsScreen(
+    modifier: Modifier = Modifier,
     onBack: () -> Unit,
 ) {
     BackHandler {
@@ -19,7 +20,7 @@ fun SettingsScreen(
 
     Scaffold { padding ->
         LazyColumn(
-            modifier = Modifier
+            modifier = modifier
                 .padding(padding)
                 .padding(16.dp)
         ) {
