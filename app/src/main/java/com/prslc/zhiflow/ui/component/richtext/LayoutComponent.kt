@@ -32,27 +32,33 @@ import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Composable
-fun Divider() {
+fun Divider(modifier: Modifier = Modifier) {
     HorizontalDivider(
-        modifier = Modifier.padding(vertical = 12.dp),
+        modifier = modifier.padding(vertical = 12.dp),
         thickness = 0.5.dp,
         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
     )
 }
 
 @Composable
-fun Heading(element: RichTextElement.Heading) {
+fun Heading(
+    element: RichTextElement.Heading,
+    modifier: Modifier = Modifier
+) {
     ZRichText(
         content = element.content,
         style = TextStyles.headingStyle(element.level),
-        modifier = Modifier.padding(top = 8.dp)
+        modifier = modifier.padding(top = 8.dp)
     )
 }
 
 @Composable
-fun BlockquoteComponent(element: RichTextElement.Blockquote) {
+fun BlockquoteComponent(
+    element: RichTextElement.Blockquote,
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .height(IntrinsicSize.Min)
@@ -82,11 +88,14 @@ fun BlockquoteComponent(element: RichTextElement.Blockquote) {
 }
 
 @Composable
-fun TableComponent(element: RichTextElement.Table) {
+fun TableComponent(
+    element: RichTextElement.Table,
+    modifier: Modifier = Modifier
+) {
     val scrollState = rememberScrollState()
 
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         Card(

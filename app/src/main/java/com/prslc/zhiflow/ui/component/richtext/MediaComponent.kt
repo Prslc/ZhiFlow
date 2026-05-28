@@ -28,7 +28,8 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 @Composable
 fun ImageComponent(
     image: ZhihuImage?,
-    onImageClick: (String) -> Unit
+    onImageClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val displayUrl = remember(image) {
         if (image?.isGif == true) {
@@ -45,7 +46,7 @@ fun ImageComponent(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
