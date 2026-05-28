@@ -29,10 +29,11 @@ import com.prslc.zhiflow.data.model.AnswerTarget
 @Composable
 fun AnswerItem(
     target: AnswerTarget,
+    modifier: Modifier = Modifier,
     onClick: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(target.id) }
             .padding(horizontal = 20.dp, vertical = 16.dp)
@@ -106,9 +107,9 @@ fun AnswerItem(
 }
 
 @Composable
-fun AnswerDivider() {
+fun AnswerDivider(modifier: Modifier = Modifier) {
     HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 20.dp),
+        modifier = modifier.padding(horizontal = 20.dp),
         thickness = 0.5.dp,
         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
     )

@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -84,6 +85,7 @@ import org.koin.androidx.compose.koinViewModel
 fun QuestionDetailScreen(
     id: String,
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: QuestionViewModel = koinViewModel(),
 ) {
     val uiState = viewModel.uiState
@@ -103,10 +105,10 @@ fun QuestionDetailScreen(
     BackHandler(enabled = isLightboxVisible) { isLightboxVisible = false }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             QuestionTopBar(
-                state = viewModel.uiState,
+                state = uiState,
                 scrollBehavior = scrollBehavior,
                 onBack = onBack
             )
@@ -132,10 +134,15 @@ fun QuestionDetailScreen(
                 uiState.question != null -> {
                     QuestionContentList(
                         state = uiState,
-                        viewModel = viewModel,
                         id = id,
                         isExpanded = isExpanded,
                         onExpandChange = { isExpanded = it },
+                        modifier = Modifier.fillMaxSize(),
+                        onEvent = { event ->
+                            when (event) {
+                                is QuestionUiEvent.LoadMore -> viewModel.loadMore(event.id)
+                            }
+                        },
                         onImageClick = { url ->
                             currentImageIndex = imageUrls.indexOf(url).coerceAtLeast(0)
                             isLightboxVisible = true
@@ -158,14 +165,16 @@ fun QuestionDetailScreen(
 @Composable
 private fun QuestionContentList(
     state: QuestionViewModel.QuestionUiState,
-    viewModel: QuestionViewModel,
     id: String,
     isExpanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
-    onImageClick: (String) -> Unit
+    onEvent: (QuestionUiEvent) -> Unit,
+    onImageClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val navigator = LocalNavigator.current
 
+    val lazyListState = rememberLazyListState()
     var firstItemOverflowed by remember { mutableStateOf(false) }
 
     val showExpandButton by remember(state.elements.size, isExpanded, firstItemOverflowed) {
@@ -174,25 +183,36 @@ private fun QuestionContentList(
         }
     }
 
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull() ?: return@derivedStateOf false
+            lastVisibleItem.index >= lazyListState.layoutInfo.totalItemsCount - 2
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore, state.answers.size) {
+        if (shouldLoadMore && !state.isNextLoading && state.hasMore) {
+            onEvent(QuestionUiEvent.LoadMore(id))
+        }
+    }
+
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        state = lazyListState,
+        modifier = modifier,
         contentPadding = PaddingValues(bottom = 32.dp)
     ) {
         item(key = "element_header") {
             state.elements.firstOrNull()?.let { first ->
-                Box(
+                QuestionElement(
+                    element = first,
+                    isExpanded = isExpanded,
+                    onOverflow = { firstItemOverflowed = it },
+                    onImageClick = onImageClick,
+                    onUrlClick = { url -> navigator.handleUrl(url) },
                     modifier = Modifier
                         .padding(horizontal = 20.dp, vertical = 8.dp)
                         .animateContentSize()
-                ) {
-                    QuestionElement(
-                        element = first,
-                        isExpanded = isExpanded,
-                        onOverflow = { firstItemOverflowed = it },
-                        onImageClick = onImageClick,
-                        onUrlClick = { url -> navigator.handleUrl(url) }
-                    )
-                }
+                )
             }
         }
 
@@ -203,16 +223,15 @@ private fun QuestionContentList(
                 exit = shrinkVertically() + fadeOut()
             ) {
                 Column {
-                    state.elements.drop(1).forEachIndexed { _, element ->
-                        Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                            QuestionElement(
-                                element = element,
-                                isExpanded = true,
-                                onOverflow = {},
-                                onImageClick = onImageClick,
-                                onUrlClick = { url -> navigator.handleUrl(url) }
-                            )
-                        }
+                    for (index in 1 until state.elements.size) {
+                        QuestionElement(
+                            element = state.elements[index],
+                            isExpanded = true,
+                            onOverflow = {},
+                            onImageClick = onImageClick,
+                            onUrlClick = { url -> navigator.handleUrl(url) },
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                        )
                     }
                 }
             }
@@ -259,20 +278,15 @@ private fun QuestionContentList(
         itemsIndexed(
             items = state.answers,
             key = { _, item -> item.target.id }
-        ) { index, feedItem ->
+        ) { _, feedItem ->
             if (feedItem.targetType == "answer") {
                 AnswerItem(
                     target = feedItem.target,
-                    onClick = { id ->
-                        navigator.navigateToContent(id, "answer")
+                    onClick = { answerId ->
+                        navigator.navigateToContent(answerId, "answer")
                     }
                 )
                 AnswerDivider()
-            }
-            if (index >= state.answers.size - 2) {
-                LaunchedEffect(state.answers.size) {
-                    viewModel.loadMore(id)
-                }
             }
         }
 
@@ -291,51 +305,57 @@ private fun QuestionElement(
     isExpanded: Boolean,
     onOverflow: (Boolean) -> Unit,
     onImageClick: (String) -> Unit,
-    onUrlClick: (String) -> Unit
+    onUrlClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-
     var localLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    when (element) {
-        is DetailElement.Text -> {
-            SelectionContainer {
-                Text(
-                    text = element.content,
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 3,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                    onTextLayout = {
-                        localLayoutResult = it
-                        if (!isExpanded) {
-                            onOverflow(it.isOverflowed())
-                        }
-                    },
-                    modifier = Modifier.pointerInput(element.content) {
-                        detectTapGestures { offset ->
-                            localLayoutResult?.let { result ->
-                                val position = result.getOffsetForPosition(offset)
-                                element.content.getStringAnnotations(
-                                    tag = "URL",
-                                    start = position,
-                                    end = position
-                                ).firstOrNull()?.let { annotation ->
-                                    onUrlClick(annotation.item)
+    Box(modifier = modifier) {
+        when (element) {
+            is DetailElement.Text -> {
+                SelectionContainer {
+                    Text(
+                        text = element.content,
+                        maxLines = if (isExpanded) Int.MAX_VALUE else 3,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                        onTextLayout = {
+                            localLayoutResult = it
+                            if (!isExpanded) {
+                                onOverflow(it.isOverflowed())
+                            }
+                        },
+                        modifier = Modifier.pointerInput(element.content) {
+                            detectTapGestures { offset ->
+                                localLayoutResult?.let { result ->
+                                    val position = result.getOffsetForPosition(offset)
+                                    element.content.getStringAnnotations(
+                                        tag = "URL",
+                                        start = position,
+                                        end = position
+                                    ).firstOrNull()?.let { annotation ->
+                                        onUrlClick(annotation.item)
+                                    }
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
-        }
 
-        is DetailElement.Image -> ImageItem(element.image, onImageClick)
+            is DetailElement.Image -> ImageItem(element.image, onImageClick)
+        }
     }
 }
 
 @Composable
-private fun TopicRow(topics: List<Topic>) {
+private fun TopicRow(
+    topics: List<Topic>,
+    modifier: Modifier = Modifier
+) {
     LazyRow(
+        modifier = modifier,
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -358,9 +378,9 @@ private fun TopicRow(topics: List<Topic>) {
 }
 
 @Composable
-private fun LoadingFooter() {
+private fun LoadingFooter(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(24.dp),
         contentAlignment = Alignment.Center
@@ -376,16 +396,16 @@ private fun LoadingFooter() {
 @Composable
 private fun ExpandToggleButton(
     isExpanded: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    // animate
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         label = "rotation"
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 4.dp),
         contentAlignment = Alignment.CenterStart
@@ -426,9 +446,11 @@ private fun ExpandToggleButton(
 private fun QuestionTopBar(
     state: QuestionViewModel.QuestionUiState,
     scrollBehavior: TopAppBarScrollBehavior,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LargeTopAppBar(
+        modifier = modifier,
         title = {
             val titleText = state.question?.title ?: ""
             val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
@@ -455,10 +477,13 @@ private fun QuestionTopBar(
 }
 
 @Composable
-fun QuestionStatsSection(question: QuestionDetail) {
+fun QuestionStatsSection(
+    question: QuestionDetail,
+    modifier: Modifier = Modifier
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
@@ -482,8 +507,15 @@ fun QuestionStatsSection(question: QuestionDetail) {
 }
 
 @Composable
-fun ImageItem(image: ZhihuImage, onImageClick: (String) -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+fun ImageItem(
+    image: ZhihuImage,
+    onImageClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         AsyncImage(
             model = image.urls.firstOrNull(),
             contentDescription = null,
