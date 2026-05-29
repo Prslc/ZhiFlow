@@ -57,7 +57,7 @@ fun ImageComponent(
                 .clickable { onImageClick(displayUrl) },
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             )
         ) {
             AsyncImage(
@@ -67,7 +67,7 @@ fun ImageComponent(
                     .build(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillWidth,
             )
         }
         if (!image?.description.isNullOrBlank()) {
@@ -80,7 +80,7 @@ fun ImageComponent(
                     fontSize = TextStyles.imageCaptionSize,
                     lineHeight = 18.sp
                 ),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }

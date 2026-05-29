@@ -22,5 +22,5 @@ data class ZhihuArticle(
 @Immutable
 @Serializable
 data class ArticleHeader(
-    @SerialName("text") val text: String = ""
+    @SerialName("text") val text: String = "",
 )

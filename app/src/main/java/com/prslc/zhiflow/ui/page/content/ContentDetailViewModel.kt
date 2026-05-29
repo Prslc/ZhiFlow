@@ -37,7 +37,7 @@ class ContentViewModel(
     data class LoadingState(
         val isLoading: Boolean = false,
         val content: ZhihuContent? = null,
-        val error: ApiException? = null
+        val error: ApiException? = null,
     )
 
     var loadingState by mutableStateOf(LoadingState())
@@ -48,7 +48,7 @@ class ContentViewModel(
         val isUpvoted: Boolean = false,
         val isDownvoted: Boolean = false,
         val isFavorite: Boolean = false,
-        val upvoteOffset: Int = 0
+        val upvoteOffset: Int = 0,
     )
 
     var interactionState by mutableStateOf(InteractionState())
@@ -62,7 +62,7 @@ class ContentViewModel(
         val showCollectionSheet: Boolean = false,
         val showComments: Boolean = false,
         val isLightboxVisible: Boolean = false,
-        val currentImageIndex: Int = 0
+        val currentImageIndex: Int = 0,
     )
 
     var presentation by mutableStateOf(PresentationState())
@@ -101,7 +101,7 @@ class ContentViewModel(
                 interactionState = InteractionState(
                     isUpvoted = rel?.vote == "UP",
                     isDownvoted = rel?.vote == "DOWN",
-                    isFavorite = rel?.faved ?: false
+                    isFavorite = rel?.faved ?: false,
                 )
                 parsingCache.get(data.id)?.let {
                     richTextElements = it
@@ -154,7 +154,7 @@ class ContentViewModel(
         interactionState = was.copy(
             isUpvoted = newUpvoted,
             isDownvoted = newDownvoted,
-            upvoteOffset = newOffset
+            upvoteOffset = newOffset,
         )
 
         viewModelScope.launch {

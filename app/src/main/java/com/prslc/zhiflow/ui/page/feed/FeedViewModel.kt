@@ -21,7 +21,7 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
         val isRefreshing: Boolean = false,
         val isNextLoading: Boolean = false,
         val globalError: ApiException? = null,
-        val loadMoreError: ApiException? = null
+        val loadMoreError: ApiException? = null,
     )
 
     var uiState by mutableStateOf(FeedUiState())
@@ -53,7 +53,7 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
                     uiState = uiState.copy(
                         items = response.data,
                         isRefreshing = false,
-                        loadMoreError = null
+                        loadMoreError = null,
                     )
                 }
                 .onFailure { e ->
@@ -80,7 +80,7 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
                     nextPageUrl = response.paging.next
                     uiState = uiState.copy(
                         items = uiState.items + response.data,
-                        isNextLoading = false
+                        isNextLoading = false,
                     )
                 }
                 .onFailure { e ->

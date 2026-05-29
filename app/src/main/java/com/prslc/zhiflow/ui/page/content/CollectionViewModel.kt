@@ -17,7 +17,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
     data class CollectionUiState(
         val collections: List<ZhihuCollection> = emptyList(),
         val selectedIds: Map<Long, Boolean> = emptyMap(),
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
     )
 
     var uiState by mutableStateOf(CollectionUiState())
@@ -38,7 +38,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
     fun toggleSelection(id: Long) {
         val current = uiState.selectedIds[id] ?: false
         uiState = uiState.copy(
-            selectedIds = uiState.selectedIds + (id to !current)
+            selectedIds = uiState.selectedIds + (id to !current),
         )
     }
 
@@ -50,7 +50,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
                     uiState = uiState.copy(
                         collections = response.data,
                         selectedIds = response.data.associate { it.id to it.isFavorited },
-                        isLoading = false
+                        isLoading = false,
                     )
                 }
                 .onFailure {

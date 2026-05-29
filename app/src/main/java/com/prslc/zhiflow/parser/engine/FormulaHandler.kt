@@ -14,7 +14,7 @@ object FormulaHandler {
 
         return InlineFormulaMeta(
             formula = formula,
-            inlineId = inlineId
+            inlineId = inlineId,
         )
     }
 }

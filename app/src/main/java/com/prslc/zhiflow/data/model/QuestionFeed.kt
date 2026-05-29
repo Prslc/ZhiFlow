@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class QuestionFeedResponse(
     val data: List<QuestionFeedItem>,
-    val paging: Paging
+    val paging: Paging,
 )
 
 @Immutable
@@ -17,7 +17,7 @@ data class QuestionFeedResponse(
 data class QuestionFeedItem(
     val type: String, // "question_feed_card"
     @SerialName("target_type") val targetType: String, // "answer"
-    val target: AnswerTarget
+    val target: AnswerTarget,
 )
 
 @Immutable
@@ -30,13 +30,13 @@ data class AnswerTarget(
     @SerialName("comment_count") val commentCount: Int,
     @SerialName("created_time") val createdTime: Long,
     @SerialName("updated_time") val updatedTime: Long,
-    @SerialName("thumbnail_info") val thumbnailInfo: ThumbnailInfo? = null
+    @SerialName("thumbnail_info") val thumbnailInfo: ThumbnailInfo? = null,
 )
 
 @Immutable
 @Serializable
 data class ThumbnailInfo(
-    val thumbnails: List<ZhihuThumbnail> = emptyList()
+    val thumbnails: List<ZhihuThumbnail> = emptyList(),
 )
 
 @Immutable
@@ -44,5 +44,5 @@ data class ThumbnailInfo(
 data class ZhihuThumbnail(
     val url: String,
     val width: Int,
-    val height: Int
+    val height: Int,
 )

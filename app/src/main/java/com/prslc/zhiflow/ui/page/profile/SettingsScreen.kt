@@ -26,7 +26,7 @@ fun SettingsScreen(
         ) {
             item {
                 Text(
-                    text = "TODO"
+                    text = "TODO",
                 )
             }
         }

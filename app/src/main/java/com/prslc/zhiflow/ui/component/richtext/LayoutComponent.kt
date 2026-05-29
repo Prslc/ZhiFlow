@@ -36,7 +36,7 @@ fun Divider(modifier: Modifier = Modifier) {
     HorizontalDivider(
         modifier = modifier.padding(vertical = 12.dp),
         thickness = 0.5.dp,
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
     )
 }
 
@@ -48,7 +48,7 @@ fun Heading(
     ZRichText(
         content = element.content,
         style = TextStyles.headingStyle(element.level),
-        modifier = modifier.padding(top = 8.dp)
+        modifier = modifier.padding(top = 8.dp),
     )
 }
 
@@ -71,7 +71,7 @@ fun BlockquoteComponent(
         ) {
             drawRoundRect(
                 color = Color.LightGray.copy(alpha = 0.6f),
-                cornerRadius = CornerRadius(2.dp.toPx())
+                cornerRadius = CornerRadius(2.dp.toPx()),
             )
         }
 
@@ -82,7 +82,7 @@ fun BlockquoteComponent(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 lineHeight = 24.sp
             ),
-            modifier = Modifier.padding(start = 12.dp)
+            modifier = Modifier.padding(start = 12.dp),
         )
     }
 }
@@ -132,7 +132,7 @@ fun TableComponent(
                                             content = nonNullCell.content,
                                             inlineMetas = nonNullCell.inlineMetas,
                                             style = MaterialTheme.typography.bodySmall.copy(
-                                                fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal
+                                                fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
                                             )
                                         )
                                     }

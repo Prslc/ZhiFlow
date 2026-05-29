@@ -110,7 +110,7 @@ fun QuestionDetailScreen(
             QuestionTopBar(
                 state = uiState,
                 scrollBehavior = scrollBehavior,
-                onBack = onBack
+                onBack = onBack,
             )
         }
     ) { padding ->
@@ -127,7 +127,7 @@ fun QuestionDetailScreen(
                 uiState.error != null && uiState.question == null -> {
                     ErrorView(
                         message = uiState.error.uiMessage,
-                        onRetry = { viewModel.loadQuestion(id) }
+                        onRetry = { viewModel.loadQuestion(id) },
                     )
                 }
 
@@ -155,7 +155,7 @@ fun QuestionDetailScreen(
                 ImageLightbox(
                     imageUrls = imageUrls,
                     initialIndex = currentImageIndex,
-                    onDismiss = { isLightboxVisible = false }
+                    onDismiss = { isLightboxVisible = false },
                 )
             }
         }
@@ -230,7 +230,7 @@ private fun QuestionContentList(
                             onOverflow = {},
                             onImageClick = onImageClick,
                             onUrlClick = { url -> navigator.handleUrl(url) },
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                         )
                     }
                 }
@@ -242,7 +242,7 @@ private fun QuestionContentList(
             if (showExpandButton) {
                 ExpandToggleButton(
                     isExpanded = isExpanded,
-                    onClick = { onExpandChange(!isExpanded) }
+                    onClick = { onExpandChange(!isExpanded) },
                 )
             }
         }
@@ -263,12 +263,12 @@ private fun QuestionContentList(
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 20.dp),
                         thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                     )
                     QuestionStatsSection(question)
                     HorizontalDivider(
                         thickness = 8.dp,
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
                     )
                 }
             }
@@ -370,7 +370,7 @@ private fun TopicRow(
                     text = topic.name,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         }
@@ -388,7 +388,7 @@ private fun LoadingFooter(modifier: Modifier = Modifier) {
         CircularProgressIndicator(
             modifier = Modifier.size(28.dp),
             strokeWidth = 2.5.dp,
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
         )
     }
 }
@@ -401,7 +401,7 @@ private fun ExpandToggleButton(
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
-        label = "rotation"
+        label = "rotation",
     )
 
     Box(
@@ -426,7 +426,7 @@ private fun ExpandToggleButton(
                 },
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             Icon(
@@ -460,7 +460,7 @@ private fun QuestionTopBar(
                 style = if (isCollapsed) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 maxLines = if (isCollapsed) 1 else 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         },
         navigationIcon = {
@@ -471,7 +471,7 @@ private fun QuestionTopBar(
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
         )
     )
 }
@@ -491,17 +491,17 @@ fun QuestionStatsSection(
             text = stringResource(R.string.question_stats_answers, question.answerCount),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = " · ",
             color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.padding(horizontal = 4.dp)
+            modifier = Modifier.padding(horizontal = 4.dp),
         )
         Text(
             text = stringResource(R.string.question_stats_followers, question.followerCount),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
         )
     }
 }
@@ -523,7 +523,7 @@ fun ImageItem(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .clickable { image.urls.firstOrNull()?.let { onImageClick(it) } },
-            contentScale = ContentScale.FillWidth
+            contentScale = ContentScale.FillWidth,
         )
         image.description.takeIf { it.isNotEmpty() }?.let {
             Text(
@@ -531,7 +531,7 @@ fun ImageItem(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.padding(top = 8.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }

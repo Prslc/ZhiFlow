@@ -57,12 +57,12 @@ fun BottomBar(
     val upvoteBgColor by animateColorAsState(
         targetValue = if (isUpvoted) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        label = "upvoteBg"
+        label = "upvoteBg",
     )
     val upvoteContentColor by animateColorAsState(
         targetValue = if (isUpvoted) MaterialTheme.colorScheme.onPrimary
         else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "upvoteContent"
+        label = "upvoteContent",
     )
 
     Surface(
@@ -98,7 +98,7 @@ fun BottomBar(
                             imageVector = if (isUpvoted) Icons.Filled.ArrowUpward else Icons.Default.ArrowUpward,
                             contentDescription = null,
                             tint = upvoteContentColor,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(18.dp),
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
@@ -107,7 +107,7 @@ fun BottomBar(
                             ),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.ExtraBold,
-                            color = upvoteContentColor
+                            color = upvoteContentColor,
                         )
                     }
                 }
@@ -115,7 +115,7 @@ fun BottomBar(
                 VerticalDivider(
                     modifier = Modifier.height(18.dp),
                     thickness = 1.dp,
-                    color = upvoteContentColor.copy(alpha = 0.15f)
+                    color = upvoteContentColor.copy(alpha = 0.15f),
                 )
 
                 // Downvote
@@ -130,7 +130,7 @@ fun BottomBar(
                         imageVector = Icons.Default.ArrowDownward,
                         contentDescription = null,
                         tint = if (isDownvoted) MaterialTheme.colorScheme.error else upvoteContentColor,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
@@ -147,12 +147,12 @@ fun BottomBar(
                     icon = if (isFavorite) Icons.Filled.Star else Icons.Default.Star,
                     label = formatCount(favCount),
                     iconTint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    onClick = onStarClick
+                    onClick = onStarClick,
                 )
                 BottomActionItem(
                     icon = Icons.AutoMirrored.Default.Comment,
                     label = formatCount(commentCount),
-                    onClick = onCommentClick
+                    onClick = onCommentClick,
                 )
             }
         }
@@ -182,7 +182,7 @@ private fun BottomActionItem(
                 imageVector = icon,
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(22.dp),
             )
         }
 
@@ -192,7 +192,7 @@ private fun BottomActionItem(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         }
     }

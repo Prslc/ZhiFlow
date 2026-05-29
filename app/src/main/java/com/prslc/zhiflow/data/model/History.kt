@@ -12,5 +12,5 @@ data class ReadHistoryRequest(
     @SerialName("read_progress") val readProgress: Int,
     @SerialName("listen_progress") val listenProgress: Int = 0,
     @SerialName("read_time") val readTime: Long = System.currentTimeMillis() / 1000,
-    @SerialName("custom_content_data") val customContentData: String? = null
+    @SerialName("custom_content_data") val customContentData: String? = null,
 )

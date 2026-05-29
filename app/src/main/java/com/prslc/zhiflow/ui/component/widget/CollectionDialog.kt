@@ -64,7 +64,7 @@ fun CollectionDialog(
                     text = stringResource(R.string.collection_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -83,7 +83,7 @@ fun CollectionDialog(
                             Text(
                                 text = stringResource(R.string.collection_item_empty),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.outline
+                                color = MaterialTheme.colorScheme.outline,
                             )
                         }
 
@@ -137,12 +137,12 @@ fun CollectionDialog(
                         if (state.isLoading && state.collections.isNotEmpty()) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp
+                                strokeWidth = 2.dp,
                             )
                         } else {
                             Text(
                                 text = stringResource(android.R.string.ok),
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                     }
@@ -174,7 +174,7 @@ fun CollectionItem(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
 
                 // default
@@ -188,7 +188,7 @@ fun CollectionItem(
                             text = stringResource(R.string.collection_default_label),
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                     }
                 }
@@ -199,19 +199,19 @@ fun CollectionItem(
                         imageVector = Icons.Default.Lock,
                         contentDescription = stringResource(R.string.collection_private_desc),
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.outline
+                        tint = MaterialTheme.colorScheme.outline,
                     )
                 }
             }
             Text(
                 text = stringResource(R.string.collection_item_count, itemCount),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.outline
+                color = MaterialTheme.colorScheme.outline,
             )
         }
         Checkbox(
             checked = isSelected,
-            onCheckedChange = { onToggle() }
+            onCheckedChange = { onToggle() },
         )
     }
 }

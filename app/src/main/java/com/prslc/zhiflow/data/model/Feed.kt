@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ZhihuResponse(
     val data: List<FeedItem> = emptyList(),
-    val paging: PagingData = PagingData()
+    val paging: PagingData = PagingData(),
 )
 
 @Immutable
@@ -16,14 +16,14 @@ data class ZhihuResponse(
 data class PagingData(
     @SerialName("is_end") val isEnd: Boolean = false,
     val next: String? = null,    // next page
-    val previous: String? = null // previous page
+    val previous: String? = null // previous page,
 )
 
 @Immutable
 @Serializable
 data class FeedItem(
     val target: FeedTarget? = null,
-    val type: String? = null
+    val type: String? = null,
 )
 
 @Immutable
@@ -37,7 +37,7 @@ data class FeedTarget(
     val excerpt: String? = null,         // excerpt
     val content: String? = null,         // content text
     @SerialName("voteup_count") val voteCount: Int = 0,     // Agree count
-    @SerialName("comment_count") val commentCount: Int = 0  // comment count
+    @SerialName("comment_count") val commentCount: Int = 0  // comment count,
 )
 
 @Immutable
@@ -48,5 +48,5 @@ data class Question(val title: String? = null)
 @Serializable
 data class FeedAuthor(
     val name: String = "Anonymous user",
-    @SerialName("avatar_url") val avatarUrl: String? = null
+    @SerialName("avatar_url") val avatarUrl: String? = null,
 )

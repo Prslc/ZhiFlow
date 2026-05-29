@@ -68,11 +68,11 @@ fun CommentList(
                                         model = rootComment,
                                         onEvent = onEvent,
                                         isChild = false,
-                                        showReplyButton = false
+                                        showReplyButton = false,
                                     )
                                     HorizontalDivider(
                                         thickness = 4.dp,
-                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
                                     )
                                 }
                             }
@@ -91,12 +91,12 @@ fun CommentList(
                             CommentItem(
                                 model = model,
                                 onEvent = onEvent,
-                                isChild = isChild
+                                isChild = isChild,
                             )
                             HorizontalDivider(
                                 thickness = 0.5.dp,
                                 modifier = Modifier.padding(horizontal = 16.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                             )
                         }
 
@@ -110,7 +110,7 @@ fun CommentList(
                                 ) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp
+                                        strokeWidth = 2.dp,
                                     )
                                 }
                             }

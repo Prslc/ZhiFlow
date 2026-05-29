@@ -45,7 +45,7 @@ data class MomentItemState(
     val publishedAt: Long,
     val actionText: String,
     val actionTime: Long,
-    val isTopping: Boolean
+    val isTopping: Boolean,
 )
 
 fun LazyListScope.momentsContent(
@@ -74,7 +74,7 @@ fun LazyListScope.momentsContent(
                 ErrorView(
                     message = state.error.uiMessage,
                     onRetry = { viewModel.loadMoment(urlToken) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -91,7 +91,7 @@ fun LazyListScope.momentsContent(
                 keyPrefix = prefix,
                 isLoading = state.isNextLoading,
                 error = state.error.takeIf { state.moments.isNotEmpty() },
-                onRetry = { viewModel.loadMore() }
+                onRetry = { viewModel.loadMore() },
             )
         }
     }

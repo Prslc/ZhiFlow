@@ -25,7 +25,7 @@ open class MomentViewModel(
         val isLoading: Boolean = false,
         val isNextLoading: Boolean = false,
         val moments: List<MomentItemState> = emptyList(),
-        val error: ApiException? = null
+        val error: ApiException? = null,
     )
 
     var uiState by mutableStateOf(MomentUiState())
@@ -74,14 +74,14 @@ open class MomentViewModel(
                     val moreCleanMoments = response.data.map { it.toItemState() }
                     uiState = uiState.copy(
                         moments = uiState.moments + moreCleanMoments,
-                        isNextLoading = false
+                        isNextLoading = false,
                     )
                 }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
                     uiState = uiState.copy(
                         error = e as? ApiException,
-                        isNextLoading = false
+                        isNextLoading = false,
                     )
                 }
         }
@@ -92,19 +92,19 @@ class PostsViewModel(repository: MomentRepository) :
     MomentViewModel(
         tabKeyPrefix = "post",
         repository = repository,
-        fetchSource = { repo, token, nextUrl -> repo.getUserPost(token, nextUrl) }
+        fetchSource = { repo, token, nextUrl -> repo.getUserPost(token, nextUrl) },
     )
 
 class ActivitiesViewModel(repository: MomentRepository) :
     MomentViewModel(
         tabKeyPrefix = "activity",
         repository = repository,
-        fetchSource = { repo, token, nextUrl -> repo.getUserActivities(token, nextUrl) }
+        fetchSource = { repo, token, nextUrl -> repo.getUserActivities(token, nextUrl) },
     )
 
 class UpvotesViewModel(repository: MomentRepository) :
     MomentViewModel(
         tabKeyPrefix = "upvote",
         repository = repository,
-        fetchSource = { repo, token, nextUrl -> repo.getUserVote(token, nextUrl) }
+        fetchSource = { repo, token, nextUrl -> repo.getUserVote(token, nextUrl) },
     )

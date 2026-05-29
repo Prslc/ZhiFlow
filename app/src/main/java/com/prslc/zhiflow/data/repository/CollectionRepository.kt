@@ -33,7 +33,7 @@ class CollectionRepository(private val service: CollectionService) {
             id = id,
             contentType = type,
             addIds = add,
-            removeIds = remove
+            removeIds = remove,
         )
     }
 }

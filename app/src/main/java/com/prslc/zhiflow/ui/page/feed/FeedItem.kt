@@ -65,7 +65,7 @@ fun FeedItem(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
 
@@ -79,7 +79,7 @@ fun FeedItem(
                 modifier = Modifier
                     .size(20.dp)
                     .clip(CircleShape),
-                contentScale = Crop
+                contentScale = Crop,
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -88,7 +88,7 @@ fun FeedItem(
             Text(
                 text = target.author?.name ?: stringResource(R.string.anonymous_user),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         }
 
@@ -100,7 +100,7 @@ fun FeedItem(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 3,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -113,7 +113,7 @@ fun FeedItem(
                 target.commentCount
             ),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
         )
     }
 }
@@ -153,7 +153,7 @@ fun TypeLabel(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
     }
 }

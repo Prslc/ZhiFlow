@@ -54,7 +54,7 @@ fun DebugScreen(
                 Column {
                     Text(
                         text = "Enter any URL (Answer, Article, or External)",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
@@ -63,7 +63,7 @@ fun DebugScreen(
                         label = { Text("URL") },
                         placeholder = { Text("https://www.zhihu.com/question/...") },
                         singleLine = false,
-                        maxLines = 3
+                        maxLines = 3,
                     )
                 }
             },
@@ -99,6 +99,6 @@ private fun DebugItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(subtitle) },
         leadingContent = { Icon(Icons.Default.BugReport, null) },
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick),
     )
 }

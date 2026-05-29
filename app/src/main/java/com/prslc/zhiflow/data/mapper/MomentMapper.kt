@@ -46,7 +46,7 @@ internal fun ComponentCard.toItemState(): MomentItemState {
         publishedAt = contentInfo?.publishedAt ?: 0,
         actionText = bem?.momentsBizData?.actionText ?: "",
         actionTime = (bem?.momentsBizData?.actionTimeMs ?: 0) / 1000,
-        isTopping = bem?.momentsBizData?.feedType == "topping"
+        isTopping = bem?.momentsBizData?.feedType == "topping",
     )
 }
 

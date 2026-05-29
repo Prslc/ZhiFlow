@@ -8,14 +8,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MomentsResponse(
     val data: List<ComponentCard> = emptyList(),
-    val paging: MomentsPaging = MomentsPaging()
+    val paging: MomentsPaging = MomentsPaging(),
 )
 
 @Immutable
 @Serializable
 data class MomentsPaging(
     @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String? = null
+    val next: String? = null,
 )
 
 @Immutable
@@ -23,7 +23,7 @@ data class MomentsPaging(
 data class ComponentCard(
     val id: String = "",
     val type: String = "",
-    val extra: CardExtra? = null
+    val extra: CardExtra? = null,
 )
 
 @Immutable
@@ -31,7 +31,7 @@ data class ComponentCard(
 data class CardExtra(
     @SerialName("business_ext_map") val businessExtMap: BusinessExtMap? = null,
     @SerialName("content_type") val contentType: String? = null,
-    @SerialName("content_id") val contentId: String? = null
+    @SerialName("content_id") val contentId: String? = null,
 )
 
 @Immutable
@@ -42,7 +42,7 @@ data class BusinessExtMap(
     val author: MomentAuthor? = null,
     @SerialName("moments_biz_data") val momentsBizData: MomentsBizData? = null,
     @SerialName("reaction_map") val reactionMap: ReactionMap? = null,
-    val router: String? = null
+    val router: String? = null,
 )
 
 @Immutable
@@ -53,7 +53,7 @@ data class ContentInfo(
     @SerialName("content_type") val contentType: String? = null,
     @SerialName("published_at") val publishedAt: Long = 0,
     @SerialName("media_detail") val mediaDetail: MediaDetail? = null,
-    val detail: ContentDetail? = null
+    val detail: ContentDetail? = null,
 )
 
 @Immutable
@@ -62,7 +62,7 @@ data class ContentDetail(
     val title: String? = null,
     @SerialName("plain_content") val plainContent: String? = null,
     val content: String? = null,
-    val summary: String? = null
+    val summary: String? = null,
 )
 
 @Immutable
@@ -71,7 +71,7 @@ data class MediaDetail(
     @SerialName("media_type") val mediaType: String? = null,
     val images: List<MediaImage>? = null,
     val video: MediaVideo? = null,
-    val videos: List<MediaVideo>? = null
+    val videos: List<MediaVideo>? = null,
 )
 
 @Immutable
@@ -81,7 +81,7 @@ data class MediaImage(
     val token: String? = null,
     @SerialName("original_token") val originalToken: String? = null,
     val width: Int = 0,
-    val height: Int = 0
+    val height: Int = 0,
 )
 
 @Immutable
@@ -89,7 +89,7 @@ data class MediaImage(
 data class MediaVideo(
     @SerialName("video_info") val videoInfo: VideoInfo? = null,
     val thumbnail: String? = null,
-    @SerialName("video_id") val videoId: String? = null
+    @SerialName("video_id") val videoId: String? = null,
 )
 
 @Immutable
@@ -99,13 +99,13 @@ data class VideoInfo(
     val width: Int = 0,
     val height: Int = 0,
     @SerialName("play_count") val playCount: Int = 0,
-    val thumbnail: String? = null
+    val thumbnail: String? = null,
 )
 
 @Immutable
 @Serializable
 data class ParentContentData(
-    @SerialName("content_info") val contentInfo: ParentContentInfo? = null
+    @SerialName("content_info") val contentInfo: ParentContentInfo? = null,
 )
 
 @Immutable
@@ -113,7 +113,7 @@ data class ParentContentData(
 data class ParentContentInfo(
     @SerialName("content_type") val contentType: String? = null,
     @SerialName("content_id") val contentId: String? = null,
-    val detail: ContentDetail? = null
+    val detail: ContentDetail? = null,
 )
 
 @Immutable
@@ -122,7 +122,7 @@ data class MomentsBizData(
     @SerialName("action_type") val actionType: String? = null,
     @SerialName("action_text") val actionText: String? = null,
     @SerialName("action_time") val actionTimeMs: Long = 0,
-    @SerialName("feed_type") val feedType: String? = null
+    @SerialName("feed_type") val feedType: String? = null,
 )
 
 @Immutable
@@ -130,21 +130,21 @@ data class MomentsBizData(
 data class MomentAuthor(
     val profile: AuthorProfile? = null,
     val meta: AuthorMeta? = null,
-    val badges: List<AuthorBadge>? = null
+    val badges: List<AuthorBadge>? = null,
 )
 
 @Immutable
 @Serializable
 data class AuthorProfile(
     val avatar: AuthorAvatar? = null,
-    @SerialName("full_name") val fullName: String? = null
+    @SerialName("full_name") val fullName: String? = null,
 )
 
 @Immutable
 @Serializable
 data class AuthorAvatar(
     val url: String? = null,
-    val token: String? = null
+    val token: String? = null,
 )
 
 @Immutable
@@ -152,7 +152,7 @@ data class AuthorAvatar(
 data class AuthorMeta(
     val uid: Long = 0,
     @SerialName("url_token") val urlToken: String? = null,
-    @SerialName("hash_id") val hashId: String? = null
+    @SerialName("hash_id") val hashId: String? = null,
 )
 
 @Immutable
@@ -161,7 +161,7 @@ data class AuthorBadge(
     val description: String? = null,
     val type: String? = null,
     val icon: String? = null,
-    @SerialName("night_icon") val nightIcon: String? = null
+    @SerialName("night_icon") val nightIcon: String? = null,
 )
 
 @Immutable
@@ -172,7 +172,7 @@ data class ReactionMap(
     @SerialName("COLLECT") val collect: ReactionEntry? = null,
     @SerialName("COMMENT") val comment: ReactionEntry? = null,
     @SerialName("SHARE") val share: ReactionEntry? = null,
-    @SerialName("SUBSCRIBE") val subscribe: ReactionEntry? = null
+    @SerialName("SUBSCRIBE") val subscribe: ReactionEntry? = null,
 )
 
 @Immutable
@@ -182,5 +182,5 @@ data class ReactionEntry(
     val reacted: Boolean = false,
     @SerialName("reaction_type") val reactionType: String? = null,
     @SerialName("content_id") val contentId: String? = null,
-    @SerialName("content_type") val contentType: String? = null
+    @SerialName("content_type") val contentType: String? = null,
 )

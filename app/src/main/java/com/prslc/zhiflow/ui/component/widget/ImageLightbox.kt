@@ -74,7 +74,7 @@ fun ImageLightbox(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false
+            decorFitsSystemWindows = false,
         )
     ) {
         val dialogView = LocalView.current
@@ -174,7 +174,7 @@ fun ImageLightbox(
                         if (!zoomableImageState.isImageDisplayed) {
                             CircularProgressIndicator(
                                 color = Color.White.copy(alpha = 0.5f),
-                                modifier = Modifier.statusBarsPadding()
+                                modifier = Modifier.statusBarsPadding(),
                             )
                         }
                     }
@@ -188,7 +188,7 @@ fun ImageLightbox(
                             .align(Alignment.BottomCenter)
                             .padding(bottom = 48.dp),
                         color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }

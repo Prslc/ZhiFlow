@@ -65,7 +65,7 @@ fun PeopleScreen(
     val scrollState = remember(viewModel) {
         PeopleTabBarState(
             onOffsetChanged = { viewModel.headerScrollOffset = it },
-            getOffset = { viewModel.headerScrollOffset }
+            getOffset = { viewModel.headerScrollOffset },
         )
     }
 
@@ -103,7 +103,7 @@ fun PeopleScreen(
                             onTabSelected = { index ->
                                 coroutineScope.launch { pagerState.animateScrollToPage(index) }
                             },
-                            modifier = Modifier.shadow(if (scrollState.isTabsPinned) 2.dp else 0.dp)
+                            modifier = Modifier.shadow(if (scrollState.isTabsPinned) 2.dp else 0.dp),
                         )
 
                         HorizontalPager(
@@ -146,7 +146,7 @@ fun PeopleScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = stringResource(R.string.general_back),
-                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
+                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
                                 )
                             }
 
@@ -155,7 +155,7 @@ fun PeopleScreen(
                                     text = uiState.user.name.orEmpty(),
                                     modifier = Modifier.align(Alignment.Center),
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
                                 )
                             }
 
@@ -166,7 +166,7 @@ fun PeopleScreen(
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
                                     contentDescription = stringResource(R.string.general_more),
-                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White
+                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
                                 )
                             }
                         }
@@ -184,7 +184,7 @@ fun PeopleScreen(
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         ErrorView(
                             message = uiState.error.uiMessage,
-                            onRetry = { viewModel.loadPeople(urlToken) }
+                            onRetry = { viewModel.loadPeople(urlToken) },
                         )
                     }
                     IconButton(
@@ -195,7 +195,7 @@ fun PeopleScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.general_back)
+                            contentDescription = stringResource(R.string.general_back),
                         )
                     }
                 }

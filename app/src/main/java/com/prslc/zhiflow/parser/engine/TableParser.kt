@@ -18,7 +18,7 @@ object TableParser {
                 val processed = contentParser(cellText)
                 RichTextElement.TableCell(processed.content, processed.inlineMetas)
             },
-            hasHeader = table.hasHeadRow
+            hasHeader = table.hasHeadRow,
         )
     }
 }

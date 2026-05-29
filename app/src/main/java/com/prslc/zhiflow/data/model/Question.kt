@@ -16,7 +16,7 @@ data class QuestionDetail(
     @SerialName("answer_count") val answerCount: Int = 0,
     @SerialName("comment_count") val commentCount: Int = 0,
     @SerialName("follower_count") val followerCount: Int = 0,
-    @SerialName("updated_time") val updatedTime: Long = 0L
+    @SerialName("updated_time") val updatedTime: Long = 0L,
 )
 
 @Immutable
@@ -24,5 +24,5 @@ data class QuestionDetail(
 data class Topic(
     val id: String,
     val name: String,
-    @SerialName("avatar_url") val avatarUrl: String? = null
+    @SerialName("avatar_url") val avatarUrl: String? = null,
 )

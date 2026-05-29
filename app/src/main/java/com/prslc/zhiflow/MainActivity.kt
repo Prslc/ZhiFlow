@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                         Navigator(
                             navController = navController,
                             context = context,
-                            uriHandler = uriHandler
+                            uriHandler = uriHandler,
                         )
                     }
 
@@ -89,25 +89,25 @@ class MainActivity : ComponentActivity() {
                             enterTransition = {
                                 slideInHorizontally(
                                     initialOffsetX = { it },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
                                 )
                             },
                             exitTransition = {
                                 slideOutHorizontally(
                                     targetOffsetX = { -it / 5 },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
                                 )
                             },
                             popEnterTransition = {
                                 slideInHorizontally(
                                     initialOffsetX = { -it / 5 },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
                                 )
                             },
                             popExitTransition = {
                                 slideOutHorizontally(
                                     targetOffsetX = { it },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing)
+                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
                                 )
                             }
                         ) {
@@ -153,7 +153,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) { pageIndex ->
             when (tabs[pageIndex]) {
                 HomeTab -> FeedScreen(
-                    onItemClick = { id, type -> navigator.navigateToContent(id, type) }
+                    onItemClick = { id, type -> navigator.navigateToContent(id, type) },
                 )
 
                 DebugTab -> DebugScreen(
@@ -164,7 +164,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
                 ProfileTab -> ProfileScreen(
                     viewModel = profileViewModel,
-                    onNavigateToSettings = { navigator.navigateToSettings() }
+                    onNavigateToSettings = { navigator.navigateToSettings() },
                 )
             }
         }
@@ -200,7 +200,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             }
                             Text(labelText)
                         },
-                        alwaysShowLabel = false
+                        alwaysShowLabel = false,
                     )
                 }
             }

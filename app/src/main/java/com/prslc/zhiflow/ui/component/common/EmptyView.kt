@@ -32,14 +32,14 @@ fun EmptyView(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.outline,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class CollectionResponse(
     val data: List<ZhihuCollection>,
     val paging: Paging? = null,
-    val totals: Int = 0
+    val totals: Int = 0,
 )
 
 @Immutable
@@ -23,7 +23,7 @@ data class ZhihuCollection(
     @SerialName("item_count") val itemCount: Int,
     @SerialName("updated_time") val updatedTime: Long,
     @SerialName("is_default") val isDefault: Boolean = false,
-    val creator: AnswerAuthor? = null
+    val creator: AnswerAuthor? = null,
 )
 
 @Immutable
@@ -33,5 +33,5 @@ data class Paging(
     @SerialName("is_start") val isStart: Boolean = false,
     val next: String? = null,
     val previous: String? = null,
-    val totals: Int = 0
+    val totals: Int = 0,
 )

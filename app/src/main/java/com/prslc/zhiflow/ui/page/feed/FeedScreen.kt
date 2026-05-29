@@ -74,14 +74,14 @@ fun FeedScreen(
                 ) { index, item ->
                     FeedItem(
                         item = item,
-                        onClick = stableOnItemClick
+                        onClick = stableOnItemClick,
                     )
 
                     if (index < items.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                         )
                     }
                 }
@@ -89,7 +89,7 @@ fun FeedScreen(
                     pagingFooter(
                         isLoading = viewModel.uiState.isNextLoading,
                         error = loadMoreError,
-                        onRetry = { viewModel.loadMore() }
+                        onRetry = { viewModel.loadMore() },
                     )
                 }
             }
@@ -103,7 +103,7 @@ fun FeedScreen(
             ErrorView(
                 message = globalError.uiMessage,
                 onRetry = { viewModel.refresh() },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }

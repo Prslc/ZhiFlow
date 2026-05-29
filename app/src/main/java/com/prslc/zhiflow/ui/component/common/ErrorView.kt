@@ -41,14 +41,14 @@ fun ErrorView(
                 imageVector = Icons.Rounded.ErrorOutline,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = message,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
 
@@ -63,7 +63,7 @@ fun ErrorView(
             Icon(
                 imageVector = Icons.Rounded.Refresh,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(18.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = stringResource(R.string.error_retry))

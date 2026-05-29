@@ -74,12 +74,12 @@ fun ContentRichTextList(
         item {
             AuthorSection(
                 author = answer.author,
-                navigator = navigator
+                navigator = navigator,
             )
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
             )
         }
 
@@ -99,7 +99,7 @@ fun ContentRichTextList(
             ) {
                 RichTextSingleElement(
                     element = element,
-                    onImageClick = onImageClick
+                    onImageClick = onImageClick,
                 )
             }
         }
@@ -127,7 +127,7 @@ fun ContentRichTextList(
                         Text(
                             text = text,
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.outline
+                            color = MaterialTheme.colorScheme.outline,
                         )
                     }
                 }
@@ -161,7 +161,7 @@ fun AuthorSection(
             Text(
                 text = author.fullname,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             if (author.description.isNotEmpty()) {
                 Text(
@@ -169,7 +169,7 @@ fun AuthorSection(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.outline,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

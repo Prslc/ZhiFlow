@@ -49,7 +49,7 @@ fun PeopleHeader(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
 
             Row(
@@ -68,7 +68,7 @@ fun PeopleHeader(
                     AsyncImage(
                         model = user.avatar,
                         contentDescription = stringResource(R.string.content_desc_avatar),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
                 }
 
@@ -97,13 +97,13 @@ fun PeopleHeader(
             Text(
                 text = user.name ?: stringResource(R.string.profile_default_username),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             Text(
                 text = user.headline ?: stringResource(R.string.profile_default_headline),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -144,12 +144,12 @@ fun StatItem(
         Text(
             text = formatCount(count),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
         )
     }
 }

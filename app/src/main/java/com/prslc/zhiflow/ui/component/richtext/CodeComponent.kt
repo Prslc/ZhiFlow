@@ -57,7 +57,7 @@ fun CodeBlock(
                     text = lang?.uppercase() ?: "CODE",
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     )
                 )
 
@@ -70,14 +70,14 @@ fun CodeBlock(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = "Copy code",
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
 
             HorizontalDivider(
                 thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
             )
 
             Box(modifier = Modifier.horizontalScroll(scrollState)) {
@@ -88,7 +88,7 @@ fun CodeBlock(
                         fontFamily = FontFamily.Monospace,
                         lineHeight = 20.sp
                     ),
-                    softWrap = false
+                    softWrap = false,
                 )
             }
         }

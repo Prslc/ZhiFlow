@@ -46,7 +46,7 @@ fun PeopleTabContent(
                     momentsContent(
                         urlToken = urlToken,
                         state = state,
-                        viewModel = viewModel
+                        viewModel = viewModel,
                     )
                 }
             }
@@ -59,7 +59,7 @@ fun PeopleTabContent(
                 ErrorView(
                     message = state.error.uiMessage,
                     onRetry = { viewModel.loadMoment(urlToken) },
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             }
         }

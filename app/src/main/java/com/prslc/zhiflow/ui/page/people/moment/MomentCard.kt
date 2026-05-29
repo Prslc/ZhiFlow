@@ -56,7 +56,7 @@ fun MomentCard(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
 
                 Spacer(modifier = Modifier.width(10.dp))
@@ -73,7 +73,7 @@ fun MomentCard(
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
+                            modifier = Modifier.weight(1f, fill = false),
                         )
 
                         if (state.isTopping) {
@@ -87,7 +87,7 @@ fun MomentCard(
                         Text(
                             text = "${formatToDate(state.actionTime)} · ${state.actionText}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                         )
                     }
                 }
@@ -100,7 +100,7 @@ fun MomentCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
@@ -111,7 +111,7 @@ fun MomentCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
@@ -127,7 +127,7 @@ fun MomentCard(
                             modifier = Modifier
                                 .height(100.dp)
                                 .clip(MaterialTheme.shapes.small),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
                         )
                     }
                 }
@@ -141,13 +141,13 @@ fun MomentCard(
                     state.commentCount
                 ),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.outline
+                color = MaterialTheme.colorScheme.outline,
             )
         }
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
             thickness = 0.5.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
         )
     }
 }
@@ -168,7 +168,7 @@ fun TypeLabel(
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
             fontWeight = FontWeight.Bold,
-            letterSpacing = androidx.compose.ui.unit.TextUnit.Unspecified
+            letterSpacing = androidx.compose.ui.unit.TextUnit.Unspecified,
         )
     }
 }

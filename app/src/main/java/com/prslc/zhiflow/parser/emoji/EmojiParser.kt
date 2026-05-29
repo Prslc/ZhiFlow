@@ -25,13 +25,13 @@ object EmojiParser {
                         tag = "EMOJI_ID",
                         annotation = inlineId,
                         start = currentPosition,
-                        end = currentPosition + 1
+                        end = currentPosition + 1,
                     )
                     addStringAnnotation(
                         tag = "EMOJI_PATH",
                         annotation = EmojiMap.getFullUrl(fileName),
                         start = currentPosition,
-                        end = currentPosition + 1
+                        end = currentPosition + 1,
                     )
 
                     appendInlineContent(inlineId, tag)

@@ -18,7 +18,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
     )
     /* Other default text styles to override
     titleLarge = TextStyle(
@@ -33,7 +33,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
     )
     */
 )
@@ -52,20 +52,20 @@ object TextStyles {
     fun linkStyle(isDark: Boolean) = SpanStyle(
         color = if (isDark) ZhihuBlueDark else ZhihuBlue,
         fontWeight = FontWeight.Medium,
-        textDecoration = TextDecoration.None
+        textDecoration = TextDecoration.None,
     )
 
     fun codeStyle(isDark: Boolean) = SpanStyle(
         fontFamily = FontFamily.Monospace,
         background = if (isDark) CodeBackgroundDark else CodeBackgroundLight,
-        fontSize = 14.sp
+        fontSize = 14.sp,
     )
 
     fun referenceStyle(isDark: Boolean) = SpanStyle(
         fontSize = 11.sp,
         baselineShift = BaselineShift.Superscript,
         fontWeight = FontWeight.Bold,
-        color = if (isDark) ZhihuBlueDark else ZhihuBlue
+        color = if (isDark) ZhihuBlueDark else ZhihuBlue,
     )
 
     fun headingStyle(level: Int): TextStyle = when (level) {

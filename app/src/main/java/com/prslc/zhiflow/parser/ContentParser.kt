@@ -159,7 +159,7 @@ object ContentParser {
                         width = img.originalWidth ?: img.width,
                         height = img.originalHeight ?: img.height,
                         description = "",
-                        isGif = img.suffix == "gif"
+                        isGif = img.suffix == "gif",
                     )
                 )
             } ?: emptyList()

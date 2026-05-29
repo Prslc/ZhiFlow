@@ -142,7 +142,7 @@ fun CommentBottomSheet(
                             CommentHeader(
                                 title = stringResource(R.string.comment_reply_detail),
                                 onClose = { onEvent(CommentUiEvent.BackToMain) },
-                                isBackStyle = true
+                                isBackStyle = true,
                             )
 
                             val onLoadMoreChild = remember { { onEvent(CommentUiEvent.LoadMoreReplies) } }
@@ -166,7 +166,7 @@ fun CommentBottomSheet(
             ImageLightbox(
                 imageUrls = uiState.selectedImageUrls,
                 initialIndex = uiState.initialImageIndex,
-                onDismiss = { onEvent(CommentUiEvent.CloseImage) }
+                onDismiss = { onEvent(CommentUiEvent.CloseImage) },
             )
         }
     }
@@ -193,14 +193,14 @@ fun CommentHeader(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "back"
+                    contentDescription = "back",
                 )
             }
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.padding(start = 4.dp),
             )
         } else {
             Text(
@@ -209,7 +209,7 @@ fun CommentHeader(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp)
+                    .padding(start = 16.dp),
             )
             IconButton(
                 onClick = onClose,
@@ -217,7 +217,7 @@ fun CommentHeader(
             ) {
                 Icon(
                     Icons.Default.Close,
-                    contentDescription = "close"
+                    contentDescription = "close",
                 )
             }
         }

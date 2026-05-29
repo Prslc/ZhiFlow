@@ -46,7 +46,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val isLightboxVisible: Boolean = false,
         val selectedImageUrls: List<String> = emptyList(),
         val initialImageIndex: Int = 0,
-        val navigateToUser: String? = null
+        val navigateToUser: String? = null,
     )
 
     @Stable
@@ -56,13 +56,13 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val rootComment: CommentUiModel? = null,
         val offset: String = "",
         val hasMore: Boolean = true,
-        val isDetailMode: Boolean = false
+        val isDetailMode: Boolean = false,
     )
 
     @Stable
     data class CommentUiModel(
         val comment: ZhihuComment,
-        val parsedContent: CommentContent
+        val parsedContent: CommentContent,
     )
 
     var uiState by mutableStateOf(CommentUiState())
@@ -97,7 +97,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 comments = emptyList(),
                 offset = "",
                 hasMore = true,
-                error = null
+                error = null,
             )
         } else {
             uiState = uiState.copy(isLoading = true)
@@ -117,7 +117,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         offset = nextOffset,
                         hasMore = hasNext,
                         isLoading = false,
-                        error = null
+                        error = null,
                     )
                 }
                 .onFailure { e ->
@@ -141,7 +141,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                     isLoading = true,
                     comments = emptyList(),
                     hasMore = true,
-                    offset = ""
+                    offset = "",
                 )
             }
 
@@ -160,7 +160,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         comments = if (forceRefresh) processed else childUiState.comments + processed,
                         offset = nextOffset,
                         hasMore = hasNext,
-                        isLoading = false
+                        isLoading = false,
                     )
                 }
                 .onFailure { e ->
@@ -207,7 +207,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         uiState = uiState.copy(
             selectedImageUrls = listOf(url),
             initialImageIndex = 0,
-            isLightboxVisible = true
+            isLightboxVisible = true,
         )
     }
 
@@ -251,7 +251,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         uiState = uiState.copy(comments = uiState.comments.map(mapper))
         childUiState = childUiState.copy(
             rootComment = childUiState.rootComment?.let(mapper),
-            comments = childUiState.comments.map(mapper)
+            comments = childUiState.comments.map(mapper),
         )
     }
 }

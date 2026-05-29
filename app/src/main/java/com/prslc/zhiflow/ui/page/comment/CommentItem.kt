@@ -53,7 +53,7 @@ fun CommentItem(
 
     val metaStyle = MaterialTheme.typography.labelMedium.copy(
         color = MaterialTheme.colorScheme.outline,
-        fontSize = TextStyles.commentMetaSize
+        fontSize = TextStyles.commentMetaSize,
     )
 
     val navigator = LocalNavigator.current
@@ -81,7 +81,7 @@ fun CommentItem(
                             model = pathAnno.item,
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.Fit,
                         )
                     }
                 )
@@ -107,7 +107,7 @@ fun CommentItem(
                 .size(36.dp)
                 .clip(CircleShape)
                 .clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
         // name
@@ -119,7 +119,7 @@ fun CommentItem(
                 Text(
                     text = comment.author.name,
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) }
+                    modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
                 )
 
                 comment.replyToAuthor?.let { replyTo ->
@@ -129,7 +129,7 @@ fun CommentItem(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.outline
                         ),
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        modifier = Modifier.padding(horizontal = 4.dp),
                     )
                     Text(
                         text = replyTo.name,
@@ -137,7 +137,7 @@ fun CommentItem(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         ),
-                        modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(replyTo.id)) }
+                        modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(replyTo.id)) },
                     )
                 }
             }
@@ -175,7 +175,7 @@ fun CommentItem(
                     parsedContent.images.forEach { image ->
                         ImageComponent(
                             image = image,
-                            onImageClick = { url -> onEvent(CommentUiEvent.OpenImage(url)) }
+                            onImageClick = { url -> onEvent(CommentUiEvent.OpenImage(url)) },
                         )
                     }
                 }
@@ -190,14 +190,14 @@ fun CommentItem(
                 Text(
                     text = formatToDate(comment.createdTime),
                     style = metaStyle,
-                    color = MaterialTheme.colorScheme.outline
+                    color = MaterialTheme.colorScheme.outline,
                 )
 
                 comment.tags.find { it.type == "ip_info" }?.text?.let { ip ->
                     Text(
                         text = ip,
                         style = metaStyle,
-                        color = MaterialTheme.colorScheme.outline
+                        color = MaterialTheme.colorScheme.outline,
                     )
                 }
 
@@ -213,7 +213,7 @@ fun CommentItem(
                         ),
                         modifier = Modifier
                             .clickable { onEvent(CommentUiEvent.LoadChildComments(comment)) }
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 4.dp),
                     )
                 }
             }
@@ -230,14 +230,14 @@ fun CommentItem(
                 imageVector = if (comment.liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                 contentDescription = "like",
                 tint = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(18.dp),
             )
             if (comment.likeCount > 0) {
                 Text(
                     text = comment.likeCount.toString(),
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontSize = TextStyles.commentLikeSize,
-                        color = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                        color = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                     )
                 )
             }

@@ -45,13 +45,13 @@ fun LatexComponent(
         LatexAutoWrap(
             latex = formula.content.cleanLatex(),
             modifier = modifier,
-            config = config
+            config = config,
         )
     } else {
         Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
             LatexAutoWrap(
                 latex = formula.content.cleanLatex(),
-                config = config
+                config = config,
             )
         }
     }
@@ -80,7 +80,7 @@ fun FormulaTextSection(
                 Placeholder(
                     width = dims?.widthPx?.toSp() ?: 20.sp,
                     height = dims?.heightPx?.toSp() ?: 20.sp,
-                    placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
                 )
             }
             meta.inlineId to placeholder
@@ -93,14 +93,14 @@ fun FormulaTextSection(
             val placeholder = measuredPlaceholders[meta.inlineId] ?: Placeholder(
                 width = 2.em,
                 height = 1.2.em,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
             )
 
             meta.inlineId to InlineTextContent(placeholder) {
                 LatexComponent(
                     formula = meta.formula,
                     isInline = true,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }
@@ -135,7 +135,7 @@ fun FormulaTextSection(
             onTextLayout = { layoutResult.value = it },
             style = MaterialTheme.typography.bodyLarge.copy(
                 lineHeight = dynamicLineHeight,
-                letterSpacing = 0.25.sp
+                letterSpacing = 0.25.sp,
             )
         )
     }

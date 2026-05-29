@@ -39,7 +39,7 @@ data class PinHeader(
     @SerialName("action_url") val actionUrl: String? = null,
     @SerialName("text_size") val textSize: Int = 17,
     @SerialName("text_color") val textColor: String? = null,
-    @SerialName("bold") val bold: Boolean = false
+    @SerialName("bold") val bold: Boolean = false,
 )
 
 @Immutable
@@ -47,7 +47,7 @@ data class PinHeader(
 data class PinCommentConfig(
     @SerialName("place_holder") val placeHolder: String? = null,
     @SerialName("can_reply") val canReply: Boolean = false,
-    @SerialName("can_segment_reply") val canSegmentReply: Boolean = false
+    @SerialName("can_segment_reply") val canSegmentReply: Boolean = false,
 )
 
 @Immutable
@@ -55,5 +55,5 @@ data class PinCommentConfig(
 data class RelationshipTips(
     val text: String = "",
     @SerialName("text_color") val textColor: String? = null,
-    @SerialName("action_url") val actionUrl: String? = null
+    @SerialName("action_url") val actionUrl: String? = null,
 )

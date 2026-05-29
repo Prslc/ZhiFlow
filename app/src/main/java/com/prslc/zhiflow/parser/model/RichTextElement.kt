@@ -9,13 +9,13 @@ import com.prslc.zhiflow.data.model.ZhihuImage
 @Immutable
 data class InlineFormulaMeta(
     val formula: Formula,
-    val inlineId: String
+    val inlineId: String,
 )
 
 @Stable
 data class ProcessedText(
     val content: AnnotatedString,
-    val inlineMetas: List<InlineFormulaMeta> = emptyList()
+    val inlineMetas: List<InlineFormulaMeta> = emptyList(),
 )
 
 @Stable
@@ -76,7 +76,7 @@ sealed interface RichTextElement {
     @Stable
     data class TableCell(
         val content: AnnotatedString,
-        val inlineMetas: List<InlineFormulaMeta>
+        val inlineMetas: List<InlineFormulaMeta>,
     )
 
     /** Table with header row support. */

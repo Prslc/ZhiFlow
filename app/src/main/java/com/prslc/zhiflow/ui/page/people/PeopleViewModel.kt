@@ -19,7 +19,7 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
     data class PeopleUiState(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,
-        val error: ApiException? = null
+        val error: ApiException? = null,
     )
 
     var uiState by mutableStateOf(PeopleUiState(isLoading = true))

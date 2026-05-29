@@ -73,7 +73,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(60.dp)
                             .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
 
                     Spacer(modifier = Modifier.width(20.dp))
@@ -82,14 +82,14 @@ fun ProfileScreen(
                         Text(
                             text = user.name ?: stringResource(R.string.profile_default_username),
                             style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                         )
                         Text(
                             text = user.headline
                                 ?: stringResource(R.string.profile_default_headline),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -121,7 +121,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 HorizontalDivider(
                     thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
+                    color = MaterialTheme.colorScheme.outlineVariant,
                 )
             }
         } else if (isLoading) {
@@ -130,7 +130,7 @@ fun ProfileScreen(
             ErrorView(
                 message = uiState.error?.uiMessage ?: stringResource(R.string.error_unknown),
                 onRetry = { viewModel.loadProfile() },
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
 
@@ -144,7 +144,7 @@ fun ProfileScreen(
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = "Settings",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -160,12 +160,12 @@ fun StatItem(
         Text(
             text = formatCount(count),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
         )
     }
 }

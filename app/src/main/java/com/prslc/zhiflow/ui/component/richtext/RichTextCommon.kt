@@ -33,7 +33,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
  */
 class MeasuredInlineData(
     val inlineContent: Map<String, InlineTextContent>,
-    val refreshKey: Any
+    val refreshKey: Any,
 )
 
 /**
@@ -66,7 +66,7 @@ fun List<InlineFormulaMeta>.rememberMeasuredInlineContent(
                 Placeholder(
                     width = dims?.widthPx?.toSp() ?: 2.em,
                     height = dims?.heightPx?.toSp() ?: 1.2.em,
-                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
                 )
             }
         }
@@ -78,13 +78,13 @@ fun List<InlineFormulaMeta>.rememberMeasuredInlineContent(
             val placeholder = measuredPlaceholders[meta.inlineId] ?: Placeholder(
                 width = 2.em,
                 height = 1.2.em,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
             )
 
             meta.inlineId to InlineTextContent(placeholder) {
                 LatexComponent(
                     formula = meta.formula,
-                    isInline = true
+                    isInline = true,
                 )
             }
         }
@@ -94,7 +94,7 @@ fun List<InlineFormulaMeta>.rememberMeasuredInlineContent(
         val hasMeasured = measuredPlaceholders.isNotEmpty() || this@rememberMeasuredInlineContent.isEmpty()
         MeasuredInlineData(
             inlineContent = contentMap,
-            refreshKey = "${this@rememberMeasuredInlineContent.size}_${hasMeasured}"
+            refreshKey = "${this@rememberMeasuredInlineContent.size}_${hasMeasured}",
         )
     }
 }

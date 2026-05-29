@@ -49,7 +49,7 @@ class CommentRepository(private val service: CommentService) {
         return service.commentReaction(
             commentId = commentId,
             action = "like",
-            method = method
+            method = method,
         )
     }
 }

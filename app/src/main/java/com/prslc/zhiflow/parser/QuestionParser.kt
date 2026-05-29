@@ -51,7 +51,7 @@ object QuestionParser {
                         width = w,
                         height = h,
                         description = caption,
-                        isGif = url.lowercase().contains(".gif")
+                        isGif = url.lowercase().contains(".gif"),
                     )
                 ))
             }

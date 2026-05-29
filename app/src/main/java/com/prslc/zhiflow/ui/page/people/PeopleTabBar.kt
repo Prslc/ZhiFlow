@@ -73,7 +73,7 @@ fun PeopleTabBar(
                         val placeable = measurable.measure(
                             constraints.copy(
                                 minWidth = desiredWidthPx,
-                                maxWidth = desiredWidthPx
+                                maxWidth = desiredWidthPx,
                             )
                         )
 
@@ -82,7 +82,7 @@ fun PeopleTabBar(
                         }
                     },
                     color = MaterialTheme.colorScheme.primary,
-                    height = INDICATOR_HEIGHT
+                    height = INDICATOR_HEIGHT,
                 )
             }
         ) {

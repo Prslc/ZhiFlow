@@ -147,7 +147,7 @@ fun ContentDetailScreen(
                         contentType = contentType,
                         scrollBehavior = scrollBehavior,
                         onBack = onBack,
-                        navigator = navigator
+                        navigator = navigator,
                     )
                 },
                 bottomBar = {
@@ -158,7 +158,7 @@ fun ContentDetailScreen(
                         displayUpvoteCount = viewModel.displayUpvoteCount,
                         onVoteClick = onVoteClick,
                         onStarClick = onStarClick,
-                        onCommentClick = onCommentClick
+                        onCommentClick = onCommentClick,
                     )
                 }
             ) { padding ->
@@ -171,7 +171,7 @@ fun ContentDetailScreen(
                         ErrorView(
                             message = loadingState.error.uiMessage,
                             onRetry = { viewModel.loadContent(id, contentType) },
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
 
@@ -190,7 +190,7 @@ fun ContentDetailScreen(
                                             viewModel.openLightbox(index)
                                         }
                                     },
-                                    onProgress = { viewModel.trackProgress(it) }
+                                    onProgress = { viewModel.trackProgress(it) },
                                 )
                             }
                         }
@@ -242,7 +242,7 @@ fun ContentDetailScreen(
                 ImageLightbox(
                     imageUrls = imageUrls,
                     initialIndex = presentation.currentImageIndex,
-                    onDismiss = { viewModel.dismissLightbox() }
+                    onDismiss = { viewModel.dismissLightbox() },
                 )
             }
         }
@@ -294,7 +294,7 @@ private fun ContentDetailTopBar(
                     },
                     fontWeight = FontWeight.Bold,
                     maxLines = if (isCollapsed) 1 else 3,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         },
@@ -302,14 +302,14 @@ private fun ContentDetailTopBar(
             IconButton(onClick = onBack) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.general_back)
+                    contentDescription = stringResource(R.string.general_back),
                 )
             }
         },
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
         )
     )
 }

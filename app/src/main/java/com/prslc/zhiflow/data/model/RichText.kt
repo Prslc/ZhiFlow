@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StructuredContent(
     val segments: List<Segment>,
-    val paging: String? = null
+    val paging: String? = null,
 )
 
 @Immutable
@@ -34,13 +34,13 @@ data class Segment(
 data class Paragraph(
     val text: String = "",
     val marks: List<Mark> = emptyList(),
-    val pid: String? = null
+    val pid: String? = null,
 )
 
 @Immutable
 @Serializable
 data class ReferenceBlock(
-    val items: List<ReferenceItem>
+    val items: List<ReferenceItem>,
 )
 
 @Immutable
@@ -48,7 +48,7 @@ data class ReferenceBlock(
 data class ReferenceItem(
     val text: String,
     @SerialName("indent_level") val indentLevel: Int = 1,
-    val marks: List<Mark> = emptyList()
+    val marks: List<Mark> = emptyList(),
 )
 
 @Immutable
@@ -56,7 +56,7 @@ data class ReferenceItem(
 data class Heading(
     val text: String,   // title style
     val level: Int,
-    val marks: List<Mark> = emptyList()
+    val marks: List<Mark> = emptyList(),
 )
 
 @Immutable
@@ -68,28 +68,28 @@ data class Mark(
     val link: Link? = null,
     @SerialName("entity_word") val entityWord: EntityWord? = null,
     val formula: Formula? = null,
-    val reference: Reference? = null
+    val reference: Reference? = null,
 )
 
 @Immutable
 @Serializable
 data class Blockquote(
     val text: String,
-    val marks: List<Mark> = emptyList()
+    val marks: List<Mark> = emptyList(),
 )
 
 @Immutable
 @Serializable
 data class CodeBlock(
     val content: String,
-    val language: String? = "text"
+    val language: String? = "text",
 )
 
 @Immutable
 @Serializable
 data class ListNode(
     val type: String, // ordered, unordered
-    val items: List<ListItem>
+    val items: List<ListItem>,
 )
 
 @Immutable
@@ -97,7 +97,7 @@ data class ListNode(
 data class ListItem(
     val text: String,
     @SerialName("indent_level") val indentLevel: Int = 1,
-    val marks: List<Mark> = emptyList()
+    val marks: List<Mark> = emptyList(),
 )
 
 @Immutable
@@ -107,14 +107,14 @@ data class Table(
     @SerialName("column_count") val columnCount: Int,
     @SerialName("row_count") val rowCount: Int,
     @SerialName("head_row") val hasHeadRow: Boolean = true,
-    val interlaced: Boolean = false
+    val interlaced: Boolean = false,
 )
 
 @Immutable
 @Serializable
 data class Link(
     val href: String,
-    @SerialName("icon_name") val iconName: String? = null
+    @SerialName("icon_name") val iconName: String? = null,
 )
 
 @Immutable
@@ -122,7 +122,7 @@ data class Link(
 data class EntityWord(
     val word: String,
     val url: String? = null,
-    @SerialName("entity_id") val entityId: String? = null
+    @SerialName("entity_id") val entityId: String? = null,
 )
 
 @Immutable
@@ -131,7 +131,7 @@ data class Formula(
     val content: String, // LaTeX
     @SerialName("img_url") val imgUrl: String? = null,
     val width: Int = 0,
-    val height: Int = 0
+    val height: Int = 0,
 )
 
 @Immutable
@@ -139,13 +139,13 @@ data class FormulaRenderMeta(
     val formula: Formula,
     val inlineId: String,
     val widthSp: TextUnit,
-    val heightSp: TextUnit
+    val heightSp: TextUnit,
 )
 
 @Stable
 data class RichTextState(
     val annotatedString: AnnotatedString,
-    val formulaMetas: List<FormulaRenderMeta>
+    val formulaMetas: List<FormulaRenderMeta>,
 )
 
 @Immutable
@@ -153,7 +153,7 @@ data class RichTextState(
 data class Reference(
     val index: Int,
     val title: String? = null,
-    val href: String? = null
+    val href: String? = null,
 )
 
 @Immutable
@@ -180,7 +180,7 @@ data class CardExtraInfo(
     @SerialName("column_title") val columnTitle: String? = null,
     @SerialName("column_desc") val columnDesc: String? = null,
     @SerialName("action_url") val actionUrl: String? = null,
-    @SerialName("image_list") val imageList: CardImageList? = null
+    @SerialName("image_list") val imageList: CardImageList? = null,
 )
 
 @Immutable
@@ -188,7 +188,7 @@ data class CardExtraInfo(
 data class CardImageList(
     val count: Int = 0,
     @SerialName("is_grid") val isGrid: Boolean = true,
-    val images: List<CardImageItem> = emptyList()
+    val images: List<CardImageItem> = emptyList(),
 )
 
 @Immutable
@@ -201,5 +201,5 @@ data class CardImageItem(
     val suffix: String? = null,
     @SerialName("original_url") val originalUrl: String? = null,
     @SerialName("original_width") val originalWidth: Int? = null,
-    @SerialName("original_height") val originalHeight: Int? = null
+    @SerialName("original_height") val originalHeight: Int? = null,
 )

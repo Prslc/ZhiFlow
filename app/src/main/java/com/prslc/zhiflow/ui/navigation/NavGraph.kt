@@ -44,7 +44,7 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: QuestionDetail = backStackEntry.toRoute()
         QuestionDetailScreen(
             id = route.id,
-            onBack = { navController.popBackStack() }
+            onBack = { navController.popBackStack() },
         )
     }
 
@@ -52,7 +52,7 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: PeopleDetail = backStackEntry.toRoute()
         PeopleScreen(
             urlToken = route.urlToken,
-            onBack = { navController.popBackStack() }
+            onBack = { navController.popBackStack() },
         )
     }
 

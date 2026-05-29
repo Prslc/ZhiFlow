@@ -35,7 +35,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val elements: List<DetailElement> = emptyList(),
         val answers: List<QuestionFeedItem> = emptyList(),
         val error: ApiException? = null,
-        val hasMore: Boolean = false
+        val hasMore: Boolean = false,
     )
 
     var uiState by mutableStateOf(QuestionUiState())
@@ -73,20 +73,20 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         question = detailData,
                         elements = elements,
                         answers = feedResponse?.data ?: emptyList(),
-                        hasMore = feedResponse?.paging?.isEnd == false
+                        hasMore = feedResponse?.paging?.isEnd == false,
                     )
                 } else {
                     val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull()) as? ApiException
                     uiState = uiState.copy(
                         isLoading = false,
-                        error = error
+                        error = error,
                     )
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = e as? ApiException
+                    error = e as? ApiException,
                 )
             }
         }
@@ -105,7 +105,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         uiState = uiState.copy(
                             isNextLoading = false,
                             answers = uiState.answers + response.data,
-                            hasMore = !response.paging.isEnd
+                            hasMore = !response.paging.isEnd,
                         )
                     }
                 .onFailure { e ->

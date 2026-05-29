@@ -41,7 +41,7 @@ fun BulletItemRow(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
             ),
-            modifier = Modifier.width(24.dp)
+            modifier = Modifier.width(24.dp),
         )
         ZRichText(
             content = element.content,
@@ -49,7 +49,7 @@ fun BulletItemRow(
             style = MaterialTheme.typography.bodyMedium.copy(
                 lineHeight = 22.sp
             ),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -66,7 +66,7 @@ fun ReferenceSection(
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
             ),
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(bottom = 4.dp),
         )
 
         items.forEachIndexed { index, content ->
@@ -83,7 +83,7 @@ fun ReferenceSection(
                     lineHeight = 20.sp,
                     color = Color.Gray
                 ),
-                modifier = Modifier.padding(vertical = 2.dp)
+                modifier = Modifier.padding(vertical = 2.dp),
             )
         }
     }

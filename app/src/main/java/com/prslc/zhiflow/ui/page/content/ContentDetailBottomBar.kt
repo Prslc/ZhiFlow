@@ -32,7 +32,7 @@ fun ContentDetailBottomBar(
                 commentCount = content.reaction?.statistics?.commentCount ?: 0,
                 onVoteClick = onVoteClick,
                 onStarClick = onStarClick,
-                onCommentClick = onCommentClick
+                onCommentClick = onCommentClick,
             )
         }
     }

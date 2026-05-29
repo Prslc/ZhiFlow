@@ -21,5 +21,5 @@ data class ZhihuUser(
     @SerialName("voteup_count") val voteupCount: Int = 0,
     @SerialName("favorite_count") val favoriteCount: Int = 0,
     @SerialName("pins_count") val pinsCount: Int = 0,
-    @SerialName("answer_count") val answerCount: Int = 0
+    @SerialName("answer_count") val answerCount: Int = 0,
 )

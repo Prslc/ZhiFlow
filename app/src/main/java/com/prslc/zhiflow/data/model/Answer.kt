@@ -31,13 +31,13 @@ data class AnswerAuthor(
     val headline: String = "",
     @SerialName("avatar_url")
     val avatarUrl: String = "",
-    val avatar: AvatarContainer? = null
+    val avatar: AvatarContainer? = null,
 )
 
 @Immutable
 @Serializable
 data class AvatarContainer(
-    @SerialName("avatar_image") val avatarImage: AvatarImage? = null
+    @SerialName("avatar_image") val avatarImage: AvatarImage? = null,
 )
 
 @Immutable
@@ -46,14 +46,14 @@ data class AvatarImage(
     val day: String? = null,
     val night: String? = null,
     val width: Int = 0,
-    val height: Int = 0
+    val height: Int = 0,
 )
 
 @Immutable
 @Serializable
 data class Header(
     val text: String, // question title
-    @SerialName("sub_title") val subTitle: SubTitle? = null
+    @SerialName("sub_title") val subTitle: SubTitle? = null,
 )
 
 @Immutable
@@ -64,14 +64,14 @@ data class SubTitle(val text: String)
 @Serializable
 data class Reaction(
     val statistics: Statistics,
-    val relation: Relation? = null
+    val relation: Relation? = null,
 )
 
 @Immutable
 @Serializable
 data class Relation(
     val vote: String? = "NEUTRAL",
-    val faved: Boolean = false
+    val faved: Boolean = false,
 )
 
 @Immutable
@@ -87,7 +87,7 @@ data class Statistics(
 data class ContentEndInfo(
     @SerialName("ip_info") val ipInfo: String,
     @SerialName("create_time_text") val createTime: String? = null,
-    @SerialName("update_time_text") val updateTime: String? = null
+    @SerialName("update_time_text") val updateTime: String? = null,
 )
 
 @Immutable
@@ -105,5 +105,5 @@ data class ZhihuImage(
 data class ZhihuQuestion(
     val id: String,
     val title: String,
-    val type: String = "question"
+    val type: String = "question",
 )
