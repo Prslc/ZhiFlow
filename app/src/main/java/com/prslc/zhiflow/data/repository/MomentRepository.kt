@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.data.model.MomentsFeedResponse
 import com.prslc.zhiflow.data.model.MomentsResponse
 import com.prslc.zhiflow.data.service.MomentService
 
@@ -20,9 +21,9 @@ class MomentRepository(private val service: MomentService) {
      *
      * @param urlToken The user's unique URL token.
      * @param nextUrl URL for the next page; if null, fetch the first page.
-     * @return A [Result] containing [MomentsResponse] on success, or an exception on failure.
+     * @return A [Result] containing [MomentsFeedResponse] on success, or an exception on failure.
      */
-    suspend fun getUserActivities(urlToken: String, nextUrl: String? = null): Result<MomentsResponse> =
+    suspend fun getUserActivities(urlToken: String, nextUrl: String? = null): Result<MomentsFeedResponse> =
         service.getUserActivities(urlToken, nextUrl)
 
     /**
@@ -30,8 +31,8 @@ class MomentRepository(private val service: MomentService) {
      *
      * @param urlToken The user's unique URL token.
      * @param nextUrl URL for the next page; if null, fetch the first page.
-     * @return A [Result] containing [MomentsResponse] on success, or an exception on failure.
+     * @return A [Result] containing [MomentsFeedResponse] on success, or an exception on failure.
      */
-    suspend fun getUserVote(urlToken: String, nextUrl: String? = null): Result<MomentsResponse> =
+    suspend fun getUserVote(urlToken: String, nextUrl: String? = null): Result<MomentsFeedResponse> =
         service.getUserVote(urlToken, nextUrl)
 }

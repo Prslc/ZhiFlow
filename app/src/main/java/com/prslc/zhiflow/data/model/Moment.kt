@@ -4,12 +4,17 @@ import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+interface MomentsPage<out T> {
+    val data: List<T>
+    val paging: MomentsPaging
+}
+
 @Immutable
 @Serializable
 data class MomentsResponse(
-    val data: List<ComponentCard> = emptyList(),
-    val paging: MomentsPaging = MomentsPaging(),
-)
+    override val data: List<ComponentCard> = emptyList(),
+    override val paging: MomentsPaging = MomentsPaging(),
+) : MomentsPage<ComponentCard>
 
 @Immutable
 @Serializable

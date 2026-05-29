@@ -2,6 +2,7 @@ package com.prslc.zhiflow.data.service
 
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.safeApiCall
+import com.prslc.zhiflow.data.model.MomentsFeedResponse
 import com.prslc.zhiflow.data.model.MomentsResponse
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -42,12 +43,12 @@ class MomentService(private val okHttpClient: OkHttpClient) {
      *
      * @param urlToken The user's unique URL token identifier.
      * @param nextUrl The pagination URL provided by the previous response for infinite scrolling.
-     * @return A [Result] containing [MomentsResponse] on success.
+     * @return A [Result] containing [MomentsFeedResponse] on success.
      */
     suspend fun getUserActivities(
         urlToken: String,
         nextUrl: String? = null
-    ): Result<MomentsResponse> = okHttpClient.safeApiCall {
+    ): Result<MomentsFeedResponse> = okHttpClient.safeApiCall {
         val url = nextUrl ?: "${Client.BASE_URL}/moments/$urlToken/activities"
 
         Request.Builder()
@@ -61,12 +62,12 @@ class MomentService(private val okHttpClient: OkHttpClient) {
      *
      * @param urlToken The user's unique URL token.
      * @param nextUrl The pagination URL provided by the previous response.
-     * @return A [Result] containing [MomentsResponse] on success.
+     * @return A [Result] containing [MomentsFeedResponse] on success.
      */
     suspend fun getUserVote(
         urlToken: String,
         nextUrl: String? = null
-    ): Result<MomentsResponse> = okHttpClient.safeApiCall {
+    ): Result<MomentsFeedResponse> = okHttpClient.safeApiCall {
         val url = nextUrl ?: "${Client.BASE_URL}/moments/$urlToken/vote"
 
         Request.Builder()

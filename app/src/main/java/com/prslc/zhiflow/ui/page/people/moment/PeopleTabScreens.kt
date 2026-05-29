@@ -18,7 +18,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PeopleTabContent(
     urlToken: String,
-    viewModel: MomentViewModel,
+    viewModel: MomentViewModel<*>,
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.uiState

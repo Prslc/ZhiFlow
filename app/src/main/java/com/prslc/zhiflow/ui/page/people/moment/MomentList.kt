@@ -24,6 +24,7 @@ enum class MomentContentType {
     ANSWER,
     ARTICLE,
     THOUGHT,
+    USER,
     UNKNOWN
 }
 
@@ -51,7 +52,7 @@ data class MomentItemState(
 fun LazyListScope.momentsContent(
     urlToken: String,
     state: MomentViewModel.MomentUiState,
-    viewModel: MomentViewModel
+    viewModel: MomentViewModel<*>
 ) {
     val prefix = viewModel.tabKeyPrefix
 
@@ -82,7 +83,7 @@ fun LazyListScope.momentsContent(
         else -> {
             itemsIndexed(
                 items = state.moments,
-                key = { _, item -> "${prefix}_${item.id}" }
+                key = { index, item -> "${prefix}_${index}_${item.id}" }
             ) { _, item ->
                 MomentCard(state = item, modifier = Modifier.fillMaxWidth())
             }

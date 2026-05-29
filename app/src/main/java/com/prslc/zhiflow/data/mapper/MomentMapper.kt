@@ -1,6 +1,8 @@
 package com.prslc.zhiflow.data.mapper
 
 import com.prslc.zhiflow.data.model.ComponentCard
+import com.prslc.zhiflow.data.model.MediaImage
+import com.prslc.zhiflow.data.model.MomentsFeedItem
 import com.prslc.zhiflow.ui.page.people.moment.MomentContentType
 import com.prslc.zhiflow.ui.page.people.moment.MomentItemState
 
@@ -49,4 +51,111 @@ internal fun ComponentCard.toItemState(): MomentItemState {
         isTopping = bem?.momentsBizData?.feedType == "topping",
     )
 }
+
+internal fun MomentsFeedItem.toItemState(): MomentItemState {
+    val target = this.target
+    val source = this.source
+    val bem = extra?.businessExtMap
+
+    val actionType = source?.actionType ?: bem?.momentsBizData?.actionType
+
+    val momentType = when {
+        actionType == "MEMBER_MEMBER_FOLLOW" -> MomentContentType.USER
+        actionType == "MEMBER_FOLLOW_QUESTION" -> MomentContentType.UNKNOWN
+        target?.type == "answer" -> MomentContentType.ANSWER
+        target?.type == "article" -> MomentContentType.ARTICLE
+        target?.type == "pin" -> MomentContentType.THOUGHT
+        bem?.contentInfo?.contentType == "ANSWER" -> MomentContentType.ANSWER
+        bem?.contentInfo?.contentType == "ARTICLE" -> MomentContentType.ARTICLE
+        bem?.contentInfo?.contentType == "PIN" -> MomentContentType.THOUGHT
+        target?.type == "question" -> MomentContentType.UNKNOWN
+        else -> MomentContentType.UNKNOWN
+    }
+
+    val title = when (momentType) {
+        MomentContentType.USER -> target?.name
+        MomentContentType.ANSWER -> target?.question?.title
+            ?: bem?.parentContentData?.contentInfo?.detail?.title
+        MomentContentType.ARTICLE -> target?.title
+            ?: bem?.contentInfo?.detail?.title
+        MomentContentType.THOUGHT -> target?.excerptTitle
+            ?: bem?.contentInfo?.detail?.title
+        else -> target?.question?.title
+            ?: target?.excerptTitle
+            ?: target?.title
+            ?: target?.name
+            ?: bem?.parentContentData?.contentInfo?.detail?.title
+            ?: bem?.contentInfo?.detail?.title
+    } ?: ""
+
+    val plainContent = when (momentType) {
+        MomentContentType.USER -> target?.headline
+        else -> target?.excerpt
+            ?: target?.content?.firstOrNull { it.type == "text" }?.ownText
+            ?: bem?.contentInfo?.detail?.plainContent
+    } ?: ""
+
+    val authorName = source?.actor?.name
+        ?: bem?.author?.profile?.fullName
+        ?: "Anonymous user"
+
+    val authorAvatarUrl = source?.actor?.avatarUrl
+        ?: bem?.author?.profile?.avatar?.url
+
+    val routerUrl = target?.url
+        ?: bem?.router
+
+    val voteCount = target?.voteupCount
+        ?: (bem?.reactionMap?.like?.count ?: 0) + (bem?.reactionMap?.voteUp?.count ?: 0)
+
+    val commentCount = target?.commentCount
+        ?: bem?.reactionMap?.comment?.count
+        ?: 0
+
+    val images = target?.legoInfo?.imageList?.map {
+        MediaImage(url = it.originalUrl, width = it.width, height = it.height)
+    } ?: bem?.contentInfo?.mediaDetail?.images ?: emptyList()
+
+    val thumbnail = when (momentType) {
+        MomentContentType.USER -> target?.avatarUrl
+        MomentContentType.ARTICLE -> target?.imageUrl ?: images.firstOrNull()?.url
+        else -> images.firstOrNull()?.url
+    }
+
+    val publishedAt = source?.actionTime
+        ?: bem?.contentInfo?.publishedAt
+        ?: 0
+
+    val actionText = source?.actionText
+        ?: bem?.momentsBizData?.actionText
+        ?: ""
+
+    val actionTime = source?.actionTime
+        ?: (bem?.momentsBizData?.actionTimeMs ?: 0L) / 1000
+
+    val collectCount = bem?.reactionMap?.collect?.count ?: 0
+
+    val isTopping = bem?.momentsBizData?.feedType == "topping"
+
+    return MomentItemState(
+        id = "${this.id}_${target?.id ?: bem?.contentInfo?.contentId ?: ""}",
+        type = momentType,
+        title = title,
+        plainContent = plainContent,
+        summary = target?.description ?: bem?.contentInfo?.detail?.summary ?: "",
+        authorName = authorName,
+        authorAvatarUrl = authorAvatarUrl,
+        routerUrl = routerUrl,
+        voteCount = voteCount,
+        commentCount = commentCount,
+        collectCount = collectCount,
+        mediaImages = images,
+        videoThumbnail = thumbnail,
+        publishedAt = publishedAt,
+        actionText = actionText,
+        actionTime = actionTime,
+        isTopping = isTopping,
+    )
+}
+
 
