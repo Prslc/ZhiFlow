@@ -31,7 +31,7 @@ open class MomentViewModel<T>(
         val error: ApiException? = null,
     )
 
-    var uiState by mutableStateOf(MomentUiState())
+    var uiState by mutableStateOf(MomentUiState(isLoading = true))
         private set
 
     val listState = LazyListState()
@@ -39,6 +39,13 @@ open class MomentViewModel<T>(
     private var nextUrl: String? = null
     private var isEnd: Boolean = false
     private var currentUrlToken: String? = null
+    private var lastLoadedToken: String? = null
+
+    fun loadIfNeeded(urlToken: String) {
+        if (lastLoadedToken == urlToken) return
+        lastLoadedToken = urlToken
+        loadMoment(urlToken)
+    }
 
     fun loadMoment(urlToken: String) {
         currentUrlToken = urlToken

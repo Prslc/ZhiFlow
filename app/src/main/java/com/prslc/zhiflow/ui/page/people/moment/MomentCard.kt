@@ -167,7 +167,7 @@ fun MomentCard(
                 if (images.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        itemsIndexed(images, key = { index, img -> img.token ?: img.url ?: "$index" })
+                        itemsIndexed(images, key = { index, img -> "${img.token ?: img.url ?: "img"}_$index" })
                         { _, image ->
                             AsyncImage(
                                 model = image.url,

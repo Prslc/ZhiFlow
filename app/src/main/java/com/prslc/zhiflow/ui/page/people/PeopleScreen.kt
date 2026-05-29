@@ -89,14 +89,10 @@ fun PeopleScreen(
         ) {
             when {
                 uiState.user != null -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer {
-                                translationY =
-                                    scrollState.compensatedHeaderHeight + viewModel.headerScrollOffset
-                                alpha = if (scrollState.compensatedHeaderHeight > 0f) 1f else 0f
-                            }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = with(density) { (scrollState.compensatedHeaderHeight + viewModel.headerScrollOffset).toDp() })
                     ) {
                         PeopleTabBar(
                             pagerState = pagerState,

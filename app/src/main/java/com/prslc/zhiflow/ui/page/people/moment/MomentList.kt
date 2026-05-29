@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +64,7 @@ fun LazyListScope.momentsContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .fillParentMaxHeight()
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -72,11 +75,35 @@ fun LazyListScope.momentsContent(
 
         state.error != null && state.moments.isEmpty() -> {
             item(key = "${prefix}_initial_error") {
-                ErrorView(
-                    message = state.error.uiMessage,
-                    onRetry = { viewModel.loadMoment(urlToken) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillParentMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorView(
+                        message = state.error.uiMessage,
+                        onRetry = { viewModel.loadMoment(urlToken) },
+                    )
+                }
+            }
+        }
+
+        !state.isLoading && state.moments.isEmpty() -> {
+            item(key = "${prefix}_empty") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillParentMaxHeight()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.people_works_empty),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
 
