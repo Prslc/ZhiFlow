@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.ui.page.content
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class CollectionViewModel(private val repository: CollectionRepository) : ViewModel() {
 
-    @Stable
+    @Immutable
     data class CollectionUiState(
         val collections: List<ZhihuCollection> = emptyList(),
         val selectedIds: Map<Long, Boolean> = emptyMap(),

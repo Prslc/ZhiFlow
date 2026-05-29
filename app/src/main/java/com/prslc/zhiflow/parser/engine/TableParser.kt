@@ -1,11 +1,11 @@
 package com.prslc.zhiflow.parser.engine
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.model.Table
 import com.prslc.zhiflow.parser.model.RichTextElement
 import com.prslc.zhiflow.parser.model.ProcessedText
 
-@Stable
+@Immutable
 object TableParser {
     fun parse(
         table: Table,

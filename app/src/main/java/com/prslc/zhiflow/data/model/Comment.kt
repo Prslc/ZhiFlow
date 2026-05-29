@@ -6,6 +6,7 @@ import androidx.compose.ui.text.AnnotatedString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class CommentResponse(
     val data: List<ZhihuComment>,
@@ -20,7 +21,7 @@ data class CommentContent(
     val images: List<ZhihuImage>
 )
 
-@Stable
+@Immutable
 @Serializable
 data class ZhihuComment(
     val id: String,
@@ -78,6 +79,7 @@ data class ExposedMedal(
     val description: String = ""
 )
 
+@Immutable
 @Serializable
 data class AtmosphereConfig(
     val title: String? = null,

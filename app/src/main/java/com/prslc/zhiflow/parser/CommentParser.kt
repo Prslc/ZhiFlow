@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.parser
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import android.text.Html
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -9,7 +9,7 @@ import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ZhihuImage
 import com.prslc.zhiflow.parser.emoji.EmojiParser
 
-@Stable
+@Immutable
 object CommentParser {
     /**
      * Parse Zhihu comment HTML into a [CommentContent] with extracted images.

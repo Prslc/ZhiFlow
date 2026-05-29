@@ -5,14 +5,14 @@ import androidx.compose.runtime.Stable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Stable
+@Immutable
 @Serializable
 data class QuestionFeedResponse(
     val data: List<QuestionFeedItem>,
     val paging: Paging
 )
 
-@Stable
+@Immutable
 @Serializable
 data class QuestionFeedItem(
     val type: String, // "question_feed_card"
@@ -20,7 +20,7 @@ data class QuestionFeedItem(
     val target: AnswerTarget
 )
 
-@Stable
+@Immutable
 @Serializable
 data class AnswerTarget(
     val id: String,
@@ -33,7 +33,7 @@ data class AnswerTarget(
     @SerialName("thumbnail_info") val thumbnailInfo: ThumbnailInfo? = null
 )
 
-@Stable
+@Immutable
 @Serializable
 data class ThumbnailInfo(
     val thumbnails: List<ZhihuThumbnail> = emptyList()

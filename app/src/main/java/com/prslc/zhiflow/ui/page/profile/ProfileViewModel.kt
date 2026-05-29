@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.ui.page.profile
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,7 +14,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
-    @Stable
+    @Immutable
     data class UserUiState(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,

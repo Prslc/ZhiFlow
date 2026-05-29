@@ -21,7 +21,7 @@ data class ProcessedText(
 @Stable
 sealed class DetailElement {
     /** Plain text segment extracted from question HTML. */
-    @Immutable
+    @Stable
     data class Text(val content: AnnotatedString) : DetailElement()
     /** Image extracted from a `<figure>` tag. */
     @Stable
@@ -37,7 +37,7 @@ sealed class DetailElement {
 @Stable
 sealed interface RichTextElement {
     /** Section heading with level (h1-h6). */
-    @Immutable
+    @Stable
     data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
     /** Inline or block image. */
     @Stable

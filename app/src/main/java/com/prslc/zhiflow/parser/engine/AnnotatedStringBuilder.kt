@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.parser.engine
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -11,7 +11,7 @@ import com.prslc.zhiflow.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.parser.model.ProcessedText
 import com.prslc.zhiflow.ui.theme.TextStyles
 
-@Stable
+@Immutable
 object AnnotatedStringBuilder {
     /**
      * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.

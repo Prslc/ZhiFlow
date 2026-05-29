@@ -21,6 +21,7 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.component.common.LoadingView
 
+@Immutable
 enum class MomentContentType {
     ANSWER,
     ARTICLE,

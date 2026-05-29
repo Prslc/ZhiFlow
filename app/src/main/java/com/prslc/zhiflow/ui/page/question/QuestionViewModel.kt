@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.question
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
+@Immutable
 sealed interface QuestionUiEvent {
     data class LoadMore(val id: String) : QuestionUiEvent
 }

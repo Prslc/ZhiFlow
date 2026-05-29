@@ -1,14 +1,13 @@
 package com.prslc.zhiflow.ui.navigation
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 
-@Stable
+@Immutable
 @Serializable
 object MainContainer
 
-@Stable
+@Immutable
 @Serializable
 object Settings
 
@@ -32,14 +31,14 @@ data class QuestionDetail(val id: String)
 @Serializable
 data class PeopleDetail(val urlToken: String)
 
-@Stable
+@Immutable
 @Serializable
 object HomeTab
 
-@Stable
+@Immutable
 @Serializable
 object DebugTab
 
-@Stable
+@Immutable
 @Serializable
 object ProfileTab

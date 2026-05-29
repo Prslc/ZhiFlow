@@ -4,6 +4,7 @@ import android.text.Html
 import android.text.Spanned
 import android.text.style.URLSpan
 import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -11,6 +12,7 @@ import com.prslc.zhiflow.data.model.ZhihuImage
 import com.prslc.zhiflow.parser.emoji.EmojiParser
 import com.prslc.zhiflow.parser.model.DetailElement
 
+@Immutable
 object QuestionParser {
     private val figureRegex = """<figure[^>]*>(.*?)</figure>""".toRegex(RegexOption.DOT_MATCHES_ALL)
     private val imgRegex = """<img[^>]+src="([^"]+)"[^>]*data-rawwidth="(\d+)"[^>]*data-rawheight="(\d+)"[^>]*>""".toRegex()

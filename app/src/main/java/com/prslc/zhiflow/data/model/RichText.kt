@@ -6,12 +6,14 @@ import androidx.compose.ui.unit.TextUnit
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class StructuredContent(
     val segments: List<Segment>,
     val paging: String? = null
 )
 
+@Immutable
 @Serializable
 data class Segment(
     val type: String, // paragraph, heading, blockquote, code_block, list_node, table, hr, formula...
@@ -27,6 +29,7 @@ data class Segment(
     val card: Card? = null,
 )
 
+@Immutable
 @Serializable
 data class Paragraph(
     val text: String = "",
@@ -34,11 +37,13 @@ data class Paragraph(
     val pid: String? = null
 )
 
+@Immutable
 @Serializable
 data class ReferenceBlock(
     val items: List<ReferenceItem>
 )
 
+@Immutable
 @Serializable
 data class ReferenceItem(
     val text: String,
@@ -46,6 +51,7 @@ data class ReferenceItem(
     val marks: List<Mark> = emptyList()
 )
 
+@Immutable
 @Serializable
 data class Heading(
     val text: String,   // title style
@@ -65,6 +71,7 @@ data class Mark(
     val reference: Reference? = null
 )
 
+@Immutable
 @Serializable
 data class Blockquote(
     val text: String,
@@ -78,12 +85,14 @@ data class CodeBlock(
     val language: String? = "text"
 )
 
+@Immutable
 @Serializable
 data class ListNode(
     val type: String, // ordered, unordered
     val items: List<ListItem>
 )
 
+@Immutable
 @Serializable
 data class ListItem(
     val text: String,
@@ -91,6 +100,7 @@ data class ListItem(
     val marks: List<Mark> = emptyList()
 )
 
+@Immutable
 @Serializable
 data class Table(
     val cells: List<String>,
@@ -132,6 +142,7 @@ data class FormulaRenderMeta(
     val heightSp: TextUnit
 )
 
+@Stable
 data class RichTextState(
     val annotatedString: AnnotatedString,
     val formulaMetas: List<FormulaRenderMeta>

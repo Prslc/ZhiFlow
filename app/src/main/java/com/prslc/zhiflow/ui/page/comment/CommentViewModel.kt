@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.comment
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
+@Immutable
 sealed interface CommentUiEvent {
     data object DismissSheet : CommentUiEvent
     data object BackToMain : CommentUiEvent

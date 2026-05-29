@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model
 
+@Immutable
 enum class ContentType(
     val type: String,
     val apiPath: String

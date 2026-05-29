@@ -18,7 +18,7 @@ sealed class LinkDestination {
     data class External(val url: String) : LinkDestination()
 }
 
-@Stable
+@Immutable
 object LinkParser {
     fun parse(url: String, contentType: String? = null): LinkDestination {
         val uri = url.toUri()

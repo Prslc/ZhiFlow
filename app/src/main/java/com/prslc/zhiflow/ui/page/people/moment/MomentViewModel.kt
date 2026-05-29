@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.ui.page.people.moment
 
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,7 +20,7 @@ open class MomentViewModel(
     private val fetchSource: suspend (repository: MomentRepository, urlToken: String, nextUrl: String?) -> Result<MomentsResponse>
 ) : ViewModel() {
 
-    @Stable
+    @Immutable
     data class MomentUiState(
         val isLoading: Boolean = false,
         val isNextLoading: Boolean = false,
