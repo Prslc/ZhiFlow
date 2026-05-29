@@ -22,12 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.prslc.zhiflow.core.utils.rememberCopyTextToClipboard
 
 @Composable
 fun CodeBlock(
@@ -35,7 +34,7 @@ fun CodeBlock(
     lang: String?,
     modifier: Modifier = Modifier
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val copyText = rememberCopyTextToClipboard()
     val scrollState = rememberScrollState()
 
     Card(
@@ -62,9 +61,7 @@ fun CodeBlock(
                 )
 
                 IconButton(
-                    onClick = {
-                        clipboardManager.setText(AnnotatedString(code))
-                    }
+                    onClick = { copyText(code) }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
