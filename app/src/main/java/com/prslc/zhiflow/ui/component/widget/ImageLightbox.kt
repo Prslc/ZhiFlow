@@ -89,12 +89,10 @@ fun ImageLightbox(
             dialogWindow?.let { window ->
                 val controller = WindowCompat.getInsetsController(window, dialogView)
                 if (isCurrentPageZoomed) {
-                    // Hide status bars during zoom for immersive viewing with swipe-to-show behavior
                     controller.hide(barsType)
                     controller.systemBarsBehavior =
                         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 } else {
-                    // Restore status bars and ensure icon visibility when image is fit to screen
                     controller.show(barsType)
                     controller.isAppearanceLightStatusBars = false
                 }
@@ -103,7 +101,6 @@ fun ImageLightbox(
 
         DisposableEffect(dialogWindow) {
             onDispose {
-                // Force light status bar icons for the dark background and restore system defaults on exit
                 dialogWindow?.let { window ->
                     val controller = WindowCompat.getInsetsController(window, dialogView)
                     controller.show(WindowInsetsCompat.Type.statusBars())

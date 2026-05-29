@@ -13,6 +13,12 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Stable
 object AnnotatedStringBuilder {
+    /**
+     * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.
+     *
+     * Segments text by mark boundaries, applies span styles (bold, italic, code, link, etc.),
+     * and invokes [onFormulaFound] for inline formula placeholders.
+     */
     fun build(
         rawText: String,
         marks: List<Mark>,

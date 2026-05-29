@@ -7,7 +7,8 @@ import com.prslc.zhiflow.data.service.CollectionService
 class CollectionRepository(private val service: CollectionService) {
 
     /**
-     * Retrieve the list of collections (favorites) for a specific content item
+     * Retrieve the list of collections (favorites) for a specific content item.
+     *
      * @param id Content ID
      * @param type Content type ([ContentType.ANSWER] or [ContentType.ARTICLE])
      */
@@ -15,7 +16,8 @@ class CollectionRepository(private val service: CollectionService) {
         service.getCollectionsForContent(id, type)
 
     /**
-     * Update the collection status (add/remove) of a content item
+     * Update the collection status (add/remove) of a content item.
+     *
      * @param id Content ID
      * @param type Content type ([ContentType.ANSWER] or [ContentType.ARTICLE])
      * @param add List of collection IDs to add the content to

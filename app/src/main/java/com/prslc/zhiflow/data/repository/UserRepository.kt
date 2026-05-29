@@ -13,7 +13,7 @@ class UserRepository(private val service: UserService) {
     suspend fun getMyDetail(): Result<ZhihuUser> = service.getUserDetail("self")
 
     /**
-     * Fetches the public profile details of a specific user.
+     * Fetch the public profile details of a specific user.
      *
      * @param urlToken The unique identifier (slug) of the user (e.g., "excited-vczh").
      * @return A [Result] wrapping [ZhihuUser].

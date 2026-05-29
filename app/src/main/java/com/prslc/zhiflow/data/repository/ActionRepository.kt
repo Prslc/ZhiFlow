@@ -8,7 +8,8 @@ class ActionRepository(private val service: ActionService) {
 
     /**
      * Votes on a piece of content (Upvote/Downvote/Cancel).
-     * * @param id The target ID (answer or article)
+     *
+     * @param id The target ID (answer or article)
      * @param type ContentType (e.g., ARTICLE, ANSWER)
      * @param action "up" or "down"
      * @param isRevoke If true, uses DELETE to cancel the vote

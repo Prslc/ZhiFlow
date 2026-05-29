@@ -31,7 +31,7 @@ object JsonHelper {
 
     /**
      * Converts a data object into its JSON string representation.
-     * * @param data The object to serialize.
+     * @param data The object to serialize.
      * @return A JSON formatted string.
      */
     fun <T> toJson(data: T): String = json.encodeToString(data as Any)

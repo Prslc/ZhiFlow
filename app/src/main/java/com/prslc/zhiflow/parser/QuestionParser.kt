@@ -16,6 +16,12 @@ object QuestionParser {
     private val imgRegex = """<img[^>]+src="([^"]+)"[^>]*data-rawwidth="(\d+)"[^>]*data-rawheight="(\d+)"[^>]*>""".toRegex()
     private val captionRegex = """<figcaption>(.*?)</figcaption>""".toRegex()
 
+    /**
+     * Parse question detail HTML into a list of [DetailElement].
+     *
+     * Extracts `<figure>` tags as images with width/height/caption, and renders
+     * the remaining text segments via [renderHtmlText].
+     */
     fun parse(html: String?): List<DetailElement> {
         if (html.isNullOrEmpty()) return emptyList()
 

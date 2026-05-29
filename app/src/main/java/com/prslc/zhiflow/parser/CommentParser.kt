@@ -11,6 +11,12 @@ import com.prslc.zhiflow.parser.emoji.EmojiParser
 
 @Stable
 object CommentParser {
+    /**
+     * Parse Zhihu comment HTML into a [CommentContent] with extracted images.
+     *
+     * Strips image `<a>` tags from the HTML, extracts them as [ZhihuImage], and
+     * converts the remaining text to an [AnnotatedString] with emoji and URL span support.
+     */
     fun parse(html: String): CommentContent {
     val extractedImages = mutableListOf<ZhihuImage>()
 

@@ -11,6 +11,12 @@ object HeaderProvider {
     const val ZSE_93 = "101_1_1.0"
     private const val ZHIHU_VERSION_CODE = "27314"
 
+    /**
+     * Generate the `x-zse-96` request signature.
+     *
+     * Signs the concatenation of ZSE protocol version, URL path, app version,
+     * authorization token, and device UDID using the native encrypt library.
+     */
     fun zse96(auth: String, urlPath: String): String {
         val signStr = "$ZSE_93+$urlPath+${APP_VERSION}+$auth+${BuildConfig.x_udid}"
         val zse96 = Natives.zse96Sign(signStr)

@@ -15,6 +15,12 @@ import com.prslc.zhiflow.parser.model.RichTextElement
 
 @Stable
 object ContentParser {
+    /**
+     * Transform raw API segments into renderable [RichTextElement] list.
+     *
+     * Handles paragraph, heading, list, blockquote, table, card, image, code block,
+     * reference block, and horizontal rule segment types.
+     */
     fun transform(
         segments: List<Segment>,
         isDark: Boolean = false

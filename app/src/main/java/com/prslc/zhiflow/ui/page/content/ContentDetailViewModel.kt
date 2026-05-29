@@ -79,9 +79,10 @@ class ContentViewModel(
             ?: 0) + interactionState.upvoteOffset
 
     /**
-     * Load data by content type
+     * Load content by [ContentType]
+     *
      * @param id Content ID
-     * @param type "answer" or "article"
+     * @param type Content type (ARTICLE, ANSWER, or PIN)
      */
     fun loadContent(id: String, type: ContentType) {
         loadJob?.cancel()

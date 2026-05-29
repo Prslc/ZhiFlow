@@ -15,7 +15,7 @@ data class ZhihuResponse(
 data class PagingData(
     @SerialName("is_end") val isEnd: Boolean = false,
     val next: String? = null,    // next page
-    val previous: String? = null // pre page
+    val previous: String? = null // previous page
 )
 
 @Immutable

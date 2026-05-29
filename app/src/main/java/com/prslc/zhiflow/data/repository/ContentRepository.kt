@@ -5,7 +5,7 @@ import com.prslc.zhiflow.data.service.ContentService
 class ContentRepository(private val service: ContentService) {
 
     /**
-     * Fetch answer detail by ID
+     * Fetch answer detail by ID.
      *
      * @param id The unique identifier of the answer
      * @return A [Result] containing [ZhihuAnswer] on success
@@ -13,7 +13,7 @@ class ContentRepository(private val service: ContentService) {
     suspend fun getAnswer(id: String) = service.getAnswerDetail(id)
 
     /**
-     * Fetch article detail by ID
+     * Fetch article detail by ID.
      *
      * @param id The unique identifier of the article
      * @return A [Result] containing [ZhihuArticle] on success
@@ -21,7 +21,7 @@ class ContentRepository(private val service: ContentService) {
     suspend fun getArticle(id: String) = service.getArticleDetail(id)
 
     /**
-     * Fetch pin (thought) detail by ID
+     * Fetch pin (thought) detail by ID.
      *
      * @param id The unique identifier of the pin
      * @return A [Result] containing [ZhihuPin] on success

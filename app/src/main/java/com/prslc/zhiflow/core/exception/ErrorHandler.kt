@@ -3,8 +3,8 @@ package com.prslc.zhiflow.core.exception
 import okhttp3.Response
 import java.io.IOException
 
-/**
- * Converts a [Throwable] or an OkHttp [Response] into a domain-specific [ApiException].
+/*
+ * Converters from [Throwable] and OkHttp [Response] to domain-specific [ApiException].
  *
  * Since OkHttp does not throw exceptions for non-2xx status codes, we provide
  * an extension for [Response] to handle HTTP errors explicitly.
@@ -23,8 +23,8 @@ fun Throwable.toApiException(): ApiException {
 }
 
 /**
- * Converts an OkHttp [Response] into a [ApiException] if it's not successful.
- * * @return The corresponding [ApiException] or null if the response is successful.
+ * Converts an OkHttp [Response] into an [ApiException] if it's not successful.
+ * @return The corresponding [ApiException] or null if the response is successful.
  */
 fun Response.toApiException(): ApiException? {
     if (isSuccessful) return null

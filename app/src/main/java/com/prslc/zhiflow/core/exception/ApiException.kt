@@ -4,6 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalResources
 import com.prslc.zhiflow.R
 
+/**
+ * Domain-specific exception hierarchy for API errors.
+ *
+ * - [NetworkException]: connectivity errors (timeout, DNS, etc.)
+ * - [UnAuthorizedException]: HTTP 401/403
+ * - [NotFoundException]: HTTP 404
+ * - [ServerException]: other 4xx/5xx with HTTP status code
+ * - [UnknownException]: unmatched errors
+ */
 sealed class ApiException(val resId: Int, val code: Int? = null) : Exception() {
     class NetworkException : ApiException(R.string.error_network)
     class UnAuthorizedException : ApiException(R.string.error_unauthorized)
