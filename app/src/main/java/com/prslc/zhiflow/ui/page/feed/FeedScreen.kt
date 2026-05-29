@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -16,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.shouldLoadMore
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.component.common.LoadingView
@@ -135,11 +134,4 @@ private fun LazyListScope.pagingFooter(
             LoadMoreErrorItem(message = message, onRetry = onRetry)
         }
     }
-}
-
-fun LazyListState.shouldLoadMore() = derivedStateOf {
-    val layoutInfo = this.layoutInfo
-    val totalItemsCount = layoutInfo.totalItemsCount
-    val lastVisibleItemIndex = firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size
-    totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
 }

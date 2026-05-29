@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,13 +47,6 @@ data class MomentItemState(
     val actionTime: Long,
     val isTopping: Boolean
 )
-
-fun LazyListState.shouldLoadMore() = derivedStateOf {
-    val layoutInfo = this.layoutInfo
-    val totalItemsCount = layoutInfo.totalItemsCount
-    val lastVisibleItemIndex = firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size
-    totalItemsCount > 0 && lastVisibleItemIndex >= totalItemsCount - 2
-}
 
 fun LazyListScope.momentsContent(
     urlToken: String,
