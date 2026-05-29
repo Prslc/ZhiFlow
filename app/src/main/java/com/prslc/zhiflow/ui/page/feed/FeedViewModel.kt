@@ -30,12 +30,18 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
     val listState = LazyListState()
     private var nextPageUrl: String? = null
 
+    /** Load feeds if the list is currently empty. */
     fun loadIfEmpty() {
         if (uiState.items.isEmpty()) {
             refresh()
         }
     }
 
+    /**
+     * Force refresh: clear existing items and reload from page 1.
+     *
+     * Sets [FeedUiState.globalError] on failure.
+     */
     fun refresh() {
         if (uiState.isRefreshing) return
         viewModelScope.launch {
@@ -57,6 +63,12 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
         }
     }
 
+    /**
+     * Load the next page of feeds.
+     *
+     * Appends results to the existing list. Sets [FeedUiState.loadMoreError] on failure.
+     * No-op when [nextPageUrl] is null (all pages consumed).
+     */
     fun loadMore() {
         if (uiState.isNextLoading || uiState.isRefreshing || nextPageUrl == null) return
 

@@ -170,6 +170,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         }
     }
 
+    /**
+     * Toggle comment like with optimistic UI.
+     *
+     * Uses [pendingReactions] to debounce rapid taps. Rolls back on failure.
+     */
     fun toggleLike(commentId: String) {
         if (pendingReactions.contains(commentId)) return
 
@@ -222,6 +227,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         uiState = uiState.copy(navigateToUser = null)
     }
 
+    /** Reset all comment state when the bottom sheet is dismissed. */
     fun onSheetDismissed() {
         uiState = CommentUiState()
         childUiState = ChildCommentUiState()

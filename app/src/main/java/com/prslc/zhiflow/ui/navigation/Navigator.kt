@@ -18,6 +18,12 @@ class Navigator(
     private val uriHandler: UriHandler
 ) {
 
+    /**
+     * Navigate to a URL, resolving internal Zhihu routes vs external links.
+     *
+     * Internal routes (answer, article, question, people, pin) navigate via
+     * [NavHostController]; external URLs open in the system browser.
+     */
     fun handleUrl(url: String, contentType: String? = null) {
         when (val dest = LinkParser.parse(url, contentType)) {
             is LinkDestination.Internal -> {
@@ -34,6 +40,11 @@ class Navigator(
         }
     }
 
+    /**
+     * Navigate to a content detail by content type string.
+     *
+     * @param type Content type: "answer", "article", "pin", or "question"
+     */
     fun navigateToContent(id: String, type: String) {
         when (type.lowercase()) {
             "answer" -> navController.navigate(AnswerDetail(id))

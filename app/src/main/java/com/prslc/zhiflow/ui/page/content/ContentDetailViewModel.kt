@@ -120,6 +120,11 @@ class ContentViewModel(
         if (loadingState.content != null) parseRichText()
     }
 
+    /**
+     * Vote or revoke a vote with optimistic UI.
+     *
+     * Applies the vote state immediately and rolls back on API failure.
+     */
     fun vote(targetAction: String, contentType: ContentType) {
         val currentContent = loadingState.content ?: return
         val contentId = currentContent.id
@@ -199,6 +204,12 @@ class ContentViewModel(
         readProgress = progress
     }
 
+    /**
+     * Flush reading progress to the server.
+     *
+     * Runs on [NonCancellable] to ensure the request completes even if the
+     * composable is removed (e.g. called from [DisposableEffect.onDispose]).
+     */
     fun flushProgress(contentToken: String, contentType: ContentType) {
         viewModelScope.launch {
             withContext(NonCancellable) {

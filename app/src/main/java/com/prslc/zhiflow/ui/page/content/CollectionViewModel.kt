@@ -25,6 +25,11 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
 
     val selectedIds: Set<Long> get() = uiState.selectedIds.filterValues { it }.keys
 
+    /**
+     * Check if the user has modified the collection selection.
+     *
+     * Compares the current selected IDs against the initial favorited state.
+     */
     fun hasChanges(): Boolean {
         val initialIds = uiState.collections.filter { it.isFavorited }.map { it.id }.toSet()
         return initialIds != selectedIds
@@ -54,6 +59,12 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         }
     }
 
+    /**
+     * Sync selection changes to the server.
+     *
+     * Computes the diff between initial and current selections, then adds/removes
+     * collections accordingly. Calls [onComplete] with the final favorite state.
+     */
     fun updateCollectionStatus(
         contentId: String,
         contentType: ContentType,
