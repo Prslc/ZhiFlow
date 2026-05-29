@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.model
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.TextUnit
 import kotlinx.serialization.SerialName

@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Immutable
+
 @Immutable
 enum class ContentType(
     val type: String,

@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.data.model
 
+import androidx.compose.runtime.Stable
+
 @Stable
 interface ZhihuContent {
     val id: String
