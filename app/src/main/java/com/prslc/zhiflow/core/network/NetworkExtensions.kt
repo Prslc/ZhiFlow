@@ -15,7 +15,7 @@ import java.io.IOException
  * data parsing and resource management.
  */
 
-fun Request.Builder.apiUrl(path: String): Request.Builder =
+internal fun Request.Builder.apiUrl(path: String): Request.Builder =
     this.url("${Client.BASE_URL}$path")
 
 /**
@@ -30,7 +30,7 @@ fun Request.Builder.apiUrl(path: String): Request.Builder =
  * @param T The expected data model type.
  * @return The deserialized object of type [T].
  */
-inline fun <reified T> Response.body(): T {
+internal inline fun <reified T> Response.body(): T {
     return use { res ->
         if (!res.isSuccessful) throw HttpStatusException(res)
         Client.jsonInstance.decodeFromString<T>(res.body.string())
@@ -42,7 +42,7 @@ inline fun <reified T> Response.body(): T {
  * Failures (network errors, HTTP errors, parse errors) are caught and mapped
  * to [ApiException] via [toApiException].
  */
-suspend inline fun <reified T> OkHttpClient.safeApiCall(
+internal suspend inline fun <reified T> OkHttpClient.safeApiCall(
     crossinline requestBuilder: () -> Request
 ): Result<T> = withContext(Dispatchers.IO) {
     try {
@@ -57,7 +57,7 @@ suspend inline fun <reified T> OkHttpClient.safeApiCall(
  * response was successful. The response body is consumed and closed on IO
  * to avoid [android.os.NetworkOnMainThreadException] during cleanup.
  */
-suspend fun OkHttpClient.safeExecute(
+internal suspend fun OkHttpClient.safeExecute(
     requestBuilder: () -> Request
 ): Result<Boolean> = withContext(Dispatchers.IO) {
     try {

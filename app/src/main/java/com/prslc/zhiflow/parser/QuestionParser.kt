@@ -72,7 +72,7 @@ object QuestionParser {
     }
 }
 
-fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
+private fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
     val rawText = this@toAnnotatedString.toString()
     val emojiText = EmojiParser.parse(rawText)
     append(emojiText)

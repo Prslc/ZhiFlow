@@ -8,12 +8,12 @@ import androidx.compose.ui.text.TextLayoutResult
 /**
  * Text overflow detection extension
  */
-fun TextLayoutResult?.isOverflowed(): Boolean {
+internal fun TextLayoutResult?.isOverflowed(): Boolean {
     if (this == null) return false
     return hasVisualOverflow || (lineCount > 0 && isLineEllipsized(lineCount - 1))
 }
 
-fun LazyListState.shouldLoadMore(): State<Boolean> = derivedStateOf {
+internal fun LazyListState.shouldLoadMore(): State<Boolean> = derivedStateOf {
     val layoutInfo = this.layoutInfo
     val totalItemsCount = layoutInfo.totalItemsCount
     val lastVisibleItemIndex = firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size

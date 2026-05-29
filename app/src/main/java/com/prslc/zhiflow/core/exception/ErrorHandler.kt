@@ -13,7 +13,7 @@ import java.io.IOException
 /**
  * Handles network-level exceptions (e.g., timeouts, no internet).
  */
-fun Throwable.toApiException(): ApiException {
+internal fun Throwable.toApiException(): ApiException {
     return when (this) {
         is HttpStatusException -> response.toApiException() ?: ApiException.UnknownException()
         is IOException -> ApiException.NetworkException()
@@ -26,7 +26,7 @@ fun Throwable.toApiException(): ApiException {
  * Converts an OkHttp [Response] into an [ApiException] if it's not successful.
  * @return The corresponding [ApiException] or null if the response is successful.
  */
-fun Response.toApiException(): ApiException? {
+private fun Response.toApiException(): ApiException? {
     if (isSuccessful) return null
 
     return when (code) {
