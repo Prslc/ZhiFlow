@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Immutable
@@ -108,11 +108,15 @@ fun LazyListScope.momentsContent(
         }
 
         else -> {
-            itemsIndexed(
+            items(
                 items = state.moments,
-                key = { index, item -> "${prefix}_${index}_${item.id}" }
-            ) { _, item ->
-                MomentCard(state = item, modifier = Modifier.fillMaxWidth())
+                key = { item -> "${prefix}_${item.id}" },
+                contentType = { item -> item.type }
+            ) { item ->
+                when (item.type) {
+                    MomentContentType.USER -> UserMomentCard(state = item)
+                    else -> StandardMomentCard(state = item)
+                }
             }
 
             pagingFooter(
