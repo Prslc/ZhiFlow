@@ -25,6 +25,8 @@
     <string name="nav_favorites">Favorites</string>
     <string name="nav_debug">Debug</string>
     <string name="nav_profile">Profile</string>
+    <string name="error_unable_to_open_link">Unable to open link.</string>
+    <string name="error_unknown_nav_type">Unknown type: %1$s</string>
 
     <!-- feed -->
     <string name="unknown_content">Unknown content</string>

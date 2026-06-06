@@ -26,6 +26,8 @@
     <string name="nav_favorites">收藏</string>
     <string name="nav_debug">调试</string>
     <string name="nav_profile">个人中心</string>
+    <string name="error_unable_to_open_link">无法打开链接</string>
+    <string name="error_unknown_nav_type">未知类型：%1$s</string>
 
     <!-- feed -->
     <string name="unknown_content">未知内容</string>

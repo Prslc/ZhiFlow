@@ -20,7 +20,7 @@ sealed class LinkDestination {
 
 @Immutable
 object LinkParser {
-    fun parse(url: String, contentType: String? = null): LinkDestination {
+    fun parse(url: String): LinkDestination {
         val uri = url.toUri()
 
         // Handle Zhihu's redirect service
@@ -40,7 +40,7 @@ object LinkParser {
         }
 
         val id = extractId(path)
-        val type = contentType?.lowercase() ?: detectTypeFromPath(path)
+        val type = detectTypeFromPath(path)
 
         // Map to type-safe route
         val route = if (id != null && type != null) {

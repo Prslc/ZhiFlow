@@ -1,13 +1,16 @@
 package com.prslc.zhiflow.ui.navigation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.UriHandler
 import androidx.navigation.NavHostController
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.parser.LinkDestination
 import com.prslc.zhiflow.parser.LinkParser
 
+@SuppressLint("ComposeCompositionLocalUsage")
 val LocalNavigator = staticCompositionLocalOf<Navigator> {
     error("NavController not provided")
 }
@@ -24,8 +27,8 @@ class Navigator(
      * Internal routes (answer, article, question, people, pin) navigate via
      * [NavHostController]; external URLs open in the system browser.
      */
-    fun handleUrl(url: String, contentType: String? = null) {
-        when (val dest = LinkParser.parse(url, contentType)) {
+    fun handleUrl(url: String) {
+        when (val dest = LinkParser.parse(url)) {
             is LinkDestination.Internal -> {
                 navController.navigate(dest.route)
             }
@@ -34,7 +37,11 @@ class Navigator(
                 runCatching {
                     uriHandler.openUri(dest.url)
                 }.onFailure {
-                    Toast.makeText(context, "Unable to open link.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.error_unable_to_open_link),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -51,7 +58,11 @@ class Navigator(
             "article" -> navController.navigate(ArticleDetail(id))
             "pin" -> navController.navigate(PinDetail(id))
             "question" -> navController.navigate(QuestionDetail(id))
-            else -> Toast.makeText(context, "Unknown type: $type", Toast.LENGTH_SHORT).show()
+            else -> Toast.makeText(
+                context,
+                context.getString(R.string.error_unknown_nav_type, type),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
