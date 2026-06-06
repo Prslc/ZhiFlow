@@ -43,7 +43,7 @@ fun CardComponent(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                navigator.handleUrl(element.url, element.contentType)
+                navigator.handleUrl(element.url)
             },
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
