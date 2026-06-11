@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.component.richtext
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,13 +10,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import com.hrm.latex.renderer.measure.rememberLatexMeasurer
@@ -117,32 +116,48 @@ fun ZRichText(
 
     // Dynamically query measured layout payloads using the ambient TextStyle's font configuration
     val measuredData = inlineMetas.rememberMeasuredInlineContent(fontSize = style.fontSize)
-    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    val interceptedContent = remember(content, navigator) {
+        buildAnnotatedString {
+            append(content.text)
+
+            content.spanStyles.forEach { addStyle(it.item, it.start, it.end) }
+            content.paragraphStyles.forEach { addStyle(it.item, it.start, it.end) }
+
+            content.getStringAnnotations(0, content.length).forEach { annotation ->
+                if (annotation.tag == "URL") {
+                    addLink(
+                        clickable = LinkAnnotation.Clickable(
+                            tag = annotation.item,
+                            styles = null,
+                            linkInteractionListener = { clickable ->
+                                val clickedUrl = (clickable as LinkAnnotation.Clickable).tag
+                                navigator.handleUrl(clickedUrl)
+                            }
+                        ),
+                        start = annotation.start,
+                        end = annotation.end
+                    )
+                } else {
+                    addStringAnnotation(
+                        annotation.tag,
+                        annotation.item,
+                        annotation.start,
+                        annotation.end
+                    )
+                }
+            }
+        }
+    }
 
     // CRITICAL: Force rebuild the Text node via `key` when async measurement finishes.
     // Native Compose Text engine fails to refresh inline asset layout boundaries on dynamic size updates.
     key(measuredData.refreshKey) {
         Text(
-            text = content,
+            text = interceptedContent,
             style = style,
             inlineContent = measuredData.inlineContent,
-            onTextLayout = { layoutResult.value = it },
-            modifier = modifier.pointerInput(content) {
-                detectTapGestures { pos ->
-                    layoutResult.value?.let { layout ->
-                        val offset = layout.getOffsetForPosition(pos)
-                        val annotations = content.getStringAnnotations(start = offset, end = offset)
-
-                        // Prioritize structural URLs over inline formulas to avoid click collision
-                        val targetAnnotation = annotations.firstOrNull { it.tag == "URL" }
-                            ?: annotations.firstOrNull { it.tag == "FORMULA" }
-
-                        targetAnnotation?.let { annotation ->
-                            navigator.handleUrl(annotation.item)
-                        }
-                    }
-                }
-            }
+            modifier = modifier
         )
     }
 }

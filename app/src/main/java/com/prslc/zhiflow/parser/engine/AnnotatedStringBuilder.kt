@@ -27,46 +27,79 @@ object AnnotatedStringBuilder {
     ): ProcessedText {
         val inlineMetas = mutableListOf<InlineFormulaMeta>()
 
+        val (formulaMarks, styleMarks) = marks.partition { it.type == "formula" }
+        val sortedFormulae = formulaMarks.sortedBy { it.start }
+
+        val rawToBuiltMap = IntArray(rawText.length + 1)
+
         val annotated = buildAnnotatedString {
-            val boundaries = (marks.flatMap { listOf(it.start, it.end) } + listOf(0, rawText.length))
-                .distinct().sorted()
+            var currentRawIndex = 0
 
-            for (i in 0 until boundaries.size - 1) {
-                val start = boundaries[i]
-                val end = boundaries[i + 1]
-                if (start >= end) continue
+            for (formula in sortedFormulae) {
+                val formulaStart = formula.start.coerceIn(0, rawText.length)
+                val formulaEnd = formula.end.coerceIn(0, rawText.length)
+                if (formulaStart < currentRawIndex) continue
 
-                val activeMarks = marks.filter { it.start <= start && it.end >= end }
-                val formulaMark = activeMarks.find { it.type == "formula" }
+                while (currentRawIndex < formulaStart) {
+                    rawToBuiltMap[currentRawIndex] = length
+                    append(rawText[currentRawIndex])
+                    currentRawIndex++
+                }
 
-                if (formulaMark != null) {
-                    onFormulaFound(formulaMark, length)?.let { meta ->
-                        inlineMetas.add(meta)
-                        appendInlineContent(meta.inlineId, "\uFFFD")
-                        addStringAnnotation("INLINE_ID", meta.inlineId, length - 1, length)
-                    }
-                } else {
-                    val spanStart = length
-                    append(rawText.substring(start, end))
-                    activeMarks.forEach { applyMarkStyle(it, spanStart, length, isDark) }
+                val formulaStartInBuilt = length
+                onFormulaFound(formula, formulaStartInBuilt)?.let { meta ->
+                    inlineMetas.add(meta)
+                    appendInlineContent(meta.inlineId, "\uFFFD")
+                    addStringAnnotation("INLINE_ID", meta.inlineId, formulaStartInBuilt, length)
+                }
+
+                while (currentRawIndex < formulaEnd) {
+                    rawToBuiltMap[currentRawIndex] = formulaStartInBuilt
+                    currentRawIndex++
+                }
+            }
+
+            while (currentRawIndex <= rawText.length) {
+                rawToBuiltMap[currentRawIndex] = length
+                if (currentRawIndex < rawText.length) {
+                    append(rawText[currentRawIndex])
+                }
+                currentRawIndex++
+            }
+
+            styleMarks.forEach { mark ->
+                val markStart = mark.start.coerceIn(0, rawText.length)
+                val markEnd = mark.end.coerceIn(0, rawText.length)
+
+                val finalStart = rawToBuiltMap[markStart]
+                val finalEnd = rawToBuiltMap[markEnd]
+
+                if (finalStart < finalEnd) {
+                    applyMarkStyle(mark, finalStart, finalEnd, isDark)
                 }
             }
         }
+
         return ProcessedText(annotated, inlineMetas)
     }
+}
 
-    private fun AnnotatedString.Builder.applyMarkStyle(mark: Mark, start: Int, end: Int, isDark: Boolean) {
-        when (mark.type) {
-            "bold" -> addStyle(TextStyles.boldStyle, start, end)
-            "italic" -> addStyle(TextStyles.italicStyle, start, end)
-            "strikethrough" -> addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, end)
-            "code" -> addStyle(TextStyles.codeStyle(isDark), start, end)
-            "link" -> {
-                val url = mark.link?.href ?: mark.entityWord?.url
-                if (!url.isNullOrEmpty()) {
-                    addStringAnnotation("URL", url, start, end)
-                    addStyle(TextStyles.linkStyle(isDark), start, end)
-                }
+private fun AnnotatedString.Builder.applyMarkStyle(
+    mark: Mark,
+    start: Int,
+    end: Int,
+    isDark: Boolean
+) {
+    when (mark.type) {
+        "bold" -> addStyle(TextStyles.boldStyle, start, end)
+        "italic" -> addStyle(TextStyles.italicStyle, start, end)
+        "strikethrough" -> addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, end)
+        "code" -> addStyle(TextStyles.codeStyle(isDark), start, end)
+        "link" -> {
+            val url = mark.link?.href ?: mark.entityWord?.url
+            if (!url.isNullOrEmpty()) {
+                addStringAnnotation("URL", url, start, end)
+                addStyle(TextStyles.linkStyle(isDark), start, end)
             }
         }
     }
