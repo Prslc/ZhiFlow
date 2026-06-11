@@ -56,6 +56,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            packaging {
+                resources { excludes += "**" }
+            }
         }
 
         debug {
@@ -66,10 +70,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    packaging {
-        resources { excludes += "**" }
     }
 
     buildFeatures {
