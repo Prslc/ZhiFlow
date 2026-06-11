@@ -95,6 +95,7 @@ private fun AnnotatedString.Builder.applyMarkStyle(
         "italic" -> addStyle(TextStyles.italicStyle, start, end)
         "strikethrough" -> addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, end)
         "code" -> addStyle(TextStyles.codeStyle(isDark), start, end)
+        "reference" -> addStyle(TextStyles.referenceStyle(isDark), start, end)
         "link" -> {
             val url = mark.link?.href ?: mark.entityWord?.url
             if (!url.isNullOrEmpty()) {
