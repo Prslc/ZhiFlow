@@ -18,7 +18,11 @@ fun RichTextSingleElement(
         is RichTextElement.Code -> CodeBlock(element.code, element.lang, modifier)
         is RichTextElement.BulletItem -> BulletItemRow(element, modifier)
         is RichTextElement.Blockquote -> BlockquoteComponent(element, modifier)
-        is RichTextElement.Card -> CardComponent(element, modifier)
+        is RichTextElement.Card -> when (element.cardType) {
+            "reward_tail_truncate" -> { /* TODO: custom rendering */ }
+            "free_column_card" -> { /* TODO: custom rendering */ }
+            else -> CardComponent(element, modifier)
+        }
         is RichTextElement.Table -> TableComponent(element, modifier)
         is RichTextElement.Reference -> ReferenceSection(element.items, modifier)
         is RichTextElement.Divider -> Divider(modifier)

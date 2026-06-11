@@ -84,7 +84,10 @@ fun ContentRichTextList(
         }
 
         itemsIndexed(
-            items = richTextElements,
+            items = richTextElements.filterNot { element ->
+                element is RichTextElement.Card &&
+                    element.cardType in setOf("reward_tail_truncate", "free_column_card")
+            },
             key = { index, element ->
                 when (element) {
                     is RichTextElement.Divider -> "divider_$index"
