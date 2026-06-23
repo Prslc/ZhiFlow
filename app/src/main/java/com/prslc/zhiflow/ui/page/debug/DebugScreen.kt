@@ -22,7 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.R
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -41,16 +43,16 @@ fun DebugScreen(
             .padding(16.dp)
     ) {
         DebugItem(
-            title = "Open Link",
-            subtitle = "Paste a Zhihu URL to test LinkParser",
+            title = stringResource(R.string.debug_item_open_link_title),
+            subtitle = stringResource(R.string.debug_item_open_link_subtitle),
             onClick = {
                 inputUrl = ""
                 showDialog = true
             }
         )
         DebugItem(
-            title = "Configure Credentials",
-            subtitle = "Set custom request headers at runtime",
+            title = stringResource(R.string.debug_item_config_credentials_title),
+            subtitle = stringResource(R.string.debug_item_config_credentials_subtitle),
             onClick = {
                 showAuthDialog = true
             }
@@ -60,27 +62,27 @@ fun DebugScreen(
     if (showAuthDialog) {
         AlertDialog(
             onDismissRequest = { showAuthDialog = false },
-            title = { Text("Configure Credentials") },
+            title = { Text(stringResource(R.string.debug_dialog_credentials_title)) },
             text = {
                 Column {
                     OutlinedTextField(
                         value = viewModel.authorization,
                         onValueChange = { viewModel.authorization = it },
-                        label = { Text("Authorization") },
+                        label = { Text(stringResource(R.string.debug_label_authorization)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = viewModel.cookie,
                         onValueChange = { viewModel.cookie = it },
-                        label = { Text("Cookie") },
+                        label = { Text(stringResource(R.string.debug_label_cookie)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = viewModel.xUdid,
                         onValueChange = { viewModel.xUdid = it },
-                        label = { Text("x_udid") },
+                        label = { Text(stringResource(R.string.debug_label_x_udid)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -92,7 +94,7 @@ fun DebugScreen(
                         showAuthDialog = false
                     }
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.debug_action_save))
                 }
             },
             dismissButton = {
@@ -102,7 +104,7 @@ fun DebugScreen(
                         showAuthDialog = false
                     }
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.debug_action_clear))
                 }
             }
         )
@@ -111,19 +113,19 @@ fun DebugScreen(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Debug Navigator") },
+            title = { Text(stringResource(R.string.debug_dialog_navigator_title)) },
             text = {
                 Column {
                     Text(
-                        text = "Enter any URL (Answer, Article, or External)",
+                        text = stringResource(R.string.debug_navigator_hint),
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = inputUrl,
                         onValueChange = { inputUrl = it },
-                        label = { Text("URL") },
-                        placeholder = { Text("https://www.zhihu.com/question/...") },
+                        label = { Text(stringResource(R.string.debug_label_url)) },
+                        placeholder = { Text(stringResource(R.string.debug_placeholder_url)) },
                         singleLine = false,
                         maxLines = 3,
                     )
@@ -138,12 +140,12 @@ fun DebugScreen(
                         }
                     }
                 ) {
-                    Text("Go")
+                    Text(stringResource(R.string.debug_action_go))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.debug_action_cancel))
                 }
             }
         )

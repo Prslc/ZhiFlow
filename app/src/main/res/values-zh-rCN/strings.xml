@@ -109,4 +109,22 @@
     <string name="people_tab_post">创作</string>
     <string name="people_tab_activity">动态</string>
     <string name="people_tab_upvoted">赞同</string>
+
+    <!-- debug -->
+    <string name="debug_item_open_link_title">打开链接</string>
+    <string name="debug_item_open_link_subtitle">粘贴知乎 URL 以测试 LinkParser</string>
+    <string name="debug_item_config_credentials_title">配置凭证</string>
+    <string name="debug_item_config_credentials_subtitle">在运行时设置自定义请求头</string>
+    <string name="debug_dialog_credentials_title">配置凭证</string>
+    <string name="debug_label_authorization">Authorization</string>
+    <string name="debug_label_cookie">Cookie</string>
+    <string name="debug_label_x_udid">x_udid</string>
+    <string name="debug_action_save">保存</string>
+    <string name="debug_action_clear">清除</string>
+    <string name="debug_dialog_navigator_title">调试导航</string>
+    <string name="debug_navigator_hint">输入任意 URL (回答、文章或外部链接)</string>
+    <string name="debug_label_url">URL</string>
+    <string name="debug_placeholder_url">https://www.zhihu.com/question/…</string>
+    <string name="debug_action_go">前往</string>
+    <string name="debug_action_cancel">取消</string>
 </resources>

@@ -108,4 +108,22 @@
     <string name="people_tab_post">Posts</string>
     <string name="people_tab_activity">Activities</string>
     <string name="people_tab_upvoted">Upvotes</string>
+
+    <!-- debug -->
+    <string name="debug_item_open_link_title">Open Link</string>
+    <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>
+    <string name="debug_item_config_credentials_title">Configure Credentials</string>
+    <string name="debug_item_config_credentials_subtitle">Set custom request headers at runtime</string>
+    <string name="debug_dialog_credentials_title">Configure Credentials</string>
+    <string name="debug_label_authorization">Authorization</string>
+    <string name="debug_label_cookie">Cookie</string>
+    <string name="debug_label_x_udid">x_udid</string>
+    <string name="debug_action_save">Save</string>
+    <string name="debug_action_clear">Clear</string>
+    <string name="debug_dialog_navigator_title">Debug Navigator</string>
+    <string name="debug_navigator_hint">Enter any URL (Answer, Article, or External)</string>
+    <string name="debug_label_url">URL</string>
+    <string name="debug_placeholder_url">https://www.zhihu.com/question/…</string>
+    <string name="debug_action_go">Go</string>
+    <string name="debug_action_cancel">Cancel</string>
 </resources>
