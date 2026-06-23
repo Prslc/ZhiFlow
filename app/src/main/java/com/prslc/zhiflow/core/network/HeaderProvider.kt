@@ -9,6 +9,7 @@ object HeaderProvider {
     const val API_VERSION = "3.0.93"
     const val APP_VERSION = "10.73.0"
     const val ZSE_93 = "101_1_1.0"
+    const val UA = "com.zhihu.android/Futureve/10.73.0 Mozilla/5.0 (Linux; Android 14; 22021211RC Build/UKQ1.231207.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.7390.122 Mobile Safari/537.36"
     private const val ZHIHU_VERSION_CODE = "27314"
 
     /**
@@ -17,10 +18,9 @@ object HeaderProvider {
      * Signs the concatenation of ZSE protocol version, URL path, app version,
      * authorization token, and device UDID using the native encrypt library.
      */
-    fun zse96(auth: String, urlPath: String): String {
-        val signStr = "$ZSE_93+$urlPath+${APP_VERSION}+$auth+${BuildConfig.x_udid}"
-        val zse96 = Natives.zse96Sign(signStr)
-        return zse96
+    fun zse96( urlPath: String, auth: String, xUdid: String): String {
+        val signStr = "$ZSE_93+$urlPath+${APP_VERSION}+$auth+$xUdid"
+        return Natives.zse96Sign(signStr)
     }
 
     val xAppZa: String by lazy {

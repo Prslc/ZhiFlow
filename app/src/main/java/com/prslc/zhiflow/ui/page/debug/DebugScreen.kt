@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -22,13 +23,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DebugScreen(
+    onHandleUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onHandleUrl: (String) -> Unit
+    viewModel: DebugViewModel = koinViewModel()
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    var showAuthDialog by remember { mutableStateOf(false) }
     var inputUrl by remember { mutableStateOf("") }
 
     Column(
@@ -42,6 +46,64 @@ fun DebugScreen(
             onClick = {
                 inputUrl = ""
                 showDialog = true
+            }
+        )
+        DebugItem(
+            title = "Configure Credentials",
+            subtitle = "Set custom request headers at runtime",
+            onClick = {
+                showAuthDialog = true
+            }
+        )
+    }
+
+    if (showAuthDialog) {
+        AlertDialog(
+            onDismissRequest = { showAuthDialog = false },
+            title = { Text("Configure Credentials") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = viewModel.authorization,
+                        onValueChange = { viewModel.authorization = it },
+                        label = { Text("Authorization") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = viewModel.cookie,
+                        onValueChange = { viewModel.cookie = it },
+                        label = { Text("Cookie") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = viewModel.xUdid,
+                        onValueChange = { viewModel.xUdid = it },
+                        label = { Text("x_udid") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.save()
+                        showAuthDialog = false
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clear()
+                        showAuthDialog = false
+                    }
+                ) {
+                    Text("Clear")
+                }
             }
         )
     }

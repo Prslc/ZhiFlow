@@ -55,10 +55,8 @@ import com.prslc.zhiflow.ui.navigation.contentGraph
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
-import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,8 +127,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
-    val profileViewModel: ProfileViewModel = koinViewModel()
-
     var isBottomBarVisible by remember { mutableStateOf(true) }
 
     val nestedScrollConnection = remember {
@@ -163,7 +159,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 )
 
                 ProfileTab -> ProfileScreen(
-                    viewModel = profileViewModel,
                     onNavigateToSettings = { navigator.navigateToSettings() },
                 )
             }

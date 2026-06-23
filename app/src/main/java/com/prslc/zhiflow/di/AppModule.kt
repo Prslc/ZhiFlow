@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.CollectionRepository
@@ -20,6 +22,7 @@ import com.prslc.zhiflow.data.service.UserService
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
+import com.prslc.zhiflow.ui.page.debug.DebugViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
@@ -27,11 +30,17 @@ import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
 import com.prslc.zhiflow.ui.page.people.moment.UpvotesViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import com.prslc.zhiflow.ui.page.question.QuestionViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
+    // SharedPreferences
+    single<SharedPreferences> {
+        androidContext().getSharedPreferences("temp_auth_prefs", Context.MODE_PRIVATE)
+    }
+
     // HttpClient
     single { Client.okHttpClient }
 
@@ -78,4 +87,7 @@ val appModule = module {
 
     // People
     viewModelOf(::PeopleViewModel)
+
+    // debug
+    viewModelOf(::DebugViewModel)
 }
