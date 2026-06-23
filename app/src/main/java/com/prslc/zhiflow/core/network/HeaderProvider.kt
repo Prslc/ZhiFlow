@@ -1,16 +1,43 @@
 package com.prslc.zhiflow.core.network
 
+import android.content.Context
 import android.content.res.Resources
 import android.os.Build
-import com.prslc.zhiflow.BuildConfig
+import android.webkit.WebSettings
 import com.prslc.zhiflow.Natives
 
 object HeaderProvider {
     const val API_VERSION = "3.0.93"
     const val APP_VERSION = "10.73.0"
     const val ZSE_93 = "101_1_1.0"
-    const val UA = "com.zhihu.android/Futureve/10.73.0 Mozilla/5.0 (Linux; Android 14; 22021211RC Build/UKQ1.231207.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.7390.122 Mobile Safari/537.36"
     private const val ZHIHU_VERSION_CODE = "27314"
+
+    /**
+    * The dynamic User-Agent string combined with Zhihu's app-specific prefix and the
+    * system's native WebView user agent.
+    *
+    * Defaults to a pre-constructed fallback matching the current device specifications
+    * to prevent crashes before initialization.
+    */
+    var UA: String = "com.zhihu.android/Futureve/$APP_VERSION Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; ${Build.MODEL}; wv)"
+        private set
+
+    /**
+    * Initializes the dynamic User-Agent by fetching the system's underlying WebView UA.
+    *
+    * **Note:** This method must be invoked eagerly at application startup (e.g., via Koin's
+    * `createdAtStart` scope) to ensure [UA] is fully populated before any network requests are dispatched.
+    *
+    * @param context The application context used to resolve [WebSettings].
+    */
+    fun init(context: Context) {
+        val systemWebViewUa = try {
+            WebSettings.getDefaultUserAgent(context)
+        } catch (e: Exception) {
+            "Mozilla/5.0 (Linux; Android ${Build.VERSION.RELEASE}; ${Build.MODEL}; wv)"
+        }
+        UA = "com.zhihu.android/Futureve/$APP_VERSION $systemWebViewUa"
+    }
 
     /**
      * Generate the `x-zse-96` request signature.
