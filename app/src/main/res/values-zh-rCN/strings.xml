@@ -50,6 +50,8 @@
     <!-- light box -->
     <string name="lightbox_image_save_success">已保存至相册</string>
     <string name="lightbox_image_save_failed">保存失败</string>
+    <string name="lightbox_action_share">分享图片</string>
+    <string name="lightbox_action_save">保存图片</string>
 
     <!-- profile -->
     <string name="profile_default_username">用户</string>

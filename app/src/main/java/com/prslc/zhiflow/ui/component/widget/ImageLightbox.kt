@@ -1,14 +1,30 @@
 package com.prslc.zhiflow.ui.component.widget
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
@@ -41,7 +58,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.size.Size
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.core.utils.ImageSaveHelper
+import com.prslc.zhiflow.core.utils.ImageHelper
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
@@ -62,11 +79,17 @@ fun ImageLightbox(
     var isCurrentPageZoomed by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val appContext = remember(context) { context.applicationContext }
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
 
     val successText = stringResource(R.string.lightbox_image_save_success)
     val failedText = stringResource(R.string.lightbox_image_save_failed)
+    val shareText = stringResource(R.string.lightbox_action_share)
+    val saveActionText = stringResource(R.string.lightbox_action_save)
+
+    val backText = stringResource(R.string.general_back)
+    val moreText = stringResource(R.string.general_more)
 
     val isDarkTheme = isSystemInDarkTheme()
 
@@ -114,6 +137,7 @@ fun ImageLightbox(
             modifier = modifier.fillMaxSize()
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
+                var isMenuExpanded by remember { mutableStateOf(false) }
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize(),
@@ -152,23 +176,6 @@ fun ImageLightbox(
                                     onDismiss()
                                 }
                             },
-                            onLongClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                scope.launch {
-                                    val result = ImageSaveHelper.saveImageToGallery(context, url)
-                                    val message = if (result.isSuccess) {
-                                        successText
-                                    } else {
-                                        failedText
-                                    }
-
-                                    Toast.makeText(
-                                        context.applicationContext,
-                                        message,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
                         )
 
                         if (!zoomableImageState.isImageDisplayed) {
@@ -176,6 +183,99 @@ fun ImageLightbox(
                                 color = Color.White.copy(alpha = 0.5f),
                                 modifier = Modifier.statusBarsPadding(),
                             )
+                        }
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = !isCurrentPageZoomed,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    modifier = Modifier.align(Alignment.TopCenter)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.6f),
+                                        Color.Transparent
+                                    )
+                                )
+                            )
+                            .statusBarsPadding()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = onDismiss) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = backText,
+                                tint = Color.White
+                            )
+                        }
+
+                        Box {
+                            IconButton(onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                isMenuExpanded = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = moreText,
+                                    tint = Color.White
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = isMenuExpanded,
+                                onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                // Share Image
+                                DropdownMenuItem(
+                                    text = { Text(shareText) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    onClick = {
+                                        isMenuExpanded = false
+                                        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                        scope.launch {
+                                            val currentUrl = imageUrls[pagerState.currentPage]
+                                            val shareResult = ImageHelper.shareImage(context, currentUrl)
+                                            if (shareResult.isFailure) {
+                                                Toast.makeText(appContext, failedText, Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+                                )
+
+                                // Save Image
+                                DropdownMenuItem(
+                                    text = { Text(saveActionText) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Save,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    onClick = {
+                                        isMenuExpanded = false
+                                        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                        scope.launch {
+                                            val currentUrl = imageUrls[pagerState.currentPage]
+                                            val result = ImageHelper.saveImageToGallery(appContext, currentUrl)
+                                            val message = if (result.isSuccess) successText else failedText
+                                            Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
