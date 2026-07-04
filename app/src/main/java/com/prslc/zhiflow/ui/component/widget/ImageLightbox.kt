@@ -138,6 +138,7 @@ fun ImageLightbox(
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 var isMenuExpanded by remember { mutableStateOf(false) }
+
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize(),
@@ -170,8 +171,7 @@ fun ImageLightbox(
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit,
                             onClick = {
-                                if ((zoomableImageState.zoomableState.zoomFraction
-                                        ?: 0f) <= 0.01f
+                                if ((zoomableImageState.zoomableState.zoomFraction ?: 0f) <= 0.01f
                                 ) {
                                     onDismiss()
                                 }
@@ -247,9 +247,14 @@ fun ImageLightbox(
                                         haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                                         scope.launch {
                                             val currentUrl = imageUrls[pagerState.currentPage]
-                                            val shareResult = ImageHelper.shareImage(context, currentUrl)
+                                            val shareResult =
+                                                ImageHelper.shareImage(context, currentUrl)
                                             if (shareResult.isFailure) {
-                                                Toast.makeText(appContext, failedText, Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(
+                                                    appContext,
+                                                    failedText,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
                                         }
                                     }
@@ -269,9 +274,14 @@ fun ImageLightbox(
                                         haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                                         scope.launch {
                                             val currentUrl = imageUrls[pagerState.currentPage]
-                                            val result = ImageHelper.saveImageToGallery(appContext, currentUrl)
-                                            val message = if (result.isSuccess) successText else failedText
-                                            Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
+                                            val result = ImageHelper.saveImageToGallery(
+                                                appContext,
+                                                currentUrl
+                                            )
+                                            val message =
+                                                if (result.isSuccess) successText else failedText
+                                            Toast.makeText(appContext, message, Toast.LENGTH_SHORT)
+                                                .show()
                                         }
                                     }
                                 )
