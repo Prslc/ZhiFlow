@@ -119,11 +119,7 @@ fun CommentList(
                 }
 
                 "LOADING" -> {
-                    LoadingView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-                    )
+                    LoadingView(modifier = Modifier.fillMaxSize())
                 }
 
                 "EMPTY" -> {
