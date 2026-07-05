@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.question
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -101,8 +100,6 @@ fun QuestionDetailScreen(
     }
 
     LaunchedEffect(id) { viewModel.loadQuestion(id) }
-
-    BackHandler(enabled = isLightboxVisible) { isLightboxVisible = false }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

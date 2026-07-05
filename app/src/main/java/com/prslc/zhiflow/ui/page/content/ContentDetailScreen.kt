@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.content
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -96,10 +95,6 @@ fun ContentDetailScreen(
 
     LaunchedEffect(id) {
         viewModel.loadContent(id, contentType)
-    }
-
-    BackHandler(enabled = presentation.isLightboxVisible) {
-        viewModel.dismissLightbox()
     }
 
     DisposableEffect(id) {

@@ -8,6 +8,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,96 +59,93 @@ fun CommentBottomSheet(
         }
     }
 
-    CustomBottomSheet(
-        visible = showComments,
-        modifier = modifier,
-        onDismissRequest = {
-            onEvent(CommentUiEvent.DismissSheet)
-            onDismissRequest()
-        }
-    ) {
-        BackHandler(enabled = uiState.isLightboxVisible) {
-            onEvent(CommentUiEvent.CloseImage)
-        }
+    Box {
+        CustomBottomSheet(
+            visible = showComments,
+            modifier = modifier,
+            onDismissRequest = {
+                onEvent(CommentUiEvent.DismissSheet)
+                onDismissRequest()
+            }
+        ) {
+            BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
+                onEvent(CommentUiEvent.BackToMain)
+            }
 
-        BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
-            onEvent(CommentUiEvent.BackToMain)
-        }
-
-        AnimatedContent(
-            targetState = childUiState.isDetailMode,
-            transitionSpec = {
-                if (targetState) {
-                    (slideInHorizontally { it } + fadeIn()) togetherWith
-                            (slideOutHorizontally { -it } + fadeOut())
+            AnimatedContent(
+                targetState = childUiState.isDetailMode,
+                transitionSpec = {
+                    if (targetState) {
+                        (slideInHorizontally { it } + fadeIn()) togetherWith
+                                (slideOutHorizontally { -it } + fadeOut())
+                    } else {
+                        (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                (slideOutHorizontally { it } + fadeOut())
+                    }
+                },
+                label = "CommentSheetTransition"
+            ) { isDetail ->
+                if (!isDetail) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        CommentHeader(
+                            title = stringResource(R.string.comment_count, uiState.totalCount),
+                            onClose = {
+                                onEvent(CommentUiEvent.DismissSheet)
+                                onDismissRequest()
+                            }
+                        )
+                        val onLoadMoreRoot = remember(id, contentType) {
+                            { onEvent(CommentUiEvent.LoadRootComments(id, contentType)) }
+                        }
+                        CommentList(
+                            modifier = Modifier.weight(1f),
+                            onEvent = onEvent,
+                            comments = uiState.comments,
+                            isLoading = uiState.isLoading,
+                            hasMore = uiState.hasMore,
+                            onLoadMore = onLoadMoreRoot,
+                            state = rootListState,
+                        )
+                    }
                 } else {
-                    (slideInHorizontally { -it } + fadeIn()) togetherWith
-                            (slideOutHorizontally { it } + fadeOut())
-                }
-            },
-            label = "CommentSheetTransition"
-        ) { isDetail ->
-            if (!isDetail) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    CommentHeader(
-                        title = stringResource(R.string.comment_count, uiState.totalCount),
-                        onClose = {
-                            onEvent(CommentUiEvent.DismissSheet)
-                            onDismissRequest()
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        val currentRootId = childUiState.rootComment?.comment?.id
+                        val onLoadMoreChild = remember { { onEvent(CommentUiEvent.LoadMoreReplies) } }
+
+                        LaunchedEffect(currentRootId) {
+                            if (currentRootId != null) {
+                                childListState.scrollToItem(0)
+                            }
                         }
-                    )
-                    val onLoadMoreRoot = remember(id, contentType) {
-                        { onEvent(CommentUiEvent.LoadRootComments(id, contentType)) }
+
+                        CommentHeader(
+                            title = stringResource(R.string.comment_reply_detail),
+                            onClose = { onEvent(CommentUiEvent.BackToMain) },
+                            isBackStyle = true,
+                        )
+                        CommentList(
+                            modifier = Modifier.weight(1f),
+                            onEvent = onEvent,
+                            comments = childUiState.comments,
+                            isLoading = childUiState.isLoading,
+                            hasMore = childUiState.hasMore,
+                            rootComment = childUiState.rootComment,
+                            onLoadMore = onLoadMoreChild,
+                            state = childListState,
+                            isChild = true,
+                        )
                     }
-                    CommentList(
-                        modifier = Modifier.weight(1f),
-                        onEvent = onEvent,
-                        comments = uiState.comments,
-                        isLoading = uiState.isLoading,
-                        hasMore = uiState.hasMore,
-                        onLoadMore = onLoadMoreRoot,
-                        state = rootListState,
-                    )
-                }
-            } else {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    val currentRootId = childUiState.rootComment?.comment?.id
-
-                    LaunchedEffect(currentRootId) {
-                        if (currentRootId != null) {
-                            childListState.scrollToItem(0)
-                        }
-                    }
-
-                    CommentHeader(
-                        title = stringResource(R.string.comment_reply_detail),
-                        onClose = { onEvent(CommentUiEvent.BackToMain) },
-                        isBackStyle = true,
-                    )
-
-                    val onLoadMoreChild = remember { { onEvent(CommentUiEvent.LoadMoreReplies) } }
-                    CommentList(
-                        modifier = Modifier.weight(1f),
-                        onEvent = onEvent,
-                        comments = childUiState.comments,
-                        isLoading = childUiState.isLoading,
-                        hasMore = childUiState.hasMore,
-                        rootComment = childUiState.rootComment,
-                        onLoadMore = onLoadMoreChild,
-                        state = childListState,
-                        isChild = true,
-                    )
                 }
             }
         }
-    }
 
-    if (uiState.isLightboxVisible) {
-        ImageLightbox(
-            imageUrls = uiState.selectedImageUrls,
-            initialIndex = uiState.initialImageIndex,
-            onDismiss = { onEvent(CommentUiEvent.CloseImage) },
-        )
+        if (uiState.isLightboxVisible) {
+            ImageLightbox(
+                imageUrls = uiState.selectedImageUrls,
+                initialIndex = uiState.initialImageIndex,
+                onDismiss = { onEvent(CommentUiEvent.CloseImage) },
+            )
+        }
     }
 }
 

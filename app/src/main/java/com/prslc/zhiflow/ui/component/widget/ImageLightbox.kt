@@ -1,6 +1,8 @@
 package com.prslc.zhiflow.ui.component.widget
 
+import android.app.Activity
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,7 +28,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -48,9 +49,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.DialogWindowProvider
+import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -66,10 +65,7 @@ import me.saket.telephoto.zoomable.rememberZoomableState
 
 @Composable
 fun ImageLightbox(
-    imageUrls: List<String>,
-    initialIndex: Int,
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit
+    imageUrls: List<String>, initialIndex: Int, modifier: Modifier = Modifier, onDismiss: () -> Unit
 ) {
     if (imageUrls.isEmpty()) return
 
@@ -93,215 +89,185 @@ fun ImageLightbox(
 
     val isDarkTheme = isSystemInDarkTheme()
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
-        )
+    val view = LocalView.current
+    val activityWindow = remember(view) {
+        (view.context as? Activity)?.window
+    }
+
+    val barsType = WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
+
+    LaunchedEffect(isCurrentPageZoomed, activityWindow) {
+        activityWindow?.let { window ->
+            val controller = WindowCompat.getInsetsController(window, view)
+            if (isCurrentPageZoomed) {
+                controller.hide(barsType)
+                controller.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            } else {
+                controller.show(barsType)
+                controller.isAppearanceLightStatusBars = false
+            }
+        }
+    }
+
+    DisposableEffect(activityWindow) {
+        onDispose {
+            activityWindow?.let { window ->
+                val controller = WindowCompat.getInsetsController(window, view)
+                controller.show(WindowInsetsCompat.Type.statusBars())
+                controller.isAppearanceLightStatusBars = !isDarkTheme
+            }
+        }
+    }
+
+    BackHandler(onBack = onDismiss)
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .zIndex(200f)
     ) {
-        val dialogView = LocalView.current
-        val dialogWindow = remember(dialogView) {
-            (dialogView.parent as? DialogWindowProvider)?.window
-        }
+        var isMenuExpanded by remember { mutableStateOf(false) }
 
-        val barsType =
-            WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            beyondViewportPageCount = 1,
+            pageSpacing = 16.dp,
+            userScrollEnabled = !isCurrentPageZoomed
+        ) { pageIndex ->
+            val url = imageUrls[pageIndex]
 
-        LaunchedEffect(isCurrentPageZoomed, dialogWindow) {
-            dialogWindow?.let { window ->
-                val controller = WindowCompat.getInsetsController(window, dialogView)
-                if (isCurrentPageZoomed) {
-                    controller.hide(barsType)
-                    controller.systemBarsBehavior =
-                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                } else {
-                    controller.show(barsType)
-                    controller.isAppearanceLightStatusBars = false
+            val zoomableImageState = rememberZoomableImageState(rememberZoomableState())
+
+            if (pagerState.currentPage == pageIndex) {
+                val zoomed by remember {
+                    derivedStateOf {
+                        (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f
+                    }
                 }
+                LaunchedEffect(zoomed) { isCurrentPageZoomed = zoomed }
             }
-        }
 
-        DisposableEffect(dialogWindow) {
-            onDispose {
-                dialogWindow?.let { window ->
-                    val controller = WindowCompat.getInsetsController(window, dialogView)
-                    controller.show(WindowInsetsCompat.Type.statusBars())
-                    controller.isAppearanceLightStatusBars = !isDarkTheme
-                }
-            }
-        }
-
-        Surface(
-            color = Color.Black,
-            modifier = modifier.fillMaxSize()
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                var isMenuExpanded by remember { mutableStateOf(false) }
-
-                HorizontalPager(
-                    state = pagerState,
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                ZoomableAsyncImage(
+                    model = ImageRequest.Builder(context).data(url).size(Size.ORIGINAL)
+                        .crossfade(true).build(),
+                    contentDescription = "Lightbox Page $pageIndex",
+                    state = zoomableImageState,
                     modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 1,
-                    pageSpacing = 16.dp,
-                    userScrollEnabled = !isCurrentPageZoomed
-                ) { pageIndex ->
-                    val url = imageUrls[pageIndex]
-
-                    val zoomableImageState = rememberZoomableImageState(rememberZoomableState())
-
-                    if (pagerState.currentPage == pageIndex) {
-                        val zoomed by remember {
-                            derivedStateOf {
-                                (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f
-                            }
+                    contentScale = ContentScale.Fit,
+                    onClick = {
+                        if ((zoomableImageState.zoomableState.zoomFraction ?: 0f) <= 0.01f) {
+                            onDismiss()
                         }
-                        LaunchedEffect(zoomed) { isCurrentPageZoomed = zoomed }
-                    }
+                    },
+                )
 
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        ZoomableAsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(url)
-                                .size(Size.ORIGINAL)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Lightbox Page $pageIndex",
-                            state = zoomableImageState,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit,
-                            onClick = {
-                                if ((zoomableImageState.zoomableState.zoomFraction ?: 0f) <= 0.01f
-                                ) {
-                                    onDismiss()
-                                }
-                            },
-                        )
-
-                        if (!zoomableImageState.isImageDisplayed) {
-                            CircularProgressIndicator(
-                                color = Color.White.copy(alpha = 0.5f),
-                                modifier = Modifier.statusBarsPadding(),
-                            )
-                        }
-                    }
-                }
-
-                AnimatedVisibility(
-                    visible = !isCurrentPageZoomed,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    modifier = Modifier.align(Alignment.TopCenter)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Black.copy(alpha = 0.6f),
-                                        Color.Transparent
-                                    )
-                                )
-                            )
-                            .statusBarsPadding()
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = backText,
-                                tint = Color.White
-                            )
-                        }
-
-                        Box {
-                            IconButton(onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                isMenuExpanded = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = moreText,
-                                    tint = Color.White
-                                )
-                            }
-
-                            DropdownMenu(
-                                expanded = isMenuExpanded,
-                                onDismissRequest = { isMenuExpanded = false }
-                            ) {
-                                // Share Image
-                                DropdownMenuItem(
-                                    text = { Text(shareText) },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Share,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    onClick = {
-                                        isMenuExpanded = false
-                                        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                        scope.launch {
-                                            val currentUrl = imageUrls[pagerState.currentPage]
-                                            val shareResult =
-                                                ImageHelper.shareImage(context, currentUrl)
-                                            if (shareResult.isFailure) {
-                                                Toast.makeText(
-                                                    appContext,
-                                                    failedText,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        }
-                                    }
-                                )
-
-                                // Save Image
-                                DropdownMenuItem(
-                                    text = { Text(saveActionText) },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Save,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    onClick = {
-                                        isMenuExpanded = false
-                                        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                        scope.launch {
-                                            val currentUrl = imageUrls[pagerState.currentPage]
-                                            val result = ImageHelper.saveImageToGallery(
-                                                appContext,
-                                                currentUrl
-                                            )
-                                            val message =
-                                                if (result.isSuccess) successText else failedText
-                                            Toast.makeText(appContext, message, Toast.LENGTH_SHORT)
-                                                .show()
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // page number
-                if (imageUrls.size > 1 && !isCurrentPageZoomed) {
-                    Text(
-                        text = "${pagerState.currentPage + 1} / ${imageUrls.size}",
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 48.dp),
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyMedium,
+                if (!zoomableImageState.isImageDisplayed) {
+                    CircularProgressIndicator(
+                        color = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.statusBarsPadding(),
                     )
                 }
             }
+        }
+
+        AnimatedVisibility(
+            visible = !isCurrentPageZoomed,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0.6f), Color.Transparent
+                            )
+                        )
+                    )
+                    .statusBarsPadding()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = backText,
+                        tint = Color.White
+                    )
+                }
+
+                Box {
+                    IconButton(onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                        isMenuExpanded = true
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = moreText,
+                            tint = Color.White
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
+                        // Share Image
+                        DropdownMenuItem(text = { Text(shareText) }, leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Share, contentDescription = null
+                            )
+                        }, onClick = {
+                            isMenuExpanded = false
+                            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                            scope.launch {
+                                val currentUrl = imageUrls[pagerState.currentPage]
+                                val shareResult = ImageHelper.shareImage(context, currentUrl)
+                                if (shareResult.isFailure) {
+                                    Toast.makeText(
+                                        appContext, failedText, Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        })
+
+                        // Save Image
+                        DropdownMenuItem(text = { Text(saveActionText) }, leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Save, contentDescription = null
+                            )
+                        }, onClick = {
+                            isMenuExpanded = false
+                            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                            scope.launch {
+                                val currentUrl = imageUrls[pagerState.currentPage]
+                                val result = ImageHelper.saveImageToGallery(
+                                    appContext, currentUrl
+                                )
+                                val message = if (result.isSuccess) successText else failedText
+                                Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    }
+                }
+            }
+        }
+
+        // page number
+        if (imageUrls.size > 1 && !isCurrentPageZoomed) {
+            Text(
+                text = "${pagerState.currentPage + 1} / ${imageUrls.size}",
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 48.dp),
+                color = Color.White,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }
