@@ -1,27 +1,24 @@
 package com.prslc.zhiflow.ui.page.question
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.model.AnswerTarget
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
+import com.prslc.zhiflow.ui.component.common.ImageData
+import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 
 @Composable
 fun AnswerItem(
@@ -42,34 +39,23 @@ fun AnswerItem(
         )
 
         // content
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = target.excerpt,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        lineHeight = 22.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
-                    ),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+        Text(
+            text = target.excerpt,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                lineHeight = 22.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+            ),
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
 
-            // Image
-            val thumbnailUrl = target.thumbnailInfo?.thumbnails?.firstOrNull()?.url
-            if (thumbnailUrl != null) {
-                AsyncImage(
-                    model = thumbnailUrl,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(width = 104.dp, height = 68.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop,
-                )
-            }
+        // images
+        val thumbnails = target.thumbnailInfo?.thumbnails ?: emptyList()
+        if (thumbnails.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            ThumbnailRow(
+                images = thumbnails.map { ImageData(it.url, it.width, it.height) },
+            )
         }
 
         // status

@@ -37,6 +37,8 @@ import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.model.MediaImage
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
+import com.prslc.zhiflow.ui.component.common.ImageData
+import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
@@ -202,24 +204,11 @@ fun StandardMomentCard(
         val images = state.mediaImages
         if (images.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                images.forEachIndexed { index, image ->
-                    key("${image.url}_$index") {
-                        MomentImageItem(
-                            image = image,
-                            onClick = { url ->
-                                // TODO: LightBox
-                            },
-                            modifier = Modifier.height(100.dp)
-                        )
-                    }
-                }
-            }
+            ThumbnailRow(
+                images = images.mapNotNull { img ->
+                    img.url?.let { ImageData(it, img.width, img.height) }
+                },
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -228,29 +217,4 @@ fun StandardMomentCard(
             commentCount = state.commentCount,
         )
     }
-}
-
-@Composable
-private fun MomentImageItem(
-    image: MediaImage,
-    onClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val displayUrl = image.url ?: return
-
-    val aspectRatio = remember(image) {
-        val w = image.width
-        val h = image.height
-        if (w > 0 && h > 0) w.toFloat() / h.toFloat() else 1f
-    }
-
-    AsyncImage(
-        model = image.url,
-        contentDescription = null,
-        modifier = modifier
-            .aspectRatio(aspectRatio)
-            .clip(MaterialTheme.shapes.small)
-            .clickable { onClick(displayUrl) },
-        contentScale = ContentScale.Crop,
-    )
 }
