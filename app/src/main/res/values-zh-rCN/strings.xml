@@ -61,8 +61,21 @@
     <string name="profile_stat_favorites">收藏</string>
     <string name="profile_error_load_failed">获取数据失败</string>
     <string name="profile_retry">重试</string>
+    <string name="profile_nav_history">历史记录</string>
+    <string name="profile_nav_history_summary">你的浏览记录</string>
+    <string name="profile_nav_comments">评论转发</string>
+    <string name="profile_nav_comments_summary">评论、转发与回复</string>
+    <string name="profile_nav_likes">赞同喜欢</string>
+    <string name="profile_nav_likes_summary">你的内容收到的赞与喜欢</string>
+    <string name="profile_nav_collections">收藏了我</string>
+    <string name="profile_nav_collections_summary">你的内容被他人收藏</string>
+    <string name="profile_nav_follows">关注订阅</string>
+    <string name="profile_nav_follows_summary">新的关注与订阅</string>
     <string name="content_desc_settings">设置</string>
     <string name="content_desc_avatar">用户头像</string>
+    <string name="profile_section_content">内容浏览</string>
+    <string name="profile_section_social">社交互动</string>
+    <string name="profile_cover_desc">封面图片</string>
 
     <!-- buttomBar -->
     <string name="bottom_upvote">赞同 %1$s</string>
