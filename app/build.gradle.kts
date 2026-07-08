@@ -16,12 +16,6 @@ val localProperties = Properties().apply {
     }
 }
 
-val rawCookie = localProperties.getProperty("cookie") ?: ""
-val ua = localProperties.getProperty("ua") ?: ""
-val xUdid = localProperties.getProperty("x_udid") ?: ""
-val authorization = localProperties.getProperty("authorization") ?: ""
-val escapedCookie = rawCookie.replace("\"", "\\\"")
-
 @file:Suppress("UnstableApiUsage")
 android {
     namespace = "com.prslc.zhiflow"
@@ -38,11 +32,6 @@ android {
         ndk {
             abiFilters.add("arm64-v8a")
         }
-
-        buildConfigField("String", "cookie", "\"$escapedCookie\"")
-        buildConfigField("String", "ua", "\"$ua\"")
-        buildConfigField("String", "authorization", "\"$authorization\"")
-        buildConfigField("String", "x_udid", "\"$xUdid\"")
     }
 
     buildTypes {
