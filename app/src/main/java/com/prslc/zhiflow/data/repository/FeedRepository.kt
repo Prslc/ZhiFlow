@@ -1,11 +1,11 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.data.mapper.FeedDisplay
-import com.prslc.zhiflow.data.mapper.toDisplayData
+import com.prslc.zhiflow.data.dto.FeedDto
+import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.remote.service.FeedService
 
 data class FeedResult(
-    val items: List<FeedDisplay>,
+    val items: List<FeedDto>,
     val nextPageUrl: String?,
 )
 
@@ -22,7 +22,7 @@ class FeedRepository(private val service: FeedService) {
         return service.getRecommendFeed(isRefresh, nextUrl)
             .map { response ->
                 FeedResult(
-                    items = response.data.mapNotNull { it.toDisplayData() },
+                    items = response.data.mapNotNull { it.toDto() },
                     nextPageUrl = response.paging.next,
                 )
             }

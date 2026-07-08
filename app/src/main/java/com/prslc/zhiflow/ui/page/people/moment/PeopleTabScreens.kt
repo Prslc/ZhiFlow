@@ -7,7 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.prslc.zhiflow.core.utils.shouldLoadMore
+import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

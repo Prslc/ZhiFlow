@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
-import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen

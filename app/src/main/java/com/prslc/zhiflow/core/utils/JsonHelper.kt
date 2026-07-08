@@ -2,7 +2,7 @@ package com.prslc.zhiflow.core.utils
 
 import android.text.Html
 import com.prslc.zhiflow.core.network.Client
-import com.prslc.zhiflow.data.model.CardExtraInfo
+import com.prslc.zhiflow.data.model.content.CardExtraInfo
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 

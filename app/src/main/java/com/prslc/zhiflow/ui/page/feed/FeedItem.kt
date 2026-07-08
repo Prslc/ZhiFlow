@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.prslc.zhiflow.data.mapper.FeedDisplay
+import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
@@ -26,7 +26,7 @@ import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 
 @Composable
 fun FeedItem(
-    display: FeedDisplay,
+    display: FeedDto,
     modifier: Modifier = Modifier,
     onClick: (String, String) -> Unit,
 ) {

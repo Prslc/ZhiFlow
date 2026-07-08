@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.data.model
+package com.prslc.zhiflow.data.model.content
 
 import androidx.compose.runtime.Immutable
 

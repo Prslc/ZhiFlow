@@ -3,8 +3,8 @@ package com.prslc.zhiflow.data.remote.parser.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
-import com.prslc.zhiflow.data.model.Formula
-import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.data.model.content.Formula
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 
 @Immutable
 data class InlineFormulaMeta(

@@ -6,7 +6,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import com.prslc.zhiflow.data.model.Mark
+import com.prslc.zhiflow.data.model.content.Mark
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.ProcessedText
 import com.prslc.zhiflow.ui.theme.TextStyles

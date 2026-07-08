@@ -1,4 +1,6 @@
-package com.prslc.zhiflow.data.model
+package com.prslc.zhiflow.data.model.comment
+import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.data.model.user.Paging
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable

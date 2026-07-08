@@ -57,7 +57,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.size.Size
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.core.utils.ImageHelper
+import com.prslc.zhiflow.core.utils.platform.ImageHelper
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState

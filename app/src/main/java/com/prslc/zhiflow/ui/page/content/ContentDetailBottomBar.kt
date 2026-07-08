@@ -4,7 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
-import com.prslc.zhiflow.data.model.ZhihuContent
+import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.ui.component.widget.BottomBar
 
 @Composable

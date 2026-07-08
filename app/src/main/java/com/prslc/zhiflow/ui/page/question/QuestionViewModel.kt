@@ -8,9 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.mapper.AnswerDisplay
-import com.prslc.zhiflow.data.mapper.toDisplayData
-import com.prslc.zhiflow.data.model.QuestionDetail
+import com.prslc.zhiflow.data.dto.AnswerDto
+import com.prslc.zhiflow.data.mapper.toDto
+import com.prslc.zhiflow.data.model.content.QuestionDetail
 import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.remote.parser.QuestionParser
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
@@ -34,7 +34,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val isNextLoading: Boolean = false,
         val question: QuestionDetail? = null,
         val elements: List<DetailElement> = emptyList(),
-        val answers: List<AnswerDisplay> = emptyList(),
+        val answers: List<AnswerDto> = emptyList(),
         val error: ApiException? = null,
         val hasMore: Boolean = false,
     )
@@ -75,7 +75,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         elements = elements,
                         answers = feedResponse?.data
                             ?.filter { it.targetType == "answer" }
-                            ?.map { it.target.toDisplayData() }
+                            ?.map { it.target.toDto() }
                             ?: emptyList(),
                         hasMore = feedResponse?.paging?.isEnd == false,
                     )
@@ -110,7 +110,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         isNextLoading = false,
                         answers = uiState.answers + response.data
                             .filter { it.targetType == "answer" }
-                            .map { it.target.toDisplayData() },
+                            .map { it.target.toDto() },
                         hasMore = !response.paging.isEnd,
                     )
                 }

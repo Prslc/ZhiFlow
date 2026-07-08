@@ -10,9 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.data.model.ReadHistoryRequest
-import com.prslc.zhiflow.data.model.ZhihuContent
+import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
+import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.remote.parser.ContentParser

@@ -46,7 +46,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.formatCount
-import com.prslc.zhiflow.data.model.ZhihuUser
+import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.preference.PreferenceGroup
 import com.prslc.zhiflow.ui.component.preference.PreferenceItem

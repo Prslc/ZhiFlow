@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatCount
-import com.prslc.zhiflow.data.model.ZhihuUser
+import com.prslc.zhiflow.data.model.user.ZhihuUser
 
 @Composable
 fun PeopleHeader(

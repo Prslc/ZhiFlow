@@ -3,8 +3,8 @@ package com.prslc.zhiflow.data.remote.service
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.data.model.QuestionDetail
-import com.prslc.zhiflow.data.model.QuestionFeedResponse
+import com.prslc.zhiflow.data.model.content.QuestionDetail
+import com.prslc.zhiflow.data.model.feed.QuestionFeedResponse
 import okhttp3.OkHttpClient
 import okhttp3.Request
 

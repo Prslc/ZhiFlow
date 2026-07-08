@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.people.moment
 
 import androidx.compose.foundation.layout.Box
+import com.prslc.zhiflow.data.dto.MomentDto
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
@@ -14,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.data.model.MediaImage
+import com.prslc.zhiflow.data.model.moment.MediaImage
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
@@ -27,27 +28,6 @@ enum class MomentContentType {
     USER,
     UNKNOWN
 }
-
-@Immutable
-data class MomentItemState(
-    val id: String,
-    val type: MomentContentType,
-    val title: String,
-    val plainContent: String,
-    val summary: String,
-    val authorName: String,
-    val authorAvatarUrl: String?,
-    val routerUrl: String?,
-    val voteCount: Int,
-    val commentCount: Int,
-    val collectCount: Int,
-    val mediaImages: List<MediaImage>,
-    val videoThumbnail: String?,
-    val publishedAt: Long,
-    val actionText: String,
-    val actionTime: Long,
-    val isTopping: Boolean,
-)
 
 fun LazyListScope.momentsContent(
     urlToken: String,
@@ -108,9 +88,9 @@ fun LazyListScope.momentsContent(
         else -> {
             items(
                 items = state.moments,
-                key = { item -> "${prefix}_${item.id}" },
-                contentType = { item -> item.type }
-            ) { item ->
+                key = { item: MomentDto -> "${prefix}_${item.id}" },
+                contentType = { item: MomentDto -> item.type }
+            ) { item: MomentDto ->
                 when (item.type) {
                     MomentContentType.USER -> UserMomentCard(state = item)
                     else -> StandardMomentCard(state = item)

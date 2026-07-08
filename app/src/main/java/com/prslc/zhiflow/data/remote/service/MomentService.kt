@@ -2,8 +2,8 @@ package com.prslc.zhiflow.data.remote.service
 
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.data.model.MomentsFeedResponse
-import com.prslc.zhiflow.data.model.MomentsResponse
+import com.prslc.zhiflow.data.model.moment.MomentsFeedResponse
+import com.prslc.zhiflow.data.model.moment.MomentsResponse
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request

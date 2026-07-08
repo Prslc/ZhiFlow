@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.remote.parser.engine
 
 import androidx.compose.runtime.Immutable
-import com.prslc.zhiflow.data.model.Table
+import com.prslc.zhiflow.data.model.content.Table
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.data.remote.parser.model.ProcessedText
 

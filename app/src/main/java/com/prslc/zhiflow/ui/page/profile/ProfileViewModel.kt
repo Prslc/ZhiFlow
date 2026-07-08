@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.model.ZhihuUser
+import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException

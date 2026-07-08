@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.core.utils
+package com.prslc.zhiflow.core.utils.platform
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable

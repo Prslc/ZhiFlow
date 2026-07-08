@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.data.model.ZhihuCollection
+import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.user.ZhihuCollection
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import kotlinx.coroutines.launch
 

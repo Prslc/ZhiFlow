@@ -17,7 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.core.utils.shouldLoadMore
+import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter

@@ -2,11 +2,12 @@ package com.prslc.zhiflow.data.remote.parser
 
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.core.utils.JsonHelper
-import com.prslc.zhiflow.data.model.Card
-import com.prslc.zhiflow.data.model.Mark
-import com.prslc.zhiflow.data.model.Paragraph
-import com.prslc.zhiflow.data.model.Segment
-import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.data.model.content.Card
+import com.prslc.zhiflow.data.model.content.CardExtraInfo
+import com.prslc.zhiflow.data.model.content.Mark
+import com.prslc.zhiflow.data.model.content.Paragraph
+import com.prslc.zhiflow.data.model.content.Segment
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.engine.FormulaHandler
 import com.prslc.zhiflow.data.remote.parser.engine.TableParser

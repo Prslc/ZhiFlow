@@ -3,8 +3,8 @@ package com.prslc.zhiflow.data.remote.service
 import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeExecute
-import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.data.model.ReadHistoryRequest
+import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request

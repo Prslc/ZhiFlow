@@ -7,11 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.mapper.toItemState
-import com.prslc.zhiflow.data.model.ComponentCard
-import com.prslc.zhiflow.data.model.MomentsFeedItem
-import com.prslc.zhiflow.data.model.MomentsPage
+import com.prslc.zhiflow.data.mapper.toDto
+import com.prslc.zhiflow.data.model.moment.ComponentCard
+import com.prslc.zhiflow.data.model.moment.MomentsFeedItem
+import com.prslc.zhiflow.data.model.moment.MomentsPage
 import com.prslc.zhiflow.data.repository.MomentRepository
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
@@ -20,14 +21,14 @@ open class MomentViewModel<T>(
     val tabKeyPrefix: String,
     private val repository: MomentRepository,
     private val fetchSource: suspend (MomentRepository, String, String?) -> Result<MomentsPage<T>>,
-    private val toItemState: (T) -> MomentItemState,
+    private val toItemState: (T) -> MomentDto,
 ) : ViewModel() {
 
     @Immutable
     data class MomentUiState(
         val isLoading: Boolean = false,
         val isNextLoading: Boolean = false,
-        val moments: List<MomentItemState> = emptyList(),
+        val moments: List<MomentDto> = emptyList(),
         val error: ApiException? = null,
     )
 
@@ -108,7 +109,7 @@ class PostsViewModel(repository: MomentRepository) :
         tabKeyPrefix = "post",
         repository = repository,
         fetchSource = { repo, token, nextUrl -> repo.getUserPost(token, nextUrl) },
-        toItemState = { it.toItemState() },
+        toItemState = { it.toDto() },
     )
 
 class ActivitiesViewModel(repository: MomentRepository) :
@@ -116,7 +117,7 @@ class ActivitiesViewModel(repository: MomentRepository) :
         tabKeyPrefix = "activity",
         repository = repository,
         fetchSource = { repo, token, nextUrl -> repo.getUserActivities(token, nextUrl) },
-        toItemState = { it.toItemState() },
+        toItemState = { it.toDto() },
     )
 
 class UpvotesViewModel(repository: MomentRepository) :
@@ -124,5 +125,5 @@ class UpvotesViewModel(repository: MomentRepository) :
         tabKeyPrefix = "upvote",
         repository = repository,
         fetchSource = { repo, token, nextUrl -> repo.getUserVote(token, nextUrl) },
-        toItemState = { it.toItemState() },
+        toItemState = { it.toDto() },
     )

@@ -4,8 +4,8 @@ import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
-import com.prslc.zhiflow.data.model.CommentResponse
-import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.data.model.comment.CommentResponse
+import com.prslc.zhiflow.data.model.content.ContentType
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request

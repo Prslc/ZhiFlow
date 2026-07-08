@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 

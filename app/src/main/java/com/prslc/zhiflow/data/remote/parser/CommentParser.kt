@@ -5,8 +5,8 @@ import android.text.Html
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import com.prslc.zhiflow.data.model.CommentContent
-import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.data.model.comment.CommentContent
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
 
 @Immutable

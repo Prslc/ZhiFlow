@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.remote.service
 
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.data.model.ZhihuUser
+import com.prslc.zhiflow.data.model.user.ZhihuUser
 import okhttp3.OkHttpClient
 import okhttp3.Request
 

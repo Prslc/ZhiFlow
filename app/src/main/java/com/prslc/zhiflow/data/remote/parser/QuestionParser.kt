@@ -8,7 +8,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 

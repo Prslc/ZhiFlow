@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.data.model.AnswerAuthor
-import com.prslc.zhiflow.data.model.ZhihuContent
+import com.prslc.zhiflow.data.model.content.AnswerAuthor
+import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.navigation.Navigator

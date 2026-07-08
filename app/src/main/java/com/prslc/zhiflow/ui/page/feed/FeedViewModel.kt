@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.mapper.FeedDisplay
+import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.repository.FeedRepository
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
@@ -17,7 +17,7 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
 
     @Immutable
     data class FeedUiState(
-        val items: List<FeedDisplay> = emptyList(),
+        val items: List<FeedDto> = emptyList(),
         val isRefreshing: Boolean = false,
         val isNextLoading: Boolean = false,
         val globalError: ApiException? = null,

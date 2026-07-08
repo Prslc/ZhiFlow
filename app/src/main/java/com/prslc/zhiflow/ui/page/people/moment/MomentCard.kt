@@ -34,7 +34,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatToDate
-import com.prslc.zhiflow.data.model.MediaImage
+import com.prslc.zhiflow.data.dto.MomentDto
+import com.prslc.zhiflow.data.model.moment.MediaImage
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ImageData
@@ -43,7 +44,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
 fun BaseMomentCard(
-    state: MomentItemState,
+    state: MomentDto,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -74,7 +75,7 @@ fun BaseMomentCard(
 
 @Composable
 private fun MomentHeader(
-    state: MomentItemState,
+    state: MomentDto,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -122,7 +123,7 @@ private fun MomentHeader(
 
 @Composable
 fun UserMomentCard(
-    state: MomentItemState,
+    state: MomentDto,
     modifier: Modifier = Modifier
 ) {
     BaseMomentCard(state = state, modifier = modifier) {
@@ -175,7 +176,7 @@ fun UserMomentCard(
 
 @Composable
 fun StandardMomentCard(
-    state: MomentItemState,
+    state: MomentDto,
     modifier: Modifier = Modifier
 ) {
     BaseMomentCard(state = state, modifier = modifier) {

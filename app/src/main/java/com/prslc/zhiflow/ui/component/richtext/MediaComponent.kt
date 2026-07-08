@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Composable

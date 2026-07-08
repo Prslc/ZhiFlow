@@ -1,19 +1,10 @@
 package com.prslc.zhiflow.data.mapper
 
-import com.prslc.zhiflow.data.model.AnswerTarget
+import com.prslc.zhiflow.data.dto.AnswerDto
+import com.prslc.zhiflow.data.model.feed.AnswerTarget
 import com.prslc.zhiflow.ui.component.common.ImageData
 
-data class AnswerDisplay(
-    val id: String,
-    val authorName: String,
-    val authorAvatar: String?,
-    val excerpt: String,
-    val images: List<ImageData>,
-    val voteCount: Int,
-    val commentCount: Int,
-)
-
-internal fun AnswerTarget.toDisplayData(): AnswerDisplay = AnswerDisplay(
+internal fun AnswerTarget.toDto(): AnswerDto = AnswerDto(
     id = id,
     authorName = author.name ?: "",
     authorAvatar = author.avatar,

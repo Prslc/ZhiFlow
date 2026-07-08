@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.data.remote.service.QuestionService
-import com.prslc.zhiflow.data.model.QuestionDetail
-import com.prslc.zhiflow.data.model.QuestionFeedResponse
+import com.prslc.zhiflow.data.model.content.QuestionDetail
+import com.prslc.zhiflow.data.model.feed.QuestionFeedResponse
 
 class QuestionRepository(private val service: QuestionService) {
 

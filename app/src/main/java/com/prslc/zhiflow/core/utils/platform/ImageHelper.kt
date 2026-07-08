@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.core.utils
+package com.prslc.zhiflow.core.utils.platform
 
 import android.content.ClipData
 import android.content.ContentValues

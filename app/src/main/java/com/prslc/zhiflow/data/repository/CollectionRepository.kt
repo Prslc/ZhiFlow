@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.data.model.CollectionResponse
-import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.data.model.user.CollectionResponse
+import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.remote.service.CollectionService
 
 class CollectionRepository(private val service: CollectionService) {

@@ -38,9 +38,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.data.model.ZhihuAnswer
-import com.prslc.zhiflow.data.model.ZhihuContent
+import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.content.ZhihuAnswer
+import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView

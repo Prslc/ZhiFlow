@@ -14,14 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prslc.zhiflow.data.mapper.AnswerDisplay
+import com.prslc.zhiflow.data.dto.AnswerDto
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 
 @Composable
 fun AnswerItem(
-    display: AnswerDisplay,
+    display: AnswerDto,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit
 ) {

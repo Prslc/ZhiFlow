@@ -1,12 +1,12 @@
 package com.prslc.zhiflow.data.mapper
 
-import com.prslc.zhiflow.data.model.ComponentCard
-import com.prslc.zhiflow.data.model.MediaImage
-import com.prslc.zhiflow.data.model.MomentsFeedItem
+import com.prslc.zhiflow.data.model.moment.ComponentCard
+import com.prslc.zhiflow.data.model.moment.MediaImage
+import com.prslc.zhiflow.data.model.moment.MomentsFeedItem
 import com.prslc.zhiflow.ui.page.people.moment.MomentContentType
-import com.prslc.zhiflow.ui.page.people.moment.MomentItemState
+import com.prslc.zhiflow.data.dto.MomentDto
 
-internal fun ComponentCard.toItemState(): MomentItemState {
+internal fun ComponentCard.toDto(): MomentDto {
     val bem = extra?.businessExtMap
     val contentInfo = bem?.contentInfo
 
@@ -30,7 +30,7 @@ internal fun ComponentCard.toItemState(): MomentItemState {
 
     val totalVotes = (bem?.reactionMap?.like?.count ?: 0) + (bem?.reactionMap?.voteUp?.count ?: 0)
 
-    return MomentItemState(
+    return MomentDto(
         id = realId,
         type = momentType,
         title = resolvedTitle,
@@ -52,7 +52,7 @@ internal fun ComponentCard.toItemState(): MomentItemState {
     )
 }
 
-internal fun MomentsFeedItem.toItemState(): MomentItemState {
+internal fun MomentsFeedItem.toDto(): MomentDto {
     val target = this.target
     val source = this.source
     val bem = extra?.businessExtMap
@@ -137,7 +137,7 @@ internal fun MomentsFeedItem.toItemState(): MomentItemState {
 
     val isTopping = bem?.momentsBizData?.feedType == "topping"
 
-    return MomentItemState(
+    return MomentDto(
         id = "${this.id}_${target?.id ?: bem?.contentInfo?.contentId ?: ""}",
         type = momentType,
         title = title,

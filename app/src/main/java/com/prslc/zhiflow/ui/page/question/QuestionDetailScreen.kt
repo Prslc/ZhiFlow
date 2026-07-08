@@ -68,10 +68,10 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.core.utils.isOverflowed
-import com.prslc.zhiflow.data.model.QuestionDetail
-import com.prslc.zhiflow.data.model.Topic
-import com.prslc.zhiflow.data.model.ZhihuImage
+import com.prslc.zhiflow.core.utils.compose.isOverflowed
+import com.prslc.zhiflow.data.model.content.QuestionDetail
+import com.prslc.zhiflow.data.model.content.Topic
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView

@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.data.model.ReadHistoryRequest
+import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import com.prslc.zhiflow.data.remote.service.ActionService
 
 class ActionRepository(private val service: ActionService) {

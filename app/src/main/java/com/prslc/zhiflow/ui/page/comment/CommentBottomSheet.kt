@@ -31,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.data.model.ContentType
+import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
