@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -31,12 +30,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.model.MediaImage
+import com.prslc.zhiflow.ui.component.common.ContentMeta
+import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
@@ -103,7 +103,7 @@ private fun MomentHeader(
                     modifier = Modifier.weight(1f, fill = false),
                 )
                 if (state.isTopping) {
-                    TypeLabel(text = stringResource(R.string.moment_pin))
+                    ContentTypeLabel(text = stringResource(R.string.moment_pin))
                 }
             }
             if (state.actionTime > 0) {
@@ -223,10 +223,9 @@ fun StandardMomentCard(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.feed_meta, state.voteCount, state.commentCount),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
+        ContentMeta(
+            voteCount = state.voteCount,
+            commentCount = state.commentCount,
         )
     }
 }
@@ -254,25 +253,4 @@ private fun MomentImageItem(
             .clickable { onClick(displayUrl) },
         contentScale = ContentScale.Crop,
     )
-}
-
-@Composable
-fun TypeLabel(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = MaterialTheme.shapes.extraSmall,
-        modifier = modifier
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
-            fontWeight = FontWeight.Bold,
-            letterSpacing = TextUnit.Unspecified,
-        )
-    }
 }

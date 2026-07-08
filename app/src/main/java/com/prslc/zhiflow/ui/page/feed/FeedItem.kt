@@ -7,25 +7,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.FeedItem
+import com.prslc.zhiflow.ui.component.common.AuthorRow
+import com.prslc.zhiflow.ui.component.common.ContentMeta
+import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
+import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 
 @Composable
 fun FeedItem(
@@ -58,7 +54,13 @@ fun FeedItem(
     ) {
         // title
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TypeLabel(target.type)
+            val config = contentTypeConfig(target.type)
+            ContentTypeLabel(
+                text = stringResource(config.labelResId),
+                containerColor = config.containerColor,
+                contentColor = config.contentColor,
+                modifier = Modifier.padding(end = 6.dp),
+            )
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
@@ -71,26 +73,13 @@ fun FeedItem(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // avatar
-            AsyncImage(
-                model = target.author?.avatarUrl,
-                contentDescription = stringResource(R.string.avatar_desc),
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape),
-                contentScale = Crop,
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // author
-            Text(
-                text = target.author?.name ?: stringResource(R.string.anonymous_user),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
+        AuthorRow(
+            avatarUrl = target.author?.avatarUrl,
+            authorName = target.author?.name ?: "",
+            avatarSize = 20.dp,
+            nameStyle = MaterialTheme.typography.labelMedium,
+            nameColor = MaterialTheme.colorScheme.primary,
+        )
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -105,55 +94,9 @@ fun FeedItem(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // bottom
-        Text(
-            text = stringResource(
-                R.string.feed_meta,
-                target.voteCount,
-                target.commentCount
-            ),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
-        )
-    }
-}
-
-@Composable
-fun TypeLabel(
-    type: String?,
-    modifier: Modifier = Modifier
-) {
-    val (label, containerColor, contentColor) = when (type) {
-        "answer" -> Triple(
-            stringResource(R.string.type_answer),
-            MaterialTheme.colorScheme.primaryContainer,
-            MaterialTheme.colorScheme.primary
-        )
-
-        "article" -> Triple(
-            stringResource(R.string.type_article),
-            MaterialTheme.colorScheme.tertiaryContainer,
-            MaterialTheme.colorScheme.tertiary
-        )
-
-        else -> Triple(
-            stringResource(R.string.type_unknown),
-            MaterialTheme.colorScheme.surfaceVariant,
-            MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-
-    Surface(
-        color = containerColor,
-        contentColor = contentColor,
-        shape = MaterialTheme.shapes.extraSmall,
-        modifier = modifier.padding(end = 6.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-            fontWeight = FontWeight.Bold,
+        ContentMeta(
+            voteCount = target.voteCount,
+            commentCount = target.commentCount,
         )
     }
 }
