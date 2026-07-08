@@ -17,35 +17,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.prslc.zhiflow.data.model.FeedItem
+import com.prslc.zhiflow.data.mapper.FeedDisplay
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
-import com.prslc.zhiflow.ui.component.common.ImageData
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 
 @Composable
 fun FeedItem(
-    item: FeedItem,
+    display: FeedDisplay,
     modifier: Modifier = Modifier,
-    onClick: (String, String) -> Unit,   // id, type
+    onClick: (String, String) -> Unit,
 ) {
-    val target = item.target ?: return
-
-    val (type, title) = remember(item) {
-        val type = target.type ?: "answer"
-        val title = target.question?.title ?: target.title ?: ""
-        type to title
-    }
-
-    val stableClick = remember(target.id, type, onClick) {
-        {
-            val id = target.id?.toString()
-            if (id != null) {
-                onClick(id, type)
-            }
-        }
+    val stableClick = remember(display.id, display.type, onClick) {
+        { onClick(display.id, display.type) }
     }
 
     Column(
@@ -54,9 +40,8 @@ fun FeedItem(
             .clickable(onClick = stableClick)
             .padding(20.dp)
     ) {
-        // title
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val config = contentTypeConfig(target.type)
+            val config = contentTypeConfig(display.type)
             ContentTypeLabel(
                 text = stringResource(config.labelResId),
                 containerColor = config.containerColor,
@@ -64,7 +49,7 @@ fun FeedItem(
                 modifier = Modifier.padding(end = 6.dp),
             )
             Text(
-                text = title,
+                text = display.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -76,8 +61,8 @@ fun FeedItem(
         Spacer(modifier = Modifier.height(8.dp))
 
         AuthorRow(
-            avatarUrl = target.author?.avatarUrl,
-            authorName = target.author?.name ?: "",
+            avatarUrl = display.authorAvatar,
+            authorName = display.authorName,
             avatarSize = 20.dp,
             nameStyle = MaterialTheme.typography.labelMedium,
             nameColor = MaterialTheme.colorScheme.primary,
@@ -85,27 +70,24 @@ fun FeedItem(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Content
         Text(
-            text = target.excerpt ?: "",
+            text = display.excerpt,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
 
-        if (target.thumbnails.isNotEmpty()) {
+        if (display.images.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
-            ThumbnailRow(
-                images = target.thumbnails.map { ImageData(url = it, width = 0, height = 0) },
-            )
+            ThumbnailRow(images = display.images)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         ContentMeta(
-            voteCount = target.voteCount,
-            commentCount = target.commentCount,
+            voteCount = display.voteCount,
+            commentCount = display.commentCount,
         )
     }
 }

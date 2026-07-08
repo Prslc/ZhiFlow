@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.model.FeedItem
+import com.prslc.zhiflow.data.mapper.FeedDisplay
 import com.prslc.zhiflow.data.repository.FeedRepository
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
@@ -17,7 +17,7 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
 
     @Immutable
     data class FeedUiState(
-        val items: List<FeedItem> = emptyList(),
+        val items: List<FeedDisplay> = emptyList(),
         val isRefreshing: Boolean = false,
         val isNextLoading: Boolean = false,
         val globalError: ApiException? = null,
@@ -48,10 +48,10 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
             uiState = uiState.copy(isRefreshing = true, globalError = null)
 
             repository.getFeeds(isRefresh = true, nextUrl = null)
-                .onSuccess { response ->
-                    nextPageUrl = response.paging.next
+                .onSuccess { result ->
+                    nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        items = response.data,
+                        items = result.items,
                         isRefreshing = false,
                         loadMoreError = null,
                     )
@@ -76,10 +76,10 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
             uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
 
             repository.getFeeds(isRefresh = false, nextUrl = nextPageUrl)
-                .onSuccess { response ->
-                    nextPageUrl = response.paging.next
+                .onSuccess { result ->
+                    nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        items = uiState.items + response.data,
+                        items = uiState.items + result.items,
                         isNextLoading = false,
                     )
                 }

@@ -274,17 +274,15 @@ private fun QuestionContentList(
         // question list
         itemsIndexed(
             items = state.answers,
-            key = { _, item -> item.target.id }
-        ) { _, feedItem ->
-            if (feedItem.targetType == "answer") {
-                AnswerItem(
-                    target = feedItem.target,
-                    onClick = { answerId ->
-                        navigator.navigateToContent(answerId, "answer")
-                    }
-                )
-                AnswerDivider()
-            }
+            key = { _, item -> item.id }
+        ) { _, display ->
+            AnswerItem(
+                display = display,
+                onClick = { answerId ->
+                    navigator.navigateToContent(answerId, "answer")
+                }
+            )
+            AnswerDivider()
         }
 
         // loading

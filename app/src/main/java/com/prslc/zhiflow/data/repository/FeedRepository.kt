@@ -1,7 +1,13 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.data.model.ZhihuResponse
+import com.prslc.zhiflow.data.mapper.FeedDisplay
+import com.prslc.zhiflow.data.mapper.toDisplayData
 import com.prslc.zhiflow.data.remote.service.FeedService
+
+data class FeedResult(
+    val items: List<FeedDisplay>,
+    val nextPageUrl: String?,
+)
 
 class FeedRepository(private val service: FeedService) {
 
@@ -10,10 +16,15 @@ class FeedRepository(private val service: FeedService) {
      *
      * @param isRefresh If true, force refresh and fetch the first page
      * @param nextUrl URL for the next page; if null or isRefresh is true, fetch the first page
-     * @return A [Result] containing [ZhihuResponse] on success, or an exception on failure
+     * @return A [Result] containing [FeedResult] with mapped display items and next page URL
      */
-    suspend fun getFeeds(isRefresh: Boolean, nextUrl: String?): Result<ZhihuResponse> {
+    suspend fun getFeeds(isRefresh: Boolean, nextUrl: String?): Result<FeedResult> {
         return service.getRecommendFeed(isRefresh, nextUrl)
-            .map { response -> response.copy(data = response.data.filter { it.target != null }) }
+            .map { response ->
+                FeedResult(
+                    items = response.data.mapNotNull { it.toDisplayData() },
+                    nextPageUrl = response.paging.next,
+                )
+            }
     }
 }

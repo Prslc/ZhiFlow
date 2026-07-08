@@ -8,8 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.data.mapper.AnswerDisplay
+import com.prslc.zhiflow.data.mapper.toDisplayData
 import com.prslc.zhiflow.data.model.QuestionDetail
-import com.prslc.zhiflow.data.model.QuestionFeedItem
 import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.remote.parser.QuestionParser
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
@@ -33,7 +34,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val isNextLoading: Boolean = false,
         val question: QuestionDetail? = null,
         val elements: List<DetailElement> = emptyList(),
-        val answers: List<QuestionFeedItem> = emptyList(),
+        val answers: List<AnswerDisplay> = emptyList(),
         val error: ApiException? = null,
         val hasMore: Boolean = false,
     )
@@ -72,7 +73,10 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         isLoading = false,
                         question = detailData,
                         elements = elements,
-                        answers = feedResponse?.data ?: emptyList(),
+                        answers = feedResponse?.data
+                            ?.filter { it.targetType == "answer" }
+                            ?.map { it.target.toDisplayData() }
+                            ?: emptyList(),
                         hasMore = feedResponse?.paging?.isEnd == false,
                     )
                 } else {
@@ -101,13 +105,15 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         viewModelScope.launch {
             repository.getQuestionFeed(id, nextUrl = url)
                 .onSuccess { response ->
-                        nextPageUrl = response.paging.next
-                        uiState = uiState.copy(
-                            isNextLoading = false,
-                            answers = uiState.answers + response.data,
-                            hasMore = !response.paging.isEnd,
-                        )
-                    }
+                    nextPageUrl = response.paging.next
+                    uiState = uiState.copy(
+                        isNextLoading = false,
+                        answers = uiState.answers + response.data
+                            .filter { it.targetType == "answer" }
+                            .map { it.target.toDisplayData() },
+                        hasMore = !response.paging.isEnd,
+                    )
+                }
                 .onFailure { e ->
                     if (e is CancellationException) throw e
                     uiState = uiState.copy(isNextLoading = false)

@@ -14,33 +14,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.prslc.zhiflow.data.model.AnswerTarget
+import com.prslc.zhiflow.data.mapper.AnswerDisplay
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
-import com.prslc.zhiflow.ui.component.common.ImageData
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 
 @Composable
 fun AnswerItem(
-    target: AnswerTarget,
+    display: AnswerDisplay,
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick(target.id) }
+            .clickable { onClick(display.id) }
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
         AuthorRow(
-            avatarUrl = target.author.avatar,
-            authorName = target.author.name ?: "",
+            avatarUrl = display.authorAvatar,
+            authorName = display.authorName,
             modifier = Modifier.padding(bottom = 8.dp),
         )
 
         // content
         Text(
-            text = target.excerpt,
+            text = display.excerpt,
             style = MaterialTheme.typography.bodyMedium.copy(
                 lineHeight = 22.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
@@ -50,18 +49,15 @@ fun AnswerItem(
         )
 
         // images
-        val thumbnails = target.thumbnailInfo?.thumbnails ?: emptyList()
-        if (thumbnails.isNotEmpty()) {
+        if (display.images.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
-            ThumbnailRow(
-                images = thumbnails.map { ImageData(it.url, it.width, it.height) },
-            )
+            ThumbnailRow(images = display.images)
         }
 
         // status
         ContentMeta(
-            voteCount = target.voteupCount,
-            commentCount = target.commentCount,
+            voteCount = display.voteCount,
+            commentCount = display.commentCount,
             modifier = Modifier.padding(top = 10.dp),
         )
     }

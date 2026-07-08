@@ -62,11 +62,10 @@ fun FeedScreen(
             ) {
                 itemsIndexed(
                     items = items,
-                    key = { index, item -> item.target?.id ?: "feed_fallback_index_$index" },
-                    contentType = { _, _ -> "FeedItem" }
+                    key = { _, item -> item.id },
                 ) { index, item ->
                     FeedItem(
-                        item = item,
+                        display = item,
                         onClick = stableOnItemClick,
                     )
 
