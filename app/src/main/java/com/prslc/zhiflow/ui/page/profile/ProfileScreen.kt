@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -26,12 +25,15 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -87,18 +89,22 @@ fun ProfileScreen(
                     statusBarHeight = statusBarHeight,
                 )
 
-                Spacer(modifier = Modifier.height(54.dp))
+                Spacer(modifier = Modifier.height(58.dp))
 
                 // Name & headline
                 Column(
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = user.name ?: stringResource(R.string.profile_default_username),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = user.headline ?: stringResource(R.string.profile_default_headline),
                         style = MaterialTheme.typography.bodyMedium,
@@ -106,7 +112,57 @@ fun ProfileScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    ),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        val stats = listOf(
+                            stringResource(R.string.profile_stat_following) to user.followingCount,
+                            stringResource(R.string.profile_stat_followers) to user.followerCount,
+                            stringResource(R.string.profile_stat_favorites) to user.favoriteCount,
+                        )
+                        stats.forEachIndexed { index, (label, count) ->
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = formatCount(count),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
+                            if (index < stats.lastIndex) {
+                                VerticalDivider(
+                                    modifier = Modifier.height(32.dp),
+                                    thickness = 1.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // Content section
                 SectionLabel(
@@ -191,7 +247,7 @@ private fun ProfileHeader(
             contentDescription = stringResource(R.string.profile_cover_desc),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp),
+                .height(180.dp),
             contentScale = ContentScale.Crop,
         )
 
@@ -200,7 +256,7 @@ private fun ProfileHeader(
             onClick = onSettingsClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = statusBarHeight + 4.dp, end = 4.dp),
+                .padding(top = statusBarHeight + 8.dp, end = 12.dp),
         ) {
             Icon(
                 imageVector = Icons.Filled.Settings,
@@ -209,70 +265,21 @@ private fun ProfileHeader(
             )
         }
 
-        // Avatar + inline stats
-        Row(
+        // Avatar & centered, overlapping the cover
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomStart)
-                .padding(horizontal = 20.dp)
+                .align(Alignment.BottomCenter)
+                .size(84.dp)
                 .offset(y = 42.dp),
-            verticalAlignment = Alignment.Bottom,
+            shape = CircleShape,
+            border = BorderStroke(3.dp, MaterialTheme.colorScheme.background),
         ) {
-            // Avatar with border ring
-            Surface(
-                modifier = Modifier.size(84.dp),
-                shape = CircleShape,
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.background),
-            ) {
-                AsyncImage(
-                    model = user.avatar,
-                    contentDescription = stringResource(R.string.content_desc_avatar),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Inline stats
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .align(Alignment.Bottom),
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                ProfileStat(
-                    label = stringResource(R.string.profile_stat_following),
-                    count = user.followingCount,
-                )
-                ProfileStat(
-                    label = stringResource(R.string.profile_stat_followers),
-                    count = user.followerCount,
-                )
-                ProfileStat(
-                    label = stringResource(R.string.profile_stat_favorites),
-                    count = user.favoriteCount,
-                )
-            }
+            AsyncImage(
+                model = user.avatar,
+                contentDescription = stringResource(R.string.content_desc_avatar),
+                contentScale = ContentScale.Crop,
+            )
         }
-    }
-}
-
-@Composable
-private fun ProfileStat(
-    label: String,
-    count: Int,
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = formatCount(count),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
-        )
     }
 }
 
@@ -283,7 +290,8 @@ private fun SectionLabel(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(start = 4.dp),
     )
