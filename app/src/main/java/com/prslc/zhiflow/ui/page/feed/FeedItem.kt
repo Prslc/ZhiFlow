@@ -21,6 +21,8 @@ import com.prslc.zhiflow.data.model.FeedItem
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
+import com.prslc.zhiflow.ui.component.common.ImageData
+import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 
 @Composable
@@ -91,6 +93,13 @@ fun FeedItem(
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
+
+        if (target.thumbnails.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            ThumbnailRow(
+                images = target.thumbnails.map { ImageData(url = it, width = 0, height = 0) },
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 

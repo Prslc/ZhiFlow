@@ -37,7 +37,9 @@ data class FeedTarget(
     val excerpt: String? = null,         // excerpt
     val content: String? = null,         // content text
     @SerialName("voteup_count") val voteCount: Int = 0,     // Agree count
-    @SerialName("comment_count") val commentCount: Int = 0  // comment count,
+    @SerialName("comment_count") val commentCount: Int = 0, // comment count,
+    val thumbnail: String? = null,                           // cover image
+    val thumbnails: List<String> = emptyList(),              // image gallery
 )
 
 @Immutable
