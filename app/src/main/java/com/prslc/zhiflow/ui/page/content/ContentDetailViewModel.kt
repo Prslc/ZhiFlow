@@ -15,8 +15,8 @@ import com.prslc.zhiflow.data.model.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.ZhihuContent
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
-import com.prslc.zhiflow.parser.ContentParser
-import com.prslc.zhiflow.parser.model.RichTextElement
+import com.prslc.zhiflow.data.remote.parser.ContentParser
+import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable

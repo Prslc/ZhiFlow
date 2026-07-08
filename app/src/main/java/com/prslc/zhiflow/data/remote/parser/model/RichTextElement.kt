@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.parser.model
+package com.prslc.zhiflow.data.remote.parser.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable

@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.parser
+package com.prslc.zhiflow.data.remote.parser
 
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.core.utils.JsonHelper
@@ -7,11 +7,11 @@ import com.prslc.zhiflow.data.model.Mark
 import com.prslc.zhiflow.data.model.Paragraph
 import com.prslc.zhiflow.data.model.Segment
 import com.prslc.zhiflow.data.model.ZhihuImage
-import com.prslc.zhiflow.parser.engine.AnnotatedStringBuilder
-import com.prslc.zhiflow.parser.engine.FormulaHandler
-import com.prslc.zhiflow.parser.engine.TableParser
-import com.prslc.zhiflow.parser.model.ProcessedText
-import com.prslc.zhiflow.parser.model.RichTextElement
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import com.prslc.zhiflow.data.remote.parser.engine.FormulaHandler
+import com.prslc.zhiflow.data.remote.parser.engine.TableParser
+import com.prslc.zhiflow.data.remote.parser.model.ProcessedText
+import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 
 @Immutable
 object ContentParser {

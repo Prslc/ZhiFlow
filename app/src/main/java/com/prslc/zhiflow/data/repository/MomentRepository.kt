@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.data.model.MomentsFeedResponse
 import com.prslc.zhiflow.data.model.MomentsResponse
-import com.prslc.zhiflow.data.service.MomentService
+import com.prslc.zhiflow.data.remote.service.MomentService
 
 class MomentRepository(private val service: MomentService) {
 

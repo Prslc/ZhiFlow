@@ -11,8 +11,8 @@ import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.QuestionFeedItem
 import com.prslc.zhiflow.data.repository.QuestionRepository
-import com.prslc.zhiflow.parser.QuestionParser
-import com.prslc.zhiflow.parser.model.DetailElement
+import com.prslc.zhiflow.data.remote.parser.QuestionParser
+import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async

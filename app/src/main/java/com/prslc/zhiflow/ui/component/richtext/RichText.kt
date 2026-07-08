@@ -2,7 +2,7 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.prslc.zhiflow.parser.model.RichTextElement
+import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 
 @Composable
 fun RichTextSingleElement(

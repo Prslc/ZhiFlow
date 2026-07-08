@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.data.model.ZhihuUser
-import com.prslc.zhiflow.data.service.UserService
+import com.prslc.zhiflow.data.remote.service.UserService
 
 class UserRepository(private val service: UserService) {
 

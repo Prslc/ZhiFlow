@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.parser
+package com.prslc.zhiflow.data.remote.parser
 
 import androidx.compose.runtime.Immutable
 import android.text.Html
@@ -7,7 +7,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ZhihuImage
-import com.prslc.zhiflow.parser.emoji.EmojiParser
+import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
 
 @Immutable
 object CommentParser {

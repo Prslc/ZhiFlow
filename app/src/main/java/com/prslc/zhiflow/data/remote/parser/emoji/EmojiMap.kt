@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.parser.emoji
+package com.prslc.zhiflow.data.remote.parser.emoji
 
 object EmojiMap {
     private const val SCHEME = "file:///android_asset/"

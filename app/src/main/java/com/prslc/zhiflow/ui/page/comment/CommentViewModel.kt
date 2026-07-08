@@ -13,7 +13,7 @@ import com.prslc.zhiflow.data.model.CommentContent
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuComment
 import com.prslc.zhiflow.data.repository.CommentRepository
-import com.prslc.zhiflow.parser.CommentParser
+import com.prslc.zhiflow.data.remote.parser.CommentParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

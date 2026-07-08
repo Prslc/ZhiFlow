@@ -7,8 +7,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.UriHandler
 import androidx.navigation.NavHostController
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.parser.LinkDestination
-import com.prslc.zhiflow.parser.LinkParser
+import com.prslc.zhiflow.data.remote.parser.LinkDestination
+import com.prslc.zhiflow.data.remote.parser.LinkParser
 
 @SuppressLint("ComposeCompositionLocalUsage")
 val LocalNavigator = staticCompositionLocalOf<Navigator> {

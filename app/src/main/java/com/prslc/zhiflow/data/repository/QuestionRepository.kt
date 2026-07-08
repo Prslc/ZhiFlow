@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.data.service.QuestionService
+import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.QuestionFeedResponse
 

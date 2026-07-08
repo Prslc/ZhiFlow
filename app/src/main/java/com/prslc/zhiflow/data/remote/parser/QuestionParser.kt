@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.parser
+package com.prslc.zhiflow.data.remote.parser
 
 import android.text.Html
 import android.text.Spanned
@@ -9,8 +9,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.model.ZhihuImage
-import com.prslc.zhiflow.parser.emoji.EmojiParser
-import com.prslc.zhiflow.parser.model.DetailElement
+import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
+import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 
 @Immutable
 object QuestionParser {

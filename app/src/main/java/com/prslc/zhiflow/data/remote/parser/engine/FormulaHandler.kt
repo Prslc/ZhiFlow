@@ -1,8 +1,8 @@
-package com.prslc.zhiflow.parser.engine
+package com.prslc.zhiflow.data.remote.parser.engine
 
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.model.Formula
-import com.prslc.zhiflow.parser.model.InlineFormulaMeta
+import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 
 @Immutable
 object FormulaHandler {

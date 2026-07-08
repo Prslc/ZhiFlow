@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.data.model.ZhihuResponse
-import com.prslc.zhiflow.data.service.FeedService
+import com.prslc.zhiflow.data.remote.service.FeedService
 
 class FeedRepository(private val service: FeedService) {
 

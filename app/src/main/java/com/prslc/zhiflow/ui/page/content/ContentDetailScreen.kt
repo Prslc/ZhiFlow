@@ -41,7 +41,7 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.ContentType
 import com.prslc.zhiflow.data.model.ZhihuAnswer
 import com.prslc.zhiflow.data.model.ZhihuContent
-import com.prslc.zhiflow.parser.model.RichTextElement
+import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog

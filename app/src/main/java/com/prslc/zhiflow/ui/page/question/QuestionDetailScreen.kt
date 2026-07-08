@@ -72,7 +72,7 @@ import com.prslc.zhiflow.core.utils.isOverflowed
 import com.prslc.zhiflow.data.model.QuestionDetail
 import com.prslc.zhiflow.data.model.Topic
 import com.prslc.zhiflow.data.model.ZhihuImage
-import com.prslc.zhiflow.parser.model.DetailElement
+import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox

@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.parser.emoji
+package com.prslc.zhiflow.data.remote.parser.emoji
 
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.text.AnnotatedString

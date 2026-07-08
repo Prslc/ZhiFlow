@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
-import com.prslc.zhiflow.data.service.ContentService
+import com.prslc.zhiflow.data.remote.service.ContentService
 
 class ContentRepository(private val service: ContentService) {
 

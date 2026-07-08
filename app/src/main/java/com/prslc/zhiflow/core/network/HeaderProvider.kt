@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Build
 import android.webkit.WebSettings
-import com.prslc.zhiflow.Natives
+import com.prslc.zhiflow.core.native.Natives
 
 object HeaderProvider {
     const val API_VERSION = "3.0.93"

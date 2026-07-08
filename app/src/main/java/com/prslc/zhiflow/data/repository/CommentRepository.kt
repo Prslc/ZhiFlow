@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.data.model.CommentResponse
 import com.prslc.zhiflow.data.model.ContentType
-import com.prslc.zhiflow.data.service.CommentService
+import com.prslc.zhiflow.data.remote.service.CommentService
 
 /**
  * Repository responsible for orchestrating comment data from [CommentService].

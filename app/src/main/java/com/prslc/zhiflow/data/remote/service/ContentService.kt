@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.data.service
+package com.prslc.zhiflow.data.remote.service
 
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall

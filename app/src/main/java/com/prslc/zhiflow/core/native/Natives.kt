@@ -1,4 +1,4 @@
-package com.prslc.zhiflow
+package com.prslc.zhiflow.core.native
 
 /** JNI bridge to the native `encrypt` library for Zhihu request signing. */
 object Natives {
