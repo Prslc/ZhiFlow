@@ -181,7 +181,7 @@ fun CommentItem(
                 }
             }
 
-            // IP
+            // Create Time + IP
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -195,12 +195,18 @@ fun CommentItem(
 
                 comment.tags.find { it.type == "ip_info" }?.text?.let { ip ->
                     Text(
+                        text = "•",
+                        style = metaStyle,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                    Text(
                         text = ip,
                         style = metaStyle,
                         color = MaterialTheme.colorScheme.outline,
                     )
                 }
 
+                // Sub-comment
                 if (!isChild && comment.childCount > 0 && showReplyButton) {
                     Text(
                         text = stringResource(
