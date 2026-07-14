@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.data.remote.service
 
-import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
+import com.prslc.zhiflow.core.network.urlOrApiUrl
 import com.prslc.zhiflow.data.model.content.QuestionDetail
 import com.prslc.zhiflow.data.model.feed.QuestionFeedResponse
 import okhttp3.OkHttpClient
@@ -36,11 +36,8 @@ class QuestionService(private val okHttpClient: OkHttpClient) {
      */
     suspend fun getQuestionFeed(id: String, nextUrl: String? = null): Result<QuestionFeedResponse> =
         okHttpClient.safeApiCall {
-            // If nextUrl is provided, use it directly; otherwise, construct the initial URL
-            val requestUrl = nextUrl ?: "${Client.BASE_URL}/questions/$id/feeds"
-
             Request.Builder()
-                .url(requestUrl)
+                .urlOrApiUrl(nextUrl, "/questions/$id/feeds")
                 .get()
                 .build()
         }

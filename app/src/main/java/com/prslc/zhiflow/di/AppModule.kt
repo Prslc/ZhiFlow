@@ -2,8 +2,7 @@ package com.prslc.zhiflow.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.prslc.zhiflow.core.network.Client
-import com.prslc.zhiflow.core.network.HeaderProvider
+import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
@@ -42,13 +41,8 @@ val appModule = module {
         androidContext().getSharedPreferences("temp_auth_prefs", Context.MODE_PRIVATE)
     }
 
-    // HttpClient
-    single { Client.okHttpClient }
-
-    // init UA
-    single(createdAtStart = true) {
-        HeaderProvider.init(androidContext())
-    }
+    singleOf(::HttpClientProvider)
+    single { get<HttpClientProvider>().okHttpClient }
 
     // Feed
     singleOf(::FeedService)

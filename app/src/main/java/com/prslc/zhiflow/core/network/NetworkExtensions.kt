@@ -10,13 +10,22 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
+const val BASE_URL = "https://api.zhihu.com"
+
 /**
  * Extension properties and functions for OkHttp classes to streamline
  * data parsing and resource management.
  */
 
 internal fun Request.Builder.apiUrl(path: String): Request.Builder =
-    this.url("${Client.BASE_URL}$path")
+    this.url("${BASE_URL}$path")
+
+/**
+ * Sets the URL using [nextUrl] as-is when provided (pagination), otherwise
+ * delegates to [apiUrl] to prepend [BASE_URL] to the given [fallbackPath].
+ */
+internal fun Request.Builder.urlOrApiUrl(nextUrl: String?, fallbackPath: String): Request.Builder =
+    if (nextUrl != null) url(nextUrl) else apiUrl(fallbackPath)
 
 /**
  * Parses the [Response] body into a structured data object of type [T].
@@ -33,7 +42,7 @@ internal fun Request.Builder.apiUrl(path: String): Request.Builder =
 internal inline fun <reified T> Response.body(): T {
     return use { res ->
         if (!res.isSuccessful) throw HttpStatusException(res)
-        Client.jsonInstance.decodeFromString<T>(res.body.string())
+        HttpClientProvider.jsonInstance.decodeFromString<T>(res.body.string())
     }
 }
 

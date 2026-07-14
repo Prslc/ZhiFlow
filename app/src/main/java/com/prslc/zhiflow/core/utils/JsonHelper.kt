@@ -1,7 +1,7 @@
 package com.prslc.zhiflow.core.utils
 
 import android.text.Html
-import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.data.model.content.CardExtraInfo
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -12,7 +12,7 @@ import kotlinx.serialization.encodeToString
  */
 object JsonHelper {
 
-    private val json = Client.jsonInstance
+    private val json = HttpClientProvider.jsonInstance
 
     /**
      * Deserializes a JSON string specifically for Zhihu card extra information.

@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
-import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.data.model.feed.ZhihuResponse
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -24,7 +24,7 @@ class FeedService(private val okHttpClient: OkHttpClient) {
         nextUrl: String? = null
     ): Result<ZhihuResponse> = okHttpClient.safeApiCall {
         val baseUrl = nextUrl.takeUnless { isRefresh || nextUrl == null }
-            ?: "${Client.BASE_URL}/topstory/recommend"
+            ?: "${BASE_URL}/topstory/recommend"
 
         val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 

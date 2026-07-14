@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
-import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
@@ -33,7 +33,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         orderBy: String = "score",
         limit: Int = 20
     ): Result<CommentResponse> = okHttpClient.safeApiCall {
-        val url = "${Client.BASE_URL}/comment_v5/${contentType.apiPath}/$id/root_comment"
+        val url = "${BASE_URL}/comment_v5/${contentType.apiPath}/$id/root_comment"
             .toHttpUrl()
             .newBuilder()
             .addQueryParameter("order_by", orderBy)
@@ -52,7 +52,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         offset: String = "",
         limit: Int = 20
     ): Result<CommentResponse> = okHttpClient.safeApiCall {
-        val url = "${Client.BASE_URL}/comment_v5/comment/$rootCommentId/child_comment"
+        val url = "${BASE_URL}/comment_v5/comment/$rootCommentId/child_comment"
             .toHttpUrl()
             .newBuilder()
             .addQueryParameter("order_by", "ts")

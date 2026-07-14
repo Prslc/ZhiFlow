@@ -1,10 +1,9 @@
 package com.prslc.zhiflow.data.remote.service
 
-import com.prslc.zhiflow.core.network.Client
 import com.prslc.zhiflow.core.network.safeApiCall
+import com.prslc.zhiflow.core.network.urlOrApiUrl
 import com.prslc.zhiflow.data.model.moment.MomentsFeedResponse
 import com.prslc.zhiflow.data.model.moment.MomentsResponse
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -27,10 +26,8 @@ class MomentService(private val okHttpClient: OkHttpClient) {
         urlToken: String,
         nextUrl: String? = null
     ): Result<MomentsResponse> = okHttpClient.safeApiCall {
-        val url = nextUrl ?: "${Client.BASE_URL}/moments/$urlToken/origin"
-
         Request.Builder()
-            .url(url.toHttpUrl())
+            .urlOrApiUrl(nextUrl, "/moments/$urlToken/origin")
             .get()
             .build()
     }
@@ -49,10 +46,8 @@ class MomentService(private val okHttpClient: OkHttpClient) {
         urlToken: String,
         nextUrl: String? = null
     ): Result<MomentsFeedResponse> = okHttpClient.safeApiCall {
-        val url = nextUrl ?: "${Client.BASE_URL}/moments/$urlToken/activities"
-
         Request.Builder()
-            .url(url.toHttpUrl())
+            .urlOrApiUrl(nextUrl, "/moments/$urlToken/activities")
             .get()
             .build()
     }
@@ -68,10 +63,8 @@ class MomentService(private val okHttpClient: OkHttpClient) {
         urlToken: String,
         nextUrl: String? = null
     ): Result<MomentsFeedResponse> = okHttpClient.safeApiCall {
-        val url = nextUrl ?: "${Client.BASE_URL}/moments/$urlToken/vote"
-
         Request.Builder()
-            .url(url.toHttpUrl())
+            .urlOrApiUrl(nextUrl, "/moments/$urlToken/vote")
             .get()
             .build()
     }

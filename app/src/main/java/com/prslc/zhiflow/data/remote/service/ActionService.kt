@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
-import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.data.model.content.ContentType
@@ -25,7 +25,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
      */
     suspend fun addReadHistory(request: ReadHistoryRequest): Result<Boolean> =
         okHttpClient.safeExecute {
-            val jsonBody = Client.jsonInstance.encodeToString(request)
+            val jsonBody = HttpClientProvider.jsonInstance.encodeToString(request)
             val body = jsonBody.toRequestBody(jsonMediaType)
 
             Request.Builder()

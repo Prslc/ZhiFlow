@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
-import com.prslc.zhiflow.core.network.Client
+import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
@@ -25,7 +25,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
      */
     suspend fun getCollectionsForContent(id: String, contentType: ContentType): Result<CollectionResponse> =
         okHttpClient.safeApiCall {
-            val url = "${Client.BASE_URL}/collections/contents/${contentType.type}/$id"
+            val url = "${BASE_URL}/collections/contents/${contentType.type}/$id"
                 .toHttpUrl()
                 .newBuilder()
                 .addQueryParameter("ever_top", "1")
