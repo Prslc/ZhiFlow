@@ -125,6 +125,14 @@
     <string name="people_tab_activity">动态</string>
     <string name="people_tab_upvoted">赞同</string>
 
+    <!-- history -->
+    <string name="history_title">浏览历史</string>
+    <string name="history_meta">%1$d 赞同 · %2$d 评论</string>
+    <string name="history_user_meta">%1$d 赞同 · %2$d 关注</string>
+    <string name="history_question_meta">%1$d 回答 · %2$d 关注</string>
+    <string name="history_read_progress">已读 %1$d%%</string>
+    <string name="history_end_of_list">— 已到尽头 —</string>
+
     <!-- debug -->
     <string name="debug_item_open_link_title">打开链接</string>
     <string name="debug_item_open_link_subtitle">粘贴知乎 URL 以测试 LinkParser</string>

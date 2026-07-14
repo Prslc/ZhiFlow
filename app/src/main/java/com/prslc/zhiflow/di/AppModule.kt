@@ -10,6 +10,7 @@ import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
 import com.prslc.zhiflow.data.repository.MomentRepository
 import com.prslc.zhiflow.data.repository.QuestionRepository
+import com.prslc.zhiflow.data.repository.ReadHistoryRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import com.prslc.zhiflow.data.remote.service.ActionService
 import com.prslc.zhiflow.data.remote.service.CollectionService
@@ -18,12 +19,14 @@ import com.prslc.zhiflow.data.remote.service.ContentService
 import com.prslc.zhiflow.data.remote.service.FeedService
 import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.QuestionService
+import com.prslc.zhiflow.data.remote.service.ReadHistoryService
 import com.prslc.zhiflow.data.remote.service.UserService
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
 import com.prslc.zhiflow.ui.page.debug.DebugViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
+import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
 import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
@@ -77,6 +80,11 @@ val appModule = module {
     // Action
     singleOf(::ActionService)
     singleOf(::ActionRepository)
+
+    // ReadHistory
+    singleOf(::ReadHistoryService)
+    singleOf(::ReadHistoryRepository)
+    viewModelOf(::ReadHistoryViewModel)
 
     // Moment
     singleOf(::MomentService)

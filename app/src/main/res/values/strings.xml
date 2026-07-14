@@ -124,6 +124,14 @@
     <string name="people_tab_activity">Activities</string>
     <string name="people_tab_upvoted">Upvotes</string>
 
+    <!-- history -->
+    <string name="history_title">Browsing History</string>
+    <string name="history_meta">%1$d Agree · %2$d Comments</string>
+    <string name="history_user_meta">%1$d Agree · %2$d Followers</string>
+    <string name="history_question_meta">%1$d Answers · %2$d Followers</string>
+    <string name="history_read_progress">Read %1$d%%</string>
+    <string name="history_end_of_list">— End of list —</string>
+
     <!-- debug -->
     <string name="debug_item_open_link_title">Open Link</string>
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>

@@ -58,6 +58,7 @@ class Navigator(
             "article" -> navController.navigate(ArticleDetail(id))
             "pin" -> navController.navigate(PinDetail(id))
             "question" -> navController.navigate(QuestionDetail(id))
+            "people", "profile" -> navController.navigate(PeopleDetail(id))
             else -> Toast.makeText(
                 context,
                 context.getString(R.string.error_unknown_nav_type, type),
@@ -71,4 +72,6 @@ class Navigator(
     }
 
     fun navigateToSettings() = navController.navigate(Settings)
+
+    fun navigateToReadHistory() = navController.navigate(ReadHistory)
 }

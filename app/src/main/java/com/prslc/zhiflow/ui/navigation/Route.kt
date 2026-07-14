@@ -42,3 +42,7 @@ object DebugTab
 @Immutable
 @Serializable
 object ProfileTab
+
+@Immutable
+@Serializable
+object ReadHistory

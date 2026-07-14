@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -17,6 +19,7 @@ internal fun LazyListScope.pagingFooter(
     keyPrefix: String = "footer",
     isLoading: Boolean,
     error: Throwable?,
+    isEnd: Boolean = false,
     onRetry: () -> Unit
 ) {
     if (isLoading) {
@@ -38,6 +41,21 @@ internal fun LazyListScope.pagingFooter(
                 error.message ?: stringResource(R.string.error_unknown)
             }
             LoadMoreErrorItem(message = message, onRetry = onRetry)
+        }
+    } else if (isEnd) {
+        item(key = "${keyPrefix}_end") {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.history_end_of_list),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline,
+                )
+            }
         }
     }
 }
