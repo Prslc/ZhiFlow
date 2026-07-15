@@ -99,7 +99,8 @@ ZhiFlow/
 │               ├── component/
 │               │   ├── common/                # AuthorRow, ContentMeta, ContentTypeLabel, EmptyView, ErrorView, LoadingView, PagingFooter, ThumbnailRow, LoadMoreErrorItem
 │               │   ├── preference/            # ArrowPreference, PreferenceGroup
-│               │   ├── richtext/              # RichText.kt (ZRichText composable), CardComponent, CodeComponent, LatexComponent, LayoutComponent, ListComponent, MediaComponent, RichTextCommon
+│               │   ├── richtext/              # RichText.kt (element dispatcher), ZRichText.kt (text rendering engine)
+│               │   │   └── component/         # CardComponent, CodeComponent, LatexComponent, LayoutComponent, ListComponent, MediaComponent
 │               │   └── widget/                # BottomBar, CollectionDialog, CustomBottomSheet, ImageLightbox
 │               └── page/
 │                   ├── feed/                  # FeedScreen, FeedItem, FeedViewModel
@@ -184,7 +185,7 @@ var uiState by mutableStateOf(UiState())
 The rich text pipeline:
 1. API returns `List<Segment>` (paragraph, heading, blockquote, code_block, list_node, table, image, card, formula, etc.)
 2. `ContentParser.transform(segments, isDark)` → `List<RichTextElement>` (sealed interface hierarchy of Compose-ready primitives)
-3. Each `RichTextElement` renders via a corresponding composable in `ui/component/richtext/`
+3. Each `RichTextElement` renders via a corresponding composable in `ui/component/richtext/component/`
 4. `ZRichText` composable wraps `Text` with clickable link interception, inline formula measurement via `LatexMeasurer`, and `key()`-based layout refresh for async measurement resolution
 5. Inline math formulas use `InlineTextContent` + `Placeholder` with async bounds measurement
 
