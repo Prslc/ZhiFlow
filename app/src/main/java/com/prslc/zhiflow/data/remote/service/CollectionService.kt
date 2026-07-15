@@ -4,8 +4,9 @@ import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
-import com.prslc.zhiflow.data.model.user.CollectionResponse
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.user.CollectionContentsResponse
+import com.prslc.zhiflow.data.model.user.CollectionResponse
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -36,6 +37,35 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
                 .get()
                 .build()
         }
+
+    /**
+     * Retrieves paginated contents (answers) saved in a user's collections.
+     *
+     * When [nextUrl] is provided from a prior response's `paging.next`, it is used directly.
+     * Otherwise, the initial request is constructed with [offset]=0 and [limit].
+     *
+     * @param uid The target user's ID.
+     * @param nextUrl Absolute URL from the previous page; null for the first page.
+     * @param limit Page size (default 20).
+     */
+    suspend fun getCollectionContents(
+        uid: String,
+        nextUrl: String? = null,
+        limit: Int = 20
+    ): Result<CollectionContentsResponse> = okHttpClient.safeApiCall {
+        val baseUrl = nextUrl ?: "${BASE_URL}/people/$uid/collection_contents"
+        val urlBuilder = baseUrl.toHttpUrl().newBuilder()
+
+        if (nextUrl == null) {
+            urlBuilder.addQueryParameter("offset", "0")
+            urlBuilder.addQueryParameter("limit", limit.toString())
+        }
+
+        Request.Builder()
+            .url(urlBuilder.build())
+            .get()
+            .build()
+    }
 
     /**
      * Updates the collections for a specific content item by adding or removing it from folders.

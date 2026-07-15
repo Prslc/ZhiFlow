@@ -3,6 +3,16 @@ package com.prslc.zhiflow.data.repository
 import com.prslc.zhiflow.data.model.user.CollectionResponse
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.remote.service.CollectionService
+import com.prslc.zhiflow.data.dto.CollectionItemDto
+import com.prslc.zhiflow.data.mapper.toDto
+
+/**
+ * Domain result for paginated collection contents.
+ */
+data class CollectionContentsResult(
+    val items: List<CollectionItemDto>,
+    val nextPageUrl: String?,
+)
 
 class CollectionRepository(private val service: CollectionService) {
 
@@ -14,6 +24,38 @@ class CollectionRepository(private val service: CollectionService) {
      */
     suspend fun getCollections(id: String, type: ContentType): Result<CollectionResponse> =
         service.getCollectionsForContent(id, type)
+
+    /**
+     * Retrieve paginated contents of a user's collections.
+     *
+     * @param uid The target user's ID.
+     * @param nextUrl Pagination URL from the previous response; null for the first page.
+     */
+    suspend fun getCollectionContents(
+        uid: String,
+        nextUrl: String? = null,
+    ): Result<CollectionContentsResult> {
+        return service.getCollectionContents(uid, nextUrl)
+            .map { response ->
+                val items = response.data
+                    .map { it.toDto() }
+                    .groupBy { it.id }
+                    .values
+                    .map { group ->
+                        if (group.size == 1) {
+                            group.first()
+                        } else {
+                            group.first().copy(
+                                collectionNames = group.flatMap { it.collectionNames }.distinct(),
+                            )
+                        }
+                    }
+                CollectionContentsResult(
+                    items = items,
+                    nextPageUrl = response.paging?.next,
+                )
+            }
+    }
 
     /**
      * Update the collection status (add/remove) of a content item.

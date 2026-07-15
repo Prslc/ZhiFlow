@@ -21,6 +21,7 @@ import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
 import com.prslc.zhiflow.data.remote.service.UserService
+import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
@@ -56,6 +57,7 @@ val appModule = module {
     singleOf(::CollectionService)
     singleOf(::CollectionRepository)
     viewModelOf(::CollectionViewModel)
+    viewModelOf(::CollectionContentsViewModel)
 
     // Comment
     singleOf(::CommentService)

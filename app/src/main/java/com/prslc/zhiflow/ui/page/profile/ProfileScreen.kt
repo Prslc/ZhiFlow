@@ -59,7 +59,7 @@ fun ProfileScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToComments: () -> Unit,
     onNavigateToLikes: () -> Unit,
-    onNavigateToCollections: () -> Unit,
+    onNavigateToCollections: (String) -> Unit,
     onNavigateToFollows: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -208,7 +208,7 @@ fun ProfileScreen(
                             title = stringResource(R.string.profile_nav_collections),
                             summary = stringResource(R.string.profile_nav_collections_summary),
                             icon = Icons.Filled.Bookmark,
-                            onClick = onNavigateToCollections,
+                            onClick = { onNavigateToCollections(user.id) },
                         ),
                         PreferenceItem(
                             title = stringResource(R.string.profile_nav_follows),

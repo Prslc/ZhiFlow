@@ -133,6 +133,11 @@
     <string name="history_read_progress">Read %1$d%%</string>
     <string name="history_end_of_list">— End of list —</string>
 
+    <!-- collection contents -->
+    <string name="collection_contents_title">Collections</string>
+    <string name="collection_contents_meta">%1$d Agree · %2$d Comments</string>
+    <string name="collection_contents_folder_one">Saved in %1$s</string>
+    <string name="collection_contents_folder_many">Saved in %1$s and %2$d other folders</string>
     <!-- debug -->
     <string name="debug_item_open_link_title">Open Link</string>
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>

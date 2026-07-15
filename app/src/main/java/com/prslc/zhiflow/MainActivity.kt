@@ -162,7 +162,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     onNavigateToHistory = navigator::navigateToReadHistory,
                     onNavigateToComments = { },
                     onNavigateToLikes = { },
-                    onNavigateToCollections = { },
+                    onNavigateToCollections = navigator::navigateToCollectionContents,
                     onNavigateToFollows = { },
                     onNavigateToSettings = navigator::navigateToSettings,
                 )

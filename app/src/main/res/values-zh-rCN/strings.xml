@@ -134,6 +134,12 @@
     <string name="history_read_progress">已读 %1$d%%</string>
     <string name="history_end_of_list">— 已到尽头 —</string>
 
+    <!-- collection contents -->
+    <string name="collection_contents_title">我的收藏</string>
+    <string name="collection_contents_meta">%1$d 赞同 · %2$d 评论</string>
+    <string name="collection_contents_folder_one">收藏于 %1$s</string>
+    <string name="collection_contents_folder_many">收藏于 %1$s 等 %2$d 个收藏夹</string>
+
     <!-- debug -->
     <string name="debug_item_open_link_title">打开链接</string>
     <string name="debug_item_open_link_subtitle">粘贴知乎 URL 以测试 LinkParser</string>

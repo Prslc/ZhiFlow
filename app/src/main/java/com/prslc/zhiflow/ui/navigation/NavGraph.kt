@@ -9,6 +9,7 @@ import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
+import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 
@@ -63,6 +64,14 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<ReadHistory> {
         ReadHistoryScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<CollectionContents> { backStackEntry ->
+        val route: CollectionContents = backStackEntry.toRoute()
+        CollectionContentsScreen(
+            uid = route.uid,
             onBack = { navController.popBackStack() },
         )
     }
