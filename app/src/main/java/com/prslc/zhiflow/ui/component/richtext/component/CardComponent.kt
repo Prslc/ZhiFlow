@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.component.richtext
+package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

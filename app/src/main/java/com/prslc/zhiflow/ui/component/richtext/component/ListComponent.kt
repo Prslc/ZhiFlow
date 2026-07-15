@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.component.richtext
+package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.ZRichText
 
 @Composable
 fun BulletItemRow(

@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.component.richtext
+package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Composable

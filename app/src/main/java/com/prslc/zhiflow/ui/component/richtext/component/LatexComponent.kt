@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.component.richtext
+package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
