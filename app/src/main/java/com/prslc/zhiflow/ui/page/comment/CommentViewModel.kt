@@ -9,14 +9,11 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
-import com.prslc.zhiflow.data.model.comment.CommentContent
+import com.prslc.zhiflow.data.dto.CommentDto
+import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.content.ContentType
-import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.repository.CommentRepository
-import com.prslc.zhiflow.data.remote.parser.CommentParser
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
 @Immutable
@@ -30,7 +27,7 @@ sealed interface CommentUiEvent {
     data class ToggleLike(val commentId: String) : CommentUiEvent
     data class OpenImage(val url: String) : CommentUiEvent
     data class ShowAuthor(val urlToken: String) : CommentUiEvent
-    data class LoadChildComments(val rootComment: ZhihuComment) : CommentUiEvent
+    data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
 }
 
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
@@ -61,8 +58,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
     @Stable
     data class CommentUiModel(
-        val comment: ZhihuComment,
-        val parsedContent: CommentContent,
+        val comment: CommentDto,
     )
 
     var uiState by mutableStateOf(CommentUiState())
@@ -74,16 +70,6 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     private var lastLoadedAnswerId: String? = null
     private var lastContentType: ContentType? = null
     private val pendingReactions = mutableSetOf<String>()
-
-    private suspend fun List<ZhihuComment>.toUiModels(): List<CommentUiModel> =
-        withContext(Dispatchers.Default) {
-            map { CommentUiModel(it, CommentParser.parse(it.content)) }
-        }
-
-    private suspend fun ZhihuComment.toUiModel(): CommentUiModel =
-        withContext(Dispatchers.Default) {
-            CommentUiModel(this@toUiModel, CommentParser.parse(this@toUiModel.content))
-        }
 
     fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
         val isNewOrRefresh = forceRefresh || answerId != lastLoadedAnswerId
@@ -106,7 +92,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         viewModelScope.launch {
             repository.getRootComments(answerId, contentType, uiState.offset)
                 .onSuccess { response ->
-                    val processed = response.data.toUiModels()
+                    val processed = response.data.map { CommentUiModel(it.toDto()) }
                     val nextOffset =
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
@@ -119,8 +105,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         isLoading = false,
                         error = null,
                     )
-                }
-                .onFailure { e ->
+                }.onFailure { e ->
                     if (e is CancellationException) throw e
                     uiState = uiState.copy(isLoading = false, error = e as? ApiException)
                 }
@@ -131,10 +116,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         childUiState.rootComment?.comment?.let { loadChildComments(it, forceRefresh = false) }
     }
 
-    fun loadChildComments(rootComment: ZhihuComment, forceRefresh: Boolean = false) {
+    fun loadChildComments(rootComment: CommentDto, forceRefresh: Boolean = false) {
         viewModelScope.launch {
             if (forceRefresh) {
-                val rootUiModel = rootComment.toUiModel()
+                val rootUiModel = CommentUiModel(rootComment)
                 childUiState = ChildCommentUiState(
                     rootComment = rootUiModel,
                     isDetailMode = true,
@@ -149,9 +134,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             if (!forceRefresh) childUiState = childUiState.copy(isLoading = true)
 
             val currentOffset = if (forceRefresh) "" else childUiState.offset
-            repository.getChildComments(rootComment.id, currentOffset)
-                .onSuccess { response ->
-                    val processed = response.data.toUiModels()
+            repository.getChildComments(rootComment.id, currentOffset).onSuccess { response ->
+                    val processed = response.data.map { CommentUiModel(it.toDto()) }
                     val nextOffset =
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
@@ -162,8 +146,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         hasMore = hasNext,
                         isLoading = false,
                     )
-                }
-                .onFailure { e ->
+                }.onFailure { e ->
                     if (e is CancellationException) throw e
                     childUiState = childUiState.copy(isLoading = false)
                 }
@@ -180,8 +163,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
         val targetModel = uiState.comments.find { it.comment.id == commentId }
             ?: childUiState.comments.find { it.comment.id == commentId }
-            ?: childUiState.rootComment?.takeIf { it.comment.id == commentId }
-            ?: return
+            ?: childUiState.rootComment?.takeIf { it.comment.id == commentId } ?: return
 
         val isCurrentlyActive = targetModel.comment.liked
         val shouldBeActive = !isCurrentlyActive
@@ -190,13 +172,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         pendingReactions.add(commentId)
 
         viewModelScope.launch {
-            repository.toggleLike(commentId, shouldBeActive)
-                .onSuccess { success ->
+            repository.toggleLike(commentId, shouldBeActive).onSuccess { success ->
                     if (!success) {
                         updateLocalStatus(commentId, isCurrentlyActive)
                     }
-                }
-                .onFailure {
+                }.onFailure {
                     updateLocalStatus(commentId, isCurrentlyActive)
                 }
             pendingReactions.remove(commentId)
@@ -240,8 +220,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val mapper = { model: CommentUiModel ->
             if (model.comment.id == id) {
                 val updatedComment = model.comment.copy(
-                    liked = active,
-                    likeCount = if (active) model.comment.likeCount + 1
+                    liked = active, likeCount = if (active) model.comment.likeCount + 1
                     else (model.comment.likeCount - 1).coerceAtLeast(0)
                 )
                 model.copy(comment = updatedComment)

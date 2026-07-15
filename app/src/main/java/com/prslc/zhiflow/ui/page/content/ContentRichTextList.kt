@@ -116,13 +116,13 @@ fun ContentRichTextList(
                     Column(modifier = Modifier.padding(20.dp)) {
                         val text = if (contentEnd.ipInfo.isNotEmpty()) {
                             stringResource(
-                                R.string.answer_published_with_ip,
+                                R.string.content_published_with_ip,
                                 contentEnd.ipInfo,
                                 timeDisplay
                             )
                         } else {
                             stringResource(
-                                R.string.answer_published_no_ip,
+                                R.string.content_published_no_ip,
                                 timeDisplay
                             )
                         }

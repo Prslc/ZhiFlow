@@ -49,7 +49,6 @@ fun CommentItem(
     showReplyButton: Boolean = true
 ) {
     val comment = model.comment
-    val parsedContent = model.parsedContent
 
     val metaStyle = MaterialTheme.typography.labelMedium.copy(
         color = MaterialTheme.colorScheme.outline,
@@ -60,9 +59,9 @@ fun CommentItem(
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     // emoji
-    val inlineContent = remember(parsedContent.text) {
+    val inlineContent = remember(comment.parsedContent.text) {
         val map = mutableMapOf<String, InlineTextContent>()
-        val text = parsedContent.text
+        val text = comment.parsedContent.text
 
         text.getStringAnnotations("EMOJI_PATH", 0, text.length).forEach { pathAnno ->
             val idAnno =
@@ -144,19 +143,19 @@ fun CommentItem(
 
             // comment
             Text(
-                text = parsedContent.text,
+                text = comment.parsedContent.text,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 inlineContent = inlineContent,
                 onTextLayout = { layoutResult = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .pointerInput(parsedContent.text) {
+                    .pointerInput(comment.parsedContent.text) {
                         detectTapGestures { pos ->
                             layoutResult?.let { result ->
                                 val offset = result.getOffsetForPosition(pos)
-                                if (offset < parsedContent.text.length) {
-                                    parsedContent.text.getStringAnnotations("URL", offset, offset)
+                                if (offset < comment.parsedContent.text.length) {
+                                    comment.parsedContent.text.getStringAnnotations("URL", offset, offset)
                                         .firstOrNull()?.let { annotation ->
                                             navigator.handleUrl(annotation.item)
                                         }
@@ -167,12 +166,12 @@ fun CommentItem(
             )
 
             // images
-            if (parsedContent.images.isNotEmpty()) {
+            if (comment.parsedContent.images.isNotEmpty()) {
                 Column(
                     modifier = Modifier.padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    parsedContent.images.forEach { image ->
+                    comment.parsedContent.images.forEach { image ->
                         ImageComponent(
                             image = image,
                             onImageClick = { url -> onEvent(CommentUiEvent.OpenImage(url)) },
@@ -187,24 +186,21 @@ fun CommentItem(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(top = 2.dp)
             ) {
-                Text(
+                comment.ipInfo?.let { ip ->
+                    Text(
+                        text = stringResource(
+                            R.string.comment_published_with_ip,
+                            formatToDate(comment.createdTime),
+                            ip
+                        ),
+                        style = metaStyle,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                } ?: Text(
                     text = formatToDate(comment.createdTime),
                     style = metaStyle,
                     color = MaterialTheme.colorScheme.outline,
                 )
-
-                comment.tags.find { it.type == "ip_info" }?.text?.let { ip ->
-                    Text(
-                        text = "•",
-                        style = metaStyle,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-                    Text(
-                        text = ip,
-                        style = metaStyle,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-                }
 
                 // Sub-comment
                 if (!isChild && comment.childCount > 0 && showReplyButton) {

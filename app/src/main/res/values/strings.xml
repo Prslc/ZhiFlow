@@ -41,10 +41,10 @@
     <string name="type_thought">Thought</string>
     <string name="type_unknown">Content</string>
 
-    <!-- answer -->
-    <string name="question_title_filed">Title loading failed</string>
-    <string name="answer_published_with_ip">Posted in %1$s · %2$s</string>
-    <string name="answer_published_no_ip">Posted in %1$s</string>
+    <!-- content -->
+    <string name="content_title_filed">Title loading failed</string>
+    <string name="content_published_with_ip">Posted in %1$s · %2$s</string>
+    <string name="content_published_no_ip">Posted in %1$s</string>
 
     <!-- light box -->
     <string name="lightbox_image_save_success">Saved to gallery</string>
@@ -96,6 +96,7 @@
     <string name="comment_reply_count_with_arrow">%1$d replies &gt;</string>
     <string name="comment_empty_root">No comments yet. Be the first to comment!</string>
     <string name="comment_empty_child">No replies yet</string>
+    <string name="comment_published_with_ip">%1$s · %2$s</string>
 
     <!-- RichText -->
     <string name="richtext_references">References</string>

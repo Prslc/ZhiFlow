@@ -259,7 +259,7 @@ private fun ContentDetailTopBar(
             val titleText = when {
                 currentContent != null -> currentContent.displayTitle
                 isLoading -> ""
-                else -> stringResource(R.string.question_title_filed)
+                else -> stringResource(R.string.content_title_filed)
             }
 
             val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
