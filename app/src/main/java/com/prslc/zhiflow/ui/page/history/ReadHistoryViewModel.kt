@@ -22,7 +22,7 @@ sealed interface HistoryListItem {
     ) : HistoryListItem
 
     /** Individual read-history entry (answer to a question). */
-    data class Entry(val dto: ReadHistoryDto, val isInGroup: Boolean = false) : HistoryListItem
+    data class Entry(val item: ReadHistoryDto, val isInGroup: Boolean = false) : HistoryListItem
 }
 
 class ReadHistoryViewModel(

@@ -140,12 +140,12 @@ fun ReadHistoryScreen(
 
                             is HistoryListItem.Entry -> {
                                 HistoryItem(
-                                    dto = item.dto,
+                                    item = item.item,
                                     isInGroup = item.isInGroup,
                                     onClick = {
                                         navigator.navigateToContent(
-                                            item.dto.contentToken.orEmpty(),
-                                            item.dto.contentType.orEmpty(),
+                                            item.item.contentToken.orEmpty(),
+                                            item.item.contentType.orEmpty(),
                                         )
                                     },
                                 )
@@ -238,11 +238,11 @@ private fun HistoryHeader(
 
 @Composable
 private fun HistoryItem(
-    dto: ReadHistoryDto,
+    item: ReadHistoryDto,
     isInGroup: Boolean,
     onClick: () -> Unit,
 ) {
-    val hasContent = dto.contentType in listOf("answer", "article", "pin")
+    val hasContent = item.contentType in listOf("answer", "article", "pin")
     val startPadding = if (isInGroup) 36.dp else 16.dp
 
     Row(
@@ -259,11 +259,11 @@ private fun HistoryItem(
                 .fillMaxHeight()
         ) {
             // title
-            if (!isInGroup && dto.questionTitle.isNotEmpty()) {
+            if (!isInGroup && item.questionTitle.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.Top) {
-                    if (dto.contentTypeIcon != null) {
+                    if (item.contentTypeIcon != null) {
                         AsyncImage(
-                            model = dto.contentTypeIcon,
+                            model = item.contentTypeIcon,
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(top = 2.dp)
@@ -274,7 +274,7 @@ private fun HistoryItem(
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                     Text(
-                        text = dto.questionTitle,
+                        text = item.questionTitle,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -288,7 +288,7 @@ private fun HistoryItem(
             // content
             if (hasContent) {
                 val summaryText = buildAnnotatedString {
-                    val author = dto.authorName?.ifEmpty { null }
+                    val author = item.authorName?.ifEmpty { null }
                     if (author != null) {
                         withStyle(
                             SpanStyle(
@@ -299,9 +299,9 @@ private fun HistoryItem(
                             append("$author：")
                         }
                     }
-                    if (!dto.summary.isNullOrBlank()) {
+                    if (!item.summary.isNullOrBlank()) {
                         withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-                            append(dto.summary)
+                            append(item.summary)
                         }
                     }
                 }
@@ -323,20 +323,20 @@ private fun HistoryItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val metaText = when (dto.contentType) {
+                val metaText = when (item.contentType) {
                     "question" -> stringResource(
                         R.string.history_question_meta,
-                        dto.answerCount,
-                        dto.followerCount
+                        item.answerCount,
+                        item.followerCount
                     )
 
                     "profile" -> stringResource(
                         R.string.history_user_meta,
-                        dto.voteCount,
-                        dto.followerCount
+                        item.voteCount,
+                        item.followerCount
                     )
 
-                    else -> stringResource(R.string.history_meta, dto.voteCount, dto.commentCount)
+                    else -> stringResource(R.string.history_meta, item.voteCount, item.commentCount)
                 }
 
                 Text(
@@ -345,7 +345,7 @@ private fun HistoryItem(
                     color = MaterialTheme.colorScheme.outline,
                 )
 
-                if (hasContent && dto.readProgress > 0) {
+                if (hasContent && item.readProgress > 0) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
@@ -354,7 +354,7 @@ private fun HistoryItem(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.history_read_progress, dto.readProgress),
+                            text = stringResource(R.string.history_read_progress, item.readProgress),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -364,10 +364,10 @@ private fun HistoryItem(
         }
 
         // coverImage
-        if (hasContent && dto.coverImage != null) {
+        if (hasContent && item.coverImage != null) {
             Spacer(modifier = Modifier.width(12.dp))
             AsyncImage(
-                model = dto.coverImage,
+                model = item.coverImage,
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 100.dp, height = 68.dp)
