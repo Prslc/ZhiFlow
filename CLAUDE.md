@@ -110,6 +110,7 @@ ZhiFlow/
 │                   ├── people/                # PeopleScreen, PeopleHeader, PeopleTabBar, PeopleViewModel + moment/ subpackage
 │                   ├── profile/               # ProfileScreen, ProfileViewModel, SettingsScreen
 │                   ├── history/               # ReadHistoryScreen, ReadHistoryViewModel
+│                   ├── collection/            # CollectionContentsScreen, CollectionContentsViewModel
 │                   └── debug/                 # DebugScreen, DebugViewModel (credentials config, URL parser test)
 ```
 
@@ -161,7 +162,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 
 - **Type-safe routes**: `@Serializable` data classes/objects in `Route.kt`. Uses `navigation-compose` 2.9 type-safe API (`composable<RouteType>`, `toRoute()`).
 - **`MainContainer`** is the start destination — it contains three tabs (Home, Debug, Profile) in a `HorizontalPager` with a `NavigationBar`.
-- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`) are separate composable destinations pushed onto the NavHost stack.
+- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`, `CollectionContents`) are separate composable destinations pushed onto the NavHost stack.
 - **`Navigator`** — Wraps `NavHostController` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`.
 - **`LinkParser`** — Parses Zhihu URLs, resolves `link.zhihu.com` redirects, extracts content type + ID from path patterns, returns `LinkDestination.Internal(route)` or `LinkDestination.External(url)`.
 - Transition animations: horizontal slide (detail push = full right→left, pop = reversed with 1/5 parallax).
@@ -205,6 +206,7 @@ The rich text pipeline:
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
 - **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically.
+- **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 
 ## Git Conventions
 
