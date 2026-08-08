@@ -176,7 +176,7 @@ private fun QuestionContentList(
 
     val showExpandButton by remember(state.elements.size, isExpanded, firstItemOverflowed) {
         derivedStateOf {
-            state.elements.size > 1 || firstItemOverflowed
+            isExpanded || state.elements.size > 1 || firstItemOverflowed
         }
     }
 
