@@ -20,7 +20,8 @@ internal fun ComponentCard.toDto(): FeedDto? {
         authorName = children.authorName(),
         authorAvatar = children.authorAvatar(),
         excerpt = children.summaryText(),
-        images = children.images().map { ImageData(url = it.url ?: "", width = 0, height = 0) },
+        images = children.images()
+            .map { ImageData(url = it.url ?: "", width = 0, height = 0) },
         voteCount = children.reactionCount("Vote"),
         commentCount = children.reactionCount("Comment"),
     )
@@ -48,6 +49,7 @@ private fun List<CardChild>.authorAvatar(): String? =
 
 private fun List<CardChild>.images(): List<CardImage> =
     firstOrNull { it.type == "Images" }?.images.orEmpty()
+        .filter { !it.url.isNullOrEmpty() }
 
 private fun List<CardChild>.reactionCount(reaction: String): Int =
     flatMap { it.elements }
