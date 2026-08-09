@@ -17,13 +17,3 @@ internal fun formatToDate(createdTime: Long): String {
     val millis = createdTime * 1000
     return dateFormat.format(Date(millis))
 }
-
-internal fun String.cleanLatex(): String {
-    return this
-        .replace("\\,", " ")
-        .replace("\\;", " ")
-        .replace("\\{", "\\lbrace ")
-        .replace("\\}", "\\rbrace ")
-        .replace("\\mid", " | ")
-        .trimEnd('\\')
-}

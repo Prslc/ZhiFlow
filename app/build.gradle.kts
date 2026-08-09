@@ -111,7 +111,4 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.network.okhttp)
     implementation(libs.telephoto.zoomable.image.coil)
-
-    // latex
-    implementation(libs.latex.renderer)
 }
