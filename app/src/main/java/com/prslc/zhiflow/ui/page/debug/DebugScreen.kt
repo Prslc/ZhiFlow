@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.debug
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,8 +13,6 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
+import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -47,21 +46,29 @@ fun DebugScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        DebugItem(
-            title = stringResource(R.string.debug_item_open_link_title),
-            subtitle = stringResource(R.string.debug_item_open_link_subtitle),
-            onClick = {
-                inputUrl = ""
-                showDialog = true
+        SegmentedColumn {
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.debug_item_open_link_title),
+                    description = stringResource(R.string.debug_item_open_link_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = {
+                        inputUrl = ""
+                        showDialog = true
+                    }
+                )
             }
-        )
-        DebugItem(
-            title = stringResource(R.string.debug_item_config_credentials_title),
-            subtitle = stringResource(R.string.debug_item_config_credentials_subtitle),
-            onClick = {
-                showAuthDialog = true
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.debug_item_config_credentials_title),
+                    description = stringResource(R.string.debug_item_config_credentials_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = {
+                        showAuthDialog = true
+                    }
+                )
             }
-        )
+        }
     }
 
     if (showAuthDialog) {
@@ -173,19 +180,4 @@ fun DebugScreen(
             }
         )
     }
-}
-
-@Composable
-private fun DebugItem(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    ListItem(
-        headlineContent = { Text(title) },
-        supportingContent = { Text(subtitle) },
-        leadingContent = { Icon(Icons.Default.BugReport, null) },
-        modifier = modifier.clickable(onClick = onClick),
-    )
 }

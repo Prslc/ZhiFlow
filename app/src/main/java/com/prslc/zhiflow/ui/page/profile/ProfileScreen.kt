@@ -27,9 +27,10 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,10 +51,11 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.ErrorView
-import com.prslc.zhiflow.ui.component.preference.PreferenceGroup
-import com.prslc.zhiflow.ui.component.preference.PreferenceItem
+import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
+import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProfileScreen(
     onNavigateToHistory: () -> Unit,
@@ -165,65 +167,65 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Content section
-                SectionLabel(
-                    text = stringResource(R.string.profile_section_content),
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                PreferenceGroup(
-                    items = listOf(
-                        PreferenceItem(
+                SegmentedColumn(
+                    title = stringResource(R.string.profile_section_content),
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                ) {
+                    item {
+                        NavigationItemWidget(
                             title = stringResource(R.string.profile_nav_history),
-                            summary = stringResource(R.string.profile_nav_history_summary),
+                            description = stringResource(R.string.profile_nav_history_summary),
                             icon = Icons.Filled.History,
                             onClick = onNavigateToHistory,
-                        ),
-                        PreferenceItem(
+                        )
+                    }
+                    item {
+                        NavigationItemWidget(
                             title = stringResource(R.string.profile_nav_comments),
-                            summary = stringResource(R.string.profile_nav_comments_summary),
+                            description = stringResource(R.string.profile_nav_comments_summary),
                             icon = Icons.AutoMirrored.Filled.Chat,
                             onClick = onNavigateToComments,
-                        ),
-                        PreferenceItem(
+                        )
+                    }
+                    item {
+                        NavigationItemWidget(
                             title = stringResource(R.string.profile_nav_likes),
-                            summary = stringResource(R.string.profile_nav_likes_summary),
+                            description = stringResource(R.string.profile_nav_likes_summary),
                             icon = Icons.Filled.ThumbUp,
                             onClick = onNavigateToLikes,
-                        ),
-                    ),
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Social section
-                SectionLabel(
-                    text = stringResource(R.string.profile_section_social),
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                PreferenceGroup(
-                    items = listOf(
-                        PreferenceItem(
+                SegmentedColumn(
+                    title = stringResource(R.string.profile_section_social),
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                ) {
+                    item {
+                        NavigationItemWidget(
                             title = stringResource(R.string.profile_nav_collections),
-                            summary = stringResource(R.string.profile_nav_collections_summary),
+                            description = stringResource(R.string.profile_nav_collections_summary),
                             icon = Icons.Filled.Bookmark,
                             onClick = { onNavigateToCollections(user.id) },
-                        ),
-                        PreferenceItem(
+                        )
+                    }
+                    item {
+                        NavigationItemWidget(
                             title = stringResource(R.string.profile_nav_follows),
-                            summary = stringResource(R.string.profile_nav_follows_summary),
+                            description = stringResource(R.string.profile_nav_follows_summary),
                             icon = Icons.Filled.PersonAdd,
                             onClick = onNavigateToFollows,
-                        ),
-                    ),
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                )
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
         } else if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            LoadingIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
                 message = uiState.error?.uiMessage ?: stringResource(R.string.error_unknown),
@@ -281,18 +283,4 @@ private fun ProfileHeader(
             )
         }
     }
-}
-
-@Composable
-private fun SectionLabel(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(start = 4.dp),
-    )
 }
