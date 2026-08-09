@@ -13,7 +13,7 @@ data class ZhihuAnswer(
     val question: ZhihuQuestion? = null,
     override val reaction: Reaction,
     @SerialName("content_end_info") override val contentEnd: ContentEndInfo? = null,
-    @SerialName("structured_content") override val structuredContent: StructuredContent
+    @SerialName("structured_content") override val structuredContent: StructuredContent? = null
 ) : ZhihuContent {
     override val displayTitle: String
         get() = question?.title ?: "No title"

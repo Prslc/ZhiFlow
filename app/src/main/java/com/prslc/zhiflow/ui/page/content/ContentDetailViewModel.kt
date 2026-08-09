@@ -11,8 +11,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.data.model.content.ContentType
-import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.content.ZhihuContent
+import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.data.model.content.ZhihuPin
+import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.remote.parser.ContentParser
@@ -222,13 +224,36 @@ class ContentViewModel(
 
     private fun parseRichText() {
         val content = loadingState.content ?: return
-        val segments = content.structuredContent.segments
+        val segments = content.structuredContent?.segments.orEmpty()
 
         if (richTextElements.isNotEmpty() && parsingCache.get(content.id) != null) return
 
         parseJob?.cancel()
         parseJob = viewModelScope.launch(Dispatchers.Default) {
             val fullList = mutableListOf<RichTextElement>()
+
+            if (segments.isEmpty() && content is ZhihuPin) {
+                content.imageList?.images?.forEach { pinImage ->
+                    pinImage.url?.let { url ->
+                        fullList.add(
+                            RichTextElement.Image(
+                                ZhihuImage(
+                                    urls = listOf(url),
+                                    width = pinImage.width,
+                                    height = pinImage.height,
+                                    description = "",
+                                    isGif = false,
+                                )
+                            )
+                        )
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    richTextElements = fullList.toList()
+                }
+                parsingCache.put(content.id, fullList)
+                return@launch
+            }
 
             segments.chunked(10).forEachIndexed { _, chunk ->
                 val chunkResult = ContentParser.transform(chunk, isDark)

@@ -8,6 +8,6 @@ interface ZhihuContent {
     val author: AnswerAuthor
     val reaction: Reaction?
     val contentEnd: ContentEndInfo?
-    val structuredContent: StructuredContent
+    val structuredContent: StructuredContent?
     val displayTitle: String
 }
