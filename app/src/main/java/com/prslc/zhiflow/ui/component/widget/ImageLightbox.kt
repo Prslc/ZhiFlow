@@ -22,11 +22,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +64,7 @@ import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ImageLightbox(
     imageUrls: List<String>, initialIndex: Int, modifier: Modifier = Modifier, onDismiss: () -> Unit
@@ -166,7 +168,7 @@ fun ImageLightbox(
                 )
 
                 if (!zoomableImageState.isImageDisplayed) {
-                    CircularProgressIndicator(
+                    LoadingIndicator(
                         color = Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.statusBarsPadding(),
                     )

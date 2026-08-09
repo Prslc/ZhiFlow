@@ -17,7 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,6 +37,7 @@ import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionDialog(
     id: String,
@@ -76,7 +79,7 @@ fun CollectionDialog(
                 ) {
                     when {
                         state.isLoading && state.collections.isEmpty() -> {
-                            CircularProgressIndicator(strokeWidth = 3.dp)
+                            LoadingIndicator()
                         }
 
                         state.collections.isEmpty() -> {
