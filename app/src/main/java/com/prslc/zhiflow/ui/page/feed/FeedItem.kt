@@ -34,31 +34,35 @@ fun FeedItem(
         { onClick(display.id, display.type) }
     }
 
+    val typeConfig = contentTypeConfig(display.type)
+    val hasTitle = display.title.isNotEmpty()
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = stableClick)
             .padding(20.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            val config = contentTypeConfig(display.type)
-            ContentTypeLabel(
-                text = stringResource(config.labelResId),
-                containerColor = config.containerColor,
-                contentColor = config.contentColor,
-                modifier = Modifier.padding(end = 6.dp),
-            )
-            Text(
-                text = display.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-        }
+        if (hasTitle) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ContentTypeLabel(
+                    text = stringResource(typeConfig.labelResId),
+                    containerColor = typeConfig.containerColor,
+                    contentColor = typeConfig.contentColor,
+                    modifier = Modifier.padding(end = 6.dp),
+                )
+                Text(
+                    text = display.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         AuthorRow(
             avatarUrl = display.authorAvatar,
