@@ -51,6 +51,11 @@ fun contentTypeConfig(type: String?): ContentTypeConfig = when (type) {
         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
         contentColor = MaterialTheme.colorScheme.tertiary,
     )
+    "pin" -> ContentTypeConfig(
+        labelResId = R.string.type_thought,
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.secondary,
+    )
     else -> ContentTypeConfig(
         labelResId = R.string.type_unknown,
         containerColor = MaterialTheme.colorScheme.surfaceVariant,

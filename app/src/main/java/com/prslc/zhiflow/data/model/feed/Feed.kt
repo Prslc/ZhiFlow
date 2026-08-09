@@ -3,11 +3,12 @@ package com.prslc.zhiflow.data.model.feed
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Immutable
 @Serializable
 data class ZhihuResponse(
-    val data: List<FeedItem> = emptyList(),
+    val data: List<ComponentCard> = emptyList(),
     val paging: PagingData = PagingData(),
 )
 
@@ -16,39 +17,70 @@ data class ZhihuResponse(
 data class PagingData(
     @SerialName("is_end") val isEnd: Boolean = false,
     val next: String? = null,    // next page
-    val previous: String? = null // previous page,
+    val previous: String? = null // previous page
 )
 
 @Immutable
 @Serializable
-data class FeedItem(
-    val target: FeedTarget? = null,
+data class ComponentCard(
+    val id: String? = null,
     val type: String? = null,
+    val style: String? = null,
+    val action: CardAction? = null,
+    val extra: CardExtra = CardExtra(),
+    val children: List<CardChild> = emptyList(),
 )
 
 @Immutable
 @Serializable
-data class FeedTarget(
-    val id: Long? = 0,
-    val type: String? = null,            // type
-    val title: String? = null,           // title
-    @SerialName("question") val question: Question? = null, // question
-    val author: FeedAuthor? = null,      // author
-    val excerpt: String? = null,         // excerpt
-    val content: String? = null,         // content text
-    @SerialName("voteup_count") val voteCount: Int = 0,     // Agree count
-    @SerialName("comment_count") val commentCount: Int = 0, // comment count,
-    val thumbnail: String? = null,                           // cover image
-    val thumbnails: List<String> = emptyList(),              // image gallery
+data class CardAction(
+    val type: String? = null,
+    val parameter: String? = null,
 )
 
 @Immutable
 @Serializable
-data class Question(val title: String? = null)
+data class CardExtra(
+    @SerialName("content_id") val contentId: String? = null,
+    @SerialName("content_type") val contentType: String? = null,
+    @SerialName("user_id") val userId: String? = null,
+    @SerialName("test_id") val testId: String? = null,
+)
 
 @Immutable
 @Serializable
-data class FeedAuthor(
-    val name: String = "Anonymous user",
-    @SerialName("avatar_url") val avatarUrl: String? = null,
+data class CardChild(
+    val id: String? = null,
+    val type: String? = null,
+    val style: String? = null,
+    val text: JsonElement? = null,
+    val visible: Boolean = true,
+    val elements: List<CardElement> = emptyList(),
+    val images: List<CardImage> = emptyList(),
+    val image: CardImage? = null,
+)
+
+@Immutable
+@Serializable
+data class CardElement(
+    val id: String? = null,
+    val type: String? = null,
+    val style: String? = null,
+    val text: JsonElement? = null,
+    val count: Int = 0,
+    val reaction: String? = null,
+    val image: CardImage? = null,
+    val badge: CardImage? = null,
+    val border: CardImage? = null,
+)
+
+@Immutable
+@Serializable
+data class CardImage(
+    val id: String? = null,
+    val type: String? = null,
+    val url: String? = null,
+    val token: String? = null,
+    val width: Int = 0,
+    val height: Int = 0,
 )

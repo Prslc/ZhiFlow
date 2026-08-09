@@ -29,15 +29,24 @@ class FeedService(private val okHttpClient: OkHttpClient) {
         val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 
         if (isRefresh || nextUrl == null) {
+            urlBuilder.addQueryParameter("tsp_ad_cardredesign", "0")
+            urlBuilder.addQueryParameter("feed_card_exp", "card_corner|1")
+            urlBuilder.addQueryParameter("v_serial", "1")
+            urlBuilder.addQueryParameter("isDoubleFlow", "0")
             urlBuilder.addQueryParameter("action", "down")
-            urlBuilder.addQueryParameter("start_type", "cold")
+            urlBuilder.addQueryParameter("refresh_scene", "0")
+            urlBuilder.addQueryParameter("scroll", "up")
             urlBuilder.addQueryParameter("limit", "10")
-            urlBuilder.addQueryParameter("is_feed_first_request", "1")
-            urlBuilder.addQueryParameter("refresh_scene", "1")
+            urlBuilder.addQueryParameter("start_type", "cold")
+            urlBuilder.addQueryParameter("device", "phone")
+            urlBuilder.addQueryParameter("short_container_setting_value", "0")
+            urlBuilder.addQueryParameter("include_guide_relation", "false")
+            urlBuilder.addQueryParameter("is_feed_first_request", "0")
         }
 
         Request.Builder()
             .url(urlBuilder.build())
+            .header("x-api-version", "3.1.8")
             .get()
             .build()
     }
