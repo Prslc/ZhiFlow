@@ -1,50 +1,47 @@
 package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
+import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
+import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
+import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-
-private val InlineFormulaHeightSp = 22.sp
 
 /**
  * Builds [InlineTextContent] entries for inline formulas.
  *
- * The Zhihu API provides each formula's rendered image URL plus its intrinsic
- * width/height, so placeholder bounds are computed directly from those values —
- * no measurement pass is required.
+ * The Zhihu API provides each formula's rendered image URL plus its display size in dp.
+ * Placeholder bounds use those exact dp dimensions (mirroring the official app), so the
+ * layout is tight with no extra vertical whitespace.
  */
 @Composable
 fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextContent> {
-    return remember(this) {
+    val density = LocalDensity.current
+    val maxWidthDp = rememberFormulaMaxWidth()
+    return remember(this, density, maxWidthDp) {
         this@rememberInlineContent.associate { meta ->
             val formula = meta.formula
-            val aspectRatio = if (formula.width > 0 && formula.height > 0) {
-                formula.width.toFloat() / formula.height.toFloat()
-            } else {
-                1f
-            }
-            val placeholder = Placeholder(
-                width = InlineFormulaHeightSp * aspectRatio,
-                height = InlineFormulaHeightSp,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
+            val (widthDp, heightDp) = constrainedSize(
+                formula.width.toFloat(), formula.height.toFloat(), maxWidthDp
             )
 
-            meta.inlineId to InlineTextContent(placeholder) {
+            meta.inlineId to InlineTextContent(formulaPlaceholder(density, widthDp, heightDp)) {
                 LatexComponent(
                     formula = formula,
                     isInline = true,
+                    modifier = Modifier.fillMaxSize(),
+                    maxWidthDp = maxWidthDp,
                 )
             }
         }
@@ -108,3 +105,4 @@ fun ZRichText(
         modifier = modifier
     )
 }
+
