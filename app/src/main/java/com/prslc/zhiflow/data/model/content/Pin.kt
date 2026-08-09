@@ -29,8 +29,12 @@ data class ZhihuPin(
     @SerialName("relationship_tips") val relationshipTips: RelationshipTips? = null
 ) : ZhihuContent {
     override val displayTitle: String
-        get() = header?.text ?: excerpt?.take(20) ?: "Pin Content"
+        get() = header?.text
+            ?: excerpt?.take(20)?.stripMediaPlaceholders().orEmpty()
 }
+
+private fun String.stripMediaPlaceholders(): String =
+    replace(Regex("\\[(图片|视频|动图)\\]"), "").trim()
 
 @Immutable
 @Serializable

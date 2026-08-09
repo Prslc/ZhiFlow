@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
+import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
@@ -36,9 +37,8 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<PinDetail> { backStackEntry ->
         val route: PinDetail = backStackEntry.toRoute()
-        ContentDetailScreen(
+        PinDetailScreen(
             id = route.id,
-            contentType = ContentType.PIN,
             onBack = { navController.popBackStack() })
     }
 

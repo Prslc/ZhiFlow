@@ -25,6 +25,7 @@ import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
+import com.prslc.zhiflow.ui.page.pin.PinViewModel
 import com.prslc.zhiflow.ui.page.debug.DebugViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
@@ -73,6 +74,7 @@ val appModule = module {
     singleOf(::ContentService)
     singleOf(::ContentRepository)
     viewModelOf(::ContentViewModel)
+    viewModelOf(::PinViewModel)
 
     // Question
     singleOf(::QuestionService)
