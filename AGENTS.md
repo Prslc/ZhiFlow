@@ -12,7 +12,7 @@ A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Comp
 | Serialization | kotlinx-serialization-json (used for both DTOs and Navigation routes) |
 | Image Loading | Coil 3 (OkHttp network fetcher, GIF support, disk + memory cache) |
 | Zoom | Telephoto (`zoomable-image-coil3`) |
-| LaTeX | `huarangmeng:latex-renderer` for math formulas (inline + block) |
+| LaTeX | Rendered as pre-rasterized images served by the Zhihu API (`img_url` + dp `width`/`height`), loaded via Coil |
 | Arch | MVVM — ViewModels expose `mutableStateOf` UI state, one per screen |
 | Min SDK | 33 (Android 13) |
 | Target/Compile SDK | compileSdk 37, targetSdk 36 |
@@ -189,8 +189,20 @@ The rich text pipeline:
 1. API returns `List<Segment>` (paragraph, heading, blockquote, code_block, list_node, table, image, card, formula, etc.)
 2. `ContentParser.transform(segments, isDark)` → `List<RichTextElement>` (sealed interface hierarchy of Compose-ready primitives)
 3. Each `RichTextElement` renders via a corresponding composable in `ui/component/richtext/component/`
-4. `ZRichText` composable wraps `Text` with clickable link interception, inline formula measurement via `LatexMeasurer`, and `key()`-based layout refresh for async measurement resolution
-5. Inline math formulas use `InlineTextContent` + `Placeholder` with async bounds measurement
+4. `ZRichText` composable wraps `Text` with clickable link interception and inline formula support via `InlineTextContent`
+
+#### Formula rendering (image-based, mirrors the official app)
+
+Formulas are **pre-rasterized images served by the Zhihu API**, not rendered locally:
+- Each `Formula` carries `content`, `img_url`, and dp `width`/`height` (the PNG is 3x that). The API never omits these.
+- `LatexComponent` (in `component/LatexComponent.kt`) loads the image via Coil `AsyncImage`. Inline and block formulas share the same component; block formulas are centered with no horizontal scroll.
+- Sizing mirrors the official app:
+  - Image and `Placeholder` bounds use the exact server dp `width`/`height`, so formulas keep their natural size variation (simple subscripts ~13dp, display fractions up to ~56dp).
+  - Widths are clamped to screen width minus 42dp (`constrainedSize`), scaling height proportionally — over-wide formulas are scaled down, never cropped or scrolled.
+  - The dp→sp conversion divides by `fontScale` (`formulaPlaceholder`), so rendered pixels stay constant regardless of the user's system font size.
+- `FormulaTextSection` (paragraph path) raises the paragraph `lineHeight` to the tallest inline formula so tall fractions don't overlap adjacent rows (Compose does not grow a row for a tall placeholder, unlike the official `getSize` font-metrics adjustment).
+- Dark mode inverts the white-background bitmap via a `ColorMatrix` (official approach), not a tint.
+- Why images instead of `latex-renderer`: the library measured + laid out each formula synchronously on the main thread inside `LatexDocument`'s `remember`, causing ~23% janky frames and up to 1s p99 while scrolling formula-heavy pages. Image rendering uses the API's pre-rendered bitmaps with zero measurement; Coil loads/decodes off the main thread. The cost is extra network traffic for the formula images.
 
 ### Error Handling
 
