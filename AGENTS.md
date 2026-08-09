@@ -72,7 +72,7 @@ ZhiFlow/
 │           │   ├── dto/                        # Flat UI-ready data classes (FeedDto, AnswerDto, CommentDto, MomentDto, ReadHistoryDto)
 │           │   ├── mapper/                     # DTO mappers: FeedItem→FeedDto, etc.
 │           │   ├── model/
-│           │   │   ├── content/                # ZhihuContent interface, Answer, Article, Pin, Question, RichText (StructuredContent/Segment/Mark), ContentType enum
+│           │   │   ├── content/                # ZhihuContent interface, Answer, Article, Pin (incl. PinImageList), Question, RichText (StructuredContent/Segment/Mark), ContentType enum
 │           │   │   ├── comment/Comment.kt
 │           │   │   ├── feed/                   # FeedItem (raw API JSON models), ZhihuResponse, PagingData
 │           │   │   ├── moment/                 # Moment, MomentsFeed
@@ -104,7 +104,8 @@ ZhiFlow/
 │               │   └── widget/                # BottomBar, CollectionDialog, CustomBottomSheet, ImageLightbox
 │               └── page/
 │                   ├── feed/                  # FeedScreen, FeedItem, FeedViewModel
-│                   ├── content/               # ContentDetailScreen, ContentRichTextList, ContentDetailViewModel, CollectionViewModel
+│                   ├── content/               # ContentDetailScreen (answer/article), ContentRichTextList, ContentDetailViewModel, CollectionViewModel
+│                   ├── pin/                   # PinDetailScreen, PinViewModel (dedicated thought/idea page)
 │                   ├── question/              # QuestionDetailScreen, QuestionAnswerList, QuestionViewModel
 │                   ├── comment/               # CommentBottomSheet, CommentItem, CommentList, CommentViewModel
 │                   ├── people/                # PeopleScreen, PeopleHeader, PeopleTabBar, PeopleViewModel + moment/ subpackage
@@ -162,7 +163,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 
 - **Type-safe routes**: `@Serializable` data classes/objects in `Route.kt`. Uses `navigation-compose` 2.9 type-safe API (`composable<RouteType>`, `toRoute()`).
 - **`MainContainer`** is the start destination — it contains three tabs (Home, Debug, Profile) in a `HorizontalPager` with a `NavigationBar`.
-- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`, `CollectionContents`) are separate composable destinations pushed onto the NavHost stack.
+- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`, `CollectionContents`) are separate composable destinations pushed onto the NavHost stack. `PinDetail` uses a dedicated `PinDetailScreen` (thought page); `AnswerDetail`/`ArticleDetail` share `ContentDetailScreen`.
 - **`Navigator`** — Wraps `NavHostController` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`.
 - **`LinkParser`** — Parses Zhihu URLs, resolves `link.zhihu.com` redirects, extracts content type + ID from path patterns, returns `LinkDestination.Internal(route)` or `LinkDestination.External(url)`.
 - Transition animations: horizontal slide (detail push = full right→left, pop = reversed with 1/5 parallax).
@@ -180,6 +181,7 @@ var uiState by mutableStateOf(UiState())
 - **Pagination**: ViewModels track `nextPageUrl`, expose `loadIfEmpty()`, `refresh()`, `loadMore()`.
 - **Load state**: `isLoading`, `isRefreshing`, `isNextLoading`, `globalError`, `loadMoreError` — each ViewModel defines its own UI State data class nested inside the ViewModel class.
 - **Chunked parsing**: `ContentViewModel` parses segments in chunks of 10 on `Dispatchers.Default`, emitting incremental state updates for progressive rendering. Results cached in an `LruCache<String, List<RichTextElement>>`.
+- **Pin rendering**: `PinViewModel` handles the thought page separately. When a pin has no `structured_content` (image-only pins), it falls back to `image_list` to build `RichTextElement.Image` elements.
 
 ### Rich Text Rendering
 
