@@ -81,9 +81,10 @@ private fun Color.shiftHue(degrees: Float): Color {
     val b = blue
     val max = maxOf(r, g, b)
     val min = minOf(r, g, b)
-    val l = (max + min) / 2f
+    val l = ((max + min) / 2f).coerceIn(0f, 1f)
     val d = max - min
-    val s = if (d == 0f) 0f else d / (1f - kotlin.math.abs(2f * l - 1f))
+    val denom = 1f - kotlin.math.abs(2f * l - 1f)
+    val s = if (d == 0f || denom == 0f) 0f else (d / denom).coerceIn(0f, 1f)
     val h = when {
         d == 0f -> 0f
         max == r -> 60f * (((g - b) / d) % 6f)
