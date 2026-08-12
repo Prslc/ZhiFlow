@@ -12,6 +12,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import com.prslc.zhiflow.core.network.HeaderProvider
+import com.prslc.zhiflow.core.native.AppIntegrity
 import com.prslc.zhiflow.di.appModule
 import okhttp3.OkHttpClient
 import okio.Path.Companion.toPath
@@ -28,6 +29,7 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
         super.onCreate()
 
         HeaderProvider.init(this)
+        AppIntegrity.init(this)
 
         // koin
         startKoin {
