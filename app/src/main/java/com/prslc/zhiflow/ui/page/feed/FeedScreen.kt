@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -23,7 +27,7 @@ import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FeedScreen(
     onItemClick: (String, String) -> Unit,
@@ -50,10 +54,19 @@ fun FeedScreen(
     val isEmpty = items.isEmpty()
 
     Box(modifier = modifier.fillMaxSize()) {
+        val pullRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
+            state = pullRefreshState,
             isRefreshing = isRefreshing && !isEmpty,
             onRefresh = { viewModel.refresh() },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            indicator = {
+                PullToRefreshDefaults.LoadingIndicator(
+                    state = pullRefreshState,
+                    isRefreshing = isRefreshing && !isEmpty,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
+            }
         ) {
             LazyColumn(
                 state = viewModel.listState,
