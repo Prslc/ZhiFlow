@@ -22,3 +22,6 @@ local.properties
 
 # Kotlin
 *.kotlin_module
+
+# Native libraries (distributed separately for release builds)
+/app/libs/
