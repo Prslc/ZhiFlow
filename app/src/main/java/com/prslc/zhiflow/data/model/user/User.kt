@@ -22,4 +22,8 @@ data class ZhihuUser(
     @SerialName("favorite_count") val favoriteCount: Int = 0,
     @SerialName("pins_count") val pinsCount: Int = 0,
     @SerialName("answer_count") val answerCount: Int = 0,
+
+    // Follow state (null = unknown / not logged in)
+    @SerialName("is_following") val isFollowing: Boolean? = null,
+    @SerialName("is_followed") val isFollowed: Boolean? = null,
 )

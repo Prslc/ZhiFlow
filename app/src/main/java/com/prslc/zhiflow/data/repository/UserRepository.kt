@@ -20,4 +20,20 @@ class UserRepository(private val service: UserService) {
      */
     suspend fun getUserDetail(urlToken: String): Result<ZhihuUser> =
         service.getUserDetail(urlToken)
+
+    /**
+     * Follows a user.
+     *
+     * @param userId The user hash ID (ZhihuUser.id).
+     * @return A [Result] indicating success or failure.
+     */
+    suspend fun followUser(userId: String): Result<Boolean> = service.followUser(userId)
+
+    /**
+     * Unfollows a user.
+     *
+     * @param userId The user hash ID (ZhihuUser.id).
+     * @return A [Result] indicating success or failure.
+     */
+    suspend fun unfollowUser(userId: String): Result<Boolean> = service.unfollowUser(userId)
 }

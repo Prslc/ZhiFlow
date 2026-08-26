@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.repository.UserRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -44,6 +45,34 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
                     if (e is CancellationException) throw e
                     uiState = uiState.copy(error = e as? ApiException, isLoading = false)
                 }
+        }
+    }
+
+    private var followJob: Job? = null
+
+    /**
+     * Optimistically toggles the follow state of the loaded user,
+     * rolling back on API failure.
+     */
+    fun toggleFollow() {
+        val user = uiState.user ?: return
+        if (user.id.isEmpty()) return
+        if (followJob?.isActive == true) return
+
+        val target = !(user.isFollowing == true)
+        uiState = uiState.copy(user = user.copy(isFollowing = target))
+        followJob = viewModelScope.launch {
+            val result = if (target) repository.followUser(user.id) else repository.unfollowUser(user.id)
+            result.fold(
+                onSuccess = { ok ->
+                    // safeExecute reports non-2xx as success(false), not failure
+                    if (!ok) uiState = uiState.copy(user = uiState.user?.copy(isFollowing = !target))
+                },
+                onFailure = { e ->
+                    if (e is CancellationException) throw e
+                    uiState = uiState.copy(user = uiState.user?.copy(isFollowing = !target))
+                }
+            )
         }
     }
 }

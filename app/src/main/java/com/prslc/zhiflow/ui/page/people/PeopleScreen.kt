@@ -121,7 +121,7 @@ fun PeopleScreen(
                             .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() }
                             .graphicsLayer { translationY = viewModel.headerScrollOffset }
                     ) {
-                        PeopleHeader(user = uiState.user)
+                        PeopleHeader(user = uiState.user, onFollowClick = viewModel::toggleFollow)
                     }
 
                     // topbar
