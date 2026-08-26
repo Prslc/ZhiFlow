@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,7 +56,7 @@ fun BulletItemRow(
 
 @Composable
 fun ReferenceSection(
-    items: List<AnnotatedString>,
+    items: List<RichTextElement.ParsedText>,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(vertical = 8.dp)) {
@@ -70,16 +69,16 @@ fun ReferenceSection(
             modifier = Modifier.padding(bottom = 4.dp),
         )
 
-        items.forEachIndexed { index, content ->
-            val fullAnnotatedString = remember(content) {
+        items.forEachIndexed { index, item ->
+            val fullAnnotatedString = remember(item.content) {
                 buildAnnotatedString {
                     append("${index + 1}. ")
-                    append(content)
+                    append(item.content)
                 }
             }
-
             ZRichText(
                 content = fullAnnotatedString,
+                inlineMetas = item.inlineMetas,
                 style = MaterialTheme.typography.bodySmall.copy(
                     lineHeight = 20.sp,
                     color = Color.Gray

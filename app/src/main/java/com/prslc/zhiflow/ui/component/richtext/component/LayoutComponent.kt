@@ -48,6 +48,7 @@ fun Heading(
 ) {
     ZRichText(
         content = element.content,
+        inlineMetas = element.inlineMetas,
         style = TextStyles.headingStyle(element.level),
         modifier = modifier.padding(top = 8.dp),
     )

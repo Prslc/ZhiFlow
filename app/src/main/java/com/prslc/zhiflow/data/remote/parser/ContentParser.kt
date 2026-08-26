@@ -33,7 +33,7 @@ object ContentParser {
 
                 "heading" -> segment.heading?.let {
                     val p = parseContent(it.text, it.marks, isDark)
-                    listOf(RichTextElement.Heading(p.content, it.level))
+                    listOf(RichTextElement.Heading(p.content, p.inlineMetas, it.level))
                 } ?: emptyList()
 
                 "list_node" -> segment.listNode?.items?.map { item ->
@@ -63,7 +63,8 @@ object ContentParser {
 
                 "reference_block" -> segment.referenceBlock?.let { block ->
                     val items = block.items.map {
-                        parseContent(it.text, it.marks, isDark).content
+                        val p = parseContent(it.text, it.marks, isDark)
+                        RichTextElement.ParsedText(p.content, p.inlineMetas)
                     }
                     listOf(RichTextElement.Reference(items))
                 } ?: emptyList()

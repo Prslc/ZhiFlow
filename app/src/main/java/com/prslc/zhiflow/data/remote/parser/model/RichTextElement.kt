@@ -38,7 +38,7 @@ sealed class DetailElement {
 sealed interface RichTextElement {
     /** Section heading with level (h1-h6). */
     @Stable
-    data class Heading(val content: AnnotatedString, val level: Int = 2) : RichTextElement
+    data class Heading(val content: AnnotatedString, val inlineMetas: List<InlineFormulaMeta> = emptyList(), val level: Int = 2) : RichTextElement
     /** Inline or block image. */
     @Stable
     data class Image(val data: ZhihuImage) : RichTextElement
@@ -50,7 +50,7 @@ sealed interface RichTextElement {
     data class Code(val code: String, val lang: String?) : RichTextElement
     /** Collection of reference items (footnotes). */
     @Stable
-    data class Reference(val items: List<AnnotatedString>) : RichTextElement
+    data class Reference(val items: List<ParsedText>) : RichTextElement
     /** Horizontal rule / divider. */
     @Immutable
     data object Divider : RichTextElement
