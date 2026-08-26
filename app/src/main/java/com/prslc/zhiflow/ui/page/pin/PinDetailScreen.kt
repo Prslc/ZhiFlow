@@ -4,29 +4,34 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -65,6 +70,8 @@ fun PinDetailScreen(
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     val imageUrls = remember(richTextElements) {
         richTextElements
             .filterIsInstance<RichTextElement.Image>()
@@ -98,28 +105,63 @@ fun PinDetailScreen(
     val onStarClick = { viewModel.openCollection() }
     val onCommentClick = { viewModel.openComments() }
 
+    val pinTitle = currentContent?.header?.text.orEmpty()
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 containerColor = MaterialTheme.colorScheme.background,
                 topBar = {
-                    TopAppBar(
-                        title = {},
-                        navigationIcon = {
-                            IconButton(onClick = onBack) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.general_back),
+                    if (pinTitle.isNotEmpty()) {
+                        LargeTopAppBar(
+                            title = {
+                                val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
+                                Text(
+                                    text = pinTitle,
+                                    modifier = Modifier.padding(end = 10.dp),
+                                    style = if (isCollapsed) {
+                                        MaterialTheme.typography.titleMedium
+                                    } else {
+                                        MaterialTheme.typography.headlineSmall
+                                    },
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = if (isCollapsed) 1 else 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.background,
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = onBack) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = stringResource(R.string.general_back),
+                                    )
+                                }
+                            },
+                            scrollBehavior = scrollBehavior,
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.background,
+                                scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                            ),
                         )
-                    )
+                    } else {
+                        TopAppBar(
+                            title = {},
+                            navigationIcon = {
+                                IconButton(onClick = onBack) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = stringResource(R.string.general_back),
+                                    )
+                                }
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.background,
+                            ),
+                        )
+                    }
                 },
                 bottomBar = {
                     if (currentContent != null) {
@@ -231,7 +273,24 @@ private fun PinContentList(
     onImageClick: (String) -> Unit,
     onProgress: (Int) -> Unit,
 ) {
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(pin.id) {
+        snapshotFlow {
+            val layout = lazyListState.layoutInfo
+            val total = layout.totalItemsCount
+            if (total <= 0) 0
+            else {
+                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
+                ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
+            }
+        }.collect { progress ->
+            onProgress(progress)
+        }
+    }
+
     LazyColumn(
+        state = lazyListState,
         modifier = Modifier
             .fillMaxSize()
             .padding(top = topPadding),
