@@ -1,13 +1,5 @@
 package com.prslc.zhiflow.ui.page.people
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,10 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -43,6 +32,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.user.ZhihuUser
+import com.prslc.zhiflow.ui.component.common.FollowButton
 
 @Composable
 fun PeopleHeader(
@@ -141,50 +131,6 @@ fun PeopleHeader(
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(R.string.people_action_message))
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun FollowButton(
-    isFollowing: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    AnimatedContent(
-        targetState = isFollowing,
-        modifier = modifier,
-        transitionSpec = {
-            (fadeIn(tween(220)) + scaleIn(initialScale = 0.86f, animationSpec = tween(220)))
-                .togetherWith(fadeOut(tween(90)) + scaleOut(targetScale = 0.92f, animationSpec = tween(90)))
-                .using(SizeTransform(clip = false))
-        },
-        label = "FollowButton"
-    ) { following ->
-        if (following) {
-            FilledTonalButton(
-                onClick = onClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = CircleShape,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(4.dp))
-                Text(stringResource(R.string.people_action_following))
-            }
-        } else {
-            Button(
-                onClick = onClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = CircleShape
-            ) {
-                Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(4.dp))
-                Text(stringResource(R.string.people_action_follow))
             }
         }
     }

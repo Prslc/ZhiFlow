@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.ui.page.content
 
+import android.util.LruCache
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import android.util.LruCache
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,15 +10,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.content.ZhihuAnswer
+import com.prslc.zhiflow.data.model.content.ZhihuArticle
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
-import com.prslc.zhiflow.data.repository.ActionRepository
-import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.remote.parser.ContentParser
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.data.repository.ActionRepository
+import com.prslc.zhiflow.data.repository.ContentRepository
+import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -28,11 +32,14 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class ContentViewModel(
     private val repository: ContentRepository,
-    private val actionRepository: ActionRepository
+    private val actionRepository: ActionRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     companion object {
         private val parsingCache = LruCache<String, List<RichTextElement>>(20)
+        private const val FOLLOWING = "following"
+        private const val UNFOLLOWED = "normal"
     }
 
     @Stable
@@ -266,6 +273,48 @@ class ContentViewModel(
             }
             parsingCache.put(content.id, fullList)
         }
+    }
+
+    private var followJob: Job? = null
+
+    /**
+     * Optimistically toggles the follow state of the content author,
+     * rolling back on API failure.
+     */
+    fun toggleFollow() {
+        val author = loadingState.content?.author ?: return
+        if (author.id.isEmpty()) return
+        if (followJob?.isActive == true) return
+
+        val following = author.followStatus == FOLLOWING
+        val target = if (following) UNFOLLOWED else FOLLOWING
+        updateAuthor { it.copy(followStatus = target) }
+
+        followJob = viewModelScope.launch {
+            val result = if (following) userRepository.unfollowUser(author.id)
+            else userRepository.followUser(author.id)
+            result.fold(
+                onSuccess = { ok ->
+                    // safeExecute reports non-2xx as success(false), not failure
+                    if (!ok) updateAuthor { it.copy(followStatus = if (following) FOLLOWING else UNFOLLOWED) }
+                },
+                onFailure = { e ->
+                    if (e is CancellationException) throw e
+                    updateAuthor { it.copy(followStatus = if (following) FOLLOWING else UNFOLLOWED) }
+                }
+            )
+        }
+    }
+
+    private fun updateAuthor(transform: (AnswerAuthor) -> AnswerAuthor) {
+        val content = loadingState.content ?: return
+        val updated = when (content) {
+            is ZhihuAnswer -> content.copy(author = transform(content.author))
+            is ZhihuArticle -> content.copy(author = transform(content.author))
+            is ZhihuPin -> content.copy(author = transform(content.author))
+            else -> content
+        }
+        loadingState = loadingState.copy(content = updated)
     }
 
     private fun resetStates() {

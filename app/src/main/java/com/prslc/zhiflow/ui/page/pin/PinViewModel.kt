@@ -16,6 +16,7 @@ import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
+import com.prslc.zhiflow.data.repository.UserRepository
 import com.prslc.zhiflow.data.remote.parser.ContentParser
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +29,13 @@ import kotlin.coroutines.cancellation.CancellationException
 class PinViewModel(
     private val repository: ContentRepository,
     private val actionRepository: ActionRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     companion object {
         private val parsingCache = LruCache<String, List<RichTextElement>>(20)
+        private const val FOLLOWING = "following"
+        private const val UNFOLLOWED = "normal"
     }
 
     @Stable
@@ -244,6 +248,44 @@ class PinViewModel(
             }
             parsingCache.put(content.id, fullList)
         }
+    }
+
+    private var followJob: Job? = null
+
+    /**
+     * Optimistically toggles the follow state of the pin author,
+     * rolling back on API failure.
+     */
+    fun toggleFollow() {
+        val content = loadingState.content ?: return
+        val author = content.author
+        if (author.id.isEmpty()) return
+        if (followJob?.isActive == true) return
+
+        val following = author.followStatus == FOLLOWING
+        val target = if (following) UNFOLLOWED else FOLLOWING
+        loadingState = loadingState.copy(content = content.copy(author = author.copy(followStatus = target)))
+
+        followJob = viewModelScope.launch {
+            val result = if (following) userRepository.unfollowUser(author.id)
+            else userRepository.followUser(author.id)
+            result.fold(
+                onSuccess = { ok ->
+                    // safeExecute reports non-2xx as success(false), not failure
+                    if (!ok) rollback(following)
+                },
+                onFailure = { e ->
+                    if (e is CancellationException) throw e
+                    rollback(following)
+                }
+            )
+        }
+    }
+
+    private fun rollback(previousFollowing: Boolean) {
+        val content = loadingState.content ?: return
+        val status = if (previousFollowing) FOLLOWING else UNFOLLOWED
+        loadingState = loadingState.copy(content = content.copy(author = content.author.copy(followStatus = status)))
     }
 
     private fun resetStates() {

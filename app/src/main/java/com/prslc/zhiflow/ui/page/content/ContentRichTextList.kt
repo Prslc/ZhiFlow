@@ -34,6 +34,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.common.FollowButton
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.navigation.Navigator
 
@@ -45,6 +46,7 @@ fun ContentRichTextList(
     navigator: Navigator,
     topPadding: Dp,
     onImageClick: (String) -> Unit,
+    onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
     onProgress: (Int) -> Unit
 ) {
@@ -75,6 +77,7 @@ fun ContentRichTextList(
             AuthorSection(
                 author = answer.author,
                 navigator = navigator,
+                onFollowClick = onFollowClick
             )
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -143,6 +146,7 @@ fun ContentRichTextList(
 fun AuthorSection(
     author: AnswerAuthor,
     navigator: Navigator,
+    onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -176,5 +180,11 @@ fun AuthorSection(
                 )
             }
         }
+        Spacer(modifier = Modifier.width(12.dp))
+        FollowButton(
+            isFollowing = author.followStatus == "following",
+            onClick = onFollowClick,
+            compact = true
+        )
     }
 }

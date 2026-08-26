@@ -32,6 +32,8 @@ data class AnswerAuthor(
     @SerialName("avatar_url")
     val avatarUrl: String = "",
     val avatar: AvatarContainer? = null,
+    @SerialName("follow_status")
+    val followStatus: String = "",
 )
 
 @Immutable

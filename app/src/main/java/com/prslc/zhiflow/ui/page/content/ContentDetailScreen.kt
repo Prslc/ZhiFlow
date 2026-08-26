@@ -186,6 +186,7 @@ fun ContentDetailScreen(
                                         }
                                     },
                                     onProgress = { viewModel.trackProgress(it) },
+                                    onFollowClick = viewModel::toggleFollow,
                                 )
                             }
                         }

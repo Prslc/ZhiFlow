@@ -207,6 +207,7 @@ fun PinDetailScreen(
                                         }
                                     },
                                     onProgress = { viewModel.trackProgress(it) },
+                                    onFollowClick = viewModel::toggleFollow,
                                 )
                             }
                         }
@@ -272,6 +273,7 @@ private fun PinContentList(
     topPadding: androidx.compose.ui.unit.Dp,
     onImageClick: (String) -> Unit,
     onProgress: (Int) -> Unit,
+    onFollowClick: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -300,6 +302,7 @@ private fun PinContentList(
             AuthorSection(
                 author = pin.author,
                 navigator = navigator,
+                onFollowClick = onFollowClick
             )
         }
 
