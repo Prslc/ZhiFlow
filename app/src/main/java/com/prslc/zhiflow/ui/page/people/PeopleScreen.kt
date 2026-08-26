@@ -40,6 +40,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
@@ -73,6 +74,10 @@ fun PeopleScreen(
     val topBarHeightPx = with(density) { TOP_BAR_HEIGHT.toPx() }
     scrollState.totalTopHeightPx = statusBarHeightPx + topBarHeightPx
 
+
+    // White status bar icons while the cover image is behind the status bar;
+    // dark icons once the opaque top bar scrolls underneath.
+    StatusBarIconEffect(darkIcons = scrollState.topBarAlpha > 0.9f)
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
     }

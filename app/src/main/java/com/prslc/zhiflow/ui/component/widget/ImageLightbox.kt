@@ -7,7 +7,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -59,6 +58,7 @@ import coil3.request.crossfade
 import coil3.size.Size
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.ImageHelper
+import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
@@ -89,7 +89,6 @@ fun ImageLightbox(
     val backText = stringResource(R.string.general_back)
     val moreText = stringResource(R.string.general_more)
 
-    val isDarkTheme = isSystemInDarkTheme()
 
     val view = LocalView.current
     val activityWindow = remember(view) {
@@ -97,6 +96,9 @@ fun ImageLightbox(
     }
 
     val barsType = WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
+
+    // White status bar icons over the black backdrop; restores the system
+    StatusBarIconEffect(darkIcons = false)
 
     LaunchedEffect(isCurrentPageZoomed, activityWindow) {
         activityWindow?.let { window ->
@@ -107,7 +109,6 @@ fun ImageLightbox(
                     WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             } else {
                 controller.show(barsType)
-                controller.isAppearanceLightStatusBars = false
             }
         }
     }
@@ -115,9 +116,8 @@ fun ImageLightbox(
     DisposableEffect(activityWindow) {
         onDispose {
             activityWindow?.let { window ->
-                val controller = WindowCompat.getInsetsController(window, view)
-                controller.show(WindowInsetsCompat.Type.statusBars())
-                controller.isAppearanceLightStatusBars = !isDarkTheme
+                WindowCompat.getInsetsController(window, view)
+                    .show(WindowInsetsCompat.Type.statusBars())
             }
         }
     }
