@@ -44,13 +44,17 @@ class UserService(private val okHttpClient: OkHttpClient) {
     /**
      * Unfollows a user.
      *
-     * @param userId The user hash ID (ZhihuUser.id, not url_token).
+     * @param userId The target user hash ID (ZhihuUser.id, not url_token).
+     * @param currentUserId Current logged-in user's hash ID.
      * @return A [Result] indicating success or failure.
      */
-    suspend fun unfollowUser(userId: String): Result<Boolean> =
+    suspend fun unfollowUser(
+        userId: String,
+        currentUserId: String,
+    ): Result<Boolean> =
         okHttpClient.safeExecute {
             Request.Builder()
-                .apiUrl("/people/$userId/followers")
+                .apiUrl("/people/$userId/followers/$currentUserId")
                 .delete(ByteArray(0).toRequestBody())
                 .build()
         }

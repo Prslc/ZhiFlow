@@ -87,7 +87,8 @@ ZhiFlow/
 │           │   │   │   ├── engine/             # AnnotatedStringBuilder, FormulaHandler, TableParser
 │           │   │   │   └── model/RichTextElement.kt
 │           │   │   └── service/                # OkHttp-based API service classes (one per domain)
-│           │   └── repository/                 # Domain repositories: map DTOs, return Result<T>
+│           │   ├── repository/                 # Domain repositories: map DTOs, return Result<T>
+│           │   └── session/                    # UserSession: lazily-resolved current user hash id (in-memory)
 │           ├── di/
 │           │   └── AppModule.kt                # Single Koin module: all singletons + viewModels
 │           └── ui/
@@ -157,6 +158,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 - `viewModelOf(::ViewModelName)` for ViewModels
 - `single { get<HttpClientProvider>().okHttpClient }` for the OkHttpClient instance
 - `SharedPreferences` is provided as a `single` pointing to the `"temp_auth_prefs"` file
+- `UserSession` is a `single` caching the current user's hash id in memory; it depends only on `UserService` and must never be made to depend on `UserRepository` (that would form a DI cycle)
 - Koin is started in `Application.onCreate()` with `startKoin { ... }`
 
 ### Navigation
@@ -219,7 +221,7 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
-- **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically.
+- **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically. Changing them must call `UserSession.invalidate()`, since the cached current user id would otherwise go stale.
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 
 ## Git Conventions

@@ -21,6 +21,7 @@ import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
 import com.prslc.zhiflow.data.remote.service.UserService
+import com.prslc.zhiflow.data.session.UserSession
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
@@ -67,6 +68,7 @@ val appModule = module {
 
     // User
     singleOf(::UserService)
+    singleOf(::UserSession)
     singleOf(::UserRepository)
     viewModelOf(::ProfileViewModel)
 

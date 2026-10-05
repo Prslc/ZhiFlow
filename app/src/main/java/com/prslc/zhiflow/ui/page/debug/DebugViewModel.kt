@@ -6,8 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.core.content.edit
+import com.prslc.zhiflow.data.session.UserSession
 
-class DebugViewModel(private val sharedPreferences: SharedPreferences) : ViewModel() {
+class DebugViewModel(
+    private val sharedPreferences: SharedPreferences,
+    private val userSession: UserSession,
+) : ViewModel() {
     var authorization by mutableStateOf(sharedPreferences.getString("auth", "") ?: "")
     var cookie by mutableStateOf(sharedPreferences.getString("cookie", "") ?: "")
     var xUdid by mutableStateOf(sharedPreferences.getString("x_udid", "") ?: "")
@@ -18,6 +22,7 @@ class DebugViewModel(private val sharedPreferences: SharedPreferences) : ViewMod
             putString("cookie", cookie)
             putString("x_udid", xUdid)
         }
+        userSession.invalidate()
     }
 
     fun clear() {
@@ -25,5 +30,6 @@ class DebugViewModel(private val sharedPreferences: SharedPreferences) : ViewMod
         cookie = ""
         xUdid = ""
         sharedPreferences.edit { clear() }
+        userSession.invalidate()
     }
 }
