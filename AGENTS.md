@@ -110,7 +110,7 @@ ZhiFlow/
 │                   ├── feed/                  # FeedScreen, FeedItem, FeedViewModel
 │                   ├── content/               # ContentDetailScreen (answer/article), ContentRichTextList, ContentDetailViewModel, CollectionViewModel
 │                   ├── pin/                   # PinDetailScreen, PinViewModel (dedicated thought/idea page)
-│                   ├── question/              # QuestionDetailScreen, QuestionAnswerList, QuestionViewModel
+│                   ├── question/              # QuestionDetailScreen, QuestionViewModel, AnswerItem, AnswerDivider
 │                   ├── comment/               # CommentBottomSheet, CommentItem, CommentList, CommentViewModel
 │                   ├── people/                # PeopleScreen, PeopleHeader, PeopleTabBar, PeopleViewModel + moment/ subpackage
 │                   ├── profile/               # ProfileScreen, ProfileViewModel, SettingsScreen
