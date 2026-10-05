@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -77,7 +76,9 @@ fun PinDetailScreen(
         viewModel::consumeActionError,
     )
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    // Pinned: a single-line bar cannot collapse, and a pin's title is one line of the
+    // author's own text — a 152dp expanded bar costs a quarter of the screen for it.
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val imageUrls = remember(richTextElements) {
         richTextElements
@@ -123,53 +124,31 @@ fun PinDetailScreen(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
-                    if (pinTitle.isNotEmpty()) {
-                        LargeTopAppBar(
-                            title = {
-                                val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
-                                Text(
-                                    text = pinTitle,
-                                    modifier = Modifier.padding(end = 10.dp),
-                                    style = if (isCollapsed) {
-                                        MaterialTheme.typography.titleMedium
-                                    } else {
-                                        MaterialTheme.typography.headlineSmall
-                                    },
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = if (isCollapsed) 1 else 3,
-                                    overflow = TextOverflow.Ellipsis,
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = pinTitle,
+                                modifier = Modifier.padding(end = 10.dp),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.general_back),
                                 )
-                            },
-                            navigationIcon = {
-                                IconButton(onClick = onBack) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = stringResource(R.string.general_back),
-                                    )
-                                }
-                            },
-                            scrollBehavior = scrollBehavior,
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.background,
-                                scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                            ),
-                        )
-                    } else {
-                        TopAppBar(
-                            title = {},
-                            navigationIcon = {
-                                IconButton(onClick = onBack) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = stringResource(R.string.general_back),
-                                    )
-                                }
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.background,
-                            ),
-                        )
-                    }
+                            }
+                        },
+                        scrollBehavior = scrollBehavior,
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                        ),
+                    )
                 },
                 bottomBar = {
                     if (currentContent != null) {
