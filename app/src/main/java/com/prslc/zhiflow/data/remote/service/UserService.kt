@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.remote.service
 
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.core.network.safeExecute
+import com.prslc.zhiflow.core.network.safeExecuteOrFail
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -33,8 +33,8 @@ class UserService(private val okHttpClient: OkHttpClient) {
      * @param userId The user hash ID (ZhihuUser.id, not url_token).
      * @return A [Result] indicating success or failure.
      */
-    suspend fun followUser(userId: String): Result<Boolean> =
-        okHttpClient.safeExecute {
+    suspend fun followUser(userId: String): Result<Unit> =
+        okHttpClient.safeExecuteOrFail {
             Request.Builder()
                 .apiUrl("/people/$userId/followers")
                 .post(ByteArray(0).toRequestBody())
@@ -51,8 +51,8 @@ class UserService(private val okHttpClient: OkHttpClient) {
     suspend fun unfollowUser(
         userId: String,
         currentUserId: String,
-    ): Result<Boolean> =
-        okHttpClient.safeExecute {
+    ): Result<Unit> =
+        okHttpClient.safeExecuteOrFail {
             Request.Builder()
                 .apiUrl("/people/$userId/followers/$currentUserId")
                 .delete(ByteArray(0).toRequestBody())

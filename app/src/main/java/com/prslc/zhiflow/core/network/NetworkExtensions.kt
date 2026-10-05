@@ -77,3 +77,27 @@ internal suspend fun OkHttpClient.safeExecute(
         Result.failure(e.toApiException())
     }
 }
+
+/**
+ * Executes an OkHttp request on [Dispatchers.IO] and reports a non-2xx status as a
+ * failure carrying that status — unlike [safeExecute], which collapses the same case
+ * into `success(false)` and so throws the reason away.
+ *
+ * The response body is consumed and closed on IO to avoid
+ * [android.os.NetworkOnMainThreadException] during cleanup.
+ */
+internal suspend fun OkHttpClient.safeExecuteOrFail(
+    requestBuilder: () -> Request
+): Result<Unit> = withContext(Dispatchers.IO) {
+    try {
+        newCall(requestBuilder()).execute().use { response ->
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(HttpStatusException(response).toApiException())
+            }
+        }
+    } catch (e: Exception) {
+        Result.failure(e.toApiException())
+    }
+}

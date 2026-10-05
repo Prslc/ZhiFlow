@@ -50,6 +50,14 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
 
     private var followJob: Job? = null
 
+    /** Set when a follow toggle fails, so the screen can explain the rollback. */
+    var actionError by mutableStateOf<ApiException?>(null)
+        private set
+
+    fun consumeActionError() {
+        actionError = null
+    }
+
     /**
      * Optimistically toggles the follow state of the loaded user,
      * rolling back on API failure.
@@ -63,16 +71,11 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
         uiState = uiState.copy(user = user.copy(isFollowing = target))
         followJob = viewModelScope.launch {
             val result = if (target) repository.followUser(user.id) else repository.unfollowUser(user.id)
-            result.fold(
-                onSuccess = { ok ->
-                    // safeExecute reports non-2xx as success(false), not failure
-                    if (!ok) uiState = uiState.copy(user = uiState.user?.copy(isFollowing = !target))
-                },
-                onFailure = { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(user = uiState.user?.copy(isFollowing = !target))
-                }
-            )
+            result.onFailure { e ->
+                if (e is CancellationException) throw e
+                uiState = uiState.copy(user = uiState.user?.copy(isFollowing = !target))
+                actionError = e as? ApiException
+            }
         }
     }
 }

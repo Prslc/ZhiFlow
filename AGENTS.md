@@ -148,7 +148,8 @@ API Server
 ### Network Layer
 
 - **`safeApiCall<T>(requestBuilder)`** — Extension on `OkHttpClient`. Executes on `Dispatchers.IO`, parses JSON via `kotlinx.serialization`, catches all exceptions and maps to `ApiException` sealed types. Returns `Result<T>`.
-- **`safeExecute(requestBuilder)`** — Same but returns `Result<Boolean>` (success/failure only, no body parsing).
+- **`safeExecute(requestBuilder)`** — Same but returns `Result<Boolean>` (success/failure only, no body parsing). Prefer `safeExecuteOrFail` when the caller cares *why* a call failed: a non-2xx here is reported as `success(false)`, which callers routinely mistake for success.
+- **`safeExecuteOrFail(requestBuilder)`** — Same as `safeExecute`, but a non-2xx becomes a `Result.failure` carrying the mapped `ApiException` (including the status code). Use this for any action whose failure the UI must react to.
 - **`Response.body<T>()`** — `inline reified` extension that `use`-closes the response and decodes JSON. Throws `HttpStatusException` on non-2xx.
 - Auth headers (Cookie, Authorization, x-udid, x-zse-96) are injected by an OkHttp interceptor reading from `SharedPreferences`.
 - **`HttpClientProvider`** holds the OkHttpClient singleton and a shared `Json` instance (lenient, coerce defaults, ignore unknown keys).

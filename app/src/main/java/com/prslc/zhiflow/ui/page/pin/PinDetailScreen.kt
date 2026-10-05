@@ -16,6 +16,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -70,6 +72,16 @@ fun PinDetailScreen(
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val actionError = viewModel.actionError
+    val actionErrorMessage = if (actionError != null) actionError.uiMessage else null
+    LaunchedEffect(actionError) {
+        if (actionErrorMessage != null) {
+            snackbarHostState.showSnackbar(actionErrorMessage)
+            viewModel.consumeActionError()
+        }
+    }
+
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val imageUrls = remember(richTextElements) {
@@ -114,6 +126,7 @@ fun PinDetailScreen(
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 containerColor = MaterialTheme.colorScheme.background,
+                snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
                     if (pinTitle.isNotEmpty()) {
                         LargeTopAppBar(

@@ -33,7 +33,7 @@ class UserRepository(
      * @param userId The user hash ID (ZhihuUser.id).
      * @return A [Result] indicating success or failure.
      */
-    suspend fun followUser(userId: String): Result<Boolean> = service.followUser(userId)
+    suspend fun followUser(userId: String): Result<Unit> = service.followUser(userId)
 
     /**
      * Unfollows a user.
@@ -44,7 +44,7 @@ class UserRepository(
      *
      * @return A [Result] indicating success or failure.
      */
-    suspend fun unfollowUser(userId: String): Result<Boolean> {
+    suspend fun unfollowUser(userId: String): Result<Unit> {
         val currentUserId = session.currentUserId()
             .getOrElse { return Result.failure(it) }
         return service.unfollowUser(userId, currentUserId)

@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,9 +84,20 @@ fun PeopleScreen(
         viewModel.loadPeople(urlToken)
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val actionError = viewModel.actionError
+    val actionErrorMessage = if (actionError != null) actionError.uiMessage else null
+    LaunchedEffect(actionError) {
+        if (actionErrorMessage != null) {
+            snackbarHostState.showSnackbar(actionErrorMessage)
+            viewModel.consumeActionError()
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         Box(
             modifier = Modifier

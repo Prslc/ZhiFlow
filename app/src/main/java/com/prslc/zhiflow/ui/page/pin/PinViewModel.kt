@@ -252,6 +252,14 @@ class PinViewModel(
 
     private var followJob: Job? = null
 
+    /** Set when a follow toggle fails, so the screen can explain the rollback. */
+    var actionError by mutableStateOf<ApiException?>(null)
+        private set
+
+    fun consumeActionError() {
+        actionError = null
+    }
+
     /**
      * Optimistically toggles the follow state of the pin author,
      * rolling back on API failure.
@@ -269,16 +277,11 @@ class PinViewModel(
         followJob = viewModelScope.launch {
             val result = if (following) userRepository.unfollowUser(author.id)
             else userRepository.followUser(author.id)
-            result.fold(
-                onSuccess = { ok ->
-                    // safeExecute reports non-2xx as success(false), not failure
-                    if (!ok) rollback(following)
-                },
-                onFailure = { e ->
-                    if (e is CancellationException) throw e
-                    rollback(following)
-                }
-            )
+            result.onFailure { e ->
+                if (e is CancellationException) throw e
+                rollback(following)
+                actionError = e as? ApiException
+            }
         }
     }
 

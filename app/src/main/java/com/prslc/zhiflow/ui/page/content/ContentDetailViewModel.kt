@@ -277,6 +277,14 @@ class ContentViewModel(
 
     private var followJob: Job? = null
 
+    /** Set when a follow toggle fails, so the screen can explain the rollback. */
+    var actionError by mutableStateOf<ApiException?>(null)
+        private set
+
+    fun consumeActionError() {
+        actionError = null
+    }
+
     /**
      * Optimistically toggles the follow state of the content author,
      * rolling back on API failure.
@@ -293,16 +301,11 @@ class ContentViewModel(
         followJob = viewModelScope.launch {
             val result = if (following) userRepository.unfollowUser(author.id)
             else userRepository.followUser(author.id)
-            result.fold(
-                onSuccess = { ok ->
-                    // safeExecute reports non-2xx as success(false), not failure
-                    if (!ok) updateAuthor { it.copy(followStatus = if (following) FOLLOWING else UNFOLLOWED) }
-                },
-                onFailure = { e ->
-                    if (e is CancellationException) throw e
-                    updateAuthor { it.copy(followStatus = if (following) FOLLOWING else UNFOLLOWED) }
-                }
-            )
+            result.onFailure { e ->
+                if (e is CancellationException) throw e
+                updateAuthor { it.copy(followStatus = if (following) FOLLOWING else UNFOLLOWED) }
+                actionError = e as? ApiException
+            }
         }
     }
 
