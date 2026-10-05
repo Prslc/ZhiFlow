@@ -11,11 +11,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -28,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+
+private const val MAX_HEIGHT_FRACTION = 0.95f
 
 @Composable
 fun CustomBottomSheet(
@@ -60,7 +64,15 @@ fun CustomBottomSheet(
         exit = fadeOut(animationSpec = tween(250)),
         modifier = modifier.zIndex(100f)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                // A host sitting inside a pager would otherwise swipe the page out from
+                // under the sheet. Only horizontal drags nobody else claimed are taken.
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { change, _ -> change.consume() }
+                }
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -70,25 +82,30 @@ fun CustomBottomSheet(
                     }
             )
 
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .fillMaxHeight(0.95f)
-                    .animateEnterExit(
-                        enter = slideInVertically(
-                            initialOffsetY = { it },
-                            animationSpec = tween(350, easing = EaseOutQuart)
-                        ),
-                        exit = slideOutVertically(
-                            targetOffsetY = { it },
-                            animationSpec = tween(250, easing = EaseInCubic)
-                        )
-                    )
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                    .background(MaterialTheme.colorScheme.surface)
             ) {
-                content()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = maxHeight * MAX_HEIGHT_FRACTION)
+                        .animateEnterExit(
+                            enter = slideInVertically(
+                                initialOffsetY = { it },
+                                animationSpec = tween(350, easing = EaseOutQuart)
+                            ),
+                            exit = slideOutVertically(
+                                targetOffsetY = { it },
+                                animationSpec = tween(250, easing = EaseInCubic)
+                            )
+                        )
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    content()
+                }
             }
         }
     }
