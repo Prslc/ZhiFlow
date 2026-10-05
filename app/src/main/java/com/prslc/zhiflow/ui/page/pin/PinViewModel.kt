@@ -158,6 +158,7 @@ class PinViewModel(
             ).onFailure { e ->
                 if (e is CancellationException) throw e
                 interactionState = was
+                actionError = e as? ApiException
             }
         }
     }

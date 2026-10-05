@@ -80,7 +80,7 @@ class CollectionRepository(
         type: ContentType,
         add: List<Long>,
         remove: List<Long>
-    ): Result<Boolean> {
+    ): Result<Unit> {
         return service.updateContentCollections(
             id = id,
             contentType = type,

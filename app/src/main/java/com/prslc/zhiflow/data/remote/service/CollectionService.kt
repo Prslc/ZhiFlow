@@ -3,7 +3,7 @@ package com.prslc.zhiflow.data.remote.service
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.core.network.safeExecute
+import com.prslc.zhiflow.core.network.safeExecuteOrFail
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.user.CollectionContentsResponse
 import com.prslc.zhiflow.data.model.user.CollectionResponse
@@ -89,7 +89,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
         contentType: ContentType,
         addIds: List<Long>,
         removeIds: List<Long>
-    ): Result<Boolean> = okHttpClient.safeExecute {
+    ): Result<Unit> = okHttpClient.safeExecuteOrFail {
         val formBuilder = FormBody.Builder()
 
         if (addIds.isNotEmpty()) {

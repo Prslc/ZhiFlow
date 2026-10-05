@@ -172,13 +172,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         pendingReactions.add(commentId)
 
         viewModelScope.launch {
-            repository.toggleLike(commentId, shouldBeActive).onSuccess { success ->
-                    if (!success) {
-                        updateLocalStatus(commentId, isCurrentlyActive)
-                    }
-                }.onFailure {
-                    updateLocalStatus(commentId, isCurrentlyActive)
-                }
+            repository.toggleLike(commentId, shouldBeActive).onFailure { e ->
+                if (e is CancellationException) throw e
+                updateLocalStatus(commentId, isCurrentlyActive)
+            }
             pendingReactions.remove(commentId)
         }
     }

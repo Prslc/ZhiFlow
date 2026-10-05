@@ -43,7 +43,7 @@ class CommentRepository(private val service: CommentService) {
      * @param isLike True to like, false to unlike.
      * @return [Result] wrapping true if the operation succeeded.
      */
-    suspend fun toggleLike(commentId: String, isLike: Boolean): Result<Boolean> {
+    suspend fun toggleLike(commentId: String, isLike: Boolean): Result<Unit> {
         val method = if (isLike) "POST" else "DELETE"
 
         return service.commentReaction(

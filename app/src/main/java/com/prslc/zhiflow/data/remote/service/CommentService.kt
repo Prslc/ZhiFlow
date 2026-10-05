@@ -3,7 +3,7 @@ package com.prslc.zhiflow.data.remote.service
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.core.network.safeExecute
+import com.prslc.zhiflow.core.network.safeExecuteOrFail
 import com.prslc.zhiflow.data.model.comment.CommentResponse
 import com.prslc.zhiflow.data.model.content.ContentType
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -68,8 +68,8 @@ class CommentService(private val okHttpClient: OkHttpClient) {
      *
      * @param method Standard HTTP method string (e.g., "POST", "DELETE").
      */
-    suspend fun commentReaction(commentId: String, action: String, method: String): Result<Boolean> =
-        okHttpClient.safeExecute {
+    suspend fun commentReaction(commentId: String, action: String, method: String): Result<Unit> =
+        okHttpClient.safeExecuteOrFail {
             val emptyBody = "".toRequestBody(null)
 
             Request.Builder()

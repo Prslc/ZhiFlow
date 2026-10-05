@@ -6,10 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.user.ZhihuCollection
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class CollectionViewModel(private val repository: CollectionRepository) : ViewModel() {
 
@@ -18,6 +20,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         val collections: List<ZhihuCollection> = emptyList(),
         val selectedIds: Map<Long, Boolean> = emptyMap(),
         val isLoading: Boolean = false,
+        val error: ApiException? = null,
     )
 
     var uiState by mutableStateOf(CollectionUiState())
@@ -44,7 +47,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
 
     fun loadCollections(contentId: String, contentType: ContentType) {
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
+            uiState = uiState.copy(isLoading = true, error = null)
             repository.getCollections(contentId, contentType)
                 .onSuccess { response ->
                     uiState = uiState.copy(
@@ -82,13 +85,15 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         }
 
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
+            uiState = uiState.copy(isLoading = true, error = null)
             repository.updateCollections(contentId, contentType, addIds, removeIds)
-                .onSuccess { success ->
-                    if (success) {
-                        onComplete(currentIds.isNotEmpty())
-                        loadCollections(contentId, contentType)
-                    }
+                .onSuccess {
+                    onComplete(currentIds.isNotEmpty())
+                    loadCollections(contentId, contentType)
+                }
+                .onFailure { e ->
+                    if (e is CancellationException) throw e
+                    uiState = uiState.copy(error = e as? ApiException)
                 }
             uiState = uiState.copy(isLoading = false)
         }

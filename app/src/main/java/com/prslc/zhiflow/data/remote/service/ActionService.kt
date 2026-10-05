@@ -3,6 +3,7 @@ package com.prslc.zhiflow.data.remote.service
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeExecute
+import com.prslc.zhiflow.core.network.safeExecuteOrFail
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import okhttp3.MediaType.Companion.toMediaType
@@ -41,14 +42,14 @@ class ActionService(private val okHttpClient: OkHttpClient) {
      * @param contentType The type of content as defined in [ContentType].
      * @param action The vote action (e.g., "up", "down", "neutral").
      * @param method The HTTP method (POST or DELETE), defaults to POST.
-     * @return A [Result] containing true if the action succeeded.
+     * @return A [Result] indicating success or failure.
      */
     suspend fun voteAction(
         id: String,
         contentType: ContentType,
         action: String,
         method: String = "POST"
-    ): Result<Boolean> = okHttpClient.safeExecute {
+    ): Result<Unit> = okHttpClient.safeExecuteOrFail {
         val emptyBody = "".toRequestBody(null)
 
         Request.Builder()
