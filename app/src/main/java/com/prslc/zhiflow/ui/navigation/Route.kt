@@ -49,4 +49,4 @@ object ReadHistory
 
 @Immutable
 @Serializable
-data class CollectionContents(val uid: String)
+object CollectionContents

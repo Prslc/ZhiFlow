@@ -5,6 +5,7 @@ import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.remote.service.CollectionService
 import com.prslc.zhiflow.data.dto.CollectionItemDto
 import com.prslc.zhiflow.data.mapper.toDto
+import com.prslc.zhiflow.data.session.UserSession
 
 /**
  * Domain result for paginated collection contents.
@@ -14,7 +15,10 @@ data class CollectionContentsResult(
     val nextPageUrl: String?,
 )
 
-class CollectionRepository(private val service: CollectionService) {
+class CollectionRepository(
+    private val service: CollectionService,
+    private val session: UserSession,
+) {
 
     /**
      * Retrieve the list of collections (favorites) for a specific content item.
@@ -26,18 +30,24 @@ class CollectionRepository(private val service: CollectionService) {
         service.getCollectionsForContent(id, type)
 
     /**
-     * Retrieve paginated contents of a user's collections.
+     * Retrieve a page of contents (answers) saved in the current user's collections.
      *
-     * @param uid The target user's ID.
      * @param nextUrl Pagination URL from the previous response; null for the first page.
      */
     suspend fun getCollectionContents(
-        uid: String,
         nextUrl: String? = null,
     ): Result<CollectionContentsResult> {
-        return service.getCollectionContents(uid, nextUrl)
-            .map { response ->
-                val items = response.data
+        val response = if (nextUrl != null) {
+            service.getCollectionContentsByUrl(nextUrl)
+        } else {
+            val uid = session.currentUserId()
+                .getOrElse { return Result.failure(it) }
+            service.getCollectionContents(uid)
+        }
+
+        return response
+            .map { body ->
+                val items = body.data
                     .map { it.toDto() }
                     .groupBy { it.id }
                     .values
@@ -52,7 +62,7 @@ class CollectionRepository(private val service: CollectionService) {
                     }
                 CollectionContentsResult(
                     items = items,
-                    nextPageUrl = response.paging?.next,
+                    nextPageUrl = body.paging?.next,
                 )
             }
     }

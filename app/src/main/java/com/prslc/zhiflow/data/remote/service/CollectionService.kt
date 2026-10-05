@@ -39,30 +39,38 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
         }
 
     /**
-     * Retrieves paginated contents (answers) saved in a user's collections.
-     *
-     * When [nextUrl] is provided from a prior response's `paging.next`, it is used directly.
-     * Otherwise, the initial request is constructed with [offset]=0 and [limit].
+     * Retrieves the first page of contents (answers) saved in a user's collections.
      *
      * @param uid The target user's ID.
-     * @param nextUrl Absolute URL from the previous page; null for the first page.
      * @param limit Page size (default 20).
      */
     suspend fun getCollectionContents(
         uid: String,
-        nextUrl: String? = null,
-        limit: Int = 20
+        limit: Int = 20,
     ): Result<CollectionContentsResponse> = okHttpClient.safeApiCall {
-        val baseUrl = nextUrl ?: "${BASE_URL}/people/$uid/collection_contents"
-        val urlBuilder = baseUrl.toHttpUrl().newBuilder()
-
-        if (nextUrl == null) {
-            urlBuilder.addQueryParameter("offset", "0")
-            urlBuilder.addQueryParameter("limit", limit.toString())
-        }
+        val url = "${BASE_URL}/people/$uid/collection_contents"
+            .toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("offset", "0")
+            .addQueryParameter("limit", limit.toString())
+            .build()
 
         Request.Builder()
-            .url(urlBuilder.build())
+            .url(url)
+            .get()
+            .build()
+    }
+
+    /**
+     * Retrieves a subsequent page of collection contents.
+     *
+     * @param nextUrl Absolute URL from the previous response's `paging.next`.
+     */
+    suspend fun getCollectionContentsByUrl(
+        nextUrl: String,
+    ): Result<CollectionContentsResponse> = okHttpClient.safeApiCall {
+        Request.Builder()
+            .url(nextUrl.toHttpUrl())
             .get()
             .build()
     }

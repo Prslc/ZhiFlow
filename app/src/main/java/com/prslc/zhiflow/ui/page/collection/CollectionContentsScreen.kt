@@ -62,15 +62,14 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionContentsScreen(
-    uid: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CollectionContentsViewModel = koinViewModel(),
 ) {
     val navigator = LocalNavigator.current
 
-    LaunchedEffect(uid) {
-        viewModel.loadIfEmpty(uid)
+    LaunchedEffect(Unit) {
+        viewModel.loadIfEmpty()
     }
 
     val shouldLoadMore by remember { viewModel.listState.shouldLoadMore() }

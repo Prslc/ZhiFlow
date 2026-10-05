@@ -75,5 +75,5 @@ class Navigator(
 
     fun navigateToReadHistory() = navController.navigate(ReadHistory)
 
-    fun navigateToCollectionContents(uid: String) = navController.navigate(CollectionContents(uid))
+    fun navigateToCollectionContents() = navController.navigate(CollectionContents)
 }

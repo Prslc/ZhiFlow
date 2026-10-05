@@ -30,24 +30,19 @@ class CollectionContentsViewModel(
         private set
 
     val listState = LazyListState()
-    private var currentUid: String? = null
     private var nextPageUrl: String? = null
 
-    fun loadIfEmpty(uid: String) {
-        if (uiState.items.isEmpty() || currentUid != uid) {
-            currentUid = uid
-            refresh()
-        }
+    fun loadIfEmpty() {
+        if (uiState.items.isEmpty()) refresh()
     }
 
     fun refresh() {
-        val uid = currentUid ?: return
         if (uiState.isRefreshing) return
 
         viewModelScope.launch {
             uiState = uiState.copy(isRefreshing = true, globalError = null)
 
-            repository.getCollectionContents(uid, nextUrl = null)
+            repository.getCollectionContents()
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
@@ -64,12 +59,13 @@ class CollectionContentsViewModel(
     }
 
     fun loadMore() {
-        if (uiState.isNextLoading || uiState.isRefreshing || nextPageUrl == null) return
+        val nextUrl = nextPageUrl ?: return
+        if (uiState.isNextLoading || uiState.isRefreshing) return
 
         viewModelScope.launch {
             uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
 
-            repository.getCollectionContents(currentUid!!, nextUrl = nextPageUrl)
+            repository.getCollectionContents(nextUrl = nextUrl)
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(

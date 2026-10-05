@@ -68,10 +68,8 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         )
     }
 
-    composable<CollectionContents> { backStackEntry ->
-        val route: CollectionContents = backStackEntry.toRoute()
+    composable<CollectionContents> {
         CollectionContentsScreen(
-            uid = route.uid,
             onBack = { navController.popBackStack() },
         )
     }
