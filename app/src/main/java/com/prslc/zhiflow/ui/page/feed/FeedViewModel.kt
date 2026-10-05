@@ -112,18 +112,25 @@ class FeedViewModel(
         }
     }
 
+    /**
+     * Fetches the negative feedback panel for a feed card and opens it.
+     *
+     * @param id The content token carried by the card.
+     * @param type The card's content type as the feed spells it (`answer`, `article`, …).
+     */
     fun openFeedback(id: String, type: String) {
         feedbackTarget = FeedbackTarget(id, type)
         feedbackState = FeedbackUiState(isVisible = true, isLoading = true)
         loadPanel(id, type)
     }
 
+    /** Hides the panel; its rows stay until the next [openFeedback] resets them. */
     fun dismissFeedback() {
         feedbackTarget = null
-        // The rows stay put while the sheet slides out, then openFeedback resets them.
         feedbackState = feedbackState.copy(isVisible = false)
     }
 
+    /** Re-fetches the panel for the card it was opened on. */
     fun retryFeedback() {
         val target = feedbackTarget ?: return
         feedbackState = feedbackState.copy(isLoading = true, error = null)
@@ -145,7 +152,14 @@ class FeedViewModel(
         }
     }
 
-    /** Closes the panel now; the card is dropped and the toast shown once the request lands. */
+    /**
+     * Runs the row's request, then drops the card the panel was opened on.
+     *
+     * The panel closes straight away. Sets [feedbackToast] from the row's `toast_text` on
+     * success and [feedbackError] on failure.
+     *
+     * @param action A panel row whose action is a request rather than a link.
+     */
     fun submitFeedback(action: FeedbackAction.Request) {
         val target = feedbackTarget ?: return
         dismissFeedback()
@@ -160,15 +174,21 @@ class FeedViewModel(
         }
     }
 
-    /** Drops a card whose content the backend has just been told to stop showing. */
+    /**
+     * Drops a card whose content the backend has just been told to stop showing.
+     *
+     * @param id The content token carried by the card.
+     */
     fun removeContent(id: String) {
         uiState = uiState.copy(items = uiState.items.filterNot { it.id == id })
     }
 
+    /** Clears [feedbackToast] once it has been shown. */
     fun consumeFeedbackToast() {
         feedbackToast = null
     }
 
+    /** Clears [feedbackError] once it has been shown. */
     fun consumeFeedbackError() {
         feedbackError = null
     }

@@ -8,7 +8,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 private val apiHost = BASE_URL.toHttpUrl().host
 
-/** Returns `null` for a row the client cannot act on, so an unknown module is dropped. */
 internal fun NegativeFeedbackItem.toDto(): FeedbackAction? {
     val button = rawButton
     val label = button.text.panelText

@@ -13,15 +13,36 @@ import com.prslc.zhiflow.data.remote.service.FeedbackService
 
 class FeedbackRepository(private val service: FeedbackService) {
 
+    /**
+     * Fetches the negative feedback panel for a piece of content.
+     *
+     * @param contentId The content token carried by the feed card.
+     * @param contentType Lowercase as the feed spells it (`answer`, `article`, …).
+     * @return A [Result] containing the rows to render, in the order the backend sent them.
+     */
     suspend fun getPanel(contentId: String, contentType: String): Result<List<FeedbackAction>> {
         return service.getPanel(contentId, contentType)
             .map { panel -> panel.data.items.mapNotNull { it.toDto() } }
     }
 
+    /**
+     * Runs a panel row whose action is a request.
+     *
+     * @param url The `backend_url` that came with the row.
+     * @param method The HTTP method that came with the same row.
+     * @return A [Result] indicating success or failure.
+     */
     suspend fun submit(url: String, method: String): Result<Unit> =
         service.submit(url, method)
 
-    /** Neither half of the block page is usable without the other, so one call fetches both. */
+    /**
+     * Fetches both halves of the block page's state.
+     *
+     * @param contentToken The content token carried by the feed card.
+     * @param contentType The numeric content type from the panel's `block_list` link.
+     * @param feedbackType The feedback type from the same link.
+     * @return A [Result] containing the topics on offer and the keywords already blocked.
+     */
     suspend fun getBlockOptions(
         contentToken: String,
         contentType: String,
@@ -34,6 +55,13 @@ class FeedbackRepository(private val service: FeedbackService) {
             .map { block -> block.toDto(tags.data.map { tag -> tag.toDto() }) }
     }
 
+    /**
+     * Sends the block page's selection.
+     *
+     * @param tags Every topic the page offered, with the ones to block marked selected.
+     * @param keywords The complete keyword list to send, not an increment.
+     * @return A [Result] indicating success or failure.
+     */
     suspend fun submitBlockFeedback(
         contentToken: String,
         contentType: String,

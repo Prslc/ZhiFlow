@@ -179,7 +179,6 @@ private fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
-/** Reads the block page's own parameters out of its `zhihu://feedback/block_list` link. */
 private fun Uri.toBlockListRoute(): FeedbackBlockList? {
     if (host != "feedback" || path != "/block_list") return null
 

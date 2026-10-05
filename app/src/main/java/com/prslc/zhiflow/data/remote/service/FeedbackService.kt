@@ -25,9 +25,12 @@ private const val TEXT_PLAIN = "text/plain;charset=UTF-8"
 class FeedbackService(private val okHttpClient: OkHttpClient) {
 
     /**
+     * Fetches the server-driven "not interested" panel for one piece of content.
+     *
      * @param contentId The content token carried by the feed card.
      * @param contentType Lowercase as the feed spells it (`answer`); this endpoint wants
      *   it capitalised, unlike the `zrec-feedback` ones which take a numeric enum.
+     * @return A [Result] containing [NegativeFeedbackPanel] on success.
      */
     suspend fun getPanel(
         contentId: String,
@@ -48,7 +51,14 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
             .build()
     }
 
-    /** @param contentType The numeric enum the panel's `zhihu://` link carries. */
+    /**
+     * Fetches the topics this content can be filtered by, for the block page.
+     *
+     * @param contentToken The content token carried by the feed card.
+     * @param contentType The numeric enum the panel's `zhihu://` link carries.
+     * @param feedbackType The feedback type from the same link, e.g. `LESS_RECOMMEND`.
+     * @return A [Result] containing [ContentTagList] on success.
+     */
     suspend fun getContentTags(
         contentToken: String,
         contentType: String,
@@ -61,6 +71,12 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
             .build()
     }
 
+    /**
+     * Fetches the keywords already blocked, along with the length and count limits the
+     * block page has to enforce.
+     *
+     * @return A [Result] containing [FeedRootBlock] on success.
+     */
     suspend fun getBlockKeywords(
         contentToken: String,
         contentType: String,
@@ -73,7 +89,13 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
             .build()
     }
 
-    /** Every parameter already sits in the URL the backend handed out. */
+    /**
+     * Runs a request row of the panel.
+     *
+     * @param url The `backend_url` that came with the row; every parameter already sits in it.
+     * @param method The HTTP method that came with the same row.
+     * @return A [Result] indicating success or failure.
+     */
     suspend fun submit(url: String, method: String): Result<Unit> = okHttpClient.safeExecute {
         Request.Builder()
             .url(url)
@@ -81,6 +103,13 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
             .build()
     }
 
+    /**
+     * Submits the block page's selection.
+     *
+     * @param request The topics and keywords currently on screen. The body carries the whole
+     *   page state, so its keyword list replaces what the server holds rather than adding to it.
+     * @return A [Result] indicating success or failure.
+     */
     suspend fun submitBlockFeedback(request: AggFeedbackRequest): Result<Unit> =
         okHttpClient.safeExecute {
             val body = HttpClientProvider.jsonInstance.encodeToString(request)

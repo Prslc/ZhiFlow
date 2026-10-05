@@ -39,12 +39,18 @@ class FeedbackBlockListViewModel(
 
     private var route: FeedbackBlockList? = null
 
+    /**
+     * Fetches the topics and keywords the page shows.
+     *
+     * @param route The parameters the panel's `zhihu://feedback/block_list` link carried.
+     */
     fun load(route: FeedbackBlockList) {
         this.route = route
         uiState = BlockUiState(isLoading = true)
         fetch(route)
     }
 
+    /** Re-fetches after a failed [load]. */
     fun retry() {
         val route = route ?: return
         uiState = uiState.copy(isLoading = true, loadError = null)
@@ -70,6 +76,11 @@ class FeedbackBlockListViewModel(
         }
     }
 
+    /**
+     * Marks or unmarks a topic for blocking.
+     *
+     * @param id The topic's id as the backend sent it.
+     */
     fun toggleTag(id: Long) {
         uiState = uiState.copy(
             tags = uiState.tags.map { tag ->
@@ -78,10 +89,21 @@ class FeedbackBlockListViewModel(
         )
     }
 
+    /**
+     * Records what is being typed, clearing any complaint about the previous attempt.
+     *
+     * @param value The field's new contents.
+     */
     fun onInputChange(value: String) {
         uiState = uiState.copy(input = value, keywordIssue = null)
     }
 
+    /**
+     * Appends the typed keyword.
+     *
+     * Breaking one of the limits the backend sent leaves the list untouched and records a
+     * [KeywordIssue] for the field to show instead.
+     */
     fun addKeyword() {
         val keyword = uiState.input.trim()
         val issue = issueWith(keyword)
@@ -93,10 +115,20 @@ class FeedbackBlockListViewModel(
         uiState = uiState.copy(keywords = uiState.keywords + keyword, input = "", keywordIssue = null)
     }
 
+    /**
+     * Unblocks a keyword.
+     *
+     * @param keyword The keyword to drop; the rest of the list is kept.
+     */
     fun removeKeyword(keyword: String) {
         uiState = uiState.copy(keywords = uiState.keywords - keyword, keywordIssue = null)
     }
 
+    /**
+     * Sends the page's whole state: the marked topics and the complete keyword list.
+     *
+     * Sets [BlockUiState.isSubmitted] on success and [BlockUiState.actionError] on failure.
+     */
     fun submit() {
         val route = route ?: return
         if (uiState.isSubmitting) return
@@ -114,6 +146,7 @@ class FeedbackBlockListViewModel(
         }
     }
 
+    /** Clears [BlockUiState.actionError] once it has been shown. */
     fun consumeActionError() {
         uiState = uiState.copy(actionError = null)
     }
