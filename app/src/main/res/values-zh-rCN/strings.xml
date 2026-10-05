@@ -36,6 +36,9 @@
     <string name="feed_meta">%1$d 赞同 · %2$d 评论</string>
     <string name="feed_retry">点击重试</string>
 
+    <!-- feedback -->
+    <string name="feedback_empty">暂无可选操作</string>
+
     <!-- type -->
     <string name="type_answer">回答</string>
     <string name="type_article">文章</string>

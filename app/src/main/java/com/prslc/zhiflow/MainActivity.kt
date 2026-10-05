@@ -1,6 +1,7 @@
 package com.prslc.zhiflow
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +47,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -54,9 +57,12 @@ import com.prslc.zhiflow.ui.navigation.ProfileTab
 import com.prslc.zhiflow.ui.navigation.contentGraph
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
+import com.prslc.zhiflow.ui.page.feed.FeedViewModel
+import com.prslc.zhiflow.ui.page.feed.NegativeFeedbackSheet
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,6 +128,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
+    val context = LocalContext.current
+    val feedViewModel: FeedViewModel = koinViewModel()
 
     val tabs = listOf(HomeTab, DebugTab, ProfileTab)
     val pagerState = rememberPagerState(pageCount = { tabs.size })
@@ -150,6 +158,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             when (tabs[pageIndex]) {
                 HomeTab -> FeedScreen(
                     onItemClick = { id, type -> navigator.navigateToContent(id, type) },
+                    onItemLongClick = feedViewModel::openFeedback,
                 )
 
                 DebugTab -> DebugScreen(
@@ -203,6 +212,32 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         alwaysShowLabel = false,
                     )
                 }
+            }
+        }
+
+        // After the NavigationBar, so the sheet covers it.
+        NegativeFeedbackSheet(
+            state = feedViewModel.feedbackState,
+            onSubmit = feedViewModel::submitFeedback,
+            onDismissRequest = feedViewModel::dismissFeedback,
+            onRetry = feedViewModel::retryFeedback,
+        )
+
+        val feedbackToast = feedViewModel.feedbackToast
+        val feedbackError = feedViewModel.feedbackError
+        val feedbackErrorText = feedbackError?.uiMessage
+
+        LaunchedEffect(feedbackToast) {
+            if (feedbackToast != null) {
+                Toast.makeText(context, feedbackToast, Toast.LENGTH_SHORT).show()
+                feedViewModel.consumeFeedbackToast()
+            }
+        }
+
+        LaunchedEffect(feedbackError) {
+            if (feedbackErrorText != null) {
+                Toast.makeText(context, feedbackErrorText, Toast.LENGTH_SHORT).show()
+                feedViewModel.consumeFeedbackError()
             }
         }
     }

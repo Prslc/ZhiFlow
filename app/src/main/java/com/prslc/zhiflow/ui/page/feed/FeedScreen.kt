@@ -31,6 +31,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun FeedScreen(
     onItemClick: (String, String) -> Unit,
+    onItemLongClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel(),
 ) {
@@ -46,6 +47,7 @@ fun FeedScreen(
     }
 
     val stableOnItemClick = remember(onItemClick) { onItemClick }
+    val stableOnItemLongClick = remember(onItemLongClick) { onItemLongClick }
 
     val items = viewModel.uiState.items
     val isRefreshing = viewModel.uiState.isRefreshing
@@ -80,6 +82,7 @@ fun FeedScreen(
                     FeedItem(
                         display = item,
                         onClick = stableOnItemClick,
+                        onLongClick = stableOnItemLongClick,
                     )
 
                     if (index < items.lastIndex) {

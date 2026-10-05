@@ -9,6 +9,7 @@ import com.prslc.zhiflow.data.repository.CollectionRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
+import com.prslc.zhiflow.data.repository.FeedbackRepository
 import com.prslc.zhiflow.data.repository.MomentRepository
 import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.repository.ReadHistoryRepository
@@ -18,6 +19,7 @@ import com.prslc.zhiflow.data.remote.service.CollectionService
 import com.prslc.zhiflow.data.remote.service.CommentService
 import com.prslc.zhiflow.data.remote.service.ContentService
 import com.prslc.zhiflow.data.remote.service.FeedService
+import com.prslc.zhiflow.data.remote.service.FeedbackService
 import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
@@ -89,6 +91,10 @@ val appModule = module {
     // Action
     singleOf(::ActionService)
     singleOf(::ActionRepository)
+
+    // Negative feedback
+    singleOf(::FeedbackService)
+    singleOf(::FeedbackRepository)
 
     // ReadHistory
     singleOf(::ReadHistoryService)

@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.ui.page.feed
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,11 +27,15 @@ import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 @Composable
 fun FeedItem(
     display: FeedDto,
-    modifier: Modifier = Modifier,
     onClick: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (String, String) -> Unit,
 ) {
     val stableClick = remember(display.id, display.type, onClick) {
         { onClick(display.id, display.type) }
+    }
+    val stableLongClick = remember(display.id, display.type, onLongClick) {
+        { onLongClick(display.id, display.type) }
     }
 
     val typeConfig = contentTypeConfig(display.type)
@@ -40,7 +44,10 @@ fun FeedItem(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = stableClick)
+            .combinedClickable(
+                onClick = stableClick,
+                onLongClick = stableLongClick,
+            )
             .padding(20.dp)
     ) {
         if (hasTitle) {

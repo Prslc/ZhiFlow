@@ -35,6 +35,9 @@
     <string name="feed_meta">%1$d Agree · %2$d Comments</string>
     <string name="feed_retry">Click retry</string>
 
+    <!-- feedback -->
+    <string name="feedback_empty">No options available</string>
+
     <!-- type -->
     <string name="type_answer">Answer</string>
     <string name="type_article">Article</string>
