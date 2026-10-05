@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -105,6 +107,8 @@ fun CommentBottomSheet(
                             hasMore = uiState.hasMore,
                             onLoadMore = onLoadMoreRoot,
                             state = rootListState,
+                            error = uiState.error,
+                            onRetry = onLoadMoreRoot,
                         )
                     }
                 } else {
@@ -133,10 +137,23 @@ fun CommentBottomSheet(
                             onLoadMore = onLoadMoreChild,
                             state = childListState,
                             isChild = true,
+                            error = childUiState.error,
+                            onRetry = onLoadMoreChild,
                         )
                     }
                 }
             }
+
+            // The sheet carries its own host: the screens behind it cannot show one that would
+            // be visible, and a sibling of the sheet would be drawn underneath it, because
+            // CustomBottomSheet raises itself with zIndex(100f).
+            val snackbarHostState = rememberActionErrorHost(uiState.actionError) {
+                onEvent(CommentUiEvent.ActionErrorShown)
+            }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter),
+            )
         }
 
         if (uiState.isLightboxVisible) {

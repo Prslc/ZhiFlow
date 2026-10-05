@@ -22,6 +22,7 @@ sealed interface CommentUiEvent {
     data object BackToMain : CommentUiEvent
     data object CloseImage : CommentUiEvent
     data object LoadMoreReplies : CommentUiEvent
+    data object ActionErrorShown : CommentUiEvent
     data class LoadRootComments(val id: String, val contentType: ContentType) : CommentUiEvent
     data class NavigatedToUser(val userId: String) : CommentUiEvent
     data class ToggleLike(val commentId: String) : CommentUiEvent
@@ -40,6 +41,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val offset: String = "",
         val hasMore: Boolean = true,
         val error: ApiException? = null,
+        val actionError: ApiException? = null,
         val isLightboxVisible: Boolean = false,
         val selectedImageUrls: List<String> = emptyList(),
         val initialImageIndex: Int = 0,
@@ -53,6 +55,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val rootComment: CommentUiModel? = null,
         val offset: String = "",
         val hasMore: Boolean = true,
+        val error: ApiException? = null,
         val isDetailMode: Boolean = false,
     )
 
@@ -86,7 +89,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 error = null,
             )
         } else {
-            uiState = uiState.copy(isLoading = true)
+            uiState = uiState.copy(isLoading = true, error = null)
         }
 
         viewModelScope.launch {
@@ -130,7 +133,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             }
 
             if (childUiState.isLoading && !forceRefresh) return@launch
-            if (!forceRefresh) childUiState = childUiState.copy(isLoading = true)
+            if (!forceRefresh) childUiState = childUiState.copy(isLoading = true, error = null)
 
             val currentOffset = if (forceRefresh) "" else childUiState.offset
             repository.getChildComments(rootComment.id, currentOffset).onSuccess { response ->
@@ -145,8 +148,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         hasMore = hasNext,
                         isLoading = false,
                     )
-                }.onApiFailure {
-                    childUiState = childUiState.copy(isLoading = false)
+                }.onApiFailure { error ->
+                    childUiState = childUiState.copy(isLoading = false, error = error)
                 }
         }
     }
@@ -170,8 +173,9 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         pendingReactions.add(commentId)
 
         viewModelScope.launch {
-            repository.toggleLike(commentId, shouldBeActive).onApiFailure {
+            repository.toggleLike(commentId, shouldBeActive).onApiFailure { error ->
                 updateLocalStatus(commentId, isCurrentlyActive)
+                uiState = uiState.copy(actionError = error)
             }
             pendingReactions.remove(commentId)
         }
@@ -199,6 +203,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
     fun onNavigated() {
         uiState = uiState.copy(navigateToUser = null)
+    }
+
+    fun onActionErrorShown() {
+        uiState = uiState.copy(actionError = null)
     }
 
     /** Reset all comment state when the bottom sheet is dismissed. */

@@ -29,7 +29,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -75,6 +74,7 @@ import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -188,7 +188,7 @@ private fun QuestionContentList(
     }
 
     LaunchedEffect(shouldLoadMore, state.answers.size) {
-        if (shouldLoadMore && !state.isNextLoading && state.hasMore) {
+        if (shouldLoadMore && !state.isNextLoading && state.hasMore && state.loadMoreError == null) {
             onEvent(QuestionUiEvent.LoadMore(id))
         }
     }
@@ -285,12 +285,12 @@ private fun QuestionContentList(
             AnswerDivider()
         }
 
-        // loading
-        if (state.isNextLoading) {
-            item(key = "loading_indicator") {
-                LoadingFooter()
-            }
-        }
+        pagingFooter(
+            keyPrefix = "answers",
+            isLoading = state.isNextLoading,
+            error = state.loadMoreError,
+            onRetry = { onEvent(QuestionUiEvent.LoadMore(id)) },
+        )
     }
 }
 
@@ -369,22 +369,6 @@ private fun TopicRow(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun LoadingFooter(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(28.dp),
-            strokeWidth = 2.5.dp,
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-        )
     }
 }
 

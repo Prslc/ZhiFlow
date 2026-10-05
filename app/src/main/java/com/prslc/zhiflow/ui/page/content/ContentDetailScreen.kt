@@ -235,6 +235,7 @@ fun ContentDetailScreen(
 
                         is CommentUiEvent.LoadRootComments -> commentViewModel.loadComments(event.id, event.contentType)
                         is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
+                        is CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
                         is CommentUiEvent.OpenImage -> commentViewModel.openImage(event.url)
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)

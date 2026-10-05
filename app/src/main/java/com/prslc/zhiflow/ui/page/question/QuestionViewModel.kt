@@ -37,6 +37,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val elements: List<DetailElement> = emptyList(),
         val answers: List<AnswerDto> = emptyList(),
         val error: ApiException? = null,
+        val loadMoreError: ApiException? = null,
         val hasMore: Boolean = false,
     )
 
@@ -101,7 +102,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val url = nextPageUrl
         if (uiState.isNextLoading || url == null || !uiState.hasMore) return
 
-        uiState = uiState.copy(isNextLoading = true)
+        uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
 
         viewModelScope.launch {
             repository.getQuestionFeed(id, nextUrl = url)
@@ -115,8 +116,8 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         hasMore = !response.paging.isEnd,
                     )
                 }
-                .onApiFailure {
-                    uiState = uiState.copy(isNextLoading = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(isNextLoading = false, loadMoreError = error)
                 }
         }
     }
