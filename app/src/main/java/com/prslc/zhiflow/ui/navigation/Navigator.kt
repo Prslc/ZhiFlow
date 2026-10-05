@@ -76,4 +76,6 @@ class Navigator(
     fun navigateToReadHistory() = navController.navigate(ReadHistory)
 
     fun navigateToCollectionContents() = navController.navigate(CollectionContents)
+
+    fun navigateToHttpLog() = navController.navigate(HttpLog)
 }

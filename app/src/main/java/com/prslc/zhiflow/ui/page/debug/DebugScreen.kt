@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.AlertDialog
@@ -15,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,8 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.component.preference.BaseWidget
 import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
 import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -37,6 +42,7 @@ fun DebugScreen(
     modifier: Modifier = Modifier,
     viewModel: DebugViewModel = koinViewModel()
 ) {
+    val navigator = LocalNavigator.current
     var showDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
     var inputUrl by remember { mutableStateOf("") }
@@ -44,7 +50,8 @@ fun DebugScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp)
     ) {
         SegmentedColumn {
             item {
@@ -66,6 +73,27 @@ fun DebugScreen(
                     onClick = {
                         showAuthDialog = true
                     }
+                )
+            }
+            item {
+                BaseWidget(
+                    title = stringResource(R.string.debug_item_http_log_title),
+                    description = stringResource(R.string.debug_item_http_log_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = viewModel::toggleLogging
+                ) {
+                    Switch(
+                        checked = viewModel.loggingEnabled,
+                        onCheckedChange = null,
+                    )
+                }
+            }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.debug_item_http_log_view_title),
+                    description = stringResource(R.string.debug_item_http_log_view_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = { navigator.navigateToHttpLog() }
                 )
             }
         }

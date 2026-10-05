@@ -3,6 +3,7 @@ package com.prslc.zhiflow.di
 import android.content.Context
 import android.content.SharedPreferences
 import com.prslc.zhiflow.core.network.HttpClientProvider
+import com.prslc.zhiflow.core.network.HttpLogStore
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
@@ -28,6 +29,7 @@ import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
 import com.prslc.zhiflow.ui.page.pin.PinViewModel
 import com.prslc.zhiflow.ui.page.debug.DebugViewModel
+import com.prslc.zhiflow.ui.page.debug.HttpLogViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
@@ -47,6 +49,7 @@ val appModule = module {
         androidContext().getSharedPreferences("temp_auth_prefs", Context.MODE_PRIVATE)
     }
 
+    singleOf(::HttpLogStore)
     singleOf(::HttpClientProvider)
     single { get<HttpClientProvider>().okHttpClient }
 
@@ -104,4 +107,5 @@ val appModule = module {
 
     // debug
     viewModelOf(::DebugViewModel)
+    viewModelOf(::HttpLogViewModel)
 }

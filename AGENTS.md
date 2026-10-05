@@ -62,6 +62,9 @@ ZhiFlow/
 │           │   ├── network/
 │           │   │   ├── HeaderProvider.kt       # UA, x-app-za, x-zse-96 signing
 │           │   │   ├── HttpClientProvider.kt   # OkHttpClient with auth interceptor
+│           │   │   ├── HttpLogEntry.kt         # One captured request/response
+│           │   │   ├── HttpLogInterceptor.kt   # Records API traffic into HttpLogStore
+│           │   │   ├── HttpLogStore.kt         # Bounded in-memory log + capture toggle
 │           │   │   └── NetworkExtensions.kt    # safeApiCall<T>(), safeExecute(), Response.body<T>()
 │           │   └── utils/
 │           │       ├── FormatHelper.kt
@@ -99,7 +102,7 @@ ZhiFlow/
 │               │   └── Navigator.kt           # CompositionLocal-based Navigator (handleUrl, navigateTo*)
 │               ├── component/
 │               │   ├── common/                # AuthorRow, ContentMeta, ContentTypeLabel, EmptyView, ErrorView, LoadingView, PagingFooter, ThumbnailRow, LoadMoreErrorItem
-│               │   ├── preference/            # ArrowPreference, PreferenceGroup
+│               │   ├── preference/            # BaseWidget, NavigationItemWidget, SegmentedColumn, Shape.kt
 │               │   ├── richtext/              # RichText.kt (element dispatcher), ZRichText.kt (text rendering engine)
 │               │   │   └── component/         # CardComponent, CodeComponent, LatexComponent, LayoutComponent, ListComponent, MediaComponent
 │               │   └── widget/                # BottomBar, CollectionDialog, CustomBottomSheet, ImageLightbox
@@ -113,7 +116,7 @@ ZhiFlow/
 │                   ├── profile/               # ProfileScreen, ProfileViewModel, SettingsScreen
 │                   ├── history/               # ReadHistoryScreen, ReadHistoryViewModel
 │                   ├── collection/            # CollectionContentsScreen, CollectionContentsViewModel
-│                   └── debug/                 # DebugScreen, DebugViewModel (credentials config, URL parser test)
+│                   └── debug/                 # DebugScreen, DebugViewModel (credentials config, URL parser test), HttpLogScreen, HttpLogViewModel
 ```
 
 ## Architecture Patterns
@@ -150,6 +153,7 @@ API Server
 - Auth headers (Cookie, Authorization, x-udid, x-zse-96) are injected by an OkHttp interceptor reading from `SharedPreferences`.
 - **`HttpClientProvider`** holds the OkHttpClient singleton and a shared `Json` instance (lenient, coerce defaults, ignore unknown keys).
 - **`HeaderProvider`** is an `object` that initializes the dynamic User-Agent via `WebSettings` at app startup, and signs requests via JNI `Natives.zse96Sign()`.
+- **HTTP log** — `HttpLogInterceptor` records API traffic into `HttpLogStore` (bounded, in-memory, newest first) for the in-app log screen. It records only requests to the `BASE_URL` host (Coil shares the same client), never records headers, and never writes to logcat. Failures are always recorded; the Debug-page toggle (prefs key `http_log_enabled`) additionally captures successful requests.
 
 ### DI (Koin)
 
@@ -165,7 +169,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 
 - **Type-safe routes**: `@Serializable` data classes/objects in `Route.kt`. Uses `navigation-compose` 2.9 type-safe API (`composable<RouteType>`, `toRoute()`).
 - **`MainContainer`** is the start destination — it contains three tabs (Home, Debug, Profile) in a `HorizontalPager` with a `NavigationBar`.
-- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`, `CollectionContents`) are separate composable destinations pushed onto the NavHost stack. `PinDetail` uses a dedicated `PinDetailScreen` (thought page); `AnswerDetail`/`ArticleDetail` share `ContentDetailScreen`.
+- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`, `CollectionContents`, `HttpLog`) are separate composable destinations pushed onto the NavHost stack. `PinDetail` uses a dedicated `PinDetailScreen` (thought page); `AnswerDetail`/`ArticleDetail` share `ContentDetailScreen`.
 - **`Navigator`** — Wraps `NavHostController` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`.
 - **`LinkParser`** — Parses Zhihu URLs, resolves `link.zhihu.com` redirects, extracts content type + ID from path patterns, returns `LinkDestination.Internal(route)` or `LinkDestination.External(url)`.
 - Transition animations: horizontal slide (detail push = full right→left, pop = reversed with 1/5 parallax).
@@ -221,7 +225,7 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
-- **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically. Changing them must call `UserSession.invalidate()`, since the cached current user id would otherwise go stale.
+- **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically. Changing them must call `UserSession.invalidate()`, since the cached current user id would otherwise go stale. DebugScreen's clear action removes only these three keys, never the whole prefs file (it also holds `http_log_enabled`).
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 
 ## Git Conventions

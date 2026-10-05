@@ -144,6 +144,10 @@
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>
     <string name="debug_item_config_credentials_title">Configure Credentials</string>
     <string name="debug_item_config_credentials_subtitle">Set custom request headers at runtime</string>
+    <string name="debug_item_http_log_title">HTTP Log</string>
+    <string name="debug_item_http_log_subtitle">Capture API requests and responses in app</string>
+    <string name="debug_item_http_log_view_title">View HTTP Log</string>
+    <string name="debug_item_http_log_view_subtitle">Inspect captured requests, status and bodies</string>
     <string name="debug_dialog_credentials_title">Configure Credentials</string>
     <string name="debug_label_authorization">Authorization</string>
     <string name="debug_label_cookie">Cookie</string>
@@ -156,4 +160,14 @@
     <string name="debug_placeholder_url">https://www.zhihu.com/question/…</string>
     <string name="debug_action_go">Go</string>
     <string name="debug_action_cancel">Cancel</string>
+    <string name="http_log_title">HTTP Log</string>
+    <string name="http_log_empty">No requests captured yet</string>
+    <string name="http_log_disabled">Capture is off — only failed requests are recorded</string>
+    <string name="http_log_action_clear">Clear log</string>
+    <string name="http_log_action_copy">Copy</string>
+    <string name="http_log_section_request">Request body</string>
+    <string name="http_log_section_response">Response body</string>
+    <string name="http_log_duration">%1$d ms</string>
+    <string name="http_log_status_error">ERR</string>
+    <string name="http_log_truncated">(truncated)</string>
 </resources>

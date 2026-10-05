@@ -7,7 +7,8 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 class HttpClientProvider(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    httpLogStore: HttpLogStore,
 ) {
     val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -32,6 +33,7 @@ class HttpClientProvider(
                 .build()
             chain.proceed(request)
         }
+        .addInterceptor(HttpLogInterceptor(httpLogStore))
         .build()
 
     companion object {

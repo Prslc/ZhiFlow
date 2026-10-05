@@ -49,4 +49,8 @@ object ReadHistory
 
 @Immutable
 @Serializable
+object HttpLog
+
+@Immutable
+@Serializable
 object CollectionContents

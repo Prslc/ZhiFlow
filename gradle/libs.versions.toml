@@ -48,7 +48,6 @@ telephoto-zoomable-image-coil = { group = "me.saket.telephoto", name = "zoomable
 
 # okhttp
 okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
-okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 # lint
 compose-lint = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "compose-lint"}

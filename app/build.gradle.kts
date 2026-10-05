@@ -95,7 +95,6 @@ dependencies {
 
     // okhttp
     implementation(libs.okhttp.core)
-    implementation(libs.okhttp.logging)
 
     // Koin
     implementation(platform(libs.koin.bom))
