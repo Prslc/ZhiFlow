@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.feed
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -34,6 +35,7 @@ import com.prslc.zhiflow.data.dto.FeedbackAction
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
+import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 /**
@@ -61,9 +63,11 @@ fun NegativeFeedbackSheet(
                 ?.takeIf { it.toUri().host?.endsWith("zhihu.com") == true }
         } else null
 
+        val blockRoute = uri.toBlockListRoute()
+
         when {
             reportTarget != null -> navigator.handleUrl(reportTarget)
-            // Native-only pages such as zhihu://feedback/block_list.
+            blockRoute != null -> navigator.navigateToFeedbackBlockList(blockRoute)
             uri.scheme == "zhihu" -> showToast(context, undeveloped)
             else -> showToast(context, unopenable)
         }
@@ -173,4 +177,15 @@ private fun FeedbackRow(
 
 private fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+
+/** Reads the block page's own parameters out of its `zhihu://feedback/block_list` link. */
+private fun Uri.toBlockListRoute(): FeedbackBlockList? {
+    if (host != "feedback" || path != "/block_list") return null
+
+    return FeedbackBlockList(
+        contentToken = getQueryParameter("content_token").orEmpty(),
+        contentType = getQueryParameter("content_type").orEmpty(),
+        feedbackType = getQueryParameter("feedback_type").orEmpty(),
+    )
 }

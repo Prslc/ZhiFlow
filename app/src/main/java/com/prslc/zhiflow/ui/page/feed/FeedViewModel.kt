@@ -154,12 +154,15 @@ class FeedViewModel(
             feedbackRepository.submit(action.url, action.method)
                 .onSuccess {
                     feedbackToast = action.toastText
-                    uiState = uiState.copy(
-                        items = uiState.items.filterNot { it.id == target.id },
-                    )
+                    removeContent(target.id)
                 }
                 .onApiFailure { error -> feedbackError = error }
         }
+    }
+
+    /** Drops a card whose content the backend has just been told to stop showing. */
+    fun removeContent(id: String) {
+        uiState = uiState.copy(items = uiState.items.filterNot { it.id == id })
     }
 
     fun consumeFeedbackToast() {

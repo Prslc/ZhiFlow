@@ -54,3 +54,15 @@ object HttpLog
 @Immutable
 @Serializable
 object CollectionContents
+
+/**
+ * The "not interested" topics page. Its parameters are the ones the panel's
+ * `zhihu://feedback/block_list` link carries, including the numeric content type.
+ */
+@Immutable
+@Serializable
+data class FeedbackBlockList(
+    val contentToken: String,
+    val contentType: String,
+    val feedbackType: String,
+)

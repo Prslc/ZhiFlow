@@ -77,5 +77,7 @@ class Navigator(
 
     fun navigateToCollectionContents() = navController.navigate(CollectionContents)
 
+    fun navigateToFeedbackBlockList(route: FeedbackBlockList) = navController.navigate(route)
+
     fun navigateToHttpLog() = navController.navigate(HttpLog)
 }

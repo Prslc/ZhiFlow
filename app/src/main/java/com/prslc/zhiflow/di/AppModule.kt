@@ -33,6 +33,7 @@ import com.prslc.zhiflow.ui.page.pin.PinViewModel
 import com.prslc.zhiflow.ui.page.debug.DebugViewModel
 import com.prslc.zhiflow.ui.page.debug.HttpLogViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
+import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
@@ -95,6 +96,7 @@ val appModule = module {
     // Negative feedback
     singleOf(::FeedbackService)
     singleOf(::FeedbackRepository)
+    viewModelOf(::FeedbackBlockListViewModel)
 
     // ReadHistory
     singleOf(::ReadHistoryService)

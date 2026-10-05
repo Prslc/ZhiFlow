@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.navigation
 
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -7,6 +8,8 @@ import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
+import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListScreen
+import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
@@ -14,6 +17,7 @@ import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
 import com.prslc.zhiflow.ui.page.debug.HttpLogScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
+import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.contentGraph(navController: NavHostController) {
     composable<MainContainer> {
@@ -77,6 +81,25 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<HttpLog> {
         HttpLogScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<FeedbackBlockList> { backStackEntry ->
+        val route: FeedbackBlockList = backStackEntry.toRoute()
+        // The card list belongs to MainScreen's ViewModel; reach that instance rather
+        // than letting this destination resolve one of its own.
+        val mainEntry = remember(backStackEntry) {
+            navController.getBackStackEntry<MainContainer>()
+        }
+        val feedViewModel: FeedViewModel = koinViewModel(viewModelStoreOwner = mainEntry)
+
+        FeedbackBlockListScreen(
+            route = route,
+            onBlocked = { contentId ->
+                feedViewModel.removeContent(contentId)
+                navController.popBackStack()
+            },
             onBack = { navController.popBackStack() },
         )
     }
