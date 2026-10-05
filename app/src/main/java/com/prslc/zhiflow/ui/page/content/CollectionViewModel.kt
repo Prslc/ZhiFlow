@@ -7,11 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.user.ZhihuCollection
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 
 class CollectionViewModel(private val repository: CollectionRepository) : ViewModel() {
 
@@ -56,8 +56,8 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
                         isLoading = false,
                     )
                 }
-                .onFailure {
-                    uiState = uiState.copy(isLoading = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(isLoading = false, error = error)
                 }
         }
     }
@@ -91,11 +91,9 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
                     onComplete(currentIds.isNotEmpty())
                     loadCollections(contentId, contentType)
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(error = e as? ApiException)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(isLoading = false, error = error)
                 }
-            uiState = uiState.copy(isLoading = false)
         }
     }
 }

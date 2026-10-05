@@ -27,6 +27,6 @@ class ActionRepository(private val service: ActionService) {
     /**
      * Syncs the reading history of a content to the server.
      */
-    suspend fun syncHistory(request: ReadHistoryRequest): Result<Boolean> =
+    suspend fun syncHistory(request: ReadHistoryRequest): Result<Unit> =
         service.addReadHistory(request)
 }

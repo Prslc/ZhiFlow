@@ -8,11 +8,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 
 class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
 
@@ -41,9 +41,8 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
                 .onSuccess { user ->
                     uiState = uiState.copy(user = user, isLoading = false)
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(error = e as? ApiException, isLoading = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(error = error, isLoading = false)
                 }
         }
     }
@@ -71,10 +70,9 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
         uiState = uiState.copy(user = user.copy(isFollowing = target))
         followJob = viewModelScope.launch {
             val result = if (target) repository.followUser(user.id) else repository.unfollowUser(user.id)
-            result.onFailure { e ->
-                if (e is CancellationException) throw e
+            result.onApiFailure { error ->
                 uiState = uiState.copy(user = uiState.user?.copy(isFollowing = !target))
-                actionError = e as? ApiException
+                actionError = error
             }
         }
     }

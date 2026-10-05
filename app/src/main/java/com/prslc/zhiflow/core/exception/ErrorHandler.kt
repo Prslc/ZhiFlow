@@ -2,6 +2,7 @@ package com.prslc.zhiflow.core.exception
 
 import okhttp3.Response
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 
 /*
  * Converters from [Throwable] and OkHttp [Response] to domain-specific [ApiException].
@@ -12,8 +13,13 @@ import java.io.IOException
 
 /**
  * Handles network-level exceptions (e.g., timeouts, no internet).
+ *
+ * [CancellationException] is re-thrown rather than mapped: cancellation is control flow,
+ * not a failure, and mapping it would surface an error state for a request that was merely
+ * superseded. This is the single place that decides so.
  */
 internal fun Throwable.toApiException(): ApiException {
+    if (this is CancellationException) throw this
     return when (this) {
         is HttpStatusException -> response.toApiException() ?: ApiException.UnknownException()
         is IOException -> ApiException.NetworkException()

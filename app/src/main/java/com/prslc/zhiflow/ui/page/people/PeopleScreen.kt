@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +42,7 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
+import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
@@ -84,15 +84,10 @@ fun PeopleScreen(
         viewModel.loadPeople(urlToken)
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val actionError = viewModel.actionError
-    val actionErrorMessage = if (actionError != null) actionError.uiMessage else null
-    LaunchedEffect(actionError) {
-        if (actionErrorMessage != null) {
-            snackbarHostState.showSnackbar(actionErrorMessage)
-            viewModel.consumeActionError()
-        }
-    }
+    val snackbarHostState = rememberActionErrorHost(
+        viewModel.actionError,
+        viewModel::consumeActionError,
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),

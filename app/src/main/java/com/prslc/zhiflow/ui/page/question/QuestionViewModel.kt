@@ -8,6 +8,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.dto.AnswerDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.content.QuestionDetail
@@ -19,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.cancellation.CancellationException
 
 @Immutable
 sealed interface QuestionUiEvent {
@@ -80,17 +81,17 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         hasMore = feedResponse?.paging?.isEnd == false,
                     )
                 } else {
-                    val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull()) as? ApiException
+                    val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull())
+                        ?.toApiException() ?: ApiException.UnknownException()
                     uiState = uiState.copy(
                         isLoading = false,
                         error = error,
                     )
                 }
             } catch (e: Exception) {
-                if (e is CancellationException) throw e
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = e as? ApiException,
+                    error = e.toApiException(),
                 )
             }
         }
@@ -114,8 +115,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         hasMore = !response.paging.isEnd,
                     )
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
+                .onApiFailure {
                     uiState = uiState.copy(isNextLoading = false)
                 }
         }

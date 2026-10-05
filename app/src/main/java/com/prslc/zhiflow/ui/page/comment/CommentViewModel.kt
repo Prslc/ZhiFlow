@@ -9,12 +9,12 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.CommentDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.repository.CommentRepository
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 
 @Immutable
 sealed interface CommentUiEvent {
@@ -105,9 +105,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         isLoading = false,
                         error = null,
                     )
-                }.onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(isLoading = false, error = e as? ApiException)
+                }.onApiFailure { error ->
+                    uiState = uiState.copy(isLoading = false, error = error)
                 }
         }
     }
@@ -146,8 +145,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         hasMore = hasNext,
                         isLoading = false,
                     )
-                }.onFailure { e ->
-                    if (e is CancellationException) throw e
+                }.onApiFailure {
                     childUiState = childUiState.copy(isLoading = false)
                 }
         }
@@ -172,8 +170,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         pendingReactions.add(commentId)
 
         viewModelScope.launch {
-            repository.toggleLike(commentId, shouldBeActive).onFailure { e ->
-                if (e is CancellationException) throw e
+            repository.toggleLike(commentId, shouldBeActive).onApiFailure {
                 updateLocalStatus(commentId, isCurrentlyActive)
             }
             pendingReactions.remove(commentId)

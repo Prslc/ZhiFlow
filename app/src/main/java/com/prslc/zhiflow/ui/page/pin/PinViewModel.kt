@@ -10,6 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.ignoreOutcome
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuPin
@@ -24,7 +26,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.cancellation.CancellationException
 
 class PinViewModel(
     private val repository: ContentRepository,
@@ -102,9 +103,8 @@ class PinViewModel(
                     }
                     parseRichText()
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    loadingState = loadingState.copy(isLoading = false, error = e as? ApiException)
+                .onApiFailure { error ->
+                    loadingState = loadingState.copy(isLoading = false, error = error)
                 }
         }
     }
@@ -155,10 +155,9 @@ class PinViewModel(
                 type = ContentType.PIN,
                 action = targetAction,
                 isRevoke = isActive
-            ).onFailure { e ->
-                if (e is CancellationException) throw e
+            ).onApiFailure { error ->
                 interactionState = was
-                actionError = e as? ApiException
+                actionError = error
             }
         }
     }
@@ -200,7 +199,7 @@ class PinViewModel(
             withContext(NonCancellable) {
                 actionRepository.syncHistory(
                     ReadHistoryRequest(contentToken, ContentType.PIN.type, readProgress)
-                )
+                ).ignoreOutcome()
             }
         }
     }
@@ -278,10 +277,9 @@ class PinViewModel(
         followJob = viewModelScope.launch {
             val result = if (following) userRepository.unfollowUser(author.id)
             else userRepository.followUser(author.id)
-            result.onFailure { e ->
-                if (e is CancellationException) throw e
+            result.onApiFailure { error ->
                 rollback(following)
-                actionError = e as? ApiException
+                actionError = error
             }
         }
     }

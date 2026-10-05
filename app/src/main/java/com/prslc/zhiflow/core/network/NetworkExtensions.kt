@@ -62,31 +62,15 @@ internal suspend inline fun <reified T> OkHttpClient.safeApiCall(
 }
 
 /**
- * Executes an OkHttp request on [Dispatchers.IO] and returns whether the
- * response was successful. The response body is consumed and closed on IO
- * to avoid [android.os.NetworkOnMainThreadException] during cleanup.
- */
-internal suspend fun OkHttpClient.safeExecute(
-    requestBuilder: () -> Request
-): Result<Boolean> = withContext(Dispatchers.IO) {
-    try {
-        newCall(requestBuilder()).execute().use { response ->
-            Result.success(response.isSuccessful)
-        }
-    } catch (e: Exception) {
-        Result.failure(e.toApiException())
-    }
-}
-
-/**
- * Executes an OkHttp request on [Dispatchers.IO] and reports a non-2xx status as a
- * failure carrying that status — unlike [safeExecute], which collapses the same case
- * into `success(false)` and so throws the reason away.
+ * Executes an OkHttp request on [Dispatchers.IO] when only the outcome matters and the
+ * response body is not parsed. Together with [safeApiCall] this helper never reports a
+ * rejected request as a success: a non-2xx status is a failure carrying the mapped
+ * [ApiException], status code included.
  *
  * The response body is consumed and closed on IO to avoid
  * [android.os.NetworkOnMainThreadException] during cleanup.
  */
-internal suspend fun OkHttpClient.safeExecuteOrFail(
+internal suspend fun OkHttpClient.safeExecute(
     requestBuilder: () -> Request
 ): Result<Unit> = withContext(Dispatchers.IO) {
     try {

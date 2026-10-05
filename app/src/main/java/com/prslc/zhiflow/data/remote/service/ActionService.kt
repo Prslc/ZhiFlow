@@ -3,7 +3,6 @@ package com.prslc.zhiflow.data.remote.service
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeExecute
-import com.prslc.zhiflow.core.network.safeExecuteOrFail
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import okhttp3.MediaType.Companion.toMediaType
@@ -22,9 +21,9 @@ class ActionService(private val okHttpClient: OkHttpClient) {
      * Adds a content item to the user's read history.
      *
      * @param request The history data to be sent.
-     * @return A [Result] containing true if the server responded with a 2xx status code.
+     * @return A [Result] indicating success or failure.
      */
-    suspend fun addReadHistory(request: ReadHistoryRequest): Result<Boolean> =
+    suspend fun addReadHistory(request: ReadHistoryRequest): Result<Unit> =
         okHttpClient.safeExecute {
             val jsonBody = HttpClientProvider.jsonInstance.encodeToString(request)
             val body = jsonBody.toRequestBody(jsonMediaType)
@@ -49,7 +48,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
         contentType: ContentType,
         action: String,
         method: String = "POST"
-    ): Result<Unit> = okHttpClient.safeExecuteOrFail {
+    ): Result<Unit> = okHttpClient.safeExecute {
         val emptyBody = "".toRequestBody(null)
 
         Request.Builder()

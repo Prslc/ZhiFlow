@@ -9,13 +9,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.moment.ComponentCard
 import com.prslc.zhiflow.data.model.moment.MomentsFeedItem
 import com.prslc.zhiflow.data.model.moment.MomentsPage
 import com.prslc.zhiflow.data.repository.MomentRepository
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 
 open class MomentViewModel<T>(
     val tabKeyPrefix: String,
@@ -65,9 +65,8 @@ open class MomentViewModel<T>(
                     }
                     uiState = uiState.copy(moments = cleanMoments, isLoading = false)
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(error = e as? ApiException, isLoading = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(error = error, isLoading = false)
                 }
         }
     }
@@ -93,10 +92,9 @@ open class MomentViewModel<T>(
                         error = null,
                     )
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
+                .onApiFailure { error ->
                     uiState = uiState.copy(
-                        error = e as? ApiException ?: ApiException.UnknownException(),
+                        error = error,
                         isNextLoading = false,
                     )
                 }

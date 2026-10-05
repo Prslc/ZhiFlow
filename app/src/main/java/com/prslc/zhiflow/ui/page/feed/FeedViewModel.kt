@@ -8,10 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.repository.FeedRepository
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 
 class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
 
@@ -56,9 +56,8 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
                         loadMoreError = null,
                     )
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(globalError = e as? ApiException, isRefreshing = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(globalError = error, isRefreshing = false)
                 }
         }
     }
@@ -83,9 +82,8 @@ class FeedViewModel(private val repository: FeedRepository) : ViewModel() {
                         isNextLoading = false,
                     )
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(loadMoreError = e as? ApiException, isNextLoading = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(loadMoreError = error, isNextLoading = false)
                 }
         }
     }

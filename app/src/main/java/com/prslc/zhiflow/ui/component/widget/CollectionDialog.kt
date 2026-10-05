@@ -35,6 +35,7 @@ import androidx.compose.ui.window.Dialog
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -83,6 +84,13 @@ fun CollectionDialog(
                             LoadingIndicator()
                         }
 
+                        state.collections.isEmpty() && state.error != null -> {
+                            LoadMoreErrorItem(
+                                message = state.error.uiMessage,
+                                onRetry = { viewModel.loadCollections(id, contentType) },
+                            )
+                        }
+
                         state.collections.isEmpty() -> {
                             Text(
                                 text = stringResource(R.string.collection_item_empty),
@@ -115,7 +123,7 @@ fun CollectionDialog(
                     }
                 }
 
-                if (state.error != null) {
+                if (state.error != null && state.collections.isNotEmpty()) {
                     Text(
                         text = state.error.uiMessage,
                         style = MaterialTheme.typography.bodySmall,

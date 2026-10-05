@@ -17,7 +17,6 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -41,6 +40,7 @@ import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
@@ -72,15 +72,10 @@ fun PinDetailScreen(
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val actionError = viewModel.actionError
-    val actionErrorMessage = if (actionError != null) actionError.uiMessage else null
-    LaunchedEffect(actionError) {
-        if (actionErrorMessage != null) {
-            snackbarHostState.showSnackbar(actionErrorMessage)
-            viewModel.consumeActionError()
-        }
-    }
+    val snackbarHostState = rememberActionErrorHost(
+        viewModel.actionError,
+        viewModel::consumeActionError,
+    )
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 

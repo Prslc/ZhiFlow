@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.remote.service
 
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
-import com.prslc.zhiflow.core.network.safeExecuteOrFail
+import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,7 +34,7 @@ class UserService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] indicating success or failure.
      */
     suspend fun followUser(userId: String): Result<Unit> =
-        okHttpClient.safeExecuteOrFail {
+        okHttpClient.safeExecute {
             Request.Builder()
                 .apiUrl("/people/$userId/followers")
                 .post(ByteArray(0).toRequestBody())
@@ -52,7 +52,7 @@ class UserService(private val okHttpClient: OkHttpClient) {
         userId: String,
         currentUserId: String,
     ): Result<Unit> =
-        okHttpClient.safeExecuteOrFail {
+        okHttpClient.safeExecute {
             Request.Builder()
                 .apiUrl("/people/$userId/followers/$currentUserId")
                 .delete(ByteArray(0).toRequestBody())

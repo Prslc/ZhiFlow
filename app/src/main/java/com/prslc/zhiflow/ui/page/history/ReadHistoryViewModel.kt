@@ -8,10 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.ReadHistoryDto
 import com.prslc.zhiflow.data.repository.ReadHistoryRepository
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 
 sealed interface HistoryListItem {
     /** Question-level header displayed before its grouped answer items. */
@@ -64,9 +64,8 @@ class ReadHistoryViewModel(
                         loadMoreError = null,
                     )
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(globalError = e as? ApiException, isRefreshing = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(globalError = error, isRefreshing = false)
                 }
         }
     }
@@ -85,9 +84,8 @@ class ReadHistoryViewModel(
                         isEnd = result.isEnd,
                     )
                 }
-                .onFailure { e ->
-                    if (e is CancellationException) throw e
-                    uiState = uiState.copy(loadMoreError = e as? ApiException, isNextLoading = false)
+                .onApiFailure { error ->
+                    uiState = uiState.copy(loadMoreError = error, isNextLoading = false)
                 }
         }
     }

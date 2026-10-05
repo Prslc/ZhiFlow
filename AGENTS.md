@@ -57,7 +57,7 @@ ZhiFlow/
 │           ├── Application.kt                  # App class: Koin init + Coil ImageLoader factory
 │           ├── MainActivity.kt                 # Single Activity: NavHost + bottom-bar HorizontalPager
 │           ├── core/
-│           │   ├── exception/                  # ApiException sealed class + ErrorHandler
+│           │   ├── exception/                  # ApiException, ErrorHandler, Result extensions (onApiFailure / ignoreOutcome)
 │           │   ├── native/Natives.kt           # JNI bridge: zse96Sign()
 │           │   ├── network/
 │           │   │   ├── HeaderProvider.kt       # UA, x-app-za, x-zse-96 signing
@@ -101,7 +101,7 @@ ZhiFlow/
 │               │   ├── NavGraph.kt            # NavGraphBuilder.contentGraph() — all composable destinations
 │               │   └── Navigator.kt           # CompositionLocal-based Navigator (handleUrl, navigateTo*)
 │               ├── component/
-│               │   ├── common/                # AuthorRow, ContentMeta, ContentTypeLabel, EmptyView, ErrorView, LoadingView, PagingFooter, ThumbnailRow, LoadMoreErrorItem
+│               │   ├── common/                # ActionErrorHost, AuthorRow, ContentMeta, ContentTypeLabel, EmptyView, ErrorView, LoadingView, PagingFooter, ThumbnailRow, LoadMoreErrorItem
 │               │   ├── preference/            # BaseWidget, NavigationItemWidget, SegmentedColumn, Shape.kt
 │               │   ├── richtext/              # RichText.kt (element dispatcher), ZRichText.kt (text rendering engine)
 │               │   │   └── component/         # CardComponent, CodeComponent, LatexComponent, LayoutComponent, ListComponent, MediaComponent
@@ -148,8 +148,7 @@ API Server
 ### Network Layer
 
 - **`safeApiCall<T>(requestBuilder)`** — Extension on `OkHttpClient`. Executes on `Dispatchers.IO`, parses JSON via `kotlinx.serialization`, catches all exceptions and maps to `ApiException` sealed types. Returns `Result<T>`.
-- **`safeExecute(requestBuilder)`** — Same but returns `Result<Boolean>` (success/failure only, no body parsing). Prefer `safeExecuteOrFail` when the caller cares *why* a call failed: a non-2xx here is reported as `success(false)`, which callers routinely mistake for success.
-- **`safeExecuteOrFail(requestBuilder)`** — Same as `safeExecute`, but a non-2xx becomes a `Result.failure` carrying the mapped `ApiException` (including the status code). Use this for any action whose failure the UI must react to.
+- **`safeExecute(requestBuilder)`** — Same, for writes whose response body is not needed; returns `Result<Unit>`. **Neither helper ever reports a non-2xx as a success** — both fail with an `ApiException` carrying the status code. Pick between them only by whether you need the parsed body.
 - **`Response.body<T>()`** — `inline reified` extension that `use`-closes the response and decodes JSON. Throws `HttpStatusException` on non-2xx.
 - Auth headers (Cookie, Authorization, x-udid, x-zse-96) are injected by an OkHttp interceptor reading from `SharedPreferences`.
 - **`HttpClientProvider`** holds the OkHttpClient singleton and a shared `Json` instance (lenient, coerce defaults, ignore unknown keys).
@@ -217,12 +216,25 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
 - Each carries an Android string resource ID; `.uiMessage` is a `@Composable` extension property
 - `ErrorView` and `LoadMoreErrorItem` composables in `component/common/` render error states with retry buttons
 
+**Presenting a failed user action** — the shape follows the surface, not taste:
+
+| Surface | Use | Why |
+|---|---|---|
+| Screen with a `Scaffold` | `rememberActionErrorHost(viewModel.actionError, viewModel::consumeActionError)`, then `Scaffold(snackbarHost = { SnackbarHost(state) })` | the host can carry it |
+| `Dialog()` (`CollectionDialog`) | render `error.uiMessage` inside the dialog | it draws in its own window; the host's snackbar would be hidden behind it |
+| App-level non-Composable (`Navigator`) | Toast | no `SnackbarHostState` is reachable, and it outlives the current screen |
+| Reusable widget with no host parameter (`ImageLightbox`) | Toast inside the widget | cannot require every call site to supply a host |
+| Surface with no `Scaffold` (comment bottom sheet) | `ErrorView` / `LoadMoreErrorItem` inside the surface | there is no host to use |
+
+Do not pass a snackbar host down through a `CompositionLocal`: two of these rows have no host to reach at all.
+
 ## Key Conventions
 
 - **All properties in API models have defaults** (empty strings, 0, null, empty lists) — never assume mandatory fields from the server.
 - **Mappers are `internal`** — not exposed outside the `data.mapper` package.
 - **Services use `Result<T>`** — never throw; all failures are caught and wrapped.
-- **ViewModels use `viewModelScope.launch`** — always re-throw `CancellationException` in `.onFailure` blocks.
+- **Handling a failed `Result`** — use `onApiFailure { error -> … }` (`core/exception/ResultExtensions.kt`), never `Result.onFailure` directly. It is the only place cancellation is filtered out of the failure path, and its callback always receives a non-null `ApiException`, so a failure cannot become a silent no-op. Never `runCatching` inside a coroutine — it swallows `CancellationException`.
+- **Discarding a `Result`** — only via `ignoreOutcome()`, so that "we do not care about this one" stays greppable instead of looking like a forgotten check.
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
