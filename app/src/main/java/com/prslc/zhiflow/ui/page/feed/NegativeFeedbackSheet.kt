@@ -38,10 +38,7 @@ import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
-/**
- * Rows are whatever the backend sent, down to the wording and icons, so nothing here
- * keys off a specific module.
- */
+/** Renders whatever rows the backend sent, down to their wording and icons. */
 @Composable
 fun NegativeFeedbackSheet(
     state: FeedViewModel.FeedbackUiState,
@@ -52,24 +49,15 @@ fun NegativeFeedbackSheet(
 ) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
-    val undeveloped = stringResource(R.string.general_undeveloped)
     val unopenable = stringResource(R.string.error_unable_to_open_link)
 
     val onOpenUrl: (String) -> Unit = { url ->
-        val uri = url.toUri()
-        // zhihu://feed/report carries the real target in zh_url, as a www.zhihu.com link.
-        val reportTarget = if (uri.host == "feed" && uri.path == "/report") {
-            uri.getQueryParameter("zh_url")
-                ?.takeIf { it.toUri().host?.endsWith("zhihu.com") == true }
-        } else null
+        val blockRoute = url.toUri().toBlockListRoute()
 
-        val blockRoute = uri.toBlockListRoute()
-
-        when {
-            reportTarget != null -> navigator.handleUrl(reportTarget)
-            blockRoute != null -> navigator.navigateToFeedbackBlockList(blockRoute)
-            uri.scheme == "zhihu" -> showToast(context, undeveloped)
-            else -> showToast(context, unopenable)
+        if (blockRoute != null) {
+            navigator.navigateToFeedbackBlockList(blockRoute)
+        } else {
+            showToast(context, unopenable)
         }
     }
 

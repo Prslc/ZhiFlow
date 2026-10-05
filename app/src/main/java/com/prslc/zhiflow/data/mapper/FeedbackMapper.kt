@@ -8,12 +8,19 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 private val apiHost = BASE_URL.toHttpUrl().host
 
+/**
+ * Rows the client deliberately refuses to act on, so they are dropped instead of being
+ * rendered as buttons that lead nowhere. Report is here because its page serves a login
+ * wall to a browser and rejects an in-app WebView.
+ */
+private val ignoredModules = setOf("ignore_report")
+
 internal fun NegativeFeedbackItem.toDto(): FeedbackAction? {
     val button = rawButton
     val label = button.text.panelText
-    if (label.isBlank()) return null
-
     val moduleId = button.action.module?.moduleId.orEmpty()
+    if (label.isBlank() || moduleId in ignoredModules) return null
+
     val iconUrl = button.icon?.imageUrl
     val nightIconUrl = button.icon?.nightImageUrl
     val hasChevron = button.rightIcon != null
@@ -21,7 +28,6 @@ internal fun NegativeFeedbackItem.toDto(): FeedbackAction? {
 
     button.action.backendUrl?.takeIf { it.isApiUrl() }?.let { url ->
         return FeedbackAction.Request(
-            moduleId = moduleId,
             label = label,
             iconUrl = iconUrl,
             nightIconUrl = nightIconUrl,
@@ -35,7 +41,6 @@ internal fun NegativeFeedbackItem.toDto(): FeedbackAction? {
 
     button.action.intentUrl?.let { url ->
         return FeedbackAction.OpenUrl(
-            moduleId = moduleId,
             label = label,
             iconUrl = iconUrl,
             nightIconUrl = nightIconUrl,

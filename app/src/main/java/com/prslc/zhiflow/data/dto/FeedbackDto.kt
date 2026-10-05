@@ -2,13 +2,9 @@ package com.prslc.zhiflow.data.dto
 
 import androidx.compose.runtime.Immutable
 
-/**
- * One selectable row of the negative feedback panel. Which variant a row maps to is
- * decided by what the backend sent, not by its `moduleId`.
- */
+/** One selectable row of the negative feedback panel. */
 @Immutable
 sealed interface FeedbackAction {
-    val moduleId: String
     val label: String
     val iconUrl: String?
     val nightIconUrl: String?
@@ -17,7 +13,6 @@ sealed interface FeedbackAction {
 
     @Immutable
     data class Request(
-        override val moduleId: String,
         override val label: String,
         override val iconUrl: String?,
         override val nightIconUrl: String?,
@@ -31,7 +26,6 @@ sealed interface FeedbackAction {
 
     @Immutable
     data class OpenUrl(
-        override val moduleId: String,
         override val label: String,
         override val iconUrl: String?,
         override val nightIconUrl: String?,
