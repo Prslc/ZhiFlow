@@ -2,8 +2,11 @@ package com.prslc.zhiflow.ui.component.widget
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.EaseInCubic
-import androidx.compose.animation.core.EaseOutQuart
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -33,6 +36,13 @@ import androidx.compose.ui.zIndex
 
 private const val MAX_HEIGHT_FRACTION = 0.95f
 
+// The sheet sets the pace and the scrim follows it. The backdrop lands ahead of the sheet so the
+// feed is already dimmed by the time the sheet settles; the exit is shorter than the entry, as a
+// dismissal should be.
+private const val SCRIM_FADE_IN_MS = 200
+private const val ENTER_DURATION_MS = 320
+private const val EXIT_DURATION_MS = 220
+
 @Composable
 fun CustomBottomSheet(
     visible: Boolean,
@@ -58,10 +68,13 @@ fun CustomBottomSheet(
         }
     }
 
+    // The container animates nothing itself. A fade at this level would reach the sheet as well as
+    // the scrim, sliding it in and out at partial opacity with the feed showing through it. Each
+    // child carries its own animation instead, and the container still outlives them both.
     AnimatedVisibility(
         visibleState = transitionState,
-        enter = fadeIn(animationSpec = tween(300)),
-        exit = fadeOut(animationSpec = tween(250)),
+        enter = EnterTransition.None,
+        exit = ExitTransition.None,
         modifier = modifier.zIndex(100f)
     ) {
         Box(
@@ -76,6 +89,10 @@ fun CustomBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .animateEnterExit(
+                        enter = fadeIn(animationSpec = tween(SCRIM_FADE_IN_MS)),
+                        exit = fadeOut(animationSpec = tween(EXIT_DURATION_MS))
+                    )
                     .background(Color.Black.copy(alpha = 0.4f))
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = { transitionState.targetState = false })
@@ -94,15 +111,18 @@ fun CustomBottomSheet(
                         .animateEnterExit(
                             enter = slideInVertically(
                                 initialOffsetY = { it },
-                                animationSpec = tween(350, easing = EaseOutQuart)
+                                animationSpec = tween(ENTER_DURATION_MS, easing = LinearOutSlowInEasing)
                             ),
                             exit = slideOutVertically(
                                 targetOffsetY = { it },
-                                animationSpec = tween(250, easing = EaseInCubic)
+                                animationSpec = tween(EXIT_DURATION_MS, easing = FastOutLinearInEasing)
                             )
                         )
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                         .background(MaterialTheme.colorScheme.surface)
+                        // Content that swaps while the sheet is up can change its height by a row
+                        // or two; animating it keeps that from landing as a jolt under the finger.
+                        .animateContentSize()
                 ) {
                     content()
                 }

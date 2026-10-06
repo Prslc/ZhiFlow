@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +38,11 @@ import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+
+// Roughly the height of the rows, which the sheet cannot measure before they arrive. Reserving it
+// lets the sheet start the moment the card is long-pressed; a bare spinner would open it at less
+// than half that height and grow partway through the slide.
+private val ROWS_RESERVE = 340.dp
 
 /** Renders whatever rows the backend sent, down to their wording and icons. */
 @Composable
@@ -72,7 +78,7 @@ fun NegativeFeedbackSheet(
             state.isLoading -> LoadingView(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 48.dp),
+                    .height(ROWS_RESERVE),
             )
 
             error != null -> ErrorView(
