@@ -76,6 +76,7 @@ fun ReadHistoryScreen(
     val globalError = viewModel.uiState.globalError
     val loadMoreError = viewModel.uiState.loadMoreError
     val isEmpty = items.isEmpty()
+    val endText = if (viewModel.uiState.isEnd) stringResource(R.string.end_of_list) else null
 
     Scaffold(
         topBar = {
@@ -193,8 +194,8 @@ fun ReadHistoryScreen(
                         pagingFooter(
                             isLoading = viewModel.uiState.isNextLoading,
                             error = loadMoreError,
-                            isEnd = viewModel.uiState.isEnd,
                             onRetry = { viewModel.loadMore() },
+                            endText = endText,
                         )
                     }
                 }

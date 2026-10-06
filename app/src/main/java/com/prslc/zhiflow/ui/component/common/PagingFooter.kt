@@ -19,8 +19,8 @@ internal fun LazyListScope.pagingFooter(
     keyPrefix: String = "footer",
     isLoading: Boolean,
     error: Throwable?,
-    isEnd: Boolean = false,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    endText: String? = null,
 ) {
     if (isLoading) {
         item(key = "${keyPrefix}_loading", contentType = "PagingFooterLoading") {
@@ -42,7 +42,7 @@ internal fun LazyListScope.pagingFooter(
             }
             LoadMoreErrorItem(message = message, onRetry = onRetry)
         }
-    } else if (isEnd) {
+    } else if (endText != null) {
         item(key = "${keyPrefix}_end") {
             Box(
                 modifier = Modifier
@@ -51,7 +51,7 @@ internal fun LazyListScope.pagingFooter(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.history_end_of_list),
+                    text = endText,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline,
                 )

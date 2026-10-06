@@ -47,6 +47,8 @@ fun CommentList(
 ) {
     val errorMessage = error?.uiMessage
     val loadMoreError = if (comments.isNotEmpty()) error else null
+    val endText = if (hasMore) null
+    else stringResource(if (isChild) R.string.comment_end_child else R.string.comment_end_root)
     val stateTarget = when {
         isLoading && comments.isEmpty() -> "LOADING"
         errorMessage != null && comments.isEmpty() -> "ERROR"
@@ -115,6 +117,7 @@ fun CommentList(
                             isLoading = isLoading,
                             error = loadMoreError,
                             onRetry = onLoadMore,
+                            endText = endText,
                         )
                     }
                 }
