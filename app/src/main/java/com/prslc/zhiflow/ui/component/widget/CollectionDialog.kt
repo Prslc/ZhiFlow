@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,8 @@ fun CollectionDialog(
     modifier: Modifier = Modifier,
     viewModel: CollectionViewModel = koinViewModel()
 ) {
+    val haptic = LocalHapticFeedback.current
+
     LaunchedEffect(id) {
         viewModel.loadCollections(id, contentType)
     }
@@ -123,9 +127,15 @@ fun CollectionDialog(
                     }
                 }
 
-                if (state.error != null && state.collections.isNotEmpty()) {
+                // Only a submit failure reaches here; a failed initial load shows LoadMoreErrorItem.
+                val submitError = state.error?.takeIf { state.collections.isNotEmpty() }
+                LaunchedEffect(submitError) {
+                    if (submitError != null) haptic.performHapticFeedback(HapticFeedbackType.Reject)
+                }
+
+                if (submitError != null) {
                     Text(
-                        text = state.error.uiMessage,
+                        text = submitError.uiMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier
@@ -151,6 +161,7 @@ fun CollectionDialog(
                     TextButton(
                         onClick = {
                             viewModel.updateCollectionStatus(id, contentType) { isFavorite ->
+                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                                 onResult(isFavorite)
                                 onDismissRequest()
                             }

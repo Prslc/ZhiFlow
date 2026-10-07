@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 
 /**
  * A follow toggle. `compact` sizes it down by capping the height from outside: M3's Button enforces a
@@ -47,6 +48,7 @@ fun FollowButton(
     }
     val iconSize = if (compact) 14.dp else 18.dp
     val buttonModifier = if (compact) Modifier.height(30.dp) else Modifier
+    val toggleHaptic = rememberToggleHaptic()
     AnimatedContent(
         targetState = isFollowing,
         modifier = modifier,
@@ -57,9 +59,13 @@ fun FollowButton(
         },
         label = "FollowButton"
     ) { following ->
+        val onToggle = {
+            toggleHaptic(!following)
+            onClick()
+        }
         if (following) {
             FilledTonalButton(
-                onClick = onClick,
+                onClick = onToggle,
                 modifier = buttonModifier,
                 shape = CircleShape,
                 contentPadding = contentPadding,
@@ -79,7 +85,7 @@ fun FollowButton(
             }
         } else {
             Button(
-                onClick = onClick,
+                onClick = onToggle,
                 modifier = buttonModifier,
                 shape = CircleShape,
                 contentPadding = contentPadding

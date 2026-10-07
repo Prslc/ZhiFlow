@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
@@ -52,6 +53,7 @@ fun CommentItem(
     showReplyButton: Boolean = true
 ) {
     val comment = model.comment
+    val toggleHaptic = rememberToggleHaptic()
 
     val metaStyle = MaterialTheme.typography.labelMedium.copy(
         color = MaterialTheme.colorScheme.outline,
@@ -234,7 +236,10 @@ fun CommentItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(top = 4.dp)
-                .clickable { onEvent(CommentUiEvent.ToggleLike(comment.id)) }
+                .clickable {
+                    toggleHaptic(!comment.liked)
+                    onEvent(CommentUiEvent.ToggleLike(comment.id))
+                }
         ) {
             Icon(
                 imageVector = if (comment.liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,

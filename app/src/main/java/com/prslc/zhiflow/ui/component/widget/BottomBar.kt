@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.formatCount
 
 @Composable
@@ -65,6 +66,8 @@ fun BottomBar(
         label = "upvoteContent",
     )
 
+    val toggleHaptic = rememberToggleHaptic()
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         tonalElevation = 2.dp,
@@ -90,7 +93,10 @@ fun BottomBar(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .clickable { onVoteClick("up") },
+                        .clickable {
+                            toggleHaptic(!isUpvoted)
+                            onVoteClick("up")
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -125,7 +131,10 @@ fun BottomBar(
                     modifier = Modifier
                         .width(52.dp)
                         .fillMaxHeight()
-                        .clickable { onVoteClick("down") },
+                        .clickable {
+                            toggleHaptic(!isDownvoted)
+                            onVoteClick("down")
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
