@@ -215,7 +215,15 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 tabs.forEachIndexed { index, tab ->
                     NavigationBarItem(
                         selected = pagerState.currentPage == index,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        onClick = {
+                            when {
+                                pagerState.currentPage != index ->
+                                    scope.launch { pagerState.animateScrollToPage(index) }
+
+                                tab == HomeTab ->
+                                    scope.launch { feedViewModel.listState.animateScrollToItem(0) }
+                            }
+                        },
                         icon = {
                             Icon(
                                 when (tab) {
