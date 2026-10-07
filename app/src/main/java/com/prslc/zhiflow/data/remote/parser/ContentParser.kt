@@ -26,7 +26,6 @@ object ContentParser {
         segments: List<Segment>,
         isDark: Boolean = false
     ): List<RichTextElement> {
-        val listCounter = OrderedListCounter()
         return segments.flatMap { segment ->
             when (segment.type) {
                 "paragraph" -> processParagraph(segment.paragraph, isDark)
@@ -36,12 +35,19 @@ object ContentParser {
                     listOf(RichTextElement.Heading(p.content, p.inlineMetas, it.level))
                 } ?: emptyList()
 
-                "list_node" -> segment.listNode?.items?.map { item ->
-                    val p = parseContent(item.text, item.marks, isDark)
-                    RichTextElement.BulletItem(
-                        p.content, p.inlineMetas, item.indentLevel,
-                        segment.listNode.type == "ordered", listCounter.next(item.indentLevel)
-                    )
+                "list_node" -> segment.listNode?.let { listNode ->
+                    // One counter per list, not per call: a new list_node means the list was
+                    // interrupted, and the API gives no signal that the numbering carries on. Sharing
+                    // one across a parsing chunk instead made the result depend on where the chunk
+                    // boundary fell.
+                    val counter = OrderedListCounter()
+                    listNode.items.map { item ->
+                        val p = parseContent(item.text, item.marks, isDark)
+                        RichTextElement.BulletItem(
+                            p.content, p.inlineMetas, item.indentLevel,
+                            listNode.type == "ordered", counter.next(item.indentLevel)
+                        )
+                    }
                 } ?: emptyList()
 
                 "blockquote" -> segment.blockquote?.let {
