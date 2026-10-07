@@ -28,6 +28,11 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 
+/**
+ * One list item. Its bullet is drawn rather than written as a "•": a glyph's size comes from the font
+ * and it cannot be centred on the line, which is where a bullet reads as belonging to the text. Hence
+ * a fixed-size mark inside a box the height of the first line.
+ */
 @Composable
 fun BulletItemRow(
     element: RichTextElement.BulletItem,
@@ -36,10 +41,7 @@ fun BulletItemRow(
     val indentation = (maxOf(0, element.level - 1) * 12).dp
     val markerWidth = 24.dp
     val style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp)
-    // A drawn dot rather than a "•": a glyph's size and position come from the font, and it cannot be
-    // centred on the line, which is where a bullet reads as belonging to the text.
     val dotSize = 6.dp
-    // The first line's own height, so the dot can be centred on it instead of on the whole row.
     val firstLineHeight = with(LocalDensity.current) { 22.sp.toDp() }
     Row(
         modifier = modifier
