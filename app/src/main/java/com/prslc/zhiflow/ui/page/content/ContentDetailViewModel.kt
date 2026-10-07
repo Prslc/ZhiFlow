@@ -4,7 +4,6 @@ import android.util.LruCache
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.ReadingPosition
+import com.prslc.zhiflow.core.utils.compose.ReadingProgress
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
@@ -75,7 +76,16 @@ class ContentViewModel(
     var presentation by mutableStateOf(PresentationState())
         private set
 
-    private var readProgress by mutableIntStateOf(0)
+    private val progress = ReadingProgress()
+
+    /** Reading position as a 0f..1f fraction: the progress bar draws it, [flushProgress] reports it. */
+    val readProgress: Float
+        get() = progress.fraction
+
+    /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
+    var isBodyComplete by mutableStateOf(false)
+        private set
+
     private var isDark by mutableStateOf(false)
 
     private var loadJob: Job? = null
@@ -113,6 +123,7 @@ class ContentViewModel(
                 )
                 parsingCache.get(data.id)?.let {
                     richTextElements = it
+                    isBodyComplete = true
                 }
                 parseRichText()
             }.onApiFailure { error ->
@@ -199,21 +210,26 @@ class ContentViewModel(
         presentation = presentation.copy(showComments = false)
     }
 
-    fun trackProgress(progress: Int) {
-        readProgress = progress
+    /** Records where the reader is; the list only ever sends a position it could measure. */
+    fun trackProgress(position: ReadingPosition) {
+        progress.update(position)
     }
 
     /**
      * Flush reading progress to the server.
      *
-     * Runs on [NonCancellable] to ensure the request completes even if the
-     * composable is removed (e.g. called from [DisposableEffect.onDispose]).
+     * Runs on [NonCancellable] because it fires as the screen goes away, and the request has to
+     * outlive the composition that triggered it.
      */
     fun flushProgress(contentToken: String, contentType: ContentType) {
+        val percent = progress.reportedPercent()
+        // 0 means nothing was read.
+        if (percent <= 0) return
+
         viewModelScope.launch {
             withContext(NonCancellable) {
                 actionRepository.syncHistory(
-                    ReadHistoryRequest(contentToken, contentType.type, readProgress)
+                    ReadHistoryRequest(contentToken, contentType.type, percent)
                 ).ignoreOutcome()
             }
         }
@@ -225,6 +241,7 @@ class ContentViewModel(
 
         if (richTextElements.isNotEmpty() && parsingCache.get(content.id) != null) return
 
+        isBodyComplete = false
         parseJob?.cancel()
         parseJob = viewModelScope.launch(Dispatchers.Default) {
             val fullList = mutableListOf<RichTextElement>()
@@ -247,6 +264,7 @@ class ContentViewModel(
                 }
                 withContext(Dispatchers.Main) {
                     richTextElements = fullList.toList()
+                    isBodyComplete = true
                 }
                 parsingCache.put(content.id, fullList)
                 return@launch
@@ -260,6 +278,10 @@ class ContentViewModel(
                 withContext(Dispatchers.Main) {
                     richTextElements = currentSnapshot
                 }
+            }
+            // The body is complete from here, which is what makes its length a usable scale.
+            withContext(Dispatchers.Main) {
+                isBodyComplete = true
             }
             parsingCache.put(content.id, fullList)
         }
@@ -314,7 +336,8 @@ class ContentViewModel(
         interactionState = InteractionState()
         richTextElements = emptyList()
         presentation = PresentationState()
-        readProgress = 0
+        progress.reset()
+        isBodyComplete = false
         parseJob?.cancel()
     }
 }

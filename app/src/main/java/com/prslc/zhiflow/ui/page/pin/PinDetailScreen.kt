@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.page.pin
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,11 +24,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -36,6 +35,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
+import com.prslc.zhiflow.core.utils.compose.ReadingPosition
+import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
@@ -46,6 +48,7 @@ import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
+import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
@@ -98,12 +101,7 @@ fun PinDetailScreen(
         viewModel.loadContent(id)
     }
 
-    DisposableEffect(id) {
-        viewModel.flushProgress(id)
-        onDispose {
-            viewModel.flushProgress(id)
-        }
-    }
+    FlushProgressOnLeave { viewModel.flushProgress(id) }
 
     val onVoteClick: (String) -> Unit = { action -> viewModel.vote(action) }
     val onStarClick = { viewModel.openCollection() }
@@ -120,31 +118,34 @@ fun PinDetailScreen(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = pinTitle,
-                                modifier = Modifier.padding(end = 10.dp),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = onBack) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.general_back),
+                    Column {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = pinTitle,
+                                    modifier = Modifier.padding(end = 10.dp),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
-                            }
-                        },
-                        scrollBehavior = scrollBehavior,
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.background,
-                            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                        ),
-                    )
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = onBack) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = stringResource(R.string.general_back),
+                                    )
+                                }
+                            },
+                            scrollBehavior = scrollBehavior,
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.background,
+                                scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                            ),
+                        )
+                        ReadingProgressBar(progress = { viewModel.readProgress })
+                    }
                 },
                 bottomBar = {
                     if (loadingState.error == null) {
@@ -183,6 +184,7 @@ fun PinDetailScreen(
                                     richTextElements = richTextElements,
                                     navigator = navigator,
                                     topPadding = padding.calculateTopPadding(),
+                                    bodyComplete = viewModel.isBodyComplete,
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
                                 )
@@ -239,10 +241,15 @@ private fun PinContentList(
     richTextElements: List<RichTextElement>,
     navigator: com.prslc.zhiflow.ui.navigation.Navigator,
     topPadding: androidx.compose.ui.unit.Dp,
-    onProgress: (Int) -> Unit,
+    bodyComplete: Boolean,
+    onProgress: (ReadingPosition) -> Unit,
     onFollowClick: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
+
+    // The list reads [author header][body][publish footer], so the footer's index is where the
+    // body ends — the scale the progress bar is measured against.
+    val bodyEnd = richTextElements.size + 1
 
     val lightbox = koinInject<ImageLightboxController>()
     val images = remember(richTextElements) {
@@ -250,19 +257,12 @@ private fun PinContentList(
     }
     val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
 
-    LaunchedEffect(pin.id) {
-        snapshotFlow {
-            val layout = lazyListState.layoutInfo
-            val total = layout.totalItemsCount
-            if (total <= 0) 0
-            else {
-                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
-                ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
-            }
-        }.collect { progress ->
-            onProgress(progress)
-        }
-    }
+    ReadingProgressEffect(
+        state = lazyListState,
+        bodyEnd = bodyEnd,
+        bodyComplete = bodyComplete,
+        onProgress = onProgress,
+    )
 
     // Wraps the whole list on purpose: moving this inside the items loop would cap selection at a
     // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.

@@ -21,9 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +32,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.compose.ReadingPosition
+import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuContent
@@ -46,16 +46,26 @@ import org.koin.compose.koinInject
 
 @Composable
 fun ContentRichTextList(
-    id: String,
     richTextElements: List<RichTextElement>,
     answer: ZhihuContent,
     navigator: Navigator,
     topPadding: Dp,
+    bodyComplete: Boolean,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onProgress: (Int) -> Unit
+    onProgress: (ReadingPosition) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+
+    val bodyElements = remember(richTextElements) {
+        richTextElements.filterNot { element ->
+            element is RichTextElement.Card &&
+                element.cardType in setOf("reward_tail_truncate", "free_column_card")
+        }
+    }
+    // The list reads [author header][body][publish footer], so the footer's index is where the
+    // body ends — the scale the progress bar is measured against.
+    val bodyEnd = bodyElements.size + 1
 
     val lightbox = koinInject<ImageLightboxController>()
     val images = remember(richTextElements) {
@@ -63,19 +73,12 @@ fun ContentRichTextList(
     }
     val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
 
-    LaunchedEffect(id) {
-        snapshotFlow {
-            val layout = lazyListState.layoutInfo
-            val total = layout.totalItemsCount
-            if (total <= 0) 0
-            else {
-                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
-                ((lastVisible + 1).toFloat() / total * 100).toInt().coerceIn(0, 100)
-            }
-        }.collect { progress ->
-            onProgress(progress)
-        }
-    }
+    ReadingProgressEffect(
+        state = lazyListState,
+        bodyEnd = bodyEnd,
+        bodyComplete = bodyComplete,
+        onProgress = onProgress,
+    )
 
     // Wraps the whole list on purpose: moving this inside the items loop would cap selection at a
     // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.
@@ -103,10 +106,7 @@ fun ContentRichTextList(
             }
 
             itemsIndexed(
-                items = richTextElements.filterNot { element ->
-                    element is RichTextElement.Card &&
-                        element.cardType in setOf("reward_tail_truncate", "free_column_card")
-                },
+                items = bodyElements,
                 key = { index, element ->
                     when (element) {
                         is RichTextElement.Divider -> "divider_$index"

@@ -3,6 +3,7 @@ package com.prslc.zhiflow.ui.page.content
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,7 +22,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
 import com.prslc.zhiflow.data.model.content.ZhihuContent
@@ -47,6 +48,7 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
+import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
@@ -98,12 +100,7 @@ fun ContentDetailScreen(
         viewModel.loadContent(id, contentType)
     }
 
-    DisposableEffect(id) {
-        viewModel.flushProgress(id, contentType)
-        onDispose {
-            viewModel.flushProgress(id, contentType)
-        }
-    }
+    FlushProgressOnLeave { viewModel.flushProgress(id, contentType) }
 
     var isBottomBarVisible by remember { mutableStateOf(true) }
 
@@ -138,14 +135,17 @@ fun ContentDetailScreen(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    ContentDetailTopBar(
-                        currentContent = currentContent,
-                        error = loadingState.error,
-                        contentType = contentType,
-                        scrollBehavior = scrollBehavior,
-                        onBack = onBack,
-                        navigator = navigator,
-                    )
+                    Column {
+                        ContentDetailTopBar(
+                            currentContent = currentContent,
+                            error = loadingState.error,
+                            contentType = contentType,
+                            scrollBehavior = scrollBehavior,
+                            onBack = onBack,
+                            navigator = navigator,
+                        )
+                        ReadingProgressBar(progress = { viewModel.readProgress })
+                    }
                 },
                 bottomBar = {
                     // Outside the animated wrapper: a failure drops the bar, never retracts it.
@@ -179,11 +179,11 @@ fun ContentDetailScreen(
                         currentContent?.let { answer ->
                             key(id) {
                                 ContentRichTextList(
-                                    id = id,
                                     richTextElements = richTextElements,
                                     answer = answer,
                                     navigator = navigator,
                                     topPadding = padding.calculateTopPadding(),
+                                    bodyComplete = viewModel.isBodyComplete,
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
                                 )
