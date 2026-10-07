@@ -3,6 +3,7 @@
     <string name="app_name">ZhiFlow</string>
 
     <!-- general -->
+    <string name="general_close">关闭</string>
     <string name="general_back">返回</string>
     <string name="general_more">更多</string>
     <string name="general_undeveloped">未开发</string>
@@ -120,6 +121,7 @@
     <string name="comment_published_with_ip">%1$s · %2$s</string>
 
     <!-- RichText -->
+    <string name="outline_title">目录</string>
     <string name="richtext_references">参考</string>
 
     <!-- question -->

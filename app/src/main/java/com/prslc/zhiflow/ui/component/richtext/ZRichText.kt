@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
@@ -59,7 +60,9 @@ fun ZRichText(
     content: AnnotatedString,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    inlineMetas: List<InlineFormulaMeta> = emptyList()
+    inlineMetas: List<InlineFormulaMeta> = emptyList(),
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip,
 ) {
     val navigator = LocalNavigator.current
 
@@ -102,6 +105,8 @@ fun ZRichText(
         text = interceptedContent,
         style = style,
         inlineContent = inlineContent,
+        maxLines = maxLines,
+        overflow = overflow,
         modifier = modifier
     )
 }

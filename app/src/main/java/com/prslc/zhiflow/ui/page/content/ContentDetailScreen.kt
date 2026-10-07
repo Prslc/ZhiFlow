@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.content
 
+import androidx.compose.animation.core.animate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -47,6 +50,7 @@ import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
+import com.prslc.zhiflow.ui.component.richtext.BodyOutlineSheet
 import com.prslc.zhiflow.ui.component.richtext.ContentBodyList
 import com.prslc.zhiflow.ui.component.richtext.rememberContentBodyState
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
@@ -56,6 +60,7 @@ import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,6 +111,8 @@ fun ContentDetailScreen(
     FlushProgressOnLeave { viewModel.flushProgress(id, contentType) }
 
     var isBottomBarVisible by remember { mutableStateOf(true) }
+    var showOutline by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -144,6 +151,8 @@ fun ContentDetailScreen(
                             error = loadingState.error,
                             contentType = contentType,
                             scrollBehavior = scrollBehavior,
+                            showOutlineAction = bodyState.outline.size >= 2,
+                            onOutlineClick = { showOutline = true },
                             onBack = onBack,
                             navigator = navigator,
                         )
@@ -236,6 +245,23 @@ fun ContentDetailScreen(
                     }
                 }
             )
+
+            BodyOutlineSheet(
+                visible = showOutline,
+                entries = bodyState.outline,
+                currentIndex = { bodyState.currentOutlineIndex },
+                onEntryClick = { entry ->
+                    showOutline = false
+                    scope.launch {
+                        // A far jump asks the list for a new position instead of scrolling to it,
+                        // so nothing reaches the bar. A scroll covering an item or more would.
+                        val downwards = entry.index > bodyState.listState.firstVisibleItemIndex
+                        launch { scrollBehavior.moveTo(collapsed = downwards) }
+                        bodyState.scrollTo(entry)
+                    }
+                },
+                onDismissRequest = { showOutline = false },
+            )
         }
     }
 }
@@ -247,6 +273,8 @@ private fun ContentDetailTopBar(
     error: ApiException?,
     contentType: ContentType,
     scrollBehavior: TopAppBarScrollBehavior,
+    showOutlineAction: Boolean,
+    onOutlineClick: () -> Unit,
     onBack: () -> Unit,
     navigator: Navigator
 ) {
@@ -297,10 +325,28 @@ private fun ContentDetailTopBar(
                 )
             }
         },
+        actions = {
+            if (showOutlineAction) {
+                IconButton(onClick = onOutlineClick) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.List,
+                        contentDescription = stringResource(R.string.outline_title),
+                    )
+                }
+            }
+        },
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
         )
     )
+}
+
+/** Puts the bar where a scroll in the same direction would have left it: out of the way, or back. */
+private suspend fun TopAppBarScrollBehavior.moveTo(collapsed: Boolean) {
+    animate(
+        initialValue = state.heightOffset,
+        targetValue = if (collapsed) state.heightOffsetLimit else 0f,
+    ) { value, _ -> state.heightOffset = value }
 }

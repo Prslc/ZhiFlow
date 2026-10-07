@@ -22,12 +22,16 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -39,6 +43,7 @@ import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.FollowButton
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
@@ -49,8 +54,20 @@ import org.koin.compose.koinInject
 private const val LEADING_ITEMS = 1
 
 /**
+ * One heading, as the outline lists it: [depth] is 0 for the shallowest heading in the body, and the
+ * content is carried whole — inline formulas included — so the outline can draw what the body draws.
+ */
+@Immutable
+data class OutlineEntry(
+    val content: AnnotatedString,
+    val inlineMetas: List<InlineFormulaMeta>,
+    val depth: Int,
+    val index: Int,
+)
+
+/**
  * The state of a content body list: the list, plus the geometry anything outside it needs to reason
- * about — which is where the progress bar and, later, the outline read from.
+ * about — which is where the progress bar and the outline read from.
  *
  * [bodyEnd] is the index of the first item after the body. Trailing chrome stays out of the scale, so
  * the progress bar completes at the end of the text rather than at the end of the list.
@@ -59,13 +76,51 @@ private const val LEADING_ITEMS = 1
 class ContentBodyState internal constructor(
     val listState: LazyListState,
     val bodyEnd: Int,
-)
+    val outline: List<OutlineEntry>,
+) {
+    /** Which outline entry the reader is in, or null while they are still above the first one. */
+    val currentOutlineIndex: Int? by derivedStateOf {
+        outline.indexOfLast { it.index <= listState.firstVisibleItemIndex }.takeIf { it >= 0 }
+    }
+
+    /** Scrolls the body so [entry] ends up at the top of the part the reader can see. */
+    suspend fun scrollTo(entry: OutlineEntry) {
+        listState.animateScrollToItem(entry.index)
+    }
+}
 
 @Composable
 fun rememberContentBodyState(elements: List<RichTextElement>): ContentBodyState {
     val listState = rememberLazyListState()
     return remember(listState, elements) {
-        ContentBodyState(listState, LEADING_ITEMS + elements.size)
+        ContentBodyState(
+            listState = listState,
+            bodyEnd = LEADING_ITEMS + elements.size,
+            outline = outlineOf(elements),
+        )
+    }
+}
+
+/**
+ * The headings of [elements], indented by how far each sits below the shallowest one: a writer's own
+ * levels can start anywhere, so they mean something only relative to each other.
+ */
+private fun outlineOf(elements: List<RichTextElement>): List<OutlineEntry> {
+    val headings = elements.mapIndexedNotNull { index, element ->
+        val heading = element as? RichTextElement.Heading ?: return@mapIndexedNotNull null
+        // A heading that is nothing but a formula is still a heading: its text is the placeholder the
+        // formula is drawn over, never blank.
+        if (heading.content.text.isBlank()) null else index to heading
+    }
+    val shallowest = headings.minOfOrNull { (_, heading) -> heading.level } ?: return emptyList()
+
+    return headings.map { (index, heading) ->
+        OutlineEntry(
+            content = heading.content,
+            inlineMetas = heading.inlineMetas,
+            depth = heading.level - shallowest,
+            index = LEADING_ITEMS + index,
+        )
     }
 }
 

@@ -2,6 +2,7 @@
     <string name="app_name">ZhiFlow</string>
 
     <!-- general -->
+    <string name="general_close">close</string>
     <string name="general_back">back</string>
     <string name="general_more">more</string>
     <string name="general_undeveloped">Undeveloped</string>
@@ -119,6 +120,7 @@
     <string name="comment_published_with_ip">%1$s · %2$s</string>
 
     <!-- RichText -->
+    <string name="outline_title">Contents</string>
     <string name="richtext_references">References</string>
 
     <!-- question -->
