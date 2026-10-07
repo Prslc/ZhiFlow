@@ -221,7 +221,7 @@ fun ImageLightbox(
 
                     Box {
                         IconButton(onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                             isMenuExpanded = true
                         }) {
                             Icon(
@@ -241,12 +241,12 @@ fun ImageLightbox(
                                 )
                             }, onClick = {
                                 isMenuExpanded = false
-                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                                 scope.launch {
                                     val currentUrl = images[pagerState.currentPage].displayUrl
                                     if (currentUrl != null &&
                                         ImageHelper.shareImage(context, currentUrl).isFailure
                                     ) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.Reject)
                                         Toast.makeText(
                                             appContext, failedText, Toast.LENGTH_SHORT
                                         ).show()
@@ -260,22 +260,20 @@ fun ImageLightbox(
                                 )
                             }, onClick = {
                                 isMenuExpanded = false
-                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
                                 scope.launch {
                                     val currentUrl = images[pagerState.currentPage].displayUrl
-                                    if (currentUrl == null) {
-                                        Toast.makeText(
-                                            appContext, failedText, Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else {
-                                        val result = ImageHelper.saveImageToGallery(
+                                    val saved = currentUrl != null &&
+                                        ImageHelper.saveImageToGallery(
                                             appContext, currentUrl
-                                        )
-                                        val message =
-                                            if (result.isSuccess) successText else failedText
-                                        Toast.makeText(appContext, message, Toast.LENGTH_SHORT)
-                                            .show()
-                                    }
+                                        ).isSuccess
+                                    haptic.performHapticFeedback(
+                                        if (saved) HapticFeedbackType.Confirm
+                                        else HapticFeedbackType.Reject
+                                    )
+                                    val message =
+                                        if (saved) successText else failedText
+                                    Toast.makeText(appContext, message, Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             })
                         }
