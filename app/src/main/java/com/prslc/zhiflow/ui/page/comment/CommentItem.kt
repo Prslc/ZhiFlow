@@ -62,7 +62,6 @@ fun CommentItem(
     val lightbox = koinInject<ImageLightboxController>()
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    // emoji
     val inlineContent = remember(comment.parsedContent.text) {
         val map = mutableMapOf<String, InlineTextContent>()
         val text = comment.parsedContent.text

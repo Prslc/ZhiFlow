@@ -48,6 +48,10 @@ private const val SCRIM_FADE_IN_MS = 200
 private const val ENTER_DURATION_MS = 320
 private const val EXIT_DURATION_MS = 220
 
+/**
+ * A sheet a screen owns: it draws the scrim, the surface and the exits, and the caller supplies only
+ * the content. The back progress it tracks is the predictive-back gesture's own, 0..1.
+ */
 @Composable
 fun CustomBottomSheet(
     visible: Boolean,
@@ -57,7 +61,6 @@ fun CustomBottomSheet(
 ) {
     val transitionState = remember { MutableTransitionState(false) }
 
-    // BackEventCompat.progress, 0..1.
     val backProgress = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
 

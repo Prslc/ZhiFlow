@@ -29,6 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 
+/**
+ * A follow toggle. `compact` sizes it down by capping the height from outside: M3's Button enforces a
+ * 58x40dp minimum on its inner content row, and an outer `height()` is the only way under that.
+ */
 @Composable
 fun FollowButton(
     isFollowing: Boolean,
@@ -42,8 +46,6 @@ fun FollowButton(
         ButtonDefaults.ContentPadding
     }
     val iconSize = if (compact) 14.dp else 18.dp
-    // M3 Button enforces a 58x40dp minimum on its inner content row; an outer
-    // height() cap is the only way to shrink it below that.
     val buttonModifier = if (compact) Modifier.height(30.dp) else Modifier
     AnimatedContent(
         targetState = isFollowing,

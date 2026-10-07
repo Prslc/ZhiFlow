@@ -68,6 +68,10 @@ import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+/**
+ * A full-screen image viewer. Its system bars belong to the dialog's own window rather than the
+ * activity's, and fall back to the activity's when there is none (a preview, say).
+ */
 @Composable
 fun ImageLightbox(
     images: List<ZhihuImage>,
@@ -102,8 +106,6 @@ fun ImageLightbox(
         val backText = stringResource(R.string.general_back)
         val moreText = stringResource(R.string.general_more)
 
-        // System bars belong to the dialog's own window, not the activity's; fall back to
-        // the activity's when there is no dialog (e.g. a preview).
         val view = LocalView.current
         val activityWindow = LocalActivity.current?.window
         val window = remember(view, activityWindow) {

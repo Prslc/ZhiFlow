@@ -20,10 +20,13 @@ sealed class LinkDestination {
 
 @Immutable
 object LinkParser {
+    /**
+     * Resolves [url]: outbound links arrive wrapped in a redirect whose parameter holds the target,
+     * and Zhihu's own URLs map to a route while everything else stays [LinkDestination.External].
+     */
     fun parse(url: String): LinkDestination {
         val uri = url.toUri()
 
-        // Handle Zhihu's redirect service
         val finalUrl = if (uri.host == "link.zhihu.com") {
             uri.getQueryParameter("target") ?: url
         } else {
@@ -42,7 +45,6 @@ object LinkParser {
         val id = extractId(path)
         val type = detectTypeFromPath(path)
 
-        // Map to type-safe route
         val route = if (id != null && type != null) {
             mapToRoute(id, type)
         } else null

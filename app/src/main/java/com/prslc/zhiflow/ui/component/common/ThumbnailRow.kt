@@ -38,6 +38,10 @@ private fun ImageData.toZhihuImage(): ZhihuImage = ZhihuImage(
     isGif = false,
 )
 
+/**
+ * A row of tappable thumbnails. The lightbox is opened with a list kept 1:1 with [images]: the click
+ * handler indexes into it and the controller matches by identity.
+ */
 @Composable
 fun ThumbnailRow(
     images: List<ImageData>,
@@ -47,7 +51,6 @@ fun ThumbnailRow(
     if (images.isEmpty()) return
 
     val lightbox = koinInject<ImageLightboxController>()
-    // Kept 1:1 with `images`: the click handler indexes into it, and open() matches by identity.
     val lightboxImages = remember(images) { images.map { it.toZhihuImage() } }
 
     Row(

@@ -149,6 +149,11 @@ private fun FormulaImage(
     )
 }
 
+/**
+ * A paragraph of text with inline formulas. Compose does not grow a row to fit a tall inline
+ * placeholder, so the line height is raised to cover the tallest formula in it — otherwise a
+ * `\displaystyle` fraction overlaps the rows around it.
+ */
 @Composable
 fun FormulaTextSection(
     element: RichTextElement.ParsedText,
@@ -177,9 +182,6 @@ fun FormulaTextSection(
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    // Compose does not grow a text row to fit a tall inline placeholder, so tall formulas
-    // (\displaystyle fractions) would overlap adjacent rows. Raise the paragraph line height to
-    // cover the tallest formula.
     val maxFormulaHeightDp = element.inlineMetas.maxOfOrNull {
         constrainedSize(it.formula.width.toFloat(), it.formula.height.toFloat(), maxWidthDp).second
     } ?: 0f

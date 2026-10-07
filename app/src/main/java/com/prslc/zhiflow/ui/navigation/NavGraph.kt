@@ -87,9 +87,9 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<FeedbackBlockList> { backStackEntry ->
         val route: FeedbackBlockList = backStackEntry.toRoute()
-        // The card list belongs to MainScreen's ViewModel; reach that instance rather
-        // than letting this destination resolve one of its own.
         val mainEntry = remember(backStackEntry) {
+            // The card list belongs to MainScreen's ViewModel: reach that instance rather than
+            // letting this destination resolve one of its own.
             navController.getBackStackEntry<MainContainer>()
         }
         val feedViewModel: FeedViewModel = koinViewModel(viewModelStoreOwner = mainEntry)
