@@ -60,7 +60,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import coil3.size.Size
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.ImageHelper
 import com.prslc.zhiflow.data.model.content.ZhihuImage
@@ -167,7 +166,7 @@ fun ImageLightbox(
                     contentAlignment = Alignment.Center
                 ) {
                     ZoomableAsyncImage(
-                        model = ImageRequest.Builder(context).data(url).size(Size.ORIGINAL)
+                        model = ImageRequest.Builder(context).data(url)
                             .crossfade(true).build(),
                         contentDescription = stringResource(R.string.lightbox_image_desc),
                         state = zoomableImageState,
