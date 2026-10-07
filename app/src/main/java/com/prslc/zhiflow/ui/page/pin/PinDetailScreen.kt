@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -262,67 +264,75 @@ private fun PinContentList(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = topPadding),
-        contentPadding = PaddingValues(bottom = 80.dp)
-    ) {
-        item {
-            AuthorSection(
-                author = pin.author,
-                navigator = navigator,
-                onFollowClick = onFollowClick
-            )
-        }
-
-        itemsIndexed(
-            items = richTextElements,
-            key = { index, element ->
-                when (element) {
-                    is RichTextElement.Divider -> "divider_$index"
-                    is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
-                    else -> "content_${element::class.simpleName}_$index"
+    // Wraps the whole list on purpose: moving this inside the items loop would cap selection at a
+    // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.
+    SelectionContainer {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topPadding),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
+            item {
+                DisableSelection {
+                    AuthorSection(
+                        author = pin.author,
+                        navigator = navigator,
+                        onFollowClick = onFollowClick
+                    )
                 }
-            },
-            contentType = { _, element -> element::class.simpleName }
-        ) { _, element ->
-            Box(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
-            ) {
-                RichTextSingleElement(
-                    element = element,
-                    onImageClick = onImageClick,
-                )
             }
-        }
 
-        item {
-            pin.contentEnd?.let { contentEnd ->
-                val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
-                    ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
+            itemsIndexed(
+                items = richTextElements,
+                key = { index, element ->
+                    when (element) {
+                        is RichTextElement.Divider -> "divider_$index"
+                        is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
+                        else -> "content_${element::class.simpleName}_$index"
+                    }
+                },
+                contentType = { _, element -> element::class.simpleName }
+            ) { _, element ->
+                Box(
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                ) {
+                    RichTextSingleElement(
+                        element = element,
+                        onImageClick = onImageClick,
+                    )
+                }
+            }
 
-                if (!timeDisplay.isNullOrBlank()) {
-                    Box(modifier = Modifier.padding(20.dp)) {
-                        val text = if (contentEnd.ipInfo.isNotEmpty()) {
-                            stringResource(
-                                R.string.content_published_with_ip,
-                                contentEnd.ipInfo,
-                                timeDisplay
-                            )
-                        } else {
-                            stringResource(
-                                R.string.content_published_no_ip,
-                                timeDisplay
-                            )
+            item {
+                DisableSelection {
+                    pin.contentEnd?.let { contentEnd ->
+                        val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
+                            ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
+
+                        if (!timeDisplay.isNullOrBlank()) {
+                            Box(modifier = Modifier.padding(20.dp)) {
+                                val text = if (contentEnd.ipInfo.isNotEmpty()) {
+                                    stringResource(
+                                        R.string.content_published_with_ip,
+                                        contentEnd.ipInfo,
+                                        timeDisplay
+                                    )
+                                } else {
+                                    stringResource(
+                                        R.string.content_published_no_ip,
+                                        timeDisplay
+                                    )
+                                }
+
+                                Text(
+                                    text = text,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
                         }
-
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.outline,
-                        )
                     }
                 }
             }

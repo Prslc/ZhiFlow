@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
@@ -145,28 +146,32 @@ fun CommentItem(
             }
 
             // comment
-            Text(
-                text = comment.parsedContent.text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                inlineContent = inlineContent,
-                onTextLayout = { layoutResult = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .pointerInput(comment.parsedContent.text) {
-                        detectTapGestures { pos ->
-                            layoutResult?.let { result ->
-                                val offset = result.getOffsetForPosition(pos)
-                                if (offset < comment.parsedContent.text.length) {
-                                    comment.parsedContent.text.getStringAnnotations("URL", offset, offset)
-                                        .firstOrNull()?.let { annotation ->
-                                            navigator.handleUrl(annotation.item)
-                                        }
+            // Per comment, not per list: the author row, images and timestamp between comments
+            // leave nothing meaningful to select across two of them.
+            SelectionContainer {
+                Text(
+                    text = comment.parsedContent.text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    inlineContent = inlineContent,
+                    onTextLayout = { layoutResult = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(comment.parsedContent.text) {
+                            detectTapGestures { pos ->
+                                layoutResult?.let { result ->
+                                    val offset = result.getOffsetForPosition(pos)
+                                    if (offset < comment.parsedContent.text.length) {
+                                        comment.parsedContent.text.getStringAnnotations("URL", offset, offset)
+                                            .firstOrNull()?.let { annotation ->
+                                                navigator.handleUrl(annotation.item)
+                                            }
+                                    }
                                 }
                             }
                         }
-                    }
-            )
+                )
+            }
 
             // images
             val commentImages = comment.parsedContent.images

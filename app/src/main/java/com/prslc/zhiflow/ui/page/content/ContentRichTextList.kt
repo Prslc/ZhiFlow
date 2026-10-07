@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -75,75 +77,83 @@ fun ContentRichTextList(
         }
     }
 
-    LazyColumn(
-        state = lazyListState,
-        modifier = modifier
-            .fillMaxSize()
-            .padding(top = topPadding),
-        contentPadding = PaddingValues(bottom = 80.dp)
-    ) {
-        item {
-            AuthorSection(
-                author = answer.author,
-                navigator = navigator,
-                onFollowClick = onFollowClick
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-            )
-        }
-
-        itemsIndexed(
-            items = richTextElements.filterNot { element ->
-                element is RichTextElement.Card &&
-                    element.cardType in setOf("reward_tail_truncate", "free_column_card")
-            },
-            key = { index, element ->
-                when (element) {
-                    is RichTextElement.Divider -> "divider_$index"
-                    is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
-                    else -> "content_${element::class.simpleName}_$index"
+    // Wraps the whole list on purpose: moving this inside the items loop would cap selection at a
+    // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.
+    SelectionContainer(modifier = modifier) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topPadding),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
+            item {
+                DisableSelection {
+                    AuthorSection(
+                        author = answer.author,
+                        navigator = navigator,
+                        onFollowClick = onFollowClick
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    )
                 }
-            },
-            contentType = { _, element -> element::class.simpleName }
-        ) { _, element ->
-            Box(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
-            ) {
-                RichTextSingleElement(
-                    element = element,
-                    onImageClick = onImageClick,
-                )
             }
-        }
 
-        item {
-            answer.contentEnd?.let { contentEnd ->
-                val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
-                    ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
+            itemsIndexed(
+                items = richTextElements.filterNot { element ->
+                    element is RichTextElement.Card &&
+                        element.cardType in setOf("reward_tail_truncate", "free_column_card")
+                },
+                key = { index, element ->
+                    when (element) {
+                        is RichTextElement.Divider -> "divider_$index"
+                        is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
+                        else -> "content_${element::class.simpleName}_$index"
+                    }
+                },
+                contentType = { _, element -> element::class.simpleName }
+            ) { _, element ->
+                Box(
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                ) {
+                    RichTextSingleElement(
+                        element = element,
+                        onImageClick = onImageClick,
+                    )
+                }
+            }
 
-                if (!timeDisplay.isNullOrBlank()) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        val text = if (contentEnd.ipInfo.isNotEmpty()) {
-                            stringResource(
-                                R.string.content_published_with_ip,
-                                contentEnd.ipInfo,
-                                timeDisplay
-                            )
-                        } else {
-                            stringResource(
-                                R.string.content_published_no_ip,
-                                timeDisplay
-                            )
+            item {
+                DisableSelection {
+                    answer.contentEnd?.let { contentEnd ->
+                        val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
+                            ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
+
+                        if (!timeDisplay.isNullOrBlank()) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                val text = if (contentEnd.ipInfo.isNotEmpty()) {
+                                    stringResource(
+                                        R.string.content_published_with_ip,
+                                        contentEnd.ipInfo,
+                                        timeDisplay
+                                    )
+                                } else {
+                                    stringResource(
+                                        R.string.content_published_no_ip,
+                                        timeDisplay
+                                    )
+                                }
+
+                                Text(
+                                    text = text,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
                         }
-
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.outline,
-                        )
                     }
                 }
             }

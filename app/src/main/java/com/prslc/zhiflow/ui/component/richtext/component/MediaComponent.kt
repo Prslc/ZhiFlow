@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -65,17 +66,20 @@ fun ImageComponent(
             )
         }
         if (image.description.isNotBlank()) {
-            Text(
-                text = image.description,
-                modifier = Modifier
-                    .padding(top = 8.dp, start = 16.dp, end = 16.dp),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = TextStyles.imageCaptionSize,
-                    lineHeight = 18.sp
-                ),
-                textAlign = TextAlign.Center,
-            )
+            // Deliberately out of selection; the caption sits hard against the tappable image.
+            DisableSelection {
+                Text(
+                    text = image.description,
+                    modifier = Modifier
+                        .padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontSize = TextStyles.imageCaptionSize,
+                        lineHeight = 18.sp
+                    ),
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }

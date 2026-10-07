@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -100,54 +101,57 @@ fun TableComponent(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        Card(
-            modifier = Modifier.wrapContentWidth(Alignment.Start),
-            shape = RoundedCornerShape(4.dp),
-            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            Box(modifier = Modifier.horizontalScroll(scrollState)) {
-                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                    for (rowIndex in 0 until element.rows) {
-                        val isHeader = rowIndex == 0 && element.hasHeader
+        // Fixed-width cells inside a horizontal scroll; a selection dragged across them would fight it.
+        DisableSelection {
+            Card(
+                modifier = Modifier.wrapContentWidth(Alignment.Start),
+                shape = RoundedCornerShape(4.dp),
+                border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Box(modifier = Modifier.horizontalScroll(scrollState)) {
+                    Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                        for (rowIndex in 0 until element.rows) {
+                            val isHeader = rowIndex == 0 && element.hasHeader
 
-                        Row(
-                            modifier = Modifier
-                                .background(
-                                    if (isHeader) MaterialTheme.colorScheme.surfaceVariant
-                                    else Color.Transparent
-                                )
-                                .height(IntrinsicSize.Min),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            for (colIndex in 0 until element.cols) {
-                                val cell = element.cells.getOrNull(rowIndex * element.cols + colIndex)
+                            Row(
+                                modifier = Modifier
+                                    .background(
+                                        if (isHeader) MaterialTheme.colorScheme.surfaceVariant
+                                        else Color.Transparent
+                                    )
+                                    .height(IntrinsicSize.Min),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                for (colIndex in 0 until element.cols) {
+                                    val cell = element.cells.getOrNull(rowIndex * element.cols + colIndex)
 
-                                Box(
-                                    modifier = Modifier
-                                        .width(120.dp)
-                                        .fillMaxHeight()
-                                        .padding(8.dp),
-                                    contentAlignment = Alignment.CenterStart
-                                ) {
-                                    cell?.let { nonNullCell ->
-                                        ZRichText(
-                                            content = nonNullCell.content,
-                                            inlineMetas = nonNullCell.inlineMetas,
-                                            style = MaterialTheme.typography.bodySmall.copy(
-                                                fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
+                                    Box(
+                                        modifier = Modifier
+                                            .width(120.dp)
+                                            .fillMaxHeight()
+                                            .padding(8.dp),
+                                        contentAlignment = Alignment.CenterStart
+                                    ) {
+                                        cell?.let { nonNullCell ->
+                                            ZRichText(
+                                                content = nonNullCell.content,
+                                                inlineMetas = nonNullCell.inlineMetas,
+                                                style = MaterialTheme.typography.bodySmall.copy(
+                                                    fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
+                                                )
                                             )
-                                        )
+                                        }
+                                    }
+
+                                    if (colIndex < element.cols - 1) {
+                                        VerticalDivider(modifier = Modifier.fillMaxHeight())
                                     }
                                 }
-
-                                if (colIndex < element.cols - 1) {
-                                    VerticalDivider(modifier = Modifier.fillMaxHeight())
-                                }
                             }
-                        }
 
-                        if (rowIndex < element.rows - 1) {
-                            HorizontalDivider(thickness = 0.5.dp)
+                            if (rowIndex < element.rows - 1) {
+                                HorizontalDivider(thickness = 0.5.dp)
+                            }
                         }
                     }
                 }
