@@ -64,7 +64,7 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
     }
 
     composable<Settings> {
-        SettingsScreen(onBack = { navController.popBackStack() })
+        SettingsScreen()
     }
 
     composable<ReadHistory> {

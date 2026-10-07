@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.profile
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
@@ -12,12 +11,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit,
 ) {
-    BackHandler {
-        onBack()
-    }
-
     Scaffold { padding ->
         LazyColumn(
             modifier = modifier

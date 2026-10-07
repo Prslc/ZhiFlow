@@ -8,6 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -94,25 +96,48 @@ class MainActivity : ComponentActivity() {
                             enterTransition = {
                                 slideInHorizontally(
                                     initialOffsetX = { it },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
                             },
                             exitTransition = {
                                 slideOutHorizontally(
                                     targetOffsetX = { -it / 5 },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                ) + fadeOut(
+                                    targetAlpha = 0f,
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
                             },
                             popEnterTransition = {
                                 slideInHorizontally(
                                     initialOffsetX = { -it / 5 },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                ) + fadeIn(
+                                    initialAlpha = 0f,
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
                             },
                             popExitTransition = {
                                 slideOutHorizontally(
                                     targetOffsetX = { it },
-                                    animationSpec = tween(600, easing = FastOutSlowInEasing),
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                )
+                            },
+                            // Runs during the back gesture, where the pop* pair above does not --
+                            // the two have to match or the handoff jumps on release.
+                            predictivePopEnterTransition = {
+                                slideInHorizontally(
+                                    initialOffsetX = { -it / 5 },
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                ) + fadeIn(
+                                    initialAlpha = 0f,
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                )
+                            },
+                            predictivePopExitTransition = {
+                                slideOutHorizontally(
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
                             }
                         ) {
