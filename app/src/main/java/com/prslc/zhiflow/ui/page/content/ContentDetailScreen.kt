@@ -47,6 +47,8 @@ import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
+import com.prslc.zhiflow.ui.component.richtext.ContentBodyList
+import com.prslc.zhiflow.ui.component.richtext.rememberContentBodyState
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
 import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -73,6 +75,7 @@ fun ContentDetailScreen(
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
     val richTextElements = viewModel.richTextElements
+    val bodyState = rememberContentBodyState(richTextElements)
     val presentation = viewModel.presentation
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
@@ -178,12 +181,14 @@ fun ContentDetailScreen(
                     else -> {
                         currentContent?.let { answer ->
                             key(id) {
-                                ContentRichTextList(
-                                    richTextElements = richTextElements,
-                                    answer = answer,
+                                ContentBodyList(
+                                    content = answer,
+                                    elements = richTextElements,
+                                    state = bodyState,
                                     navigator = navigator,
                                     topPadding = padding.calculateTopPadding(),
                                     bodyComplete = viewModel.isBodyComplete,
+                                    showAuthorDivider = true,
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
                                 )

@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.page.content
+package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,47 +37,64 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
-import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuContent
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.FollowButton
-import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.Navigator
 import org.koin.compose.koinInject
 
+/** The items [ContentBodyList] lays out before the body: the author's row. */
+private const val LEADING_ITEMS = 1
+
+/**
+ * The state of a content body list: the list, plus the geometry anything outside it needs to reason
+ * about — which is where the progress bar and, later, the outline read from.
+ *
+ * [bodyEnd] is the index of the first item after the body. Trailing chrome stays out of the scale, so
+ * the progress bar completes at the end of the text rather than at the end of the list.
+ */
+@Stable
+class ContentBodyState internal constructor(
+    val listState: LazyListState,
+    val bodyEnd: Int,
+)
+
 @Composable
-fun ContentRichTextList(
-    richTextElements: List<RichTextElement>,
-    answer: ZhihuContent,
+fun rememberContentBodyState(elements: List<RichTextElement>): ContentBodyState {
+    val listState = rememberLazyListState()
+    return remember(listState, elements) {
+        ContentBodyState(listState, LEADING_ITEMS + elements.size)
+    }
+}
+
+/**
+ * The body of a piece of content: the author's row, what they wrote, and the line saying when. Both
+ * detail screens render the same list, so it and the geometry of it are kept in one place.
+ */
+@Composable
+fun ContentBodyList(
+    content: ZhihuContent,
+    elements: List<RichTextElement>,
+    state: ContentBodyState,
     navigator: Navigator,
     topPadding: Dp,
     bodyComplete: Boolean,
+    showAuthorDivider: Boolean,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onProgress: (ReadingPosition) -> Unit
+    onProgress: (ReadingPosition) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState()
-
-    val bodyElements = remember(richTextElements) {
-        richTextElements.filterNot { element ->
-            element is RichTextElement.Card &&
-                element.cardType in setOf("reward_tail_truncate", "free_column_card")
-        }
-    }
-    // The list reads [author header][body][publish footer], so the footer's index is where the
-    // body ends — the scale the progress bar is measured against.
-    val bodyEnd = bodyElements.size + 1
-
     val lightbox = koinInject<ImageLightboxController>()
-    val images = remember(richTextElements) {
-        richTextElements.filterIsInstance<RichTextElement.Image>().map { it.data }
+    val images = remember(elements) {
+        elements.filterIsInstance<RichTextElement.Image>().map { it.data }
     }
     val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
 
     ReadingProgressEffect(
-        state = lazyListState,
-        bodyEnd = bodyEnd,
+        state = state.listState,
+        bodyEnd = state.bodyEnd,
         bodyComplete = bodyComplete,
         onProgress = onProgress,
     )
@@ -84,7 +103,7 @@ fun ContentRichTextList(
     // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.
     SelectionContainer(modifier = modifier) {
         LazyColumn(
-            state = lazyListState,
+            state = state.listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = topPadding),
@@ -93,20 +112,22 @@ fun ContentRichTextList(
             item {
                 DisableSelection {
                     AuthorSection(
-                        author = answer.author,
+                        author = content.author,
                         navigator = navigator,
                         onFollowClick = onFollowClick
                     )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                    )
+                    if (showAuthorDivider) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 20.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        )
+                    }
                 }
             }
 
             itemsIndexed(
-                items = bodyElements,
+                items = elements,
                 key = { index, element ->
                     when (element) {
                         is RichTextElement.Divider -> "divider_$index"
@@ -131,7 +152,7 @@ fun ContentRichTextList(
 
             item {
                 DisableSelection {
-                    answer.contentEnd?.let { contentEnd ->
+                    content.contentEnd?.let { contentEnd ->
                         val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
                             ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
 
@@ -165,7 +186,7 @@ fun ContentRichTextList(
 }
 
 @Composable
-fun AuthorSection(
+private fun AuthorSection(
     author: AnswerAuthor,
     navigator: Navigator,
     onFollowClick: () -> Unit,

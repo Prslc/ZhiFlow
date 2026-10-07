@@ -3,14 +3,8 @@ package com.prslc.zhiflow.ui.page.pin
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.selection.DisableSelection
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -26,7 +20,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -36,26 +29,19 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
-import com.prslc.zhiflow.core.utils.compose.ReadingPosition
-import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
-import com.prslc.zhiflow.data.model.content.ZhihuImage
-import com.prslc.zhiflow.data.model.content.ZhihuPin
-import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
-import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
+import com.prslc.zhiflow.ui.component.richtext.ContentBodyList
+import com.prslc.zhiflow.ui.component.richtext.rememberContentBodyState
 import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
-import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
-import com.prslc.zhiflow.ui.page.content.AuthorSection
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
 fun PinDetailScreen(
@@ -72,6 +58,7 @@ fun PinDetailScreen(
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
     val richTextElements = viewModel.richTextElements
+    val bodyState = rememberContentBodyState(richTextElements)
     val presentation = viewModel.presentation
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
@@ -179,12 +166,14 @@ fun PinDetailScreen(
                     else -> {
                         currentContent?.let { pin ->
                             key(id) {
-                                PinContentList(
-                                    pin = pin,
-                                    richTextElements = richTextElements,
+                                ContentBodyList(
+                                    content = pin,
+                                    elements = richTextElements,
+                                    state = bodyState,
                                     navigator = navigator,
                                     topPadding = padding.calculateTopPadding(),
                                     bodyComplete = viewModel.isBodyComplete,
+                                    showAuthorDivider = false,
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
                                 )
@@ -231,114 +220,6 @@ fun PinDetailScreen(
                     }
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun PinContentList(
-    pin: ZhihuPin,
-    richTextElements: List<RichTextElement>,
-    navigator: com.prslc.zhiflow.ui.navigation.Navigator,
-    topPadding: androidx.compose.ui.unit.Dp,
-    bodyComplete: Boolean,
-    onProgress: (ReadingPosition) -> Unit,
-    onFollowClick: () -> Unit,
-) {
-    val lazyListState = rememberLazyListState()
-
-    // The list reads [author header][body][publish footer], so the footer's index is where the
-    // body ends — the scale the progress bar is measured against.
-    val bodyEnd = richTextElements.size + 1
-
-    val lightbox = koinInject<ImageLightboxController>()
-    val images = remember(richTextElements) {
-        richTextElements.filterIsInstance<RichTextElement.Image>().map { it.data }
-    }
-    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
-
-    ReadingProgressEffect(
-        state = lazyListState,
-        bodyEnd = bodyEnd,
-        bodyComplete = bodyComplete,
-        onProgress = onProgress,
-    )
-
-    // Wraps the whole list on purpose: moving this inside the items loop would cap selection at a
-    // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.
-    SelectionContainer {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = topPadding),
-            contentPadding = PaddingValues(bottom = 80.dp)
-        ) {
-            item {
-                DisableSelection {
-                    AuthorSection(
-                        author = pin.author,
-                        navigator = navigator,
-                        onFollowClick = onFollowClick
-                    )
-                }
-            }
-
-            itemsIndexed(
-                items = richTextElements,
-                key = { index, element ->
-                    when (element) {
-                        is RichTextElement.Divider -> "divider_$index"
-                        is RichTextElement.Image -> "img_${element.data.urls.firstOrNull()}_$index"
-                        else -> "content_${element::class.simpleName}_$index"
-                    }
-                },
-                contentType = { _, element -> element::class.simpleName }
-            ) { _, element ->
-                // List items are consecutive lines, not paragraphs: paragraph spacing leaves every
-                // bullet floating on its own. The row carries its own 2dp.
-                val vertical = if (element is RichTextElement.BulletItem) 0.dp else 16.dp
-                Box(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = vertical)
-                ) {
-                    RichTextSingleElement(
-                        element = element,
-                        onImageClick = onImageClick,
-                    )
-                }
-            }
-
-            item {
-                DisableSelection {
-                    pin.contentEnd?.let { contentEnd ->
-                        val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
-                            ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
-
-                        if (!timeDisplay.isNullOrBlank()) {
-                            Box(modifier = Modifier.padding(20.dp)) {
-                                val text = if (contentEnd.ipInfo.isNotEmpty()) {
-                                    stringResource(
-                                        R.string.content_published_with_ip,
-                                        contentEnd.ipInfo,
-                                        timeDisplay
-                                    )
-                                } else {
-                                    stringResource(
-                                        R.string.content_published_no_ip,
-                                        timeDisplay
-                                    )
-                                }
-
-                                Text(
-                                    text = text,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.outline,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
