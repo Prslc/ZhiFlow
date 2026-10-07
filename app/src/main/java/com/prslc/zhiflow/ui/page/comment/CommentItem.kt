@@ -169,15 +169,16 @@ fun CommentItem(
             )
 
             // images
-            if (comment.parsedContent.images.isNotEmpty()) {
+            val commentImages = comment.parsedContent.images
+            if (commentImages.isNotEmpty()) {
                 Column(
                     modifier = Modifier.padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    comment.parsedContent.images.forEach { image ->
+                    commentImages.forEach { image ->
                         ImageComponent(
                             image = image,
-                            onImageClick = { clicked -> lightbox.open(listOf(clicked), clicked) },
+                            onImageClick = { clicked -> lightbox.open(commentImages, clicked) },
                         )
                     }
                 }
