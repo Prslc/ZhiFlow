@@ -178,7 +178,7 @@ fun CommentHeader(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "back",
+                    contentDescription = stringResource(R.string.general_back),
                 )
             }
             Text(
@@ -202,7 +202,7 @@ fun CommentHeader(
             ) {
                 Icon(
                     Icons.Default.Close,
-                    contentDescription = "close",
+                    contentDescription = stringResource(R.string.general_close),
                 )
             }
         }
