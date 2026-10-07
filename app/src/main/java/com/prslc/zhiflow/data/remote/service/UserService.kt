@@ -16,13 +16,20 @@ class UserService(private val okHttpClient: OkHttpClient) {
     /**
      * Fetches detailed profile information for a specific user.
      *
+     * Profile v2 is the only route that fills in a server-side default cover.
+     * `self` has no v2 route (`/people/self/profile` is 404), but `/people/self`
+     * returns the self model, which carries `cover_url` too.
+     *
      * @param urlToken The unique alphanumeric identifier for a user profile.
      * @return A [Result] containing [ZhihuUser] on success.
      */
     suspend fun getUserDetail(urlToken: String): Result<ZhihuUser> =
         okHttpClient.safeApiCall {
             Request.Builder()
-                .apiUrl("/people/$urlToken")
+                .apiUrl(
+                    if (urlToken == SELF_TOKEN) "/people/$urlToken"
+                    else "/people/$urlToken/profile?profile_new_version=1"
+                )
                 .get()
                 .build()
         }
@@ -58,4 +65,9 @@ class UserService(private val okHttpClient: OkHttpClient) {
                 .delete(ByteArray(0).toRequestBody())
                 .build()
         }
+
+    private companion object {
+        /** The token that stands in for the signed-in user. */
+        const val SELF_TOKEN = "self"
+    }
 }
