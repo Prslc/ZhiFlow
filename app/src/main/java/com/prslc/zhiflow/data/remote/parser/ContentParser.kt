@@ -16,6 +16,10 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 
 @Immutable
 object ContentParser {
+
+    /** Page furniture rather than content: dropped here so the parsed body is the body everywhere. */
+    private val DROPPED_CARD_TYPES = setOf("reward_tail_truncate", "free_column_card")
+
     /**
      * Transform raw API segments into renderable [RichTextElement] list.
      *
@@ -155,6 +159,8 @@ object ContentParser {
     }
 
     private fun parseCard(card: Card?) = card?.let {
+        if (it.cardType in DROPPED_CARD_TYPES) return@let emptyList()
+
         val extra = JsonHelper.parseExtraInfo(it.extraInfo)
 
         if (it.cardType == "matrix-image-card") {
