@@ -1,10 +1,16 @@
 package com.prslc.zhiflow.ui.component.richtext.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -27,29 +34,48 @@ fun BulletItemRow(
     modifier: Modifier = Modifier
 ) {
     val indentation = (maxOf(0, element.level - 1) * 12).dp
+    val markerWidth = 24.dp
+    val style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp)
+    // A drawn dot rather than a "•": a glyph's size and position come from the font, and it cannot be
+    // centred on the line, which is where a bullet reads as belonging to the text.
+    val dotSize = 6.dp
+    // The first line's own height, so the dot can be centred on it instead of on the whole row.
+    val firstLineHeight = with(LocalDensity.current) { 22.sp.toDp() }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = indentation, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.Top
     ) {
-        val bulletLabel = if (element.isOrdered) "${element.index}." else "•"
+        when {
+            element.isOrdered -> Text(
+                text = "${element.index}.",
+                style = style.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                ),
+                modifier = Modifier.width(markerWidth).alignByBaseline(),
+            )
 
-        Text(
-            text = bulletLabel,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.width(24.dp),
-        )
+            else -> Box(
+                modifier = Modifier.width(markerWidth).height(firstLineHeight),
+                contentAlignment = Alignment.Center,
+            ) {
+                // A sub-list changes its mark as well as its indent, the way a nested ul does on the
+                // web: filled disc, then ring, then square, and back round.
+                val color = MaterialTheme.colorScheme.primary
+                when ((element.level - 1) % 3) {
+                    1 -> Box(modifier = Modifier.size(dotSize).border(1.5.dp, color, CircleShape))
+                    2 -> Box(modifier = Modifier.size(5.dp).background(color))
+                    else -> Box(modifier = Modifier.size(dotSize).background(color, CircleShape))
+                }
+            }
+        }
         ZRichText(
             content = element.content,
             inlineMetas = element.inlineMetas,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                lineHeight = 22.sp
-            ),
-            modifier = Modifier.weight(1f),
+            style = style,
+            modifier = Modifier.weight(1f).alignByBaseline(),
         )
     }
 }

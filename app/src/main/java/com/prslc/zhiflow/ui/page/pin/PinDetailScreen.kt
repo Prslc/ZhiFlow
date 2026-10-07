@@ -295,8 +295,11 @@ private fun PinContentList(
                 },
                 contentType = { _, element -> element::class.simpleName }
             ) { _, element ->
+                // List items are consecutive lines, not paragraphs: paragraph spacing leaves every
+                // bullet floating on its own. The row carries its own 2dp.
+                val vertical = if (element is RichTextElement.BulletItem) 0.dp else 16.dp
                 Box(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = vertical)
                 ) {
                     RichTextSingleElement(
                         element = element,
