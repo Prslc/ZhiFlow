@@ -13,6 +13,9 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Immutable
 object AnnotatedStringBuilder {
+    /** Stands in for an inline formula in the built text; the inline content draws the image over it. */
+    const val FORMULA_PLACEHOLDER = "\uFFFD"
+
     /**
      * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.
      *
@@ -49,7 +52,7 @@ object AnnotatedStringBuilder {
                 val formulaStartInBuilt = length
                 onFormulaFound(formula, formulaStartInBuilt)?.let { meta ->
                     inlineMetas.add(meta)
-                    appendInlineContent(meta.inlineId, "\uFFFD")
+                    appendInlineContent(meta.inlineId, FORMULA_PLACEHOLDER)
                     addStringAnnotation("INLINE_ID", meta.inlineId, formulaStartInBuilt, length)
                 }
 
