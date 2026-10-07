@@ -54,15 +54,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.isOverflowed
@@ -73,6 +70,7 @@ import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
+import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -322,7 +320,7 @@ private fun QuestionElement(
                 }
             }
 
-            is DetailElement.Image -> ImageItem(element.image, onImageClick)
+            is DetailElement.Image -> ImageComponent(element.image, onImageClick)
         }
     }
 }
@@ -464,36 +462,5 @@ fun QuestionStatsSection(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.outline,
         )
-    }
-}
-
-@Composable
-fun ImageItem(
-    image: ZhihuImage,
-    onImageClick: (ZhihuImage) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AsyncImage(
-            model = image.displayUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .clickable { onImageClick(image) },
-            contentScale = ContentScale.FillWidth,
-        )
-        image.description.takeIf { it.isNotEmpty() }?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(top = 8.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
     }
 }
