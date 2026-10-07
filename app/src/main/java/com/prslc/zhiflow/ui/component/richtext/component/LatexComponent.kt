@@ -38,9 +38,9 @@ import kotlinx.serialization.json.Json
  * Builds an inline formula placeholder sized by the server-provided dp dimensions.
  *
  * The Zhihu API reports each formula's display size in dp ([Formula.width]/[Formula.height],
- * the rendered bitmap is 3x that). The official app uses these exact dp values as the
- * span bounds, so formulas naturally vary in height (simple subscripts ~13dp, display
- * fractions up to ~56dp). [Placeholder] only accepts sp/em units, so the dp target is
+ * the rendered bitmap is 3x that). The span bounds take those exact dp values as they come,
+ * so formulas keep their natural size variation (simple subscripts ~13dp, display fractions up
+ * to ~56dp). [Placeholder] only accepts sp/em units, so the dp target is
  * converted via density and then divided by fontScale so the final rendered pixels stay
  * constant regardless of the user's system font size.
  *
@@ -58,8 +58,8 @@ fun formulaPlaceholder(density: Density, widthDp: Float, heightDp: Float): Place
 }
 
 /**
- * Returns the max inline formula width in dp, mirroring the official app: screen width
- * minus 2*21dp of horizontal padding.
+ * Returns the max inline formula width in dp: screen width minus 42dp, so an over-wide formula
+ * scales down instead of being cropped or scrolled.
  */
 @Composable
 internal fun rememberFormulaMaxWidth(): Float {
@@ -68,9 +68,9 @@ internal fun rememberFormulaMaxWidth(): Float {
 }
 
 /**
- * Constrains a formula's dimensions to the content column width, mirroring the official
- * app: if the formula's width exceeds [maxWidthDp] (screen width minus horizontal
- * padding), scale both dimensions proportionally.
+ * Constrains a formula's dimensions to the content column: if the formula's width exceeds
+ * [maxWidthDp], scale both dimensions proportionally so it shrinks rather than being cropped or
+ * scrolled.
  */
 internal fun constrainedSize(
     widthDp: Float,
@@ -132,8 +132,8 @@ private fun FormulaImage(
         modifier = modifier,
         contentScale = ContentScale.FillBounds,
         colorFilter = if (isSystemInDarkTheme()) {
-            // Mirror the official app: invert the white-background formula bitmap so the
-            // background turns dark and the black glyphs turn light in dark mode.
+            // Invert the white-background formula bitmap so the background turns dark and the
+            // black glyphs turn light in dark mode.
             val matrix = ColorMatrix(
                 floatArrayOf(
                     -1f, 0f, 0f, 0f, 255f,
@@ -177,9 +177,9 @@ fun FormulaTextSection(
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    // Compose does not grow a text row to fit a tall inline placeholder (unlike the official
-    // app's getSize font-metrics adjustment), so tall formulas (\displaystyle fractions) would
-    // overlap adjacent rows. Raise the paragraph line height to cover the tallest formula.
+    // Compose does not grow a text row to fit a tall inline placeholder, so tall formulas
+    // (\displaystyle fractions) would overlap adjacent rows. Raise the paragraph line height to
+    // cover the tallest formula.
     val maxFormulaHeightDp = element.inlineMetas.maxOfOrNull {
         constrainedSize(it.formula.width.toFloat(), it.formula.height.toFloat(), maxWidthDp).second
     } ?: 0f

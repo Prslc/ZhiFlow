@@ -22,8 +22,8 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
  * Builds [InlineTextContent] entries for inline formulas.
  *
  * The Zhihu API provides each formula's rendered image URL plus its display size in dp.
- * Placeholder bounds use those exact dp dimensions (mirroring the official app), so the
- * layout is tight with no extra vertical whitespace.
+ * Placeholder bounds use those exact dp dimensions, so the layout is tight with no extra
+ * vertical whitespace.
  */
 @Composable
 fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextContent> {
