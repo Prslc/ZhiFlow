@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
@@ -139,7 +140,7 @@ fun ContentDetailScreen(
                 topBar = {
                     ContentDetailTopBar(
                         currentContent = currentContent,
-                        isLoading = loadingState.isLoading,
+                        error = loadingState.error,
                         contentType = contentType,
                         scrollBehavior = scrollBehavior,
                         onBack = onBack,
@@ -147,19 +148,22 @@ fun ContentDetailScreen(
                     )
                 },
                 bottomBar = {
-                    ContentDetailBottomBar(
-                        isVisible = isBottomBarVisible && currentContent != null,
-                        currentContent = currentContent,
-                        interaction = interaction,
-                        displayUpvoteCount = viewModel.displayUpvoteCount,
-                        onVoteClick = onVoteClick,
-                        onStarClick = onStarClick,
-                        onCommentClick = onCommentClick,
-                    )
+                    // Outside the animated wrapper: a failure drops the bar, never retracts it.
+                    if (loadingState.error == null) {
+                        ContentDetailBottomBar(
+                            isVisible = isBottomBarVisible,
+                            currentContent = currentContent,
+                            interaction = interaction,
+                            upvoteCount = viewModel.displayUpvoteCount,
+                            onVoteClick = onVoteClick,
+                            onStarClick = onStarClick,
+                            onCommentClick = onCommentClick,
+                        )
+                    }
                 }
             ) { padding ->
                 when {
-                    loadingState.isLoading && currentContent == null -> {
+                    currentContent == null && loadingState.error == null -> {
                         LoadingView(modifier = Modifier.fillMaxSize())
                     }
 
@@ -235,7 +239,7 @@ fun ContentDetailScreen(
 @Composable
 private fun ContentDetailTopBar(
     currentContent: ZhihuContent?,
-    isLoading: Boolean,
+    error: ApiException?,
     contentType: ContentType,
     scrollBehavior: TopAppBarScrollBehavior,
     onBack: () -> Unit,
@@ -245,7 +249,7 @@ private fun ContentDetailTopBar(
         title = {
             val titleText = when {
                 currentContent != null -> currentContent.displayTitle
-                isLoading -> ""
+                error == null -> ""
                 else -> stringResource(R.string.content_title_filed)
             }
 

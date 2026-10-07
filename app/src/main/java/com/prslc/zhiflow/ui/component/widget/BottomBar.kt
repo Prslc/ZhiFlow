@@ -46,9 +46,9 @@ fun BottomBar(
     isUpvoted: Boolean,
     isDownvoted: Boolean,
     isFavorite: Boolean,
-    upvoteCount: Int,
-    favCount: Int,
-    commentCount: Int,
+    upvoteCount: Int?,
+    favCount: Int?,
+    commentCount: Int?,
     onVoteClick: (String) -> Unit,
     onStarClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -100,15 +100,17 @@ fun BottomBar(
                             tint = upvoteContentColor,
                             modifier = Modifier.size(18.dp),
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(
-                                R.string.bottom_upvote, formatCount(upvoteCount)
-                            ),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = upvoteContentColor,
-                        )
+                        if (upvoteCount != null) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(
+                                    R.string.bottom_upvote, formatCount(upvoteCount)
+                                ),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = upvoteContentColor,
+                            )
+                        }
                     }
                 }
 
@@ -145,13 +147,13 @@ fun BottomBar(
             ) {
                 BottomActionItem(
                     icon = if (isFavorite) Icons.Filled.Star else Icons.Default.Star,
-                    label = formatCount(favCount),
+                    label = favCount?.let(::formatCount).orEmpty(),
                     iconTint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onStarClick,
                 )
                 BottomActionItem(
                     icon = Icons.AutoMirrored.Default.Comment,
-                    label = formatCount(commentCount),
+                    label = commentCount?.let(::formatCount).orEmpty(),
                     onClick = onCommentClick,
                 )
             }
@@ -167,13 +169,15 @@ private fun BottomActionItem(
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: () -> Unit
 ) {
+    // fillMaxHeight keeps the icon at a fixed offset whether or not the label is
+    // rendered, so a count arriving never nudges the icon.
     Column(
         modifier = modifier
+            .fillMaxHeight()
             .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center

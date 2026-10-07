@@ -45,7 +45,6 @@ class ContentViewModel(
 
     @Stable
     data class LoadingState(
-        val isLoading: Boolean = false,
         val content: ZhihuContent? = null,
         val error: ApiException? = null,
     )
@@ -82,9 +81,11 @@ class ContentViewModel(
     private var loadJob: Job? = null
     private var parseJob: Job? = null
 
-    val displayUpvoteCount: Int
-        get() = (loadingState.content?.reaction?.statistics?.upVoteCount
-            ?: 0) + interactionState.upvoteOffset
+    /** Null until the content has loaded; the bottom bar renders no count while null. */
+    val displayUpvoteCount: Int?
+        get() = loadingState.content?.let { content ->
+            (content.reaction?.statistics?.upVoteCount ?: 0) + interactionState.upvoteOffset
+        }
 
     /**
      * Load content by [ContentType]
@@ -95,7 +96,6 @@ class ContentViewModel(
     fun loadContent(id: String, type: ContentType) {
         loadJob?.cancel()
         resetStates()
-        loadingState = LoadingState(isLoading = true)
         loadJob = viewModelScope.launch {
             val result = when (type) {
                 ContentType.ARTICLE -> repository.getArticle(id)
@@ -116,7 +116,7 @@ class ContentViewModel(
                 }
                 parseRichText()
             }.onApiFailure { error ->
-                loadingState = loadingState.copy(isLoading = false, error = error)
+                loadingState = loadingState.copy(error = error)
             }
         }
     }

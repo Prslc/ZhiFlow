@@ -41,7 +41,6 @@ class PinViewModel(
 
     @Stable
     data class LoadingState(
-        val isLoading: Boolean = false,
         val content: ZhihuPin? = null,
         val error: ApiException? = null,
     )
@@ -78,14 +77,15 @@ class PinViewModel(
     private var loadJob: Job? = null
     private var parseJob: Job? = null
 
-    val displayUpvoteCount: Int
-        get() = (loadingState.content?.reaction?.statistics?.upVoteCount
-            ?: 0) + interactionState.upvoteOffset
+    /** Null until the content has loaded; the bottom bar renders no count while null. */
+    val displayUpvoteCount: Int?
+        get() = loadingState.content?.let { content ->
+            content.reaction.statistics.upVoteCount + interactionState.upvoteOffset
+        }
 
     fun loadContent(id: String) {
         loadJob?.cancel()
         resetStates()
-        loadingState = LoadingState(isLoading = true)
         loadJob = viewModelScope.launch {
             repository.getPin(id)
                 .onSuccess { data ->
@@ -102,7 +102,7 @@ class PinViewModel(
                     parseRichText()
                 }
                 .onApiFailure { error ->
-                    loadingState = loadingState.copy(isLoading = false, error = error)
+                    loadingState = loadingState.copy(error = error)
                 }
         }
     }

@@ -12,7 +12,7 @@ fun ContentDetailBottomBar(
     isVisible: Boolean,
     currentContent: ZhihuContent?,
     interaction: ContentViewModel.InteractionState,
-    displayUpvoteCount: Int,
+    upvoteCount: Int?,
     onVoteClick: (String) -> Unit,
     onStarClick: () -> Unit,
     onCommentClick: () -> Unit
@@ -22,18 +22,16 @@ fun ContentDetailBottomBar(
         enter = slideInVertically(initialOffsetY = { it }),
         exit = slideOutVertically(targetOffsetY = { it }),
     ) {
-        currentContent?.let { content ->
-            BottomBar(
-                isUpvoted = interaction.isUpvoted,
-                isDownvoted = interaction.isDownvoted,
-                isFavorite = interaction.isFavorite,
-                upvoteCount = displayUpvoteCount,
-                favCount = content.reaction?.statistics?.favoritesCount ?: 0,
-                commentCount = content.reaction?.statistics?.commentCount ?: 0,
-                onVoteClick = onVoteClick,
-                onStarClick = onStarClick,
-                onCommentClick = onCommentClick,
-            )
-        }
+        BottomBar(
+            isUpvoted = interaction.isUpvoted,
+            isDownvoted = interaction.isDownvoted,
+            isFavorite = interaction.isFavorite,
+            upvoteCount = upvoteCount,
+            favCount = currentContent?.reaction?.statistics?.favoritesCount,
+            commentCount = currentContent?.reaction?.statistics?.commentCount,
+            onVoteClick = onVoteClick,
+            onStarClick = onStarClick,
+            onCommentClick = onCommentClick,
+        )
     }
 }

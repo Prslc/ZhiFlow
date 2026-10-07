@@ -145,14 +145,14 @@ fun PinDetailScreen(
                     )
                 },
                 bottomBar = {
-                    if (currentContent != null) {
+                    if (loadingState.error == null) {
                         BottomBar(
                             isUpvoted = interaction.isUpvoted,
                             isDownvoted = interaction.isDownvoted,
                             isFavorite = interaction.isFavorite,
                             upvoteCount = viewModel.displayUpvoteCount,
-                            favCount = currentContent.reaction.statistics.favoritesCount,
-                            commentCount = currentContent.reaction.statistics.commentCount,
+                            favCount = currentContent?.reaction?.statistics?.favoritesCount,
+                            commentCount = currentContent?.reaction?.statistics?.commentCount,
                             onVoteClick = onVoteClick,
                             onStarClick = onStarClick,
                             onCommentClick = onCommentClick,
@@ -161,7 +161,7 @@ fun PinDetailScreen(
                 }
             ) { padding ->
                 when {
-                    loadingState.isLoading && currentContent == null -> {
+                    currentContent == null && loadingState.error == null -> {
                         LoadingView(modifier = Modifier.fillMaxSize())
                     }
 
