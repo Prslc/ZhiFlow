@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.prslc.zhiflow.data.model.content.ZhihuImage
@@ -43,4 +44,25 @@ fun ImageLightboxHost(modifier: Modifier = Modifier) {
             modifier = modifier,
         )
     }
+}
+
+/** A one-page lightbox trigger for a standalone image; a null or blank [url] yields a no-op. */
+@Composable
+fun rememberSingleImageLightbox(url: String?): () -> Unit {
+    val controller = koinInject<ImageLightboxController>()
+    val images = remember(url) {
+        url?.takeIf { it.isNotBlank() }?.let { nonBlank ->
+            listOf(
+                ZhihuImage(
+                    urls = listOf(nonBlank),
+                    width = 0,
+                    height = 0,
+                    description = "",
+                    isGif = false,
+                )
+            )
+        }.orEmpty()
+    }
+    val first = images.firstOrNull() ?: return {}
+    return { controller.open(images, first) }
 }

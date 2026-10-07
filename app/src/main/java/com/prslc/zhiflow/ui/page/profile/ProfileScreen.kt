@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.profile
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,7 @@ import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
 import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
+import com.prslc.zhiflow.ui.component.widget.rememberSingleImageLightbox
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -242,6 +244,8 @@ private fun ProfileHeader(
     onSettingsClick: () -> Unit,
     statusBarHeight: Dp,
 ) {
+    val openCover = rememberSingleImageLightbox(user.coverUrl)
+    val openAvatar = rememberSingleImageLightbox(user.avatar)
     Box(modifier = Modifier.fillMaxWidth()) {
         // Cover image
         AsyncImage(
@@ -249,7 +253,8 @@ private fun ProfileHeader(
             contentDescription = stringResource(R.string.profile_cover_desc),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp),
+                .height(180.dp)
+                .clickable(onClick = openCover),
             contentScale = ContentScale.Crop,
         )
 
@@ -279,6 +284,7 @@ private fun ProfileHeader(
             AsyncImage(
                 model = user.avatar,
                 contentDescription = stringResource(R.string.content_desc_avatar),
+                modifier = Modifier.clickable(onClick = openAvatar),
                 contentScale = ContentScale.Crop,
             )
         }

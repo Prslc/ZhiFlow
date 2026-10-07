@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.people
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.FollowButton
+import com.prslc.zhiflow.ui.component.widget.rememberSingleImageLightbox
 
 @Composable
 fun PeopleHeader(
@@ -40,6 +42,8 @@ fun PeopleHeader(
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val openCover = rememberSingleImageLightbox(user.coverUrl)
+    val openAvatar = rememberSingleImageLightbox(user.avatar)
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -49,7 +53,8 @@ fun PeopleHeader(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp),
+                    .height(160.dp)
+                    .clickable(onClick = openCover),
                 contentScale = ContentScale.Crop,
             )
 
@@ -69,6 +74,7 @@ fun PeopleHeader(
                     AsyncImage(
                         model = user.avatar,
                         contentDescription = stringResource(R.string.content_desc_avatar),
+                        modifier = Modifier.clickable(onClick = openAvatar),
                         contentScale = ContentScale.Crop,
                     )
                 }

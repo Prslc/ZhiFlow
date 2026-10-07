@@ -19,6 +19,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
+import org.koin.compose.koinInject
 
 data class ImageData(
     val url: String,
@@ -26,14 +29,26 @@ data class ImageData(
     val height: Int,
 )
 
+/** Display-layer adapter for the lightbox: a thumbnail only carries a single url. */
+private fun ImageData.toZhihuImage(): ZhihuImage = ZhihuImage(
+    urls = listOf(url),
+    width = width,
+    height = height,
+    description = "",
+    isGif = false,
+)
+
 @Composable
 fun ThumbnailRow(
     images: List<ImageData>,
     modifier: Modifier = Modifier,
     imageHeight: Dp = 100.dp,
-    onImageClick: (String) -> Unit = {},
 ) {
     if (images.isEmpty()) return
+
+    val lightbox = koinInject<ImageLightboxController>()
+    // Kept 1:1 with `images`: the click handler indexes into it, and open() matches by identity.
+    val lightboxImages = remember(images) { images.map { it.toZhihuImage() } }
 
     Row(
         modifier = modifier
@@ -57,7 +72,11 @@ fun ThumbnailRow(
                         .widthIn(max = 150.dp)
                         .aspectRatio(aspectRatio)
                         .clip(MaterialTheme.shapes.small)
-                        .clickable { onImageClick(image.url) },
+                        .clickable {
+                            if (image.url.isBlank()) return@clickable
+                            val tapped = lightboxImages.getOrNull(index) ?: return@clickable
+                            lightbox.open(lightboxImages, tapped)
+                        },
                     contentScale = ContentScale.Crop,
                 )
             }
