@@ -253,10 +253,9 @@ fun ContentDetailScreen(
                 onEntryClick = { entry ->
                     showOutline = false
                     scope.launch {
-                        // A far jump asks the list for a new position instead of scrolling to it,
-                        // so nothing reaches the bar. A scroll covering an item or more would.
-                        val downwards = entry.index > bodyState.listState.firstVisibleItemIndex
-                        launch { scrollBehavior.moveTo(collapsed = downwards) }
+                        // Landing on a section leaves the bar out of the way. It has to be moved
+                        // here: a far jump never reaches the bar's own scroll connection.
+                        launch { scrollBehavior.retract() }
                         bodyState.scrollTo(entry)
                     }
                 },
@@ -343,10 +342,10 @@ private fun ContentDetailTopBar(
     )
 }
 
-/** Puts the bar where a scroll in the same direction would have left it: out of the way, or back. */
-private suspend fun TopAppBarScrollBehavior.moveTo(collapsed: Boolean) {
+/** Puts the bar out of the way, the way arriving at a section should leave it. */
+private suspend fun TopAppBarScrollBehavior.retract() {
     animate(
         initialValue = state.heightOffset,
-        targetValue = if (collapsed) state.heightOffsetLimit else 0f,
+        targetValue = state.heightOffsetLimit,
     ) { value, _ -> state.heightOffset = value }
 }
