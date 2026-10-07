@@ -42,12 +42,10 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
 import com.prslc.zhiflow.data.model.content.ZhihuContent
-import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
-import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
@@ -82,12 +80,6 @@ fun ContentDetailScreen(
     )
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    val imageUrls = remember(richTextElements) {
-        richTextElements
-            .filterIsInstance<RichTextElement.Image>()
-            .mapNotNull { it.data.urls.firstOrNull() }
-    }
 
     val isDark = isSystemInDarkTheme()
 
@@ -188,12 +180,6 @@ fun ContentDetailScreen(
                                     answer = answer,
                                     navigator = navigator,
                                     topPadding = padding.calculateTopPadding(),
-                                    onImageClick = { url ->
-                                        val index = imageUrls.indexOf(url)
-                                        if (index != -1) {
-                                            viewModel.openLightbox(index)
-                                        }
-                                    },
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
                                 )
@@ -230,27 +216,17 @@ fun ContentDetailScreen(
                     when (event) {
                         CommentUiEvent.DismissSheet -> commentViewModel.onSheetDismissed()
                         CommentUiEvent.BackToMain -> commentViewModel.backToMain()
-                        CommentUiEvent.CloseImage -> commentViewModel.closeImage()
                         CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
 
                         is CommentUiEvent.LoadRootComments -> commentViewModel.loadComments(event.id, event.contentType)
                         is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
                         is CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
-                        is CommentUiEvent.OpenImage -> commentViewModel.openImage(event.url)
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                     }
                 }
             )
-
-            if (presentation.isLightboxVisible) {
-                ImageLightbox(
-                    imageUrls = imageUrls,
-                    initialIndex = presentation.currentImageIndex,
-                    onDismiss = { viewModel.dismissLightbox() },
-                )
-            }
         }
     }
 }

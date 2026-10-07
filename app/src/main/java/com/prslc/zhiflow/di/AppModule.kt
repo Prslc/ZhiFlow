@@ -25,6 +25,7 @@ import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
 import com.prslc.zhiflow.data.remote.service.UserService
 import com.prslc.zhiflow.data.session.UserSession
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
@@ -55,6 +56,7 @@ val appModule = module {
     singleOf(::HttpLogStore)
     singleOf(::HttpClientProvider)
     single { get<HttpClientProvider>().okHttpClient }
+    singleOf(::ImageLightboxController)
 
     // Feed
     singleOf(::FeedService)

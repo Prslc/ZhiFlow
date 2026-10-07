@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -117,6 +118,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             contentGraph(navController)
                         }
+                        ImageLightboxHost()
                     }
                 }
             }

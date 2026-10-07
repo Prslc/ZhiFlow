@@ -152,8 +152,8 @@ private fun FormulaImage(
 @Composable
 fun FormulaTextSection(
     element: RichTextElement.ParsedText,
-    onImageClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFormulaClick: (String) -> Unit = {},
 ) {
     val navigator = LocalNavigator.current
     val density = LocalDensity.current
@@ -203,7 +203,7 @@ fun FormulaTextSection(
                     element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
                         .firstOrNull()?.let { annotation ->
                             runCatching { Json.decodeFromString<Formula>(annotation.item) }
-                                .getOrNull()?.imgUrl?.let { onImageClick(it) }
+                                .getOrNull()?.imgUrl?.let { onFormulaClick(it) }
                         }
                 }
             }

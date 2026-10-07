@@ -71,8 +71,6 @@ class ContentViewModel(
     data class PresentationState(
         val showCollectionSheet: Boolean = false,
         val showComments: Boolean = false,
-        val isLightboxVisible: Boolean = false,
-        val currentImageIndex: Int = 0,
     )
 
     var presentation by mutableStateOf(PresentationState())
@@ -183,14 +181,6 @@ class ContentViewModel(
 
     fun setFaved(isFavorite: Boolean) {
         interactionState = interactionState.copy(isFavorite = isFavorite)
-    }
-
-    fun openLightbox(index: Int) {
-        presentation = presentation.copy(isLightboxVisible = true, currentImageIndex = index)
-    }
-
-    fun dismissLightbox() {
-        presentation = presentation.copy(isLightboxVisible = false)
     }
 
     fun openCollection() {

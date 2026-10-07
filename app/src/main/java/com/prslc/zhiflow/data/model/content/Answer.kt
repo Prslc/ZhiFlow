@@ -100,7 +100,15 @@ data class ZhihuImage(
     val height: Int,
     val description: String,
     @SerialName("is_gif") val isGif: Boolean,
-)
+) {
+    /** GIF-first display URL; falls back to the first URL when no gif variant is present. */
+    val displayUrl: String?
+        get() = if (isGif) {
+            urls.find { it.contains(".gif", ignoreCase = true) } ?: urls.firstOrNull()
+        } else {
+            urls.firstOrNull()
+        }
+}
 
 @Immutable
 @Serializable

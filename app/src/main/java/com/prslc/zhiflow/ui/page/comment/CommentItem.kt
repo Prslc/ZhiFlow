@@ -37,8 +37,10 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
+import org.koin.compose.koinInject
 
 @Composable
 fun CommentItem(
@@ -56,6 +58,7 @@ fun CommentItem(
     )
 
     val navigator = LocalNavigator.current
+    val lightbox = koinInject<ImageLightboxController>()
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     // emoji
@@ -174,7 +177,7 @@ fun CommentItem(
                     comment.parsedContent.images.forEach { image ->
                         ImageComponent(
                             image = image,
-                            onImageClick = { url -> onEvent(CommentUiEvent.OpenImage(url)) },
+                            onImageClick = { clicked -> lightbox.open(listOf(clicked), clicked) },
                         )
                     }
                 }

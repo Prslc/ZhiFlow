@@ -29,7 +29,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -75,11 +73,11 @@ import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
-import com.prslc.zhiflow.ui.component.widget.ImageLightbox
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuestionDetailScreen(
     id: String,
@@ -90,14 +88,7 @@ fun QuestionDetailScreen(
     val uiState = viewModel.uiState
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    var isLightboxVisible by rememberSaveable { mutableStateOf(false) }
-    var currentImageIndex by rememberSaveable { mutableIntStateOf(0) }
     var isExpanded by rememberSaveable { mutableStateOf(false) }
-
-    val imageUrls = remember(uiState.elements) {
-        uiState.elements.filterIsInstance<DetailElement.Image>()
-            .flatMap { it.image.urls }
-    }
 
     LaunchedEffect(id) { viewModel.loadQuestion(id) }
 
@@ -140,20 +131,8 @@ fun QuestionDetailScreen(
                                 is QuestionUiEvent.LoadMore -> viewModel.loadMore(event.id)
                             }
                         },
-                        onImageClick = { url ->
-                            currentImageIndex = imageUrls.indexOf(url).coerceAtLeast(0)
-                            isLightboxVisible = true
-                        }
                     )
                 }
-            }
-
-            if (isLightboxVisible) {
-                ImageLightbox(
-                    imageUrls = imageUrls,
-                    initialIndex = currentImageIndex,
-                    onDismiss = { isLightboxVisible = false },
-                )
             }
         }
     }
@@ -166,10 +145,14 @@ private fun QuestionContentList(
     isExpanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
     onEvent: (QuestionUiEvent) -> Unit,
-    onImageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val navigator = LocalNavigator.current
+    val lightbox = koinInject<ImageLightboxController>()
+    val images = remember(state.elements) {
+        state.elements.filterIsInstance<DetailElement.Image>().map { it.image }
+    }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
 
     val lazyListState = rememberLazyListState()
     var firstItemOverflowed by remember { mutableStateOf(false) }
@@ -299,7 +282,7 @@ private fun QuestionElement(
     element: DetailElement,
     isExpanded: Boolean,
     onOverflow: (Boolean) -> Unit,
-    onImageClick: (String) -> Unit,
+    onImageClick: (ZhihuImage) -> Unit,
     onUrlClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -420,7 +403,6 @@ private fun ExpandToggleButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun QuestionTopBar(
     state: QuestionViewModel.QuestionUiState,
@@ -488,7 +470,7 @@ fun QuestionStatsSection(
 @Composable
 fun ImageItem(
     image: ZhihuImage,
-    onImageClick: (String) -> Unit,
+    onImageClick: (ZhihuImage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -496,12 +478,12 @@ fun ImageItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = image.urls.firstOrNull(),
+            model = image.displayUrl,
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { image.urls.firstOrNull()?.let { onImageClick(it) } },
+                .clickable { onImageClick(image) },
             contentScale = ContentScale.FillWidth,
         )
         image.description.takeIf { it.isNotEmpty() }?.let {

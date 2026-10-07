@@ -35,7 +35,6 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
-import com.prslc.zhiflow.ui.component.widget.ImageLightbox
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 @Composable
@@ -70,7 +69,7 @@ fun CommentBottomSheet(
                 onDismissRequest()
             }
         ) {
-            BackHandler(enabled = showComments && childUiState.isDetailMode && !uiState.isLightboxVisible) {
+            BackHandler(enabled = showComments && childUiState.isDetailMode) {
                 onEvent(CommentUiEvent.BackToMain)
             }
 
@@ -153,14 +152,6 @@ fun CommentBottomSheet(
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier.align(Alignment.BottomCenter),
-            )
-        }
-
-        if (uiState.isLightboxVisible) {
-            ImageLightbox(
-                imageUrls = uiState.selectedImageUrls,
-                initialIndex = uiState.initialImageIndex,
-                onDismiss = { onEvent(CommentUiEvent.CloseImage) },
             )
         }
     }

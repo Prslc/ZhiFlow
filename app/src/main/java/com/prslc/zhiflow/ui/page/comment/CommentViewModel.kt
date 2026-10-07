@@ -20,13 +20,11 @@ import kotlinx.coroutines.launch
 sealed interface CommentUiEvent {
     data object DismissSheet : CommentUiEvent
     data object BackToMain : CommentUiEvent
-    data object CloseImage : CommentUiEvent
     data object LoadMoreReplies : CommentUiEvent
     data object ActionErrorShown : CommentUiEvent
     data class LoadRootComments(val id: String, val contentType: ContentType) : CommentUiEvent
     data class NavigatedToUser(val userId: String) : CommentUiEvent
     data class ToggleLike(val commentId: String) : CommentUiEvent
-    data class OpenImage(val url: String) : CommentUiEvent
     data class ShowAuthor(val urlToken: String) : CommentUiEvent
     data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
 }
@@ -42,9 +40,6 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val hasMore: Boolean = true,
         val error: ApiException? = null,
         val actionError: ApiException? = null,
-        val isLightboxVisible: Boolean = false,
-        val selectedImageUrls: List<String> = emptyList(),
-        val initialImageIndex: Int = 0,
         val navigateToUser: String? = null,
     )
 
@@ -179,18 +174,6 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             }
             pendingReactions.remove(commentId)
         }
-    }
-
-    fun openImage(url: String) {
-        uiState = uiState.copy(
-            selectedImageUrls = listOf(url),
-            initialImageIndex = 0,
-            isLightboxVisible = true,
-        )
-    }
-
-    fun closeImage() {
-        uiState = uiState.copy(isLightboxVisible = false, selectedImageUrls = emptyList())
     }
 
     fun backToMain() {

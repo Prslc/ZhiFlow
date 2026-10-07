@@ -1,12 +1,15 @@
 package com.prslc.zhiflow.ui.component.widget
 
-import android.app.Activity
+import android.view.View
+import android.view.ViewParent
+import android.view.Window
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -49,7 +52,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -58,51 +63,72 @@ import coil3.request.crossfade
 import coil3.size.Size
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.ImageHelper
-import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
-import me.saket.telephoto.zoomable.rememberZoomableState
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ImageLightbox(
-    imageUrls: List<String>, initialIndex: Int, modifier: Modifier = Modifier, onDismiss: () -> Unit
+    images: List<ZhihuImage>,
+    initialIndex: Int,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    if (imageUrls.isEmpty()) return
+    if (images.isEmpty()) return
 
-    val pagerState = rememberPagerState(
-        initialPage = initialIndex.coerceIn(0, (imageUrls.size - 1).coerceAtLeast(0))
-    ) { imageUrls.size }
-    var isCurrentPageZoomed by remember { mutableStateOf(false) }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
+    ) {
+        val pagerState = rememberPagerState(
+            initialPage = initialIndex.coerceIn(0, (images.size - 1).coerceAtLeast(0))
+        ) { images.size }
+        var isCurrentPageZoomed by remember { mutableStateOf(false) }
+        var isMenuExpanded by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-    val appContext = remember(context) { context.applicationContext }
-    val scope = rememberCoroutineScope()
-    val haptic = LocalHapticFeedback.current
+        val context = LocalContext.current
+        val appContext = remember(context) { context.applicationContext }
+        val scope = rememberCoroutineScope()
+        val haptic = LocalHapticFeedback.current
 
-    val successText = stringResource(R.string.lightbox_image_save_success)
-    val failedText = stringResource(R.string.lightbox_image_save_failed)
-    val shareText = stringResource(R.string.lightbox_action_share)
-    val saveActionText = stringResource(R.string.lightbox_action_save)
+        val successText = stringResource(R.string.lightbox_image_save_success)
+        val failedText = stringResource(R.string.lightbox_image_save_failed)
+        val shareText = stringResource(R.string.lightbox_action_share)
+        val saveActionText = stringResource(R.string.lightbox_action_save)
+        val backText = stringResource(R.string.general_back)
+        val moreText = stringResource(R.string.general_more)
 
-    val backText = stringResource(R.string.general_back)
-    val moreText = stringResource(R.string.general_more)
+        // System bars belong to the dialog's own window, not the activity's; fall back to
+        // the activity's when there is no dialog (e.g. a preview).
+        val view = LocalView.current
+        val activityWindow = LocalActivity.current?.window
+        val window = remember(view, activityWindow) {
+            view.findDialogWindow() ?: activityWindow
+        }
+        val insetsController = remember(window) {
+            window?.let { WindowCompat.getInsetsController(it, it.decorView) }
+        }
+        val defaultDarkIcons = !isSystemInDarkTheme()
 
+        val barsType =
+            WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
 
-    val view = LocalView.current
-    val activityWindow = remember(view) {
-        (view.context as? Activity)?.window
-    }
+        DisposableEffect(insetsController) {
+            insetsController?.isAppearanceLightStatusBars = false
+            onDispose {
+                // Show both bars, not just status: dismissing while zoomed would leave the nav bar hidden.
+                insetsController?.show(barsType)
+                insetsController?.isAppearanceLightStatusBars = defaultDarkIcons
+            }
+        }
 
-    val barsType = WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
-
-    // White status bar icons over the black backdrop; restores the system
-    StatusBarIconEffect(darkIcons = false)
-
-    LaunchedEffect(isCurrentPageZoomed, activityWindow) {
-        activityWindow?.let { window ->
-            val controller = WindowCompat.getInsetsController(window, view)
+        LaunchedEffect(isCurrentPageZoomed, insetsController) {
+            val controller = insetsController ?: return@LaunchedEffect
             if (isCurrentPageZoomed) {
                 controller.hide(barsType)
                 controller.systemBarsBehavior =
@@ -111,165 +137,172 @@ fun ImageLightbox(
                 controller.show(barsType)
             }
         }
-    }
 
-    DisposableEffect(activityWindow) {
-        onDispose {
-            activityWindow?.let { window ->
-                WindowCompat.getInsetsController(window, view)
-                    .show(WindowInsetsCompat.Type.statusBars())
-            }
-        }
-    }
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                pageSpacing = 16.dp,
+                userScrollEnabled = !isCurrentPageZoomed
+            ) { pageIndex ->
+                val url = images[pageIndex].displayUrl ?: return@HorizontalPager
 
-    BackHandler(onBack = onDismiss)
+                val zoomableImageState = rememberZoomableImageState()
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .zIndex(200f)
-    ) {
-        var isMenuExpanded by remember { mutableStateOf(false) }
+                if (pagerState.currentPage == pageIndex) {
+                    val zoomed by remember {
+                        derivedStateOf {
+                            (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f
+                        }
+                    }
+                    LaunchedEffect(zoomed) { isCurrentPageZoomed = zoomed }
+                }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 1,
-            pageSpacing = 16.dp,
-            userScrollEnabled = !isCurrentPageZoomed
-        ) { pageIndex ->
-            val url = imageUrls[pageIndex]
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ZoomableAsyncImage(
+                        model = ImageRequest.Builder(context).data(url).size(Size.ORIGINAL)
+                            .crossfade(true).build(),
+                        contentDescription = stringResource(R.string.lightbox_image_desc),
+                        state = zoomableImageState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit,
+                        onClick = {
+                            if ((zoomableImageState.zoomableState.zoomFraction ?: 0f) <= 0.01f) {
+                                onDismiss()
+                            }
+                        },
+                    )
 
-            val zoomableImageState = rememberZoomableImageState(rememberZoomableState())
-
-            if (pagerState.currentPage == pageIndex) {
-                val zoomed by remember {
-                    derivedStateOf {
-                        (zoomableImageState.zoomableState.zoomFraction ?: 0f) > 0.01f
+                    if (!zoomableImageState.isImageDisplayed) {
+                        LoadingIndicator(
+                            color = Color.White.copy(alpha = 0.5f),
+                            modifier = Modifier.statusBarsPadding(),
+                        )
                     }
                 }
-                LaunchedEffect(zoomed) { isCurrentPageZoomed = zoomed }
             }
 
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                ZoomableAsyncImage(
-                    model = ImageRequest.Builder(context).data(url).size(Size.ORIGINAL)
-                        .crossfade(true).build(),
-                    contentDescription = "Lightbox Page $pageIndex",
-                    state = zoomableImageState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit,
-                    onClick = {
-                        if ((zoomableImageState.zoomableState.zoomFraction ?: 0f) <= 0.01f) {
-                            onDismiss()
-                        }
-                    },
-                )
-
-                if (!zoomableImageState.isImageDisplayed) {
-                    LoadingIndicator(
-                        color = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.statusBarsPadding(),
-                    )
-                }
-            }
-        }
-
-        AnimatedVisibility(
-            visible = !isCurrentPageZoomed,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.6f), Color.Transparent
+            AnimatedVisibility(
+                visible = !isCurrentPageZoomed,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.6f), Color.Transparent
+                                )
                             )
                         )
-                    )
-                    .statusBarsPadding()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = backText,
-                        tint = Color.White
-                    )
-                }
-
-                Box {
-                    IconButton(onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                        isMenuExpanded = true
-                    }) {
+                        .statusBarsPadding()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onDismiss) {
                         Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = moreText,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = backText,
                             tint = Color.White
                         )
                     }
 
-                    DropdownMenu(
-                        expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
-                        // Share Image
-                        DropdownMenuItem(text = { Text(shareText) }, leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Share, contentDescription = null
-                            )
-                        }, onClick = {
-                            isMenuExpanded = false
+                    Box {
+                        IconButton(onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                            scope.launch {
-                                val currentUrl = imageUrls[pagerState.currentPage]
-                                val shareResult = ImageHelper.shareImage(context, currentUrl)
-                                if (shareResult.isFailure) {
-                                    Toast.makeText(
-                                        appContext, failedText, Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        })
+                            isMenuExpanded = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = moreText,
+                                tint = Color.White
+                            )
+                        }
 
-                        // Save Image
-                        DropdownMenuItem(text = { Text(saveActionText) }, leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Save, contentDescription = null
-                            )
-                        }, onClick = {
-                            isMenuExpanded = false
-                            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                            scope.launch {
-                                val currentUrl = imageUrls[pagerState.currentPage]
-                                val result = ImageHelper.saveImageToGallery(
-                                    appContext, currentUrl
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(text = { Text(shareText) }, leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Share, contentDescription = null
                                 )
-                                val message = if (result.isSuccess) successText else failedText
-                                Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
-                            }
-                        })
+                            }, onClick = {
+                                isMenuExpanded = false
+                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                scope.launch {
+                                    val currentUrl = images[pagerState.currentPage].displayUrl
+                                    if (currentUrl != null &&
+                                        ImageHelper.shareImage(context, currentUrl).isFailure
+                                    ) {
+                                        Toast.makeText(
+                                            appContext, failedText, Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            })
+
+                            DropdownMenuItem(text = { Text(saveActionText) }, leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Save, contentDescription = null
+                                )
+                            }, onClick = {
+                                isMenuExpanded = false
+                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                scope.launch {
+                                    val currentUrl = images[pagerState.currentPage].displayUrl
+                                    if (currentUrl == null) {
+                                        Toast.makeText(
+                                            appContext, failedText, Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        val result = ImageHelper.saveImageToGallery(
+                                            appContext, currentUrl
+                                        )
+                                        val message =
+                                            if (result.isSuccess) successText else failedText
+                                        Toast.makeText(appContext, message, Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                            })
+                        }
                     }
                 }
             }
-        }
 
-        // page number
-        if (imageUrls.size > 1 && !isCurrentPageZoomed) {
-            Text(
-                text = "${pagerState.currentPage + 1} / ${imageUrls.size}",
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 48.dp),
-                color = Color.White,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            if (images.size > 1 && !isCurrentPageZoomed) {
+                Text(
+                    text = "${pagerState.currentPage + 1} / ${images.size}",
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 48.dp),
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
     }
+}
+
+// The Dialog window hosting this view, or null when it isn't inside one.
+private fun View.findDialogWindow(): Window? {
+    if (this is DialogWindowProvider) return window
+    var parent: ViewParent? = this.parent
+    while (parent != null) {
+        if (parent is DialogWindowProvider) return parent.window
+        parent = parent.parent
+    }
+    return null
 }

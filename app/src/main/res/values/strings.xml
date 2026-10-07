@@ -68,6 +68,7 @@
     <string name="lightbox_image_save_failed">Failed to save image</string>
     <string name="lightbox_action_share">Share</string>
     <string name="lightbox_action_save">Save Image</string>
+    <string name="lightbox_image_desc">Image</string>
 
     <!-- Profile -->
     <string name="profile_default_username">User</string>

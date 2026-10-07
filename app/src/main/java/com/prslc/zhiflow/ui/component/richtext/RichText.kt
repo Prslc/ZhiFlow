@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.component.BlockquoteComponent
 import com.prslc.zhiflow.ui.component.richtext.component.BulletItemRow
@@ -19,11 +20,11 @@ import com.prslc.zhiflow.ui.component.richtext.component.TableComponent
 fun RichTextSingleElement(
     element: RichTextElement,
     modifier: Modifier = Modifier,
-    onImageClick: (String) -> Unit,
+    onImageClick: (ZhihuImage) -> Unit,
 ) {
     when (element) {
         is RichTextElement.ParsedText -> {
-            FormulaTextSection(element, onImageClick, modifier)
+            FormulaTextSection(element, modifier)
         }
         is RichTextElement.Heading -> Heading(element, modifier)
         is RichTextElement.FormulaBlock -> LatexComponent(element.data, modifier, isInline = false)

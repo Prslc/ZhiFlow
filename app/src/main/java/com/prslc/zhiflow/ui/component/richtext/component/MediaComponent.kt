@@ -28,21 +28,15 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 @Composable
 fun ImageComponent(
     image: ZhihuImage?,
-    onImageClick: (String) -> Unit,
+    onImageClick: (ZhihuImage) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val displayUrl = remember(image) {
-        if (image?.isGif == true) {
-            image.urls.find { it.contains(".gif", ignoreCase = true) } ?: image.urls.firstOrNull()
-        } else {
-            image?.urls?.firstOrNull()
-        }
-    } ?: return
+    if (image == null) return
+    val displayUrl = image.displayUrl ?: return
 
     val aspectRatio = remember(image) {
-        val w = image?.width ?: 0
-        val h = image?.height ?: 0
-        if (w > 0 && h > 0) w.toFloat() / h.toFloat() else 1.77f    // 16:9
+        if (image.width > 0 && image.height > 0) image.width.toFloat() / image.height.toFloat()
+        else 1.77f    // 16:9
     }
 
     Column(
@@ -54,7 +48,7 @@ fun ImageComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(aspectRatio)
-                .clickable { onImageClick(displayUrl) },
+                .clickable { onImageClick(image) },
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
@@ -70,7 +64,7 @@ fun ImageComponent(
                 contentScale = ContentScale.FillWidth,
             )
         }
-        if (!image?.description.isNullOrBlank()) {
+        if (image.description.isNotBlank()) {
             Text(
                 text = image.description,
                 modifier = Modifier

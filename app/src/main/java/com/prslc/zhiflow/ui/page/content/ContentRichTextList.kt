@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,11 +33,14 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.FollowButton
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.Navigator
+import org.koin.compose.koinInject
 
 @Composable
 fun ContentRichTextList(
@@ -45,12 +49,17 @@ fun ContentRichTextList(
     answer: ZhihuContent,
     navigator: Navigator,
     topPadding: Dp,
-    onImageClick: (String) -> Unit,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
     onProgress: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+
+    val lightbox = koinInject<ImageLightboxController>()
+    val images = remember(richTextElements) {
+        richTextElements.filterIsInstance<RichTextElement.Image>().map { it.data }
+    }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
 
     LaunchedEffect(id) {
         snapshotFlow {

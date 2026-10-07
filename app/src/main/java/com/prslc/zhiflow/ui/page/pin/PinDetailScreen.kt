@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
@@ -43,15 +43,15 @@ import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
 import com.prslc.zhiflow.ui.component.widget.BottomBar
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
-import com.prslc.zhiflow.ui.component.widget.ImageLightbox
+import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.AuthorSection
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PinDetailScreen(
     id: String,
@@ -79,12 +79,6 @@ fun PinDetailScreen(
     // Pinned: a single-line bar cannot collapse, and a pin's title is one line of the
     // author's own text — a 152dp expanded bar costs a quarter of the screen for it.
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
-    val imageUrls = remember(richTextElements) {
-        richTextElements
-            .filterIsInstance<RichTextElement.Image>()
-            .mapNotNull { it.data.urls.firstOrNull() }
-    }
 
     val isDark = isSystemInDarkTheme()
 
@@ -187,12 +181,6 @@ fun PinDetailScreen(
                                     richTextElements = richTextElements,
                                     navigator = navigator,
                                     topPadding = padding.calculateTopPadding(),
-                                    onImageClick = { url ->
-                                        val index = imageUrls.indexOf(url)
-                                        if (index != -1) {
-                                            viewModel.openLightbox(index)
-                                        }
-                                    },
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
                                 )
@@ -228,27 +216,17 @@ fun PinDetailScreen(
                     when (event) {
                         CommentUiEvent.DismissSheet -> commentViewModel.onSheetDismissed()
                         CommentUiEvent.BackToMain -> commentViewModel.backToMain()
-                        CommentUiEvent.CloseImage -> commentViewModel.closeImage()
                         CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
 
                         is CommentUiEvent.LoadRootComments -> commentViewModel.loadComments(event.id, event.contentType)
                         is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
                         is CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
-                        is CommentUiEvent.OpenImage -> commentViewModel.openImage(event.url)
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                     }
                 }
             )
-
-            if (presentation.isLightboxVisible) {
-                ImageLightbox(
-                    imageUrls = imageUrls,
-                    initialIndex = presentation.currentImageIndex,
-                    onDismiss = { viewModel.dismissLightbox() },
-                )
-            }
         }
     }
 }
@@ -259,11 +237,16 @@ private fun PinContentList(
     richTextElements: List<RichTextElement>,
     navigator: com.prslc.zhiflow.ui.navigation.Navigator,
     topPadding: androidx.compose.ui.unit.Dp,
-    onImageClick: (String) -> Unit,
     onProgress: (Int) -> Unit,
     onFollowClick: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
+
+    val lightbox = koinInject<ImageLightboxController>()
+    val images = remember(richTextElements) {
+        richTextElements.filterIsInstance<RichTextElement.Image>().map { it.data }
+    }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
 
     LaunchedEffect(pin.id) {
         snapshotFlow {

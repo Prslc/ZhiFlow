@@ -69,6 +69,7 @@
     <string name="lightbox_image_save_failed">保存失败</string>
     <string name="lightbox_action_share">分享图片</string>
     <string name="lightbox_action_save">保存图片</string>
+    <string name="lightbox_image_desc">图片</string>
 
     <!-- profile -->
     <string name="profile_default_username">用户</string>
