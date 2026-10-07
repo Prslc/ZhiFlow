@@ -56,67 +56,34 @@ ZhiFlow/
 │       └── java/com/prslc/zhiflow/
 │           ├── Application.kt                  # App class: Koin init + Coil ImageLoader factory
 │           ├── MainActivity.kt                 # Single Activity: NavHost + bottom-bar HorizontalPager
-│           ├── core/
+│           ├── core/                           # Infrastructure that knows nothing about Zhihu's domain
 │           │   ├── exception/                  # ApiException, ErrorHandler, Result extensions (onApiFailure / ignoreOutcome)
-│           │   ├── native/Natives.kt           # JNI bridge: zse96Sign()
-│           │   ├── network/
-│           │   │   ├── HeaderProvider.kt       # UA, x-app-za, x-zse-96 signing
-│           │   │   ├── HttpClientProvider.kt   # OkHttpClient with auth interceptor
-│           │   │   ├── HttpLogEntry.kt         # One captured request/response
-│           │   │   ├── HttpLogInterceptor.kt   # Records API traffic into HttpLogStore
-│           │   │   ├── HttpLogStore.kt         # Bounded in-memory log + capture toggle
-│           │   │   └── NetworkExtensions.kt    # safeApiCall<T>(), safeExecute(), Response.body<T>()
-│           │   └── utils/
-│           │       ├── FormatHelper.kt
-│           │       ├── JsonHelper.kt           # JSON encode/decode + HTML strip
-│           │       ├── compose/                # LazyListExt, TextLayoutExt
-│           │       └── platform/               # ClipboardHelper, ImageHelper
-│           ├── data/
-│           │   ├── dto/                        # Flat UI-ready data classes (FeedDto, AnswerDto, CommentDto, MomentDto, ReadHistoryDto)
-│           │   ├── mapper/                     # DTO mappers: FeedItem→FeedDto, etc.
-│           │   ├── model/
-│           │   │   ├── content/                # ZhihuContent interface, Answer, Article, Pin (incl. PinImageList), Question, RichText (StructuredContent/Segment/Mark), ContentType enum
-│           │   │   ├── comment/Comment.kt
-│           │   │   ├── feed/                   # FeedItem (raw API JSON models), ZhihuResponse, PagingData
-│           │   │   ├── moment/                 # Moment, MomentsFeed
-│           │   │   └── user/                   # ZhihuUser, ReadHistory, Collection, History
+│           │   ├── native/                     # JNI bridge for request signing
+│           │   ├── network/                    # OkHttp client, auth headers, signing, the HTTP log
+│           │   └── utils/                      # Format and JSON helpers; compose/ holds lazy-list and text-layout extensions; platform/ clipboard and images
+│           ├── data/                           # Everything shaped by Zhihu's data
+│           │   ├── dto/                        # Flat, UI-ready data classes
+│           │   ├── mapper/                     # model → dto extensions
+│           │   ├── model/                      # Raw API response models, one subpackage per domain (content, comment, feed, moment, user)
 │           │   ├── remote/
-│           │   │   ├── parser/
-│           │   │   │   ├── ContentParser.kt     # Segment→RichTextElement transform
-│           │   │   │   ├── CommentParser.kt
-│           │   │   │   ├── QuestionParser.kt
-│           │   │   │   ├── LinkDestination.kt   # URL→internal route or external URL
-│           │   │   │   ├── emoji/              # EmojiMap, EmojiParser
-│           │   │   │   ├── engine/             # AnnotatedStringBuilder, FormulaHandler, TableParser
-│           │   │   │   └── model/RichTextElement.kt
-│           │   │   └── service/                # OkHttp-based API service classes (one per domain)
-│           │   ├── repository/                 # Domain repositories: map DTOs, return Result<T>
-│           │   └── session/                    # UserSession: lazily-resolved current user hash id (in-memory)
-│           ├── di/
-│           │   └── AppModule.kt                # Single Koin module: all singletons + viewModels
-│           └── ui/
-│               ├── theme/                      # Color.kt, Theme.kt (dynamic color + fallback), Type.kt
-│               ├── navigation/
-│               │   ├── Route.kt               # @Serializable route objects (MainContainer, AnswerDetail, etc.)
-│               │   ├── NavGraph.kt            # NavGraphBuilder.contentGraph() — all composable destinations
-│               │   └── Navigator.kt           # CompositionLocal-based Navigator (handleUrl, navigateTo*)
-│               ├── component/
-│               │   ├── common/                # ActionErrorHost, AuthorRow, ContentMeta, ContentTypeLabel, EmptyView, ErrorView, LoadingView, PagingFooter, ThumbnailRow, LoadMoreErrorItem
-│               │   ├── preference/            # BaseWidget, NavigationItemWidget, SegmentedColumn, Shape.kt
-│               │   ├── richtext/              # RichText.kt (element dispatcher), ZRichText.kt (text rendering engine)
-│               │   │   └── component/         # CardComponent, CodeComponent, LatexComponent, LayoutComponent, ListComponent, MediaComponent
-│               │   └── widget/                # BottomBar, CollectionDialog, CustomBottomSheet, ImageLightbox
-│               └── page/
-│                   ├── feed/                  # FeedScreen, FeedItem, FeedViewModel
-│                   ├── content/               # ContentDetailScreen (answer/article), ContentRichTextList, ContentDetailViewModel, CollectionViewModel
-│                   ├── pin/                   # PinDetailScreen, PinViewModel (dedicated thought/idea page)
-│                   ├── question/              # QuestionDetailScreen, QuestionViewModel, AnswerItem, AnswerDivider
-│                   ├── comment/               # CommentBottomSheet, CommentItem, CommentList, CommentViewModel
-│                   ├── people/                # PeopleScreen, PeopleHeader, PeopleTabBar, PeopleViewModel + moment/ subpackage
-│                   ├── profile/               # ProfileScreen, ProfileViewModel, SettingsScreen
-│                   ├── history/               # ReadHistoryScreen, ReadHistoryViewModel
-│                   ├── collection/            # CollectionContentsScreen, CollectionContentsViewModel
-│                   └── debug/                 # DebugScreen, DebugViewModel (credentials config, URL parser test), HttpLogScreen, HttpLogViewModel
+│           │   │   ├── parser/                 # Segments → RichTextElement: links, formulas, tables, emoji (emoji/), the annotated-string engine (engine/)
+│           │   │   └── service/                # One OkHttp service per API domain
+│           │   ├── repository/                 # Service + mapper per domain, returning Result<T>
+│           │   └── session/                    # The current user's hash id, resolved lazily and kept in memory
+│           ├── di/                             # The single Koin module
+│           └── ui/                             # Compose only
+│               ├── theme/                      # Colour, type, dynamic-colour fallback
+│               ├── navigation/                 # Type-safe routes, the NavHost graph, the Navigator
+│               ├── component/                  # Reusable pieces no page owns
+│               │   ├── common/                 # Error and empty states, paging footer, author row
+│               │   ├── preference/             # Settings-screen widgets
+│               │   ├── richtext/               # Rich text dispatch and rendering, with component/ holding one composable per element kind
+│               │   └── widget/                 # Bottom bar, sheets, dialogs, lightbox, reading progress bar
+│               └── page/                       # One package per screen: its composables and its ViewModel
+│                   ├── feed/  content/  question/  comment/
+│                   ├── pin/                    # The thought page, with a screen of its own instead of the one answers and articles share
+│                   ├── people/                 # Profile page; moment/ is its second tab
+│                   └── profile/  history/  collection/  debug/
 ```
 
 ## Architecture Patterns
