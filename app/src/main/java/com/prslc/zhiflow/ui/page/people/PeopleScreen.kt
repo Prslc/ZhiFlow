@@ -46,6 +46,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
+import com.prslc.zhiflow.ui.component.common.iconScrim
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
@@ -56,6 +57,9 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAB_COUNT = 3
 private val TOP_BAR_HEIGHT = 48.dp
+
+/** M3's top app bars inset their actions by 4dp; flush to the edge reads as clipped. */
+private val TOP_BAR_SIDE_PADDING = 4.dp
 
 // The loaded page resolves over the loading one rather than cutting to it: a bright cover landing on
 // a black screen in a single frame is what reads as a flash.
@@ -165,10 +169,13 @@ fun PeopleScreen(
                                         .fillMaxWidth()
                                         .statusBarsPadding()
                                         .height(TOP_BAR_HEIGHT)
+                                        .padding(horizontal = TOP_BAR_SIDE_PADDING)
                                 ) {
                                     IconButton(
                                         onClick = onBack,
-                                        modifier = Modifier.align(Alignment.CenterStart)
+                                        modifier = Modifier
+                                            .align(Alignment.CenterStart)
+                                            .iconScrim(0.55f * (1f - scrollState.topBarAlpha))
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -188,7 +195,9 @@ fun PeopleScreen(
 
                                     IconButton(
                                         onClick = { /* More */ },
-                                        modifier = Modifier.align(Alignment.CenterEnd)
+                                        modifier = Modifier
+                                            .align(Alignment.CenterEnd)
+                                            .iconScrim(0.55f * (1f - scrollState.topBarAlpha))
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
