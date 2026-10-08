@@ -2,18 +2,22 @@ package com.prslc.zhiflow.ui.page.comment
 
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +27,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.delay
@@ -30,13 +36,15 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * How long the exit takes, and the pace the pull-back settles at. All four of the exit's animations
- * run for it, which is what lets the gesture's progress map evenly onto them.
+ * How long a pane's move takes, and the pace the pull-back settles at. Both of the pair's moves run
+ * for it, which is what lets the gesture's progress map evenly onto them.
  */
-private const val DETAIL_EXIT_MS = 300
+private const val PANE_MS = 300
 
-private val EXIT_MOVE = tween<IntOffset>(DETAIL_EXIT_MS, easing = FastOutSlowInEasing)
-private val EXIT_FADE = tween<Float>(DETAIL_EXIT_MS, easing = FastOutSlowInEasing)
+private val PANE_MOVE = tween<IntOffset>(PANE_MS, easing = FastOutSlowInEasing)
+
+/** How dark the pane behind goes at its darkest; it clears as that pane comes forward. */
+private const val PANE_DIM = 0.32f
 
 /**
  * How often the stall watch samples the transition. Anything under the shortest drive will do: a
@@ -47,18 +55,24 @@ private const val STALL_CHECK_MS = 150L
 /**
  * The two panes of a comment surface — a root list and one root comment's replies — as a single
  * seekable transition, so the back gesture drives the exit under the finger, and the header's arrow,
- * the back key and a released gesture all land on the same specs: the app's own pop language
+ * the back key and a released gesture all land on the same specs: the app's own push and pop
  * (MainActivity). The content's sheet and a passage's panel both show this pair, and share it from
  * here rather than keeping a copy of the traps below each.
  *
- * Two traps come with that shape. A drive has to be re-issued rather than issued once: the framework
- * hands its mutator mutex between callers, so a gesture's seek, the next intent or a pull-back
- * cancels whichever drive is running, and a cancelled drive leaves the panes part-way across with
- * nobody left to finish them. The stall watch is what repairs that.
+ * Three traps come with that shape.
  *
- * And the intent has to be read through `rememberUpdatedState`: [isDetail] is a parameter, a value
- * rather than a state holder, so anything outliving a recomposition would keep reading the one it
- * was composed with.
+ * A drive has to be re-issued rather than issued once: the framework hands its mutator mutex between
+ * callers, so a gesture's seek, the next intent or a pull-back cancels whichever drive is running,
+ * and a cancelled drive leaves the panes part-way across with nobody left to finish them. The stall
+ * watch is what repairs that.
+ *
+ * The intent has to be read through `rememberUpdatedState`: [isDetail] is a parameter, a value rather
+ * than a state holder, so anything outliving a recomposition would keep reading the one it was
+ * composed with.
+ *
+ * And a commit has to be judged by where the panes *are*, not by `targetState`: a gesture's seek has
+ * already pointed that at the side being asked for, so asking it whether there is anything to do
+ * answers no, and the panes stay where the finger let go until the stall watch's next sample.
  *
  * @param backEnabled whether the surface is up and staying. A back is taken only then: once one has
  *   sent the surface on its way, later ones belong to the screen behind. The root pane keeps the
@@ -71,6 +85,7 @@ fun CommentPaneTransition(
     onBackToMain: () -> Unit,
     main: @Composable () -> Unit,
     detail: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val detailState = remember { SeekableTransitionState(isDetail) }
     val detailTransition = rememberTransition(detailState, label = "CommentPanes")
@@ -79,7 +94,8 @@ fun CommentPaneTransition(
     var isGesturing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isDetail) {
-        if (detailState.targetState != isDetail) {
+        // Judged by rest, not by targetState: a gesture's seek has already pointed that at this side.
+        if (!detailState.isAt(isDetail)) {
             if (isDetail) detailState.animateTo(true) else detailState.completeExit()
         }
     }
@@ -104,6 +120,10 @@ fun CommentPaneTransition(
         }
     }
 
+    // The latch the stall watch reads cannot outlive the handler: no gesture is in flight while the
+    // handler is disabled, and one whose flow never ended would lock the watch out for good.
+    LaunchedEffect(backEnabled, isDetail) { isGesturing = false }
+
     PredictiveBackHandler(enabled = backEnabled && isDetail) { progress ->
         try {
             isGesturing = true
@@ -119,20 +139,50 @@ fun CommentPaneTransition(
         onBackToMain()
     }
 
+    // The pane behind carries the dim, the way the page being covered does in MainActivity; riding the
+    // transition's own play time is what keeps it on the same curve as the move.
+    val behind by detailTransition.animateFloat(
+        transitionSpec = { tween(PANE_MS, easing = FastOutSlowInEasing) },
+        label = "paneBehind",
+    ) { if (it) 1f else 0f }
+
     detailTransition.AnimatedContent(
         transitionSpec = {
+            // The app's own push and pop (MainActivity) without their fades: the arriving pane takes
+            // the full width while the one behind it drifts a fifth.
             if (targetState) {
-                (slideInHorizontally { it } + fadeIn()) togetherWith
-                        (slideOutHorizontally { -it } + fadeOut())
+                slideInHorizontally(PANE_MOVE) { it } togetherWith
+                        slideOutHorizontally(PANE_MOVE) { -it / 5 }
             } else {
-                // The incoming pane is placed on top, so the outgoing one fades as it leaves --
-                // otherwise its content would show through the arriving list.
-                (slideInHorizontally(EXIT_MOVE) { -it / 5 } + fadeIn(EXIT_FADE)) togetherWith
-                        (slideOutHorizontally(EXIT_MOVE) { it } + fadeOut(EXIT_FADE))
+                // The arriving pane is the one that was behind, so the leaving one stays on top: at the
+                // default order the parent would be drawn over the pane it is revealing.
+                ContentTransform(
+                    targetContentEnter = slideInHorizontally(PANE_MOVE) { -it / 5 },
+                    initialContentExit = slideOutHorizontally(PANE_MOVE) { it },
+                    targetContentZIndex = -1f,
+                )
             }
         }
     ) { showDetail ->
-        if (showDetail) detail() else main()
+        // Each pane paints the surface: the two are stacked in one box and neither fills itself, so
+        // the pane behind would show through the one drawn on top of it.
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface),
+        ) {
+            if (showDetail) detail() else main()
+
+            // The root pane is the one behind, in both directions: the replies cover it on the way
+            // in, and on the way back it is what the replies uncover.
+            if (!showDetail) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = PANE_DIM * behind)),
+                )
+            }
+        }
     }
 }
 
@@ -153,8 +203,10 @@ private suspend fun SeekableTransitionState<Boolean>.driveTo(detail: Boolean) {
 }
 
 /**
- * Walks the detail pane out. A gesture that already carried the progress to its end leaves
- * `currentState` where it was and `animateTo` no longer flips it, so that case snaps instead.
+ * Walks the detail pane out. A gesture that already carried the progress to its end leaves the
+ * panes where the exit would end up, so the state is taken rather than walked: `animateTo` flips
+ * `currentState` in that case too, but only after waiting for a composition, and at a fraction of 1
+ * it has nothing to animate in the meantime.
  */
 private suspend fun SeekableTransitionState<Boolean>.completeExit() {
     if (fraction < 1f) animateTo(false) else snapTo(false)
@@ -174,7 +226,7 @@ private suspend fun SeekableTransitionState<Boolean>.settleToRest() {
         return
     }
     val returnAnimation = TargetBasedAnimation(
-        animationSpec = tween((DETAIL_EXIT_MS * start).toInt(), easing = LinearOutSlowInEasing),
+        animationSpec = tween((PANE_MS * start).toInt(), easing = LinearOutSlowInEasing),
         typeConverter = Float.VectorConverter,
         initialValue = start,
         targetValue = 0f,
