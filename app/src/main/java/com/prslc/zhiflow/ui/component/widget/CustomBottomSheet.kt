@@ -56,12 +56,17 @@ private const val EXIT_DURATION_MS = 160
  * A back is taken only while the sheet is up and staying: once one has sent it on its way, later
  * ones belong to the screen behind. Taking them would cancel the retraction in progress and spring
  * the sheet back up, because the platform cancels the previous gesture when a new one starts.
+ *
+ * @param animateResize whether a height the content takes on is animated. It keeps a row or two
+ *   arriving under the finger from landing as a jolt; a sheet whose content changes only as it loads
+ *   wants it off, so the swap arrives in one frame instead of sliding the content into place.
  */
 @Composable
 fun CustomBottomSheet(
     visible: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    animateResize: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(false) }
@@ -173,9 +178,7 @@ fun CustomBottomSheet(
                         .graphicsLayer { translationY = backProgress.value * size.height }
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                         .background(MaterialTheme.colorScheme.surface)
-                        // Content that swaps while the sheet is up can change its height by a row
-                        // or two; animating it keeps that from landing as a jolt under the finger.
-                        .animateContentSize()
+                        .then(if (animateResize) Modifier.animateContentSize() else Modifier)
                 ) {
                     content()
                 }

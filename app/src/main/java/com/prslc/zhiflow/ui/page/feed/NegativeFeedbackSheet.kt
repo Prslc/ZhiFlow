@@ -34,14 +34,12 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.dto.FeedbackAction
 import com.prslc.zhiflow.ui.component.common.ErrorView
-import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
-// Roughly the height of the rows, which the sheet cannot measure before they arrive. Reserving it
-// lets the sheet start the moment the card is long-pressed; a bare spinner would open it at less
-// than half that height and grow partway through the slide.
+// The height the panel has while it loads, and about what the rows take so little moves when they
+// land. It cannot be zero: the entry slides from the content's height, and an empty sheet has none.
 private val ROWS_RESERVE = 340.dp
 
 /** Renders whatever rows the backend sent, down to their wording and icons. */
@@ -73,9 +71,14 @@ fun NegativeFeedbackSheet(
         visible = state.isVisible,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
+        // The rows land as the panel is still sliding up: taking that height in one frame keeps the
+        // whole panel from sliding into place under the finger.
+        animateResize = false,
     ) {
         when {
-            state.isLoading -> LoadingView(
+            // Nothing drawn while they load: the panel is the rows, and the first thing a long-press
+            // shows is the feed dimming. The height stays, because the entry slides through it.
+            state.isLoading -> Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(ROWS_RESERVE),
