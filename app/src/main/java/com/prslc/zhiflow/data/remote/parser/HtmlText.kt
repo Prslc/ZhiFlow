@@ -19,6 +19,9 @@ private val LINK_COLOR = Color(0xFF1E88E5)
  *
  * The search links it injects into the wording come off first. The word belongs to the sentence; the
  * link is to a search this app does not run, and it was arriving as a blue link that did nothing.
+ *
+ * Each link is annotated as its run is emitted, and the runs are emitted through the emoji pass one
+ * at a time, so nothing can shorten the ground an offset was measured on.
  */
 internal fun htmlToAnnotatedString(html: String): AnnotatedString {
     val spanned: Spanned = Html.fromHtml(
@@ -26,15 +29,30 @@ internal fun htmlToAnnotatedString(html: String): AnnotatedString {
         Html.FROM_HTML_MODE_COMPACT,
     )
 
+    val full = spanned.toString()
+    val text = full.trim()
+    // The spans were measured over `full`, an origin that is no longer the first character drawn.
+    val trimmed = full.length - full.trimStart().length
+
     return buildAnnotatedString {
-        append(EmojiParser.parse(spanned.toString().trim()))
+        var cursor = 0
 
-        spanned.getSpans(0, spanned.length, URLSpan::class.java).forEach { span ->
-            val start = spanned.getSpanStart(span)
-            val end = spanned.getSpanEnd(span)
+        spanned.getSpans(0, spanned.length, URLSpan::class.java)
+            .sortedBy { spanned.getSpanStart(it) }
+            .forEach { span ->
+                val start = (spanned.getSpanStart(span) - trimmed).coerceIn(cursor, text.length)
+                val end = (spanned.getSpanEnd(span) - trimmed).coerceIn(start, text.length)
 
-            addStringAnnotation("URL", span.url, start, end)
-            addStyle(SpanStyle(color = LINK_COLOR), start, end)
-        }
+                append(EmojiParser.parse(text.substring(cursor, start)))
+
+                val linkStart = length
+                append(EmojiParser.parse(text.substring(start, end)))
+                addStringAnnotation("URL", span.url, linkStart, length)
+                addStyle(SpanStyle(color = LINK_COLOR), linkStart, length)
+
+                cursor = end
+            }
+
+        append(EmojiParser.parse(text.substring(cursor)))
     }
 }
