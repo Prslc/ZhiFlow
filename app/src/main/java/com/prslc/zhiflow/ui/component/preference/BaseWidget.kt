@@ -62,7 +62,7 @@ data class SegmentedItemStyle(
     val containerColor: Color? = null,
 )
 
-/** Defaults reproduce the look a setting item has always had. */
+/** Defaults describe a row on a page of rows; a group may say otherwise. */
 val LocalSegmentedItemStyle = staticCompositionLocalOf { SegmentedItemStyle() }
 
 /**
@@ -125,7 +125,7 @@ fun BaseWidget(
     val backgroundColor = if (selected) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
-        itemStyle.containerColor ?: MaterialTheme.colorScheme.surfaceBright
+        itemStyle.containerColor ?: MaterialTheme.colorScheme.surfaceContainerHigh
     }
 
     val baseContentColor = if (selected) {
