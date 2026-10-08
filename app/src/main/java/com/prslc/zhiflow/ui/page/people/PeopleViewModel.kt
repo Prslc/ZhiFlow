@@ -8,13 +8,22 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import com.prslc.zhiflow.data.model.user.ZhihuUser
+import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
+/** What the history calls a profile visit. It is not a content type: a profile is not content. */
+private const val PROFILE_CONTENT_TYPE = "profile"
+
+class PeopleViewModel(
+    private val repository: UserRepository,
+    private val actionRepository: ActionRepository,
+) : ViewModel() {
 
     @Immutable
     data class PeopleUiState(
@@ -40,10 +49,32 @@ class PeopleViewModel(private val repository: UserRepository) : ViewModel() {
             repository.getUserDetail(urlToken)
                 .onSuccess { user ->
                     uiState = uiState.copy(user = user, isLoading = false)
+                    recordVisit(user.id)
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(error = error, isLoading = false)
                 }
+        }
+    }
+
+    /**
+     * Puts the visit in the reader's history.
+     *
+     * A profile has no reading progress, and the entry is written on arrival rather than on the way
+     * out — which is why this does not go through the progress the content screens keep. The history
+     * addresses the reader by the account's own id, not by the url token the page was opened with.
+     */
+    private fun recordVisit(userId: String) {
+        if (userId.isEmpty()) return
+
+        viewModelScope.launch {
+            actionRepository.syncHistory(
+                ReadHistoryRequest(
+                    contentToken = userId,
+                    contentType = PROFILE_CONTENT_TYPE,
+                    readProgress = 0,
+                )
+            ).ignoreOutcome()
         }
     }
 
