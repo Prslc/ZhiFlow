@@ -86,8 +86,8 @@
     <string name="profile_nav_comments_summary">评论、转发与回复</string>
     <string name="profile_nav_likes">赞同喜欢</string>
     <string name="profile_nav_likes_summary">你的内容收到的赞与喜欢</string>
-    <string name="profile_nav_collections">收藏了我</string>
-    <string name="profile_nav_collections_summary">你的内容被他人收藏</string>
+    <string name="profile_nav_collections">我的收藏</string>
+    <string name="profile_nav_collections_summary">我收藏的内容</string>
     <string name="profile_nav_follows">关注订阅</string>
     <string name="profile_nav_follows_summary">新的关注与订阅</string>
     <string name="content_desc_settings">设置</string>

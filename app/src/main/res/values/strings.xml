@@ -85,8 +85,8 @@
     <string name="profile_nav_comments_summary">Comments, forwards, and replies</string>
     <string name="profile_nav_likes">Likes &amp; Upvotes</string>
     <string name="profile_nav_likes_summary">Upvotes and likes on your content</string>
-    <string name="profile_nav_collections">Collected Me</string>
-    <string name="profile_nav_collections_summary">Your content saved by others</string>
+    <string name="profile_nav_collections">My Collections</string>
+    <string name="profile_nav_collections_summary">Content you have saved</string>
     <string name="profile_nav_follows">Follows &amp; Subscriptions</string>
     <string name="profile_nav_follows_summary">New followers and subscriptions</string>
     <string name="content_desc_settings">Settings</string>
