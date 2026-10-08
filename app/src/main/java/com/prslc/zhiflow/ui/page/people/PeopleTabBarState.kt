@@ -28,13 +28,6 @@ class PeopleTabBarState(
     val isTabsPinned: Boolean
         get() = maxUpwardScrollPx > 0f && getOffset() <= -maxUpwardScrollPx
 
-    val compensatedHeaderHeight: Float
-        get() = when {
-            headerHeightPx > 0f -> headerHeightPx
-            getOffset() != 0f -> -getOffset() + totalTopHeightPx
-            else -> 0f
-        }
-
     val nestedScrollConnection = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
             val delta = available.y

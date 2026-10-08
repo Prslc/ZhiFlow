@@ -1,5 +1,10 @@
 package com.prslc.zhiflow.ui.page.people
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -40,17 +45,21 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.component.common.ErrorView
-import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAB_COUNT = 3
 private val TOP_BAR_HEIGHT = 48.dp
+
+// The loaded page resolves over the loading one rather than cutting to it: a bright cover landing on
+// a black screen in a single frame is what reads as a flash.
+private const val CONTENT_FADE_MS = 120
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -100,115 +109,140 @@ fun PeopleScreen(
                 .padding(bottom = innerPadding.calculateBottomPadding())
                 .nestedScroll(scrollState.nestedScrollConnection)
         ) {
-            when {
-                uiState.user != null -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = with(density) { (scrollState.compensatedHeaderHeight + viewModel.headerScrollOffset).toDp() })
-                    ) {
-                        PeopleTabBar(
-                            pagerState = pagerState,
-                            onTabSelected = { index ->
-                                coroutineScope.launch { pagerState.animateScrollToPage(index) }
-                            },
-                            modifier = Modifier.shadow(if (scrollState.isTabsPinned) 2.dp else 0.dp),
-                        )
+            AnimatedContent(
+                targetState = uiState.user,
+                contentKey = { it != null },
+                transitionSpec = {
+                    fadeIn(tween(CONTENT_FADE_MS)) togetherWith fadeOut(tween(CONTENT_FADE_MS))
+                },
+                label = "PeopleScreen",
+                modifier = Modifier.fillMaxSize(),
+            ) { user ->
+                // Wrapped in a box because AnimatedContent measures its content with the
+                // constraints it was handed: a bar that sizes itself is stretched without one.
+                Box {
+                    when {
+                        user != null -> {
+                            Column(modifier = Modifier.fillMaxSize()) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .collapsingHeader { viewModel.headerScrollOffset }
+                                        // Inside the collapsing modifier on purpose: the scroll limits want
+                                        // the header's own height, not the part of it left on screen.
+                                        .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() },
+                                ) {
+                                    PeopleHeader(user = user, onFollowClick = viewModel::toggleFollow)
+                                }
 
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier.fillMaxSize()
-                        ) { page ->
-                            when (page) {
-                                0 -> PeoplePostsTab(urlToken = urlToken)
-                                1 -> PeopleActivitiesTab(urlToken = urlToken)
-                                2 -> PeopleUpvotesTab(urlToken = urlToken)
+                                PeopleTabBar(
+                                    pagerState = pagerState,
+                                    onTabSelected = { index ->
+                                        coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                                    },
+                                    modifier = Modifier.shadow(if (scrollState.isTabsPinned) 2.dp else 0.dp),
+                                )
+
+                                HorizontalPager(
+                                    state = pagerState,
+                                    modifier = Modifier.fillMaxSize()
+                                ) { page ->
+                                    when (page) {
+                                        0 -> PeoplePostsTab(urlToken = urlToken)
+                                        1 -> PeopleActivitiesTab(urlToken = urlToken)
+                                        2 -> PeopleUpvotesTab(urlToken = urlToken)
+                                    }
+                                }
+                            }
+
+                            // topbar
+                            Surface(
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = scrollState.topBarAlpha),
+                                shadowElevation = if (scrollState.topBarAlpha > 0.9f && !scrollState.isTabsPinned) 2.dp else 0.dp
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .statusBarsPadding()
+                                        .height(TOP_BAR_HEIGHT)
+                                ) {
+                                    IconButton(
+                                        onClick = onBack,
+                                        modifier = Modifier.align(Alignment.CenterStart)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = stringResource(R.string.general_back),
+                                            tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                                        )
+                                    }
+
+                                    if (scrollState.topBarAlpha > 0.8f) {
+                                        Text(
+                                            text = user.name.orEmpty(),
+                                            modifier = Modifier.align(Alignment.Center),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = { /* More */ },
+                                        modifier = Modifier.align(Alignment.CenterEnd)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = stringResource(R.string.general_more),
+                                            tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
 
-                   // header
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() }
-                            .graphicsLayer { translationY = viewModel.headerScrollOffset }
-                    ) {
-                        PeopleHeader(user = uiState.user, onFollowClick = viewModel::toggleFollow)
-                    }
-
-                    // topbar
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = scrollState.topBarAlpha),
-                        shadowElevation = if (scrollState.topBarAlpha > 0.9f && !scrollState.isTabsPinned) 2.dp else 0.dp
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .statusBarsPadding()
-                                .height(TOP_BAR_HEIGHT)
-                        ) {
+                        uiState.error != null -> {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                ErrorView(
+                                    message = uiState.error.uiMessage,
+                                    onRetry = { viewModel.loadPeople(urlToken) },
+                                )
+                            }
                             IconButton(
                                 onClick = onBack,
-                                modifier = Modifier.align(Alignment.CenterStart)
+                                modifier = Modifier
+                                    .statusBarsPadding()
+                                    .padding(8.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = stringResource(R.string.general_back),
-                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
-                                )
-                            }
-
-                            if (scrollState.topBarAlpha > 0.8f) {
-                                Text(
-                                    text = uiState.user.name.orEmpty(),
-                                    modifier = Modifier.align(Alignment.Center),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            }
-
-                            IconButton(
-                                onClick = { /* More */ },
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = stringResource(R.string.general_more),
-                                    tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
                                 )
                             }
                         }
-                    }
-                }
 
-                uiState.isLoading -> {
-                    Box(
-                        Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) { LoadingView() }
-                }
-
-                uiState.error != null -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        ErrorView(
-                            message = uiState.error.uiMessage,
-                            onRetry = { viewModel.loadPeople(urlToken) },
-                        )
-                    }
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .statusBarsPadding()
-                            .padding(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.general_back),
-                        )
+                        // Empty, and it has to stay sized: this is also the copy that fades out under
+                        // the loaded one, so it cannot collapse. Nothing is drawn while it loads.
+                        else -> Box(Modifier.fillMaxSize())
                     }
                 }
             }
         }
     }
 }
+
+/**
+ * Hands back only as much of the header as is still on screen: the scroll offset comes off its height
+ * as well as its position, so the tabs and the feeds under it rise with it and stay under it. The
+ * header is measured whole either way, so nothing is cut off — only the room it claims.
+ *
+ * It belongs in the column with them rather than over them: a row laid out after it is placed against
+ * the height this pass reports, where an overlay leaves it a frame behind, measured off state.
+ */
+private fun Modifier.collapsingHeader(offset: () -> Float): Modifier =
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        val offsetPx = offset().roundToInt()
+        layout(placeable.width, (placeable.height + offsetPx).coerceAtLeast(0)) {
+            placeable.placeRelative(0, offsetPx)
+        }
+    }
