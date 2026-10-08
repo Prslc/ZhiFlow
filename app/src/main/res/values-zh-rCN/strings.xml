@@ -77,7 +77,6 @@
     <string name="profile_default_headline">添加一句话介绍</string>
     <string name="profile_stat_following">关注</string>
     <string name="profile_stat_followers">粉丝</string>
-    <string name="profile_stat_favorites">收藏</string>
     <string name="profile_error_load_failed">获取数据失败</string>
     <string name="profile_retry">重试</string>
     <string name="profile_nav_history">历史记录</string>
@@ -90,9 +89,9 @@
     <string name="profile_nav_collections_summary">我收藏的内容</string>
     <string name="profile_nav_follows">关注订阅</string>
     <string name="profile_nav_follows_summary">新的关注与订阅</string>
-    <string name="content_desc_settings">设置</string>
+    <string name="profile_nav_settings">设置</string>
     <string name="content_desc_avatar">用户头像</string>
-    <string name="profile_section_content">内容浏览</string>
+    <string name="profile_action_edit_profile">编辑资料</string>
     <string name="profile_section_social">社交互动</string>
     <string name="profile_cover_desc">封面图片</string>
 
