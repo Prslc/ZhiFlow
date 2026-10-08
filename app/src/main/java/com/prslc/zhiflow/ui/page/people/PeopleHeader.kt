@@ -31,9 +31,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.core.utils.formatCount
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.FollowButton
+import com.prslc.zhiflow.ui.component.common.StatItem
 import com.prslc.zhiflow.ui.component.widget.rememberSingleImageLightbox
 
 @Composable
@@ -139,28 +139,5 @@ fun PeopleHeader(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun StatItem(
-    label: String,
-    count: Int,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = formatCount(count),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
-        )
     }
 }
