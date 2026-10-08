@@ -118,6 +118,12 @@
     <string name="comment_end_child">All replies shown</string>
     <string name="comment_published_with_ip">%1$s · %2$s</string>
 
+    <!-- segment panel -->
+    <string name="segment_action_like">Like</string>
+    <string name="segment_action_copy">Copy</string>
+    <string name="segment_action_share">Share</string>
+    <string name="segment_action_search">Search</string>
+
     <!-- RichText -->
     <string name="outline_title">Contents</string>
     <string name="richtext_references">References</string>

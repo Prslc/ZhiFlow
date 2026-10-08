@@ -60,13 +60,15 @@ data class Heading(
 @Immutable
 @Serializable
 data class Mark(
-    val type: String, // bold, italic, code, link, entity_word, formula, reference
+    val type: String, // bold, italic, code, link, entity_word, formula, reference, seg_like
     @SerialName("start_index") val start: Int,
     @SerialName("end_index") val end: Int,
     val link: Link? = null,
     @SerialName("entity_word") val entityWord: EntityWord? = null,
     val formula: Formula? = null,
     val reference: Reference? = null,
+    @SerialName("seg_like") val segLike: SegmentLike? = null,
+    @SerialName("master_seg_like") val masterSegLike: SegmentLike? = null,
 )
 
 @Immutable

@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.component.BlockquoteComponent
@@ -19,12 +20,19 @@ import com.prslc.zhiflow.ui.component.richtext.component.TableComponent
 @Composable
 fun RichTextSingleElement(
     element: RichTextElement,
-    modifier: Modifier = Modifier,
     onImageClick: (ZhihuImage) -> Unit,
+    modifier: Modifier = Modifier,
+    segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
+    onSegmentLikeClick: (String) -> Unit = {},
 ) {
     when (element) {
         is RichTextElement.ParsedText -> {
-            FormulaTextSection(element, modifier)
+            FormulaTextSection(
+                element = element,
+                modifier = modifier,
+                segmentLikes = segmentLikes,
+                onSegmentLikeClick = onSegmentLikeClick,
+            )
         }
         is RichTextElement.Heading -> Heading(element, modifier)
         is RichTextElement.FormulaBlock -> LatexComponent(element.data, modifier, isInline = false)

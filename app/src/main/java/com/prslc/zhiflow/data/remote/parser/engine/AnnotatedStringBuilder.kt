@@ -1,12 +1,13 @@
 package com.prslc.zhiflow.data.remote.parser.engine
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import com.prslc.zhiflow.data.model.content.Mark
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.ProcessedText
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -16,49 +17,97 @@ object AnnotatedStringBuilder {
     /** Stands in for an inline formula in the built text; the inline content draws the image over it. */
     const val FORMULA_PLACEHOLDER = "\uFFFD"
 
+    /** Range of a `seg_like` mark, carrying the [SegmentLikeTarget.key] that identifies it. */
+    const val SEGMENT_LIKE_TAG = "SEGMENT_LIKE"
+
+    /** The speech-bubble placeholder at the end of that range, carrying the same key. */
+    const val SEGMENT_LIKE_ICON_TAG = "SEGMENT_LIKE_ICON"
+
+    private const val NO_BUBBLE = -1
+
+    /** Built-offset key of the inline content for that bubble. */
+    fun segmentLikeIconId(position: Int) = "seg_like_icon_$position"
+
     /**
      * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.
      *
      * Segments text by mark boundaries, applies span styles (bold, italic, code, link, etc.),
      * and invokes [onFormulaFound] for inline formula placeholders.
+     *
+     * `seg_like` ranges are annotated rather than styled: whether their underline is solid or
+     * dashed depends on live like state, which the built string cannot hold. Each range ends where
+     * its bubble begins — the offset mapping that the tail of the loop leaves behind points past
+     * the bubble, and the underline has to stop short of it.
+     *
+     * @param onFormulaFound returns null to drop the mark's raw text instead of placing inline
+     *   content over it.
+     * @param segmentLikes the ranges to mark up, in raw-text order.
      */
     fun build(
         rawText: String,
         marks: List<Mark>,
         onFormulaFound: (formulaMark: Mark, position: Int) -> InlineFormulaMeta?,
-        isDark: Boolean
+        isDark: Boolean,
+        segmentLikes: List<SegmentLikeTarget> = emptyList(),
     ): ProcessedText {
         val inlineMetas = mutableListOf<InlineFormulaMeta>()
 
         val (formulaMarks, styleMarks) = marks.partition { it.type == "formula" }
-        val sortedFormulae = formulaMarks.sortedBy { it.start }
+
+        val insertions = buildList {
+            formulaMarks.forEach { add(Insertion.Replace(it.start, it.end, it)) }
+            segmentLikes.forEach { add(Insertion.Point(it.rawEnd, it)) }
+        }.sortedBy { it.start }
 
         val rawToBuiltMap = IntArray(rawText.length + 1)
+        val bubbleStarts = IntArray(rawText.length + 1) { NO_BUBBLE }
 
         val annotated = buildAnnotatedString {
             var currentRawIndex = 0
 
-            for (formula in sortedFormulae) {
-                val formulaStart = formula.start.coerceIn(0, rawText.length)
-                val formulaEnd = formula.end.coerceIn(0, rawText.length)
-                if (formulaStart < currentRawIndex) continue
+            for (insertion in insertions) {
+                val start = insertion.start.coerceIn(0, rawText.length)
+                if (start < currentRawIndex) continue
 
-                while (currentRawIndex < formulaStart) {
+                while (currentRawIndex < start) {
                     rawToBuiltMap[currentRawIndex] = length
                     append(rawText[currentRawIndex])
                     currentRawIndex++
                 }
 
-                val formulaStartInBuilt = length
-                onFormulaFound(formula, formulaStartInBuilt)?.let { meta ->
-                    inlineMetas.add(meta)
-                    appendInlineContent(meta.inlineId, FORMULA_PLACEHOLDER)
-                    addStringAnnotation("INLINE_ID", meta.inlineId, formulaStartInBuilt, length)
-                }
+                when (insertion) {
+                    is Insertion.Replace -> {
+                        val end = insertion.end.coerceIn(start, rawText.length)
+                        val insertionStart = length
 
-                while (currentRawIndex < formulaEnd) {
-                    rawToBuiltMap[currentRawIndex] = formulaStartInBuilt
-                    currentRawIndex++
+                        onFormulaFound(insertion.mark, insertionStart)?.let { meta ->
+                            inlineMetas.add(meta)
+                            appendInlineContent(meta.inlineId, FORMULA_PLACEHOLDER)
+                            addStringAnnotation("INLINE_ID", meta.inlineId, insertionStart, length)
+                        }
+
+                        while (currentRawIndex < end) {
+                            rawToBuiltMap[currentRawIndex] = insertionStart
+                            currentRawIndex++
+                        }
+                    }
+
+                    is Insertion.Point -> {
+                        val insertionStart = length
+                        appendInlineContent(
+                            segmentLikeIconId(insertionStart),
+                            FORMULA_PLACEHOLDER,
+                        )
+                        addStringAnnotation(
+                            SEGMENT_LIKE_ICON_TAG,
+                            insertion.target.key,
+                            insertionStart,
+                            length,
+                        )
+                        bubbleStarts[start] = insertionStart
+                        // Zero-width in raw text: the bubble sits between [start] and the character
+                        // after it, so every offset mapping stays as it was.
+                    }
                 }
             }
 
@@ -81,9 +130,30 @@ object AnnotatedStringBuilder {
                     applyMarkStyle(mark, finalStart, finalEnd, isDark)
                 }
             }
+
+            segmentLikes.forEach { target ->
+                val rawEnd = target.rawEnd.coerceIn(0, rawText.length)
+                val finalStart = rawToBuiltMap[target.rawStart.coerceIn(0, rawText.length)]
+                val bubbleStart = bubbleStarts[rawEnd]
+                val finalEnd = if (bubbleStart == NO_BUBBLE) rawToBuiltMap[rawEnd] else bubbleStart
+
+                if (finalStart < finalEnd) {
+                    addStringAnnotation(SEGMENT_LIKE_TAG, target.key, finalStart, finalEnd)
+                }
+            }
         }
 
-        return ProcessedText(annotated, inlineMetas)
+        return ProcessedText(annotated, inlineMetas, segmentLikes)
+    }
+
+    private sealed interface Insertion {
+        val start: Int
+
+        /** Replaces `[start, end)` of the raw text with one inline-content placeholder. */
+        data class Replace(override val start: Int, val end: Int, val mark: Mark) : Insertion
+
+        /** Inserts one inline-content placeholder between two raw characters. */
+        data class Point(override val start: Int, val target: SegmentLikeTarget) : Insertion
     }
 }
 

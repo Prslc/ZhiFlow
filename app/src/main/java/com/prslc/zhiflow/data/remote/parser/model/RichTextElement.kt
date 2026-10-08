@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 import com.prslc.zhiflow.data.model.content.Formula
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 
 @Immutable
@@ -16,6 +17,7 @@ data class InlineFormulaMeta(
 data class ProcessedText(
     val content: AnnotatedString,
     val inlineMetas: List<InlineFormulaMeta> = emptyList(),
+    val segmentLikes: List<SegmentLikeTarget> = emptyList(),
 )
 
 @Stable
@@ -103,6 +105,7 @@ sealed interface RichTextElement {
     @Stable
     data class ParsedText(
         val content: AnnotatedString,
-        val inlineMetas: List<InlineFormulaMeta>
+        val inlineMetas: List<InlineFormulaMeta>,
+        val segmentLikes: List<SegmentLikeTarget> = emptyList(),
     ) : RichTextElement
 }

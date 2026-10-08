@@ -14,3 +14,11 @@ val ZhihuBlue = Color(0xFF1E88E5)
 val ZhihuBlueDark = Color(0xFF64B5F6)
 val CodeBackgroundLight = Color(0x1A808080)
 val CodeBackgroundDark = Color(0x33808080)
+
+/**
+ * The band that breaks a sheet into sections: darker than the sheet in both modes, the way the page
+ * behind it is. A line of a colour role would be lighter than the sheet in dark mode and all but
+ * invisible in light, so the two ends are picked per mode instead.
+ */
+val SectionGapLight = Color(0x0F000000)
+val SectionGapDark = Color(0xFF000000)

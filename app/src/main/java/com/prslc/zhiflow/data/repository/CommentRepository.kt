@@ -25,6 +25,20 @@ class CommentRepository(private val service: CommentService) {
     ): Result<CommentResponse> = service.getRootComments(id, type, offset = offset)
 
     /**
+     * Retrieve the comments left on one passage of a content item.
+     *
+     * @param segmentId The range's shared segment id, as carried by its `seg_like` mark.
+     * @param offset Pagination offset.
+     * @return [Result] wrapping [CommentResponse].
+     */
+    suspend fun getSegmentComments(
+        id: String,
+        type: ContentType,
+        segmentId: String,
+        offset: String = ""
+    ): Result<CommentResponse> = service.getSegmentComments(id, type, segmentId, offset)
+
+    /**
      * Retrieve replies for a specific comment.
      *
      * @param rootCommentId Root comment ID.

@@ -45,6 +45,35 @@ class CommentService(private val okHttpClient: OkHttpClient) {
     }
 
     /**
+     * Fetches the comments left on one passage of a content item.
+     *
+     * Same list as [getRootComments], addressed by the segment id a `seg_like` range carries
+     * instead of by the content.
+     *
+     * @param segmentId The range's shared segment id, not the comments' own `resource_id`.
+     * @return A [Result] containing [CommentResponse] on success.
+     */
+    suspend fun getSegmentComments(
+        id: String,
+        contentType: ContentType,
+        segmentId: String,
+        offset: String = "",
+        orderBy: String = "score",
+        limit: Int = 20
+    ): Result<CommentResponse> = okHttpClient.safeApiCall {
+        val url = "${BASE_URL}/comment_v5/${contentType.apiPath}/$id/segment/root_comment"
+            .toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("segment_id", segmentId)
+            .addQueryParameter("order_by", orderBy)
+            .addQueryParameter("limit", limit.toString())
+            .addQueryParameter("offset", offset)
+            .build()
+
+        Request.Builder().url(url).get().build()
+    }
+
+    /**
      * Fetches child (replies) for a specific root comment.
      */
     suspend fun getChildComments(

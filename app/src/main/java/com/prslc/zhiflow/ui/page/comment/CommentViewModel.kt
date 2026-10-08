@@ -59,14 +59,28 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val comment: CommentDto,
     )
 
+    @Stable
+    data class SegmentUiState(
+        val isLoading: Boolean = false,
+        val comments: List<CommentUiModel> = emptyList(),
+        val totalCount: Int = 0,
+        val offset: String = "",
+        val hasMore: Boolean = true,
+        val error: ApiException? = null,
+    )
+
     var uiState by mutableStateOf(CommentUiState())
         private set
 
     var childUiState by mutableStateOf(ChildCommentUiState())
         private set
 
+    var segmentUiState by mutableStateOf(SegmentUiState())
+        private set
+
     private var lastLoadedAnswerId: String? = null
     private var lastContentType: ContentType? = null
+    private var lastSegmentId: String? = null
     private val pendingReactions = mutableSetOf<String>()
 
     fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
@@ -111,6 +125,50 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
     fun loadMoreReplies() {
         childUiState.rootComment?.comment?.let { loadChildComments(it, forceRefresh = false) }
+    }
+
+    /**
+     * Loads the comments left on one passage.
+     *
+     * @param segmentId The shared segment id its `seg_like` mark carries — not the `resource_id` of
+     *   any comment in the answer, which names the comment's own segment record.
+     */
+    fun loadSegmentComments(
+        id: String,
+        contentType: ContentType,
+        segmentId: String,
+        forceRefresh: Boolean = false,
+    ) {
+        val isNewOrRefresh = forceRefresh || segmentId != lastSegmentId
+        if (!isNewOrRefresh && (segmentUiState.isLoading || !segmentUiState.hasMore)) return
+
+        if (isNewOrRefresh) {
+            lastSegmentId = segmentId
+            segmentUiState = SegmentUiState(isLoading = true)
+        } else {
+            segmentUiState = segmentUiState.copy(isLoading = true, error = null)
+        }
+
+        viewModelScope.launch {
+            repository.getSegmentComments(id, contentType, segmentId, segmentUiState.offset)
+                .onSuccess { response ->
+                    val processed = response.data.map { CommentUiModel(it.toDto()) }
+                    val nextOffset =
+                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+
+                    segmentUiState = segmentUiState.copy(
+                        comments = if (isNewOrRefresh) processed
+                        else segmentUiState.comments + processed,
+                        totalCount = response.counts.total,
+                        offset = nextOffset,
+                        hasMore = response.paging?.isEnd == false,
+                        isLoading = false,
+                        error = null,
+                    )
+                }.onApiFailure { error ->
+                    segmentUiState = segmentUiState.copy(isLoading = false, error = error)
+                }
+        }
     }
 
     fun loadChildComments(rootComment: CommentDto, forceRefresh: Boolean = false) {
@@ -159,6 +217,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
         val targetModel = uiState.comments.find { it.comment.id == commentId }
             ?: childUiState.comments.find { it.comment.id == commentId }
+            ?: segmentUiState.comments.find { it.comment.id == commentId }
             ?: childUiState.rootComment?.takeIf { it.comment.id == commentId } ?: return
 
         val isCurrentlyActive = targetModel.comment.liked
@@ -196,8 +255,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     fun onSheetDismissed() {
         uiState = CommentUiState()
         childUiState = ChildCommentUiState()
+        segmentUiState = SegmentUiState()
         lastLoadedAnswerId = null
         lastContentType = null
+        lastSegmentId = null
         pendingReactions.clear()
     }
 
@@ -217,5 +278,6 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             rootComment = childUiState.rootComment?.let(mapper),
             comments = childUiState.comments.map(mapper),
         )
+        segmentUiState = segmentUiState.copy(comments = segmentUiState.comments.map(mapper))
     }
 }

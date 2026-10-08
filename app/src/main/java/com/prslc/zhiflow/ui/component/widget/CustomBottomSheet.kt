@@ -60,6 +60,8 @@ private const val EXIT_DURATION_MS = 160
  * @param animateResize whether a height the content takes on is animated. It keeps a row or two
  *   arriving under the finger from landing as a jolt; a sheet whose content changes only as it loads
  *   wants it off, so the swap arrives in one frame instead of sliding the content into place.
+ * @param heightFraction how much of the available height the sheet may take. A sheet that fills
+ *   whatever it is given wants the default; one that should sit at a height of its own passes less.
  */
 @Composable
 fun CustomBottomSheet(
@@ -67,6 +69,7 @@ fun CustomBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     animateResize: Boolean = true,
+    heightFraction: Float = MAX_HEIGHT_FRACTION,
     content: @Composable () -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(false) }
@@ -162,7 +165,7 @@ fun CustomBottomSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = maxHeight * MAX_HEIGHT_FRACTION)
+                        .heightIn(max = maxHeight * heightFraction)
                         .animateEnterExit(
                             enter = slideInVertically(
                                 initialOffsetY = { it },

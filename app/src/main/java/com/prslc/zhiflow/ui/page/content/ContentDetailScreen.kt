@@ -60,6 +60,7 @@ import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
+import com.prslc.zhiflow.ui.page.comment.SegmentPanelSheet
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -133,6 +134,17 @@ fun ContentDetailScreen(
     val onStarClick = remember { { viewModel.openCollection() } }
     val onCommentClick = remember { { viewModel.openComments() } }
 
+    val segmentKey = viewModel.openSegmentKey
+    val segmentTarget = segmentKey?.let { viewModel.segmentLikes[it] }
+    val segmentLikes = viewModel.segmentLikes
+    val onSegmentLikeClick = remember { { key: String -> viewModel.openSegmentPanel(key) } }
+
+    LaunchedEffect(segmentTarget?.segId) {
+        segmentTarget?.segId?.let { segmentId ->
+            commentViewModel.loadSegmentComments(id, contentType, segmentId)
+        }
+    }
+
     Surface(
         modifier = modifier
             .fillMaxSize()
@@ -200,6 +212,8 @@ fun ContentDetailScreen(
                                     showAuthorDivider = true,
                                     onProgress = { viewModel.trackProgress(it) },
                                     onFollowClick = viewModel::toggleFollow,
+                                    segmentLikes = segmentLikes,
+                                    onSegmentLikeClick = onSegmentLikeClick,
                                 )
                             }
                         }
@@ -244,6 +258,44 @@ fun ContentDetailScreen(
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                     }
                 }
+            )
+
+            SegmentPanelSheet(
+                target = segmentTarget,
+                comments = commentViewModel.segmentUiState,
+                actionError = viewModel.actionError ?: commentViewModel.uiState.actionError,
+                onErrorConsumed = {
+                    viewModel.consumeActionError()
+                    commentViewModel.onActionErrorShown()
+                },
+                onToggleLike = { key -> viewModel.toggleSegmentLike(key) },
+                onLoadMore = {
+                    segmentTarget?.segId?.let {
+                        commentViewModel.loadSegmentComments(id, contentType, it)
+                    }
+                },
+                onRetry = {
+                    segmentTarget?.segId?.let {
+                        commentViewModel.loadSegmentComments(id, contentType, it, forceRefresh = true)
+                    }
+                },
+                onDismissRequest = {
+                    viewModel.dismissSegmentPanel()
+                    commentViewModel.onSheetDismissed()
+                },
+                onEvent = { event ->
+                    when (event) {
+                        is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
+                        is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
+                        is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(
+                            event.rootComment,
+                            forceRefresh = true
+                        )
+
+                        CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
+                        else -> Unit
+                    }
+                },
             )
 
             BodyOutlineSheet(

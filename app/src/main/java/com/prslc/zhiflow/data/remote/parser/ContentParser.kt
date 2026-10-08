@@ -7,6 +7,7 @@ import com.prslc.zhiflow.data.model.content.CardExtraInfo
 import com.prslc.zhiflow.data.model.content.Mark
 import com.prslc.zhiflow.data.model.content.Paragraph
 import com.prslc.zhiflow.data.model.content.Segment
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.engine.FormulaHandler
@@ -88,11 +89,13 @@ object ContentParser {
     private fun parseContent(
         rawText: String,
         marks: List<Mark>,
-        isDark: Boolean
+        isDark: Boolean,
+        paragraphId: String? = null
     ): ProcessedText {
         return AnnotatedStringBuilder.build(
             rawText = rawText,
             marks = marks,
+            segmentLikes = segmentLikeTargets(rawText, marks, paragraphId),
             isDark = isDark,
             onFormulaFound = { mark, pos ->
                 mark.formula?.let {
@@ -101,6 +104,45 @@ object ContentParser {
             }
         )
     }
+
+    /**
+     * Collapse the `seg_like` marks of one paragraph into one target per range.
+     *
+     * The API sends the range twice — the shared record and, once the reader has liked it, the
+     * reader's own record under a second key. Counts only live on the shared one, and the id to
+     * unlike with only on the reader's. Both the liked flag and that id are therefore read from the
+     * reader's record alone: taking the flag from the shared one could report a like that carries no
+     * id to undo it with.
+     */
+    private fun segmentLikeTargets(
+        rawText: String,
+        marks: List<Mark>,
+        paragraphId: String?
+    ): List<SegmentLikeTarget> = marks
+        .filter { it.type == "seg_like" }
+        .groupBy { it.start to it.end }
+        .mapNotNull { (range, group) ->
+            val shared = group.firstNotNullOfOrNull { it.segLike }
+            val mine = group.firstNotNullOfOrNull { it.masterSegLike }
+            val segId = shared?.segIds?.firstOrNull() ?: mine?.segIds?.firstOrNull()
+                ?: return@mapNotNull null
+
+            val (start, end) = range
+            val from = start.coerceIn(0, rawText.length)
+            val to = end.coerceIn(from, rawText.length)
+
+            SegmentLikeTarget(
+                segId = segId,
+                paragraphId = paragraphId,
+                rawStart = from,
+                rawEnd = to,
+                text = rawText.substring(from, to),
+                mySegId = mine?.segIds?.firstOrNull(),
+                isLiked = mine?.isLike == true,
+                likeCount = shared?.count ?: mine?.count ?: 0,
+                commentCount = shared?.commentCount ?: 0,
+            )
+        }
 
     private fun processParagraph(
         paragraph: Paragraph?,
@@ -119,8 +161,14 @@ object ContentParser {
         }.sortedBy { it.start }
 
         if (blockFormulaMarks.isEmpty()) {
-            val processed = parseContent(rawText, marks, isDark)
-            return listOf(RichTextElement.ParsedText(processed.content, processed.inlineMetas))
+            val processed = parseContent(rawText, marks, isDark, paragraph.pid)
+            return listOf(
+                RichTextElement.ParsedText(
+                    processed.content,
+                    processed.inlineMetas,
+                    processed.segmentLikes,
+                )
+            )
         }
 
         val elements = mutableListOf<RichTextElement>()
@@ -132,11 +180,12 @@ object ContentParser {
                 if (subText.isNotBlank() && subText != "\n") {
                     val subMarks = marks.filter { it.start >= lastIndex && it.end <= mark.start }
                         .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
-                    val processed = parseContent(subText, subMarks, isDark)
+                    val processed = parseContent(subText, subMarks, isDark, paragraph.pid)
                     elements.add(
                         RichTextElement.ParsedText(
                             processed.content,
-                            processed.inlineMetas
+                            processed.inlineMetas,
+                            processed.segmentLikes,
                         )
                     )
                 }
@@ -150,8 +199,14 @@ object ContentParser {
             if (subText.isNotBlank() && subText != "\n") {
                 val subMarks = marks.filter { it.start >= lastIndex }
                     .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
-                val processed = parseContent(subText, subMarks, isDark)
-                elements.add(RichTextElement.ParsedText(processed.content, processed.inlineMetas))
+                val processed = parseContent(subText, subMarks, isDark, paragraph.pid)
+                elements.add(
+                    RichTextElement.ParsedText(
+                        processed.content,
+                        processed.inlineMetas,
+                        processed.segmentLikes,
+                    )
+                )
             }
         }
 

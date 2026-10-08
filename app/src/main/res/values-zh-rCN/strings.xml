@@ -119,6 +119,12 @@
     <string name="comment_end_child">已显示全部回复</string>
     <string name="comment_published_with_ip">%1$s · %2$s</string>
 
+    <!-- segment panel -->
+    <string name="segment_action_like">喜欢</string>
+    <string name="segment_action_copy">复制</string>
+    <string name="segment_action_share">分享</string>
+    <string name="segment_action_search">搜索</string>
+
     <!-- RichText -->
     <string name="outline_title">目录</string>
     <string name="richtext_references">参考</string>

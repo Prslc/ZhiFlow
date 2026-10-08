@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.input.pointer.pointerInput
@@ -30,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.model.content.Formula
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import kotlinx.serialization.json.Json
@@ -153,16 +156,23 @@ private fun FormulaImage(
  * A paragraph of text with inline formulas. Compose does not grow a row to fit a tall inline
  * placeholder, so the line height is raised to cover the tallest formula in it — otherwise a
  * `\displaystyle` fraction overlaps the rows around it.
+ *
+ * @param segmentLikes live state of the paragraph's `seg_like` ranges, keyed by the range's own key.
+ *   Only the liked flag is read here: the underline style follows it, and the count lives in the
+ *   panel the range opens.
  */
 @Composable
 fun FormulaTextSection(
     element: RichTextElement.ParsedText,
     modifier: Modifier = Modifier,
+    segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
+    onSegmentLikeClick: (String) -> Unit = {},
     onFormulaClick: (String) -> Unit = {},
 ) {
     val navigator = LocalNavigator.current
     val density = LocalDensity.current
     val maxWidthDp = rememberFormulaMaxWidth()
+    val underlineColor = MaterialTheme.colorScheme.outline
 
     val inlineContentMap = remember(element.inlineMetas, density, maxWidthDp) {
         element.inlineMetas.associate { meta ->
@@ -179,8 +189,20 @@ fun FormulaTextSection(
             }
         }
     }
+    val bubbleContentMap = element.content.rememberSegmentLikeIcons(
+        tint = underlineColor,
+        onClick = onSegmentLikeClick,
+    )
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    val segmentRanges = remember(element.content) {
+        element.content.getStringAnnotations(
+            AnnotatedStringBuilder.SEGMENT_LIKE_TAG,
+            0,
+            element.content.length,
+        )
+    }
 
     val maxFormulaHeightDp = element.inlineMetas.maxOfOrNull {
         constrainedSize(it.formula.width.toFloat(), it.formula.height.toFloat(), maxWidthDp).second
@@ -195,22 +217,44 @@ fun FormulaTextSection(
 
     Text(
         text = element.content,
-        modifier = modifier.pointerInput(element.content) {
-            detectTapGestures { pos ->
-                layoutResult.value?.let { layout ->
-                    val offset = layout.getOffsetForPosition(pos)
-                    element.content.getStringAnnotations("URL", offset, offset)
-                        .firstOrNull()?.let { navigator.handleUrl(it.item) }
-
-                    element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
-                        .firstOrNull()?.let { annotation ->
-                            runCatching { Json.decodeFromString<Formula>(annotation.item) }
-                                .getOrNull()?.imgUrl?.let { onFormulaClick(it) }
-                        }
+        modifier = modifier
+            .drawBehind {
+                val layout = layoutResult.value ?: return@drawBehind
+                segmentRanges.forEach { range ->
+                    drawSegmentUnderline(
+                        layout = layout,
+                        start = range.start,
+                        end = range.end,
+                        color = underlineColor,
+                        dashed = segmentLikes[range.item]?.isLiked != true,
+                        baselineGap = 3.dp.toPx(),
+                    )
                 }
             }
-        },
-        inlineContent = inlineContentMap,
+            .pointerInput(element.content) {
+                detectTapGestures { pos ->
+                    layoutResult.value?.let { layout ->
+                        val offset = layout.getOffsetForPosition(pos)
+                        element.content.getStringAnnotations("URL", offset, offset)
+                            .firstOrNull()?.let { navigator.handleUrl(it.item) }
+
+                        element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
+                            .firstOrNull()?.let { annotation ->
+                                runCatching { Json.decodeFromString<Formula>(annotation.item) }
+                                    .getOrNull()?.imgUrl?.let { onFormulaClick(it) }
+                            }
+
+                        // The bubble carries its own tap target; this covers a tap that lands on
+                        // the underlined text instead.
+                        element.content
+                            .getStringAnnotations(
+                                AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset
+                            )
+                            .firstOrNull()?.let { onSegmentLikeClick(it.item) }
+                    }
+                }
+            },
+        inlineContent = inlineContentMap + bubbleContentMap,
         onTextLayout = { layoutResult.value = it },
         style = MaterialTheme.typography.bodyLarge.copy(
             lineHeight = effectiveLineHeight,

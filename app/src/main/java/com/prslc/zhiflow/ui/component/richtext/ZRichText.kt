@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -17,6 +18,7 @@ import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
 import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
 import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
 import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
+import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 /**
@@ -104,7 +106,9 @@ fun ZRichText(
     Text(
         text = interceptedContent,
         style = style,
-        inlineContent = inlineContent,
+        inlineContent = inlineContent + interceptedContent.rememberSegmentLikeIcons(
+            tint = MaterialTheme.colorScheme.outline,
+        ),
         maxLines = maxLines,
         overflow = overflow,
         modifier = modifier

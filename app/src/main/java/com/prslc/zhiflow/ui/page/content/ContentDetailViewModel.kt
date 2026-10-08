@@ -15,6 +15,7 @@ import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgress
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
 import com.prslc.zhiflow.data.model.content.ZhihuArticle
 import com.prslc.zhiflow.data.model.content.ZhihuContent
@@ -67,6 +68,19 @@ class ContentViewModel(
     var richTextElements by mutableStateOf<List<RichTextElement>>(emptyList())
         private set
 
+    /**
+     * Live state of the body's `seg_like` ranges, keyed by [SegmentLikeTarget.key].
+     *
+     * Seeded from the parsed paragraphs — the parsed text only carries the range, never the state —
+     * and kept outside [parsingCache] so a like never has to invalidate a parsed body.
+     */
+    var segmentLikes by mutableStateOf<Map<String, SegmentLikeTarget>>(emptyMap())
+        private set
+
+    /** Key of the range whose panel is open; null when it is closed. */
+    var openSegmentKey by mutableStateOf<String?>(null)
+        private set
+
     @Immutable
     data class PresentationState(
         val showCollectionSheet: Boolean = false,
@@ -88,6 +102,9 @@ class ContentViewModel(
 
     private var isDark by mutableStateOf(false)
 
+    private var contentType: ContentType? = null
+    private val pendingSegmentLikes = mutableSetOf<String>()
+
     private var loadJob: Job? = null
     private var parseJob: Job? = null
 
@@ -105,6 +122,7 @@ class ContentViewModel(
      */
     fun loadContent(id: String, type: ContentType) {
         loadJob?.cancel()
+        contentType = type
         resetStates()
         loadJob = viewModelScope.launch {
             val result = when (type) {
@@ -122,7 +140,7 @@ class ContentViewModel(
                     isFavorite = rel?.faved ?: false,
                 )
                 parsingCache.get(data.id)?.let {
-                    richTextElements = it
+                    setElements(it)
                     isBodyComplete = true
                 }
                 parseRichText()
@@ -210,6 +228,80 @@ class ContentViewModel(
         presentation = presentation.copy(showComments = false)
     }
 
+    fun openSegmentPanel(key: String) {
+        openSegmentKey = key
+    }
+
+    fun dismissSegmentPanel() {
+        openSegmentKey = null
+    }
+
+    /**
+     * Toggles the like on one passage with optimistic UI, rolling back on failure.
+     *
+     * The like request answers with the reader's own segment id, and that is the one undoing needs —
+     * the shared id the page was parsed with is not accepted for it. So the answer is folded back
+     * into the state, and the next tap on this range can undo.
+     */
+    fun toggleSegmentLike(key: String) {
+        val content = loadingState.content ?: return
+        val type = contentType ?: return
+        val target = segmentLikes[key] ?: return
+        if (!pendingSegmentLikes.add(key)) return
+
+        val shouldLike = !target.isLiked
+        updateSegmentLike(key) {
+            it.copy(
+                isLiked = shouldLike,
+                likeCount = (it.likeCount + if (shouldLike) 1 else -1).coerceAtLeast(0),
+            )
+        }
+
+        viewModelScope.launch {
+            actionRepository.toggleSegmentLike(
+                id = content.id,
+                type = type,
+                target = target,
+                isLike = shouldLike,
+            ).onSuccess { mySegId ->
+                if (shouldLike && !mySegId.isNullOrEmpty()) {
+                    updateSegmentLike(key) { it.copy(mySegId = mySegId) }
+                }
+            }.onApiFailure { error ->
+                updateSegmentLike(key) { target }
+                actionError = error
+            }
+            pendingSegmentLikes.remove(key)
+        }
+    }
+
+    private fun updateSegmentLike(
+        key: String,
+        transform: (SegmentLikeTarget) -> SegmentLikeTarget,
+    ) {
+        val current = segmentLikes[key] ?: return
+        segmentLikes = segmentLikes + (key to transform(current))
+    }
+
+    /**
+     * Publishes a freshly parsed body and lifts its `seg_like` ranges into [segmentLikes].
+     *
+     * Ranges arrive a chunk at a time, so the state only ever grows; a range already in it keeps the
+     * live like the reader just made.
+     */
+    private fun setElements(elements: List<RichTextElement>) {
+        richTextElements = elements
+
+        val targets = elements
+            .filterIsInstance<RichTextElement.ParsedText>()
+            .flatMap { it.segmentLikes }
+            .filterNot { segmentLikes.containsKey(it.key) }
+
+        if (targets.isNotEmpty()) {
+            segmentLikes = segmentLikes + targets.associateBy { it.key }
+        }
+    }
+
     /** Records where the reader is; the list only ever sends a position it could measure. */
     fun trackProgress(position: ReadingPosition) {
         progress.update(position)
@@ -263,7 +355,7 @@ class ContentViewModel(
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    richTextElements = fullList.toList()
+                    setElements(fullList.toList())
                     isBodyComplete = true
                 }
                 parsingCache.put(content.id, fullList)
@@ -276,7 +368,7 @@ class ContentViewModel(
 
                 val currentSnapshot = fullList.toList()
                 withContext(Dispatchers.Main) {
-                    richTextElements = currentSnapshot
+                    setElements(currentSnapshot)
                 }
             }
             // The body is complete from here, which is what makes its length a usable scale.
@@ -335,6 +427,9 @@ class ContentViewModel(
         loadingState = LoadingState()
         interactionState = InteractionState()
         richTextElements = emptyList()
+        segmentLikes = emptyMap()
+        openSegmentKey = null
+        pendingSegmentLikes.clear()
         presentation = PresentationState()
         progress.reset()
         isBodyComplete = false

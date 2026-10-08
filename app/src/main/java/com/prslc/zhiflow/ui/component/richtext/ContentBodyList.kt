@@ -44,6 +44,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
@@ -146,6 +147,8 @@ fun ContentBodyList(
     showAuthorDivider: Boolean,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
+    segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
+    onSegmentLikeClick: (String) -> Unit = {},
     onProgress: (ReadingPosition) -> Unit,
 ) {
     val lightbox = koinInject<ImageLightboxController>()
@@ -208,6 +211,8 @@ fun ContentBodyList(
                     RichTextSingleElement(
                         element = element,
                         onImageClick = onImageClick,
+                        segmentLikes = segmentLikes,
+                        onSegmentLikeClick = onSegmentLikeClick,
                     )
                 }
             }
