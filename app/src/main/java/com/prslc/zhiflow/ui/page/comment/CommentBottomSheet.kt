@@ -64,9 +64,10 @@ fun CommentBottomSheet(
         CustomBottomSheet(
             visible = showComments,
             modifier = modifier,
+            // The header's close only asks the sheet to go; the list is cleared on the far side.
             onDismissRequest = {
-                onEvent(CommentUiEvent.DismissSheet)
                 onDismissRequest()
+                onEvent(CommentUiEvent.DismissSheet)
             }
         ) {
             CommentPaneTransition(
@@ -77,10 +78,7 @@ fun CommentBottomSheet(
                     Column(modifier = Modifier.fillMaxSize()) {
                         CommentHeader(
                             title = stringResource(R.string.comment_count, uiState.totalCount),
-                            onClose = {
-                                onEvent(CommentUiEvent.DismissSheet)
-                                onDismissRequest()
-                            }
+                            onClose = onDismissRequest
                         )
                         val onLoadMoreRoot = remember(id, contentType) {
                             { onEvent(CommentUiEvent.LoadRootComments(id, contentType)) }

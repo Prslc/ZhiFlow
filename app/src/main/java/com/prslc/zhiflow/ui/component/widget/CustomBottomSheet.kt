@@ -57,6 +57,8 @@ private const val EXIT_DURATION_MS = 160
  * ones belong to the screen behind. Taking them would cancel the retraction in progress and spring
  * the sheet back up, because the platform cancels the previous gesture when a new one starts.
  *
+ * @param onDismissRequest called once the sheet is gone, whichever way it went: one of its own exits,
+ *   or the owner hiding it.
  * @param animateResize whether a height the content takes on is animated. It keeps a row or two
  *   arriving under the finger from landing as a jolt; a sheet whose content changes only as it loads
  *   wants it off, so the swap arrives in one frame instead of sliding the content into place.
@@ -87,8 +89,13 @@ fun CustomBottomSheet(
         }
     }
 
+    val hasBeenUp = remember { mutableStateOf(false) }
     LaunchedEffect(transitionState.currentState, transitionState.targetState) {
-        if (!transitionState.targetState && !transitionState.currentState && visible) {
+        if (transitionState.currentState || transitionState.targetState) {
+            hasBeenUp.value = true
+        } else if (hasBeenUp.value) {
+            // Both ends false is also how a sheet that was never up reads; the flag tells them apart.
+            hasBeenUp.value = false
             onDismissRequest()
         }
     }

@@ -239,10 +239,8 @@ fun ContentDetailScreen(
                 uiState = uiState,
                 childUiState = childUiState,
                 showComments = presentation.showComments,
-                onDismissRequest = {
-                    viewModel.dismissComments()
-                    commentViewModel.onSheetDismissed()
-                },
+                // Hides the sheet only: the sheet clears the comment state itself once it is gone.
+                onDismissRequest = { viewModel.dismissComments() },
 
                 onEvent = { event ->
                     when (event) {

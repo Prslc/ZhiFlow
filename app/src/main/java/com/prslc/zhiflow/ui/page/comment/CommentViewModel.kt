@@ -235,8 +235,14 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         }
     }
 
+    /**
+     * Sends the reply pane back to the root list. The root comment is kept: the pane is still
+     * composed while it slides out, and a list that lost the comment would drop the card under the
+     * reader's eyes and pull its replies up in that very frame. Opening a comment replaces the whole
+     * state, so nothing stale can reach the pane.
+     */
     fun backToMain() {
-        childUiState = childUiState.copy(isDetailMode = false, rootComment = null)
+        childUiState = childUiState.copy(isDetailMode = false)
     }
 
     fun showAuthor(urlToken: String) {
