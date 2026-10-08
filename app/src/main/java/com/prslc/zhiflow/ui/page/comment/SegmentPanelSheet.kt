@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.SectionGapDark
 import com.prslc.zhiflow.ui.theme.SectionGapLight
 import kotlinx.coroutines.launch
@@ -60,12 +62,16 @@ private const val PANEL_HEIGHT_FRACTION = 0.77f
  * The panel a `seg_like` range opens: the passage it covers, what can be done with it, and the
  * comments left on it.
  *
+ * The comments are the same chain the content's own sheet shows — a root list that opens a reply
+ * detail — so a range's comments are read, and replied to, exactly like any others.
+ *
  * The body holds on to the last range it was given: one that rendered only while the range is
  * non-null would collapse to an empty panel in the frame a dismissal clears it, and the exit would
  * play on nothing.
  *
  * @param onToggleLike takes the range's key, so the like state stays with the screen that owns the
  *   body rather than with the panel.
+ * @param navigateToUser a url token the reader asked for, which the panel cannot open itself.
  * @param actionError failures of either the passage like or a comment like; the sheet carries the
  *   only host that is visible while it is up.
  */
@@ -73,11 +79,14 @@ private const val PANEL_HEIGHT_FRACTION = 0.77f
 fun SegmentPanelSheet(
     target: SegmentLikeTarget?,
     comments: CommentViewModel.SegmentUiState,
+    childComments: CommentViewModel.ChildCommentUiState,
     onToggleLike: (String) -> Unit,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    navigateToUser: String? = null,
+    onNavigated: () -> Unit = {},
     actionError: ApiException? = null,
     onErrorConsumed: () -> Unit = {},
     onEvent: (CommentUiEvent) -> Unit = {},
@@ -85,9 +94,22 @@ fun SegmentPanelSheet(
     var held by remember { mutableStateOf(target) }
     if (target != null) held = target
 
+    val navigator = LocalNavigator.current
     val listState = rememberLazyListState()
+    val childListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val copyText = rememberCopyTextToClipboard()
+
+    // The gate is what keeps this to one page: the other sheet's author taps land here as well, and
+    // without it both sheets would open the reader and the one behind would be wiped on the way.
+    LaunchedEffect(navigateToUser) {
+        val token = navigateToUser ?: return@LaunchedEffect
+        if (target == null) return@LaunchedEffect
+
+        onDismissRequest()
+        navigator.navigateToPeople(token)
+        onNavigated()
+    }
 
     Box(modifier = modifier) {
         CustomBottomSheet(
@@ -95,49 +117,89 @@ fun SegmentPanelSheet(
             onDismissRequest = onDismissRequest,
             heightFraction = PANEL_HEIGHT_FRACTION,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                held?.let { range ->
-                    Text(
-                        text = range.text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                    )
+            CommentPaneTransition(
+                isDetail = childComments.isDetailMode,
+                backEnabled = target != null,
+                onBackToMain = { onEvent(CommentUiEvent.BackToMain) },
+                main = {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        held?.let { range ->
+                            Text(
+                                text = range.text,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .clip(MaterialTheme.shapes.medium)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                            )
 
-                    SegmentActionRow(
-                        likeCount = range.likeCount,
-                        isLiked = range.isLiked,
-                        commentCount = comments.totalCount,
-                        onCopy = { copyText(range.text) },
-                        onLike = { onToggleLike(range.key) },
-                        onComments = { scope.launch { listState.animateScrollToItem(0) } },
-                    )
+                            SegmentActionRow(
+                                likeCount = range.likeCount,
+                                isLiked = range.isLiked,
+                                commentCount = comments.totalCount,
+                                onCopy = { copyText(range.text) },
+                                onLike = { onToggleLike(range.key) },
+                                onComments = { scope.launch { listState.animateScrollToItem(0) } },
+                            )
 
-                    HorizontalDivider(
-                        thickness = 6.dp,
-                        color = if (isSystemInDarkTheme()) SectionGapDark else SectionGapLight,
-                    )
-                }
+                            HorizontalDivider(
+                                thickness = 6.dp,
+                                color = if (isSystemInDarkTheme()) SectionGapDark else SectionGapLight,
+                            )
+                        }
 
-                CommentList(
-                    modifier = Modifier.weight(1f),
-                    onEvent = onEvent,
-                    comments = comments.comments,
-                    isLoading = comments.isLoading,
-                    hasMore = comments.hasMore,
-                    onLoadMore = onLoadMore,
-                    state = listState,
-                    error = comments.error,
-                    onRetry = onRetry,
-                )
-            }
+                        CommentList(
+                            modifier = Modifier.weight(1f),
+                            onEvent = onEvent,
+                            comments = comments.comments,
+                            isLoading = comments.isLoading,
+                            hasMore = comments.hasMore,
+                            onLoadMore = onLoadMore,
+                            state = listState,
+                            error = comments.error,
+                            onRetry = onRetry,
+                        )
+                    }
+                },
+                detail = {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        val currentRootId = childComments.rootComment?.comment?.id
+                        val onLoadMoreReplies = remember {
+                            { onEvent(CommentUiEvent.LoadMoreReplies) }
+                        }
+
+                        LaunchedEffect(currentRootId) {
+                            if (currentRootId != null) {
+                                childListState.scrollToItem(0)
+                            }
+                        }
+
+                        CommentHeader(
+                            title = stringResource(R.string.comment_reply_detail),
+                            onClose = { onEvent(CommentUiEvent.BackToMain) },
+                            isBackStyle = true,
+                        )
+                        CommentList(
+                            modifier = Modifier.weight(1f),
+                            onEvent = onEvent,
+                            comments = childComments.comments,
+                            isLoading = childComments.isLoading,
+                            hasMore = childComments.hasMore,
+                            rootComment = childComments.rootComment,
+                            onLoadMore = onLoadMoreReplies,
+                            state = childListState,
+                            isChild = true,
+                            error = childComments.error,
+                            onRetry = onLoadMoreReplies,
+                        )
+                    }
+                },
+            )
 
             val snackbarHostState = rememberActionErrorHost(actionError, onErrorConsumed)
             SnackbarHost(

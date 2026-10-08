@@ -263,6 +263,9 @@ fun ContentDetailScreen(
             SegmentPanelSheet(
                 target = segmentTarget,
                 comments = commentViewModel.segmentUiState,
+                childComments = commentViewModel.childUiState,
+                navigateToUser = commentViewModel.uiState.navigateToUser,
+                onNavigated = commentViewModel::onNavigated,
                 actionError = viewModel.actionError ?: commentViewModel.uiState.actionError,
                 onErrorConsumed = {
                     viewModel.consumeActionError()
@@ -292,6 +295,8 @@ fun ContentDetailScreen(
                             forceRefresh = true
                         )
 
+                        CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
+                        CommentUiEvent.BackToMain -> commentViewModel.backToMain()
                         CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
                         else -> Unit
                     }
