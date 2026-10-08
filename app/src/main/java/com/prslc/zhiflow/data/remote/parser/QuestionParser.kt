@@ -1,15 +1,7 @@
 package com.prslc.zhiflow.data.remote.parser
 
-import android.text.Html
-import android.text.Spanned
-import android.text.style.URLSpan
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.model.content.ZhihuImage
-import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 
 @Immutable
@@ -22,7 +14,7 @@ object QuestionParser {
      * Parse question detail HTML into a list of [DetailElement].
      *
      * Extracts `<figure>` tags as images with width/height/caption, and renders
-     * the remaining text segments via [renderHtmlText].
+     * the remaining text segments through [htmlToAnnotatedString].
      */
     fun parse(html: String?): List<DetailElement> {
         if (html.isNullOrEmpty()) return emptyList()
@@ -33,7 +25,7 @@ object QuestionParser {
         figureRegex.findAll(html).forEach { match ->
             val preText = html.substring(lastIndex, match.range.first).trim()
             if (preText.isNotEmpty()) {
-                elements.add(DetailElement.Text(renderHtmlText(preText)))
+                elements.add(DetailElement.Text(htmlToAnnotatedString(preText)))
             }
 
             val figureContent = match.groupValues[1]
@@ -60,33 +52,9 @@ object QuestionParser {
 
         val postText = html.substring(lastIndex).trim()
         if (postText.isNotEmpty()) {
-            elements.add(DetailElement.Text(renderHtmlText(postText)))
+            elements.add(DetailElement.Text(htmlToAnnotatedString(postText)))
         }
 
         return elements
-    }
-
-    private fun renderHtmlText(html: String): AnnotatedString {
-        val spanned = Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT)
-        return spanned.toAnnotatedString()
-    }
-}
-
-private fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
-    val rawText = this@toAnnotatedString.toString()
-    val emojiText = EmojiParser.parse(rawText)
-    append(emojiText)
-
-    // link
-    val spans = getSpans(0, length, URLSpan::class.java)
-    spans.forEach { span ->
-        val start = getSpanStart(span)
-        val end = getSpanEnd(span)
-
-        addStringAnnotation("URL", span.url, start, end)
-        addStyle(
-            SpanStyle(color = Color(0xFF1E88E5)),
-            start, end
-        )
     }
 }
