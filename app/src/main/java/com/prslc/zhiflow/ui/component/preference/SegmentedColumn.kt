@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -162,6 +163,12 @@ class SegmentedColumnScope {
  *
  * @param modifier The modifier to be applied to the group container.
  * @param title An optional title string displayed above the group of items.
+ * @param cornerRadius Corner radius of the outermost corners. Larger values read as a stack of
+ * separate cards rather than as one block with hairlines.
+ * @param connectionRadius Corner radius of the corners two neighbouring items share.
+ * @param itemGap Space left between two neighbouring items.
+ * @param itemContainerColor Background for every item. `null` leaves each item on the widget's own
+ * default.
  * @param contentPadding The padding applied to the group container.
  * @param content A lambda providing a [SegmentedColumnScope] to declare the children.
  */
@@ -169,6 +176,10 @@ class SegmentedColumnScope {
 fun SegmentedColumn(
     modifier: Modifier = Modifier,
     title: String = "",
+    cornerRadius: Dp = CornerRadius,
+    connectionRadius: Dp = ConnectionRadius,
+    itemGap: Dp = ListItemDefaults.SegmentedGap,
+    itemContainerColor: Color? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = PADDING_HORIZONTAL.dp, vertical = PADDING_VERTICAL.dp),
     content: SegmentedColumnScope.() -> Unit
 ) {
@@ -189,6 +200,10 @@ fun SegmentedColumn(
 
         val floatSpring = spring<Float>(dampingRatio = bouncyDamping, stiffness = bouncyStiffness)
         val dpSpring = spring<Dp>(dampingRatio = bouncyDamping, stiffness = bouncyStiffness)
+
+        val itemStyle = remember(cornerRadius, itemContainerColor) {
+            SegmentedItemStyle(cornerRadius, itemContainerColor)
+        }
 
         val progresses = allItems.mapIndexed { index, item ->
             key(item.key ?: index) {
@@ -213,8 +228,8 @@ fun SegmentedColumn(
                         val isLast = index == lastVisibleIndex || (index == allItems.lastIndex && !itemData.visible)
 
                         // 1. Establish the foundational corner radius based on the item's positional boundary.
-                        val baseTopRadius = if (isFirst) CornerRadius else ConnectionRadius
-                        val baseBottomRadius = if (isLast) CornerRadius else ConnectionRadius
+                        val baseTopRadius = if (isFirst) cornerRadius else connectionRadius
+                        val baseBottomRadius = if (isLast) cornerRadius else connectionRadius
 
                         // 2. Incorporate structural overrides. Flatten boundaries where 'forceFlat' flags dictate.
                         val targetTopRadius = if (itemData.forceFlatTop) 0.dp else baseTopRadius
@@ -244,7 +259,7 @@ fun SegmentedColumn(
                             bottomEnd = currentBottomRadius
                         )
 
-                        val targetTopPadding = itemData.customTopPadding ?: (if (isFirst) 0.dp else ListItemDefaults.SegmentedGap)
+                        val targetTopPadding = itemData.customTopPadding ?: (if (isFirst) 0.dp else itemGap)
                         val currentTopPadding = (if (isDynamicDpSupported) {
                             animateDpAsState(targetTopPadding, dpSpring, label = "TopPadding").value
                         } else {
@@ -282,7 +297,10 @@ fun SegmentedColumn(
                                     alpha = (currentProgress * 1.5f).coerceIn(0f, 1f)
                                 }
                         ) {
-                            CompositionLocalProvider(LocalSegmentedItemShape provides shape) {
+                            CompositionLocalProvider(
+                                LocalSegmentedItemShape provides shape,
+                                LocalSegmentedItemStyle provides itemStyle,
+                            ) {
                                 Column(modifier = Modifier.padding(top = currentTopPadding)) {
                                     itemData.content(shape)
                                 }

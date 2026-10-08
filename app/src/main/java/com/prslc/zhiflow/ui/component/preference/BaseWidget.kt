@@ -23,8 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -38,6 +40,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -45,6 +48,22 @@ import androidx.compose.ui.unit.dp
  * inside a [SegmentedColumn]. Defaults to a rounded corner shape with [CornerRadius].
  */
 val LocalSegmentedItemShape = compositionLocalOf<Shape> { RoundedCornerShape(CornerRadius) }
+
+/**
+ * How the enclosing [SegmentedColumn] paints the items it wraps.
+ *
+ * @property cornerRadius Corner an item morphs to while it is pressed. It has to be the group's
+ * own radius, or a press would visibly snap the corner back to the default one.
+ * @property containerColor Item background. `null` falls back to the widget's own default.
+ */
+@Immutable
+data class SegmentedItemStyle(
+    val cornerRadius: Dp = CornerRadius,
+    val containerColor: Color? = null,
+)
+
+/** Defaults reproduce the look a setting item has always had. */
+val LocalSegmentedItemStyle = staticCompositionLocalOf { SegmentedItemStyle() }
 
 /**
  * A base widget component designed for setting items and list entries.
@@ -101,10 +120,12 @@ fun BaseWidget(
 
     val baseShape = LocalSegmentedItemShape.current
 
+    val itemStyle = LocalSegmentedItemStyle.current
+
     val backgroundColor = if (selected) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
-        MaterialTheme.colorScheme.surfaceBright
+        itemStyle.containerColor ?: MaterialTheme.colorScheme.surfaceBright
     }
 
     val baseContentColor = if (selected) {
@@ -155,7 +176,7 @@ fun BaseWidget(
 
     val shapes = ListItemDefaults.shapes(
         shape = baseShape,
-        pressedShape = RoundedCornerShape(CornerRadius),
+        pressedShape = RoundedCornerShape(itemStyle.cornerRadius),
         selectedShape = baseShape,
         focusedShape = baseShape,
         hoveredShape = baseShape
