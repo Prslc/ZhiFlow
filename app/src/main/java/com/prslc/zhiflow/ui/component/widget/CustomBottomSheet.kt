@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -44,13 +45,17 @@ private const val MAX_HEIGHT_FRACTION = 0.95f
 // The sheet sets the pace and the scrim follows it. The backdrop lands ahead of the sheet so the
 // feed is already dimmed by the time the sheet settles; the exit is shorter than the entry, as a
 // dismissal should be.
-private const val SCRIM_FADE_IN_MS = 200
-private const val ENTER_DURATION_MS = 320
-private const val EXIT_DURATION_MS = 220
+private const val SCRIM_FADE_IN_MS = 150
+private const val ENTER_DURATION_MS = 240
+private const val EXIT_DURATION_MS = 160
 
 /**
  * A sheet a screen owns: it draws the scrim, the surface and the exits, and the caller supplies only
  * the content. The back progress it tracks is the predictive-back gesture's own, 0..1.
+ *
+ * A back is taken only while the sheet is up and staying: once one has sent it on its way, later
+ * ones belong to the screen behind. Taking them would cancel the retraction in progress and spring
+ * the sheet back up, because the platform cancels the previous gesture when a new one starts.
  */
 @Composable
 fun CustomBottomSheet(
@@ -62,12 +67,16 @@ fun CustomBottomSheet(
     val transitionState = remember { MutableTransitionState(false) }
 
     val backProgress = remember { Animatable(0f) }
+    val isDismissing = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(visible) {
         transitionState.targetState = visible
         // A gesture can leave progress non-zero; the next show starts from 0.
-        if (visible) backProgress.snapTo(0f)
+        if (visible) {
+            backProgress.snapTo(0f)
+            isDismissing.value = false
+        }
     }
 
     LaunchedEffect(transitionState.currentState, transitionState.targetState) {
@@ -76,8 +85,9 @@ fun CustomBottomSheet(
         }
     }
 
-    // Unconditional on purpose: the handler settles precedence by composition order.
-    PredictiveBackHandler(enabled = visible || transitionState.currentState) { progress ->
+    // Composed ahead of the caller's content, so a back handler the caller puts in there takes
+    // precedence while it is enabled. This one is enabled only while the sheet is up and staying.
+    PredictiveBackHandler(enabled = visible && !isDismissing.value) { progress ->
         try {
             progress.collect { event -> backProgress.snapTo(event.progress) }
         } catch (e: CancellationException) {
@@ -92,6 +102,7 @@ fun CustomBottomSheet(
         }
         // Outside the try: a commit run in the gesture job would be cancelled by the next
         // gesture and land in the catch above, reading as a pull-back.
+        isDismissing.value = true
         scope.launch {
             // Walk the gesture track to its end first, so the ordinary exit plays out of sight
             // and the handoff cannot jump. Paced by the distance the finger actually left.
