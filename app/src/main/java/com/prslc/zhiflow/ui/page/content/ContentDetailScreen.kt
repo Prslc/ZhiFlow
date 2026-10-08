@@ -195,7 +195,7 @@ fun ContentDetailScreen(
                                     elements = richTextElements,
                                     state = bodyState,
                                     navigator = navigator,
-                                    topPadding = padding.calculateTopPadding(),
+                                    topPadding = { padding.calculateTopPadding() },
                                     bodyComplete = viewModel.isBodyComplete,
                                     showAuthorDivider = true,
                                     onProgress = { viewModel.trackProgress(it) },

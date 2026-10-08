@@ -171,7 +171,7 @@ fun PinDetailScreen(
                                     elements = richTextElements,
                                     state = bodyState,
                                     navigator = navigator,
-                                    topPadding = padding.calculateTopPadding(),
+                                    topPadding = { padding.calculateTopPadding() },
                                     bodyComplete = viewModel.isBodyComplete,
                                     showAuthorDivider = false,
                                     onProgress = { viewModel.trackProgress(it) },

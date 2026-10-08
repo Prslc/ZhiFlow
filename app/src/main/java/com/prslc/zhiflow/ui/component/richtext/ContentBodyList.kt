@@ -30,12 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
@@ -127,6 +130,10 @@ private fun outlineOf(elements: List<RichTextElement>): List<OutlineEntry> {
 /**
  * The body of a piece of content: the author's row, what they wrote, and the line saying when. Both
  * detail screens render the same list, so it and the geometry of it are kept in one place.
+ *
+ * @param topPadding a producer rather than a value: it is read while measuring, so a frame in which
+ *   the bar above has just changed height places the list against that height rather than the one
+ *   before it.
  */
 @Composable
 fun ContentBodyList(
@@ -134,7 +141,7 @@ fun ContentBodyList(
     elements: List<RichTextElement>,
     state: ContentBodyState,
     navigator: Navigator,
-    topPadding: Dp,
+    topPadding: () -> Dp,
     bodyComplete: Boolean,
     showAuthorDivider: Boolean,
     onFollowClick: () -> Unit,
@@ -161,7 +168,7 @@ fun ContentBodyList(
             state = state.listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = topPadding),
+                .topPadding(topPadding),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
             item {
@@ -237,6 +244,21 @@ fun ContentBodyList(
                 }
             }
         }
+    }
+}
+
+/**
+ * Top padding resolved while measuring, where [Modifier.padding] would have resolved it while
+ * composing. `Scaffold` hands its content a `PaddingValues` backed by a state it writes once the top
+ * bar has been measured — after that frame's composition has already run — so a value read while
+ * composing describes the previous frame, and a list under a bar that has just changed height is
+ * placed against the height the bar no longer has. Read here, it belongs to the frame it measures in.
+ */
+private fun Modifier.topPadding(top: () -> Dp): Modifier = layout { measurable, constraints ->
+    val topPx = top().roundToPx()
+    val placeable = measurable.measure(constraints.offset(vertical = -topPx))
+    layout(placeable.width, constraints.constrainHeight(placeable.height + topPx)) {
+        placeable.placeRelative(0, topPx)
     }
 }
 
