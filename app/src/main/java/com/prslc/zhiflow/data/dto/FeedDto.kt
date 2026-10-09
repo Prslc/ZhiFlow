@@ -11,6 +11,7 @@ data class FeedDto(
     val reason: FeedReason?,
     val authorName: String,
     val authorAvatar: String?,
+    val authorNote: String?,
     val excerpt: String,
     val images: List<ImageData>,
     val voteCount: Int,

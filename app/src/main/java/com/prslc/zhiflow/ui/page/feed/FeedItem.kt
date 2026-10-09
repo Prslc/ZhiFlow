@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -89,7 +90,9 @@ fun FeedItem(
             avatarSize = 20.dp,
             nameStyle = MaterialTheme.typography.labelMedium,
             nameColor = MaterialTheme.colorScheme.primary,
-        )
+        ) {
+            display.authorNote?.let { RelationNote(it) }
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -135,6 +138,23 @@ private fun ReasonLine(reason: FeedReason) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun RelationNote(text: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        shape = MaterialTheme.shapes.extraSmall,
+        modifier = Modifier.padding(start = 6.dp),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
         )
     }
 }

@@ -24,6 +24,7 @@ internal fun ComponentCard.toDto(styles: Map<String, CardStyle>): FeedDto? {
         reason = children.reason(),
         authorName = children.authorName(),
         authorAvatar = children.authorAvatar(),
+        authorNote = children.authorNote(),
         excerpt = children.summaryText(),
         images = children.images().map { image ->
             val ratio = image.style?.let(styles::get)?.scaleRatio
@@ -75,11 +76,19 @@ private fun List<CardChild>.authorRow(): List<CardElement> =
         line.elements.any { it.type == "Avatar" } && line.elements.any { it.type == "Text" }
     }?.elements.orEmpty()
 
+/** The author's name, then whatever the card adds about them. */
+private fun List<CardChild>.authorTexts(): List<String> =
+    authorRow().filter { it.type == "Text" }.map { it.text.textValue() }
+
 private fun List<CardChild>.authorName(): String =
-    authorRow().firstOrNull { it.type == "Text" }?.text.textValue()
+    authorTexts().firstOrNull().orEmpty()
 
 private fun List<CardChild>.authorAvatar(): String? =
     authorRow().firstOrNull { it.type == "Avatar" }?.image?.url
+
+/** The note's style id is minted per card, so it is found by its place after the name instead. */
+private fun List<CardChild>.authorNote(): String? =
+    authorTexts().getOrNull(1)?.takeIf { it.isNotEmpty() }
 
 private fun List<CardChild>.images(): List<CardImage> =
     firstOrNull { it.type == "Images" }?.images.orEmpty()
