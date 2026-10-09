@@ -60,6 +60,10 @@ class ImageLightboxController {
      * twice, and matching by value would land on the first of them. A [tapped] that is not one of
      * [items]' own instances opens nothing at all.
      *
+     * Both sides of that are the caller's to keep: [items] is built where the tap is handled and
+     * not remembered across the composition, so that a list built before the content was last
+     * parsed cannot outlive it and take the tap with it.
+     *
      * @param items The document's pictures, in the order they are drawn.
      * @param tapped The image the reader pressed; it has to come from [items] itself.
      */

@@ -158,7 +158,6 @@ fun CommentItem(
                         ImageComponent(
                             image = image,
                             onImageClick = { clicked ->
-                                // Per tap, not remembered: stale instances would not match.
                                 lightbox.open(commentImages.map { LightboxItem.Image(it) }, clicked)
                             },
                         )

@@ -217,17 +217,12 @@ fun ContentBodyList(
     onProgress: (ReadingPosition) -> Unit,
 ) {
     val lightbox = koinInject<ImageLightboxController>()
-    val lightboxItems = remember(elements) {
-        elements.mapNotNull { element ->
-            when (element) {
-                is RichTextElement.Image -> LightboxItem.Image(element.data)
-                is RichTextElement.FormulaBlock -> LightboxItem.Formula(element.data)
-                else -> null
-            }
-        }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped ->
+        lightbox.open(bodyPages(elements), tapped)
     }
-    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(lightboxItems, tapped) }
-    val onFormulaClick: (Formula) -> Unit = { tapped -> lightbox.open(lightboxItems, tapped) }
+    val onFormulaClick: (Formula) -> Unit = { tapped ->
+        lightbox.open(bodyPages(elements), tapped)
+    }
 
     ReadingProgressEffect(
         state = state.listState,
@@ -333,6 +328,21 @@ fun ContentBodyList(
         }
     }
 }
+
+/**
+ * The pages a body's elements make: its images and its block formulas, in the order it draws them.
+ *
+ * Built where a tap happens rather than remembered: a page is found by identity, and a remembered
+ * list can be the one from before the body was parsed again.
+ */
+private fun bodyPages(elements: List<RichTextElement>): List<LightboxItem> =
+    elements.mapNotNull { element ->
+        when (element) {
+            is RichTextElement.Image -> LightboxItem.Image(element.data)
+            is RichTextElement.FormulaBlock -> LightboxItem.Formula(element.data)
+            else -> null
+        }
+    }
 
 /**
  * The room the body gives one element, shared with everything else that draws the body's elements.

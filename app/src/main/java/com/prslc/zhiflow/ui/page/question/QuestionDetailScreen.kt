@@ -151,10 +151,11 @@ private fun QuestionContentList(
 ) {
     val navigator = LocalNavigator.current
     val lightbox = koinInject<ImageLightboxController>()
-    val lightboxItems = remember(state.elements) {
-        state.elements.filterIsInstance<DetailElement.Image>().map { LightboxItem.Image(it.image) }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped ->
+        val lightboxItems = state.elements.filterIsInstance<DetailElement.Image>()
+            .map { LightboxItem.Image(it.image) }
+        lightbox.open(lightboxItems, tapped)
     }
-    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(lightboxItems, tapped) }
 
     val lazyListState = rememberLazyListState()
     var firstItemOverflowed by remember { mutableStateOf(false) }
