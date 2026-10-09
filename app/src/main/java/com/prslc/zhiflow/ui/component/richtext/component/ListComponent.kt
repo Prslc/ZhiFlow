@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +29,9 @@ import com.prslc.zhiflow.ui.component.richtext.ZRichText
 /**
  * One list item. Its bullet is drawn rather than written as a "•": a glyph's size comes from the
  * font and it cannot be centred on the line, which is where a bullet reads as belonging to the
- * text. Hence a fixed-size mark inside a box the height of the first line.
+ * text. Hence a fixed-size mark resting on the first line's baseline, as an ordered item's number
+ * does: the row can be taller than its text — a formula in the item makes it so — and a mark placed
+ * against the row itself would be left behind.
  *
  * @param element The item segment. Its level sets the indent, at 12dp for each level past the
  *   first; the bullet itself is drawn in a 24dp column that the text is laid out beside.
@@ -46,12 +46,10 @@ fun BulletItemRow(
     val markerWidth = 24.dp
     val style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp)
     val dotSize = 6.dp
-    val firstLineHeight = with(LocalDensity.current) { 22.sp.toDp() }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = indentation, top = 2.dp, bottom = 2.dp),
-        verticalAlignment = Alignment.Top
     ) {
         when {
             element.isOrdered -> Text(
@@ -64,7 +62,9 @@ fun BulletItemRow(
             )
 
             else -> Box(
-                modifier = Modifier.width(markerWidth).height(firstLineHeight),
+                // The mark's own height is what it aligns by, so its bottom edge comes to rest on
+                // that baseline.
+                modifier = Modifier.width(markerWidth).alignBy { it.measuredHeight },
                 contentAlignment = Alignment.Center,
             ) {
                 // A sub-list changes its mark as well as its indent, the way a nested ul does on

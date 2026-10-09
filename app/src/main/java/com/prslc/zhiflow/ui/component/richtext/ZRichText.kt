@@ -21,6 +21,7 @@ import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
 import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
 import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
+import com.prslc.zhiflow.ui.component.richtext.component.withFormulaLineHeight
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 /**
@@ -61,7 +62,8 @@ fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextConte
  *
  * @param content The text to draw: its marks already applied, and the annotations that carry its
  *   links, formulas and `seg_like` ranges still on it.
- * @param style The text style to draw it in.
+ * @param style The text style to draw it in. Its line height is raised where an inline formula
+ *   needs the room, by [withFormulaLineHeight].
  * @param modifier Applied to the `Text`.
  * @param inlineMetas The paragraph's inline formulas. Each is drawn as an image over the
  *   placeholder the builder left in the text for it.
@@ -121,7 +123,7 @@ fun ZRichText(
 
     Text(
         text = interceptedContent,
-        style = style,
+        style = style.withFormulaLineHeight(inlineMetas),
         inlineContent = inlineContent + interceptedContent.rememberSegmentLikeIcons(
             tint = MaterialTheme.colorScheme.outline,
         ),

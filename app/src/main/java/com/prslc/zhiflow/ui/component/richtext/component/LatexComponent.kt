@@ -27,13 +27,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -89,6 +92,41 @@ internal fun constrainedSize(
     if (widthDp <= maxWidthDp) return widthDp to heightDp
     val scale = maxWidthDp / widthDp
     return maxWidthDp to (heightDp * scale)
+}
+
+/**
+ * How much taller than a formula's own bitmap the row that holds it is made, in dp. The bitmap's
+ * ink reaches its own edges, so a row the height of the formula exactly leaves it touching the
+ * rows around it.
+ */
+private const val FORMULA_CLEARANCE_DP = 8f
+
+/**
+ * The style's line height raised, where it has to be, to hold the tallest of [inlineMetas].
+ *
+ * A stated line height is a fitted one: Compose puts a row back to exactly that height once a tall
+ * inline placeholder has grown it, so a formula taller than the line is drawn across the rows
+ * around it. A row has to be as tall as the tallest formula plus [FORMULA_CLEARANCE_DP] of
+ * clearance, and since a text box has the one line height for all of its rows, raising it raises
+ * the paragraph. Every host of an inline formula takes its line height from here, which is what
+ * keeps a formula off the rows of a quote or a list item as well as off a paragraph's.
+ *
+ * @param inlineMetas The paragraph's inline formulas. An empty list has nothing to fit and returns
+ *   the style unchanged; so does a style that states no line height, where there is no height to
+ *   hold the formula down to and the row grows around it on its own.
+ */
+@Composable
+@ReadOnlyComposable
+internal fun TextStyle.withFormulaLineHeight(
+    inlineMetas: List<InlineFormulaMeta>
+): TextStyle {
+    if (inlineMetas.isEmpty() || lineHeight.isUnspecified) return this
+    val maxWidthDp = rememberFormulaMaxWidth()
+    val tallestDp = inlineMetas.maxOf {
+        constrainedSize(it.formula.width.toFloat(), it.formula.height.toFloat(), maxWidthDp).second
+    }
+    val needed = with(LocalDensity.current) { (tallestDp + FORMULA_CLEARANCE_DP).dp.toSp() }
+    return if (needed.value > lineHeight.value) copy(lineHeight = needed) else this
 }
 
 /**
@@ -172,9 +210,8 @@ private fun FormulaImage(
 }
 
 /**
- * A paragraph of text with inline formulas. Compose does not grow a row to fit a tall inline
- * placeholder, so the line height is raised to cover the tallest formula in it — otherwise a
- * `\displaystyle` fraction overlaps the rows around it.
+ * A paragraph of text with inline formulas. How tall a row has to be for one is
+ * [withFormulaLineHeight]'s to say, and it is the rule every host of an inline formula takes.
  *
  * @param element The paragraph to draw. Its inline formulas are already placeholders in the text.
  * @param modifier Applied to the `Text`, ahead of the pointer input that handles taps on it.
@@ -228,17 +265,6 @@ fun FormulaTextSection(
         )
     }
 
-    val maxFormulaHeightDp = element.inlineMetas.maxOfOrNull {
-        constrainedSize(it.formula.width.toFloat(), it.formula.height.toFloat(), maxWidthDp).second
-    } ?: 0f
-    val baseLineHeight = MaterialTheme.typography.bodyLarge.lineHeight
-    val effectiveLineHeight = if (maxFormulaHeightDp > 0f) {
-        val formulaSp = with(density) { (maxFormulaHeightDp + 8f).dp.toSp() }
-        if (formulaSp.value > baseLineHeight.value) formulaSp else baseLineHeight
-    } else {
-        baseLineHeight
-    }
-
     Text(
         text = element.content.withThemeSpans(),
         modifier = modifier
@@ -280,9 +306,8 @@ fun FormulaTextSection(
             },
         inlineContent = inlineContentMap + bubbleContentMap,
         onTextLayout = { layoutResult.value = it },
-        style = MaterialTheme.typography.bodyLarge.copy(
-            lineHeight = effectiveLineHeight,
-            letterSpacing = 0.25.sp,
-        )
+        style = MaterialTheme.typography.bodyLarge
+            .copy(letterSpacing = 0.25.sp)
+            .withFormulaLineHeight(element.inlineMetas),
     )
 }
