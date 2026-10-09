@@ -1,7 +1,9 @@
 package com.prslc.zhiflow.ui.component.richtext
 
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
@@ -26,6 +28,8 @@ import com.prslc.zhiflow.ui.component.richtext.component.TableComponent
  * @param element The element to draw.
  * @param onImageClick Called with the image that was tapped, for the kinds that carry one.
  * @param modifier Applied to whichever composable the element turns out to need.
+ * @param onFormulaClick Called with the formula behind a block that was tapped. A block is the only
+ *   kind wired: an inline formula is part of the line it sits in, and opens nothing of its own.
  * @param segmentLikes The live like state of the paragraph's `seg_like` ranges, keyed by the
  *   range's own key. Empty for every element that has none.
  * @param onSegmentLikeClick Called with a range's key when the reader opens its panel.
@@ -35,6 +39,7 @@ fun RichTextSingleElement(
     element: RichTextElement,
     onImageClick: (ZhihuImage) -> Unit,
     modifier: Modifier = Modifier,
+    onFormulaClick: (Formula) -> Unit = {},
     segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
     onSegmentLikeClick: (String) -> Unit = {},
 ) {
@@ -48,7 +53,11 @@ fun RichTextSingleElement(
             )
         }
         is RichTextElement.Heading -> Heading(element, modifier)
-        is RichTextElement.FormulaBlock -> LatexComponent(element.data, modifier, isInline = false)
+        is RichTextElement.FormulaBlock -> LatexComponent(
+            formula = element.data,
+            modifier = modifier.clickable { onFormulaClick(element.data) },
+            isInline = false,
+        )
         is RichTextElement.Image -> ImageComponent(element.data, onImageClick, modifier)
         is RichTextElement.Code -> CodeBlock(element.code, element.lang, element.tokens, modifier)
         is RichTextElement.BulletItem -> BulletItemRow(element, modifier)

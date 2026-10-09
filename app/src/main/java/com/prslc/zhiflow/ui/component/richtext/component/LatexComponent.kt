@@ -186,6 +186,26 @@ fun LatexComponent(
     }
 }
 
+private val INVERT_MATRIX = ColorMatrix(
+    floatArrayOf(
+        -1f, 0f, 0f, 0f, 255f,
+        0f, -1f, 0f, 0f, 255f,
+        0f, 0f, -1f, 0f, 255f,
+        0f, 0f, 0f, 1f, 0f,
+    )
+)
+
+/**
+ * The negative of a formula's bitmap, as the filter that draws it.
+ *
+ * The API's bitmaps are black ink on a transparent ground, so one drawn against a dark surface is
+ * invisible until it is inverted. Which surface that is decides it, not the reader's theme: the
+ * body follows the theme, while the lightbox is black whatever the theme says. Only the ink flips
+ * -- the alpha row is left alone -- so an inverted formula keeps its transparent ground.
+ */
+internal fun formulaColorFilter(invert: Boolean): ColorFilter? =
+    if (invert) ColorFilter.colorMatrix(INVERT_MATRIX) else null
+
 @Composable
 private fun FormulaImage(
     formula: Formula,
@@ -196,21 +216,7 @@ private fun FormulaImage(
         contentDescription = formula.content,
         modifier = modifier,
         contentScale = ContentScale.FillBounds,
-        colorFilter = if (isSystemInDarkTheme()) {
-            // Invert the white-background formula bitmap so the background turns dark and the
-            // black glyphs turn light in dark mode.
-            val matrix = ColorMatrix(
-                floatArrayOf(
-                    -1f, 0f, 0f, 0f, 255f,
-                    0f, -1f, 0f, 0f, 255f,
-                    0f, 0f, -1f, 0f, 255f,
-                    0f, 0f, 0f, 1f, 0f,
-                )
-            )
-            ColorFilter.colorMatrix(matrix)
-        } else {
-            null
-        }
+        colorFilter = formulaColorFilter(isSystemInDarkTheme()),
     )
 }
 

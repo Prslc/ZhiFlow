@@ -119,6 +119,7 @@
     <string name="lightbox_image_save_failed">保存失败</string>
     <string name="lightbox_action_share">分享图片</string>
     <string name="lightbox_action_save">保存图片</string>
+    <string name="lightbox_action_copy_formula">复制公式</string>
     <string name="lightbox_image_desc">图片</string>
 
     <!-- profile -->

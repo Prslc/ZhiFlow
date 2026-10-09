@@ -75,6 +75,7 @@ import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
+import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -150,10 +151,10 @@ private fun QuestionContentList(
 ) {
     val navigator = LocalNavigator.current
     val lightbox = koinInject<ImageLightboxController>()
-    val images = remember(state.elements) {
-        state.elements.filterIsInstance<DetailElement.Image>().map { it.image }
+    val lightboxItems = remember(state.elements) {
+        state.elements.filterIsInstance<DetailElement.Image>().map { LightboxItem.Image(it.image) }
     }
-    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(lightboxItems, tapped) }
 
     val lazyListState = rememberLazyListState()
     var firstItemOverflowed by remember { mutableStateOf(false) }

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
+import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import org.koin.compose.koinInject
 
 /**
@@ -63,7 +64,7 @@ fun ThumbnailRow(
     if (images.isEmpty()) return
 
     val lightbox = koinInject<ImageLightboxController>()
-    val lightboxImages = remember(images) { images.map { it.toZhihuImage() } }
+    val lightboxItems = remember(images) { images.map { LightboxItem.Image(it.toZhihuImage()) } }
 
     Row(
         modifier = modifier
@@ -89,8 +90,9 @@ fun ThumbnailRow(
                         .clip(MaterialTheme.shapes.small)
                         .clickable {
                             if (image.url.isBlank()) return@clickable
-                            val tapped = lightboxImages.getOrNull(index) ?: return@clickable
-                            lightbox.open(lightboxImages, tapped)
+                            val tapped = lightboxItems.getOrNull(index)?.image
+                                ?: return@clickable
+                            lightbox.open(lightboxItems, tapped)
                         },
                     contentScale = ContentScale.Crop,
                 )

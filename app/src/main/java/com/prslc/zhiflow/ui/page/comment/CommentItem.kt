@@ -40,6 +40,7 @@ import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.richtext.component.rememberEmojiContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
+import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
 import org.koin.compose.koinInject
@@ -156,7 +157,10 @@ fun CommentItem(
                     commentImages.forEach { image ->
                         ImageComponent(
                             image = image,
-                            onImageClick = { clicked -> lightbox.open(commentImages, clicked) },
+                            onImageClick = { clicked ->
+                                // Per tap, not remembered: stale instances would not match.
+                                lightbox.open(commentImages.map { LightboxItem.Image(it) }, clicked)
+                            },
                         )
                     }
                 }

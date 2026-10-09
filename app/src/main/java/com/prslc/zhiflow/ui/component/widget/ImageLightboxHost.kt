@@ -7,21 +7,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.prslc.zhiflow.data.model.content.Formula as ZhihuFormula
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import org.koin.compose.koinInject
 
 /**
+ * One picture the lightbox can show: an image, or a block formula. An inline formula is neither --
+ * it belongs to the line of text it sits in, and has no page of its own.
+ *
+ * The two kinds are not interchangeable on the screen -- a formula is drawn against the surface
+ * rather than the theme, and it carries the LaTeX behind it, which is the only form of it that can
+ * be copied -- so a page asks which it is instead of being handed a url.
+ */
+@Immutable
+sealed interface LightboxItem {
+    /** The bitmap this page zooms and hands to share and save, or null for one that has none. */
+    val imageUrl: String?
+
+    /** An image the API sent. */
+    data class Image(val image: ZhihuImage) : LightboxItem {
+        override val imageUrl: String? get() = image.displayUrl
+    }
+
+    /** A block formula: [formula] carries both the bitmap and the LaTeX the page can copy. */
+    data class Formula(val formula: ZhihuFormula) : LightboxItem {
+        override val imageUrl: String? get() = formula.imgUrl
+    }
+}
+
+/**
  * The one lightbox a screen has: what is open, and which page of it.
  *
- * Widgets open it by handing over their images and the instance that was tapped;
- * [ImageLightboxHost] draws whatever it holds. A screen that shows images therefore holds no
+ * Widgets open it by handing over their pictures and the instance that was tapped;
+ * [ImageLightboxHost] draws whatever it holds. A screen that shows pictures therefore holds no
  * lightbox state of its own.
  */
 class ImageLightboxController {
 
     @Immutable
     data class State(
-        val images: List<ZhihuImage>,
+        val items: List<LightboxItem>,
         val initialIndex: Int,
     )
 
@@ -29,25 +54,39 @@ class ImageLightboxController {
         private set
 
     /**
-     * Opens the lightbox on [tapped], with the rest of [images] paged around it.
+     * Opens the lightbox on [tapped], with the rest of [items] paged around it.
      *
-     * The page is found by identity and not by equality: one document can show the same image
+     * The page is found by identity and not by equality: one document can show the same picture
      * twice, and matching by value would land on the first of them. A [tapped] that is not one of
-     * [images]' own instances opens nothing at all.
+     * [items]' own instances opens nothing at all.
      *
-     * @param images The document's images, in the order they are drawn.
-     * @param tapped The instance the reader pressed; it has to come from [images] itself.
+     * @param items The document's pictures, in the order they are drawn.
+     * @param tapped The image the reader pressed; it has to come from [items] itself.
      */
-    fun open(images: List<ZhihuImage>, tapped: ZhihuImage) {
-        // Identity, not equality: the same image can appear twice in one document.
-        val index = images.indexOfFirst { it === tapped }
-        if (index == -1) return
-        state = State(images, index)
+    fun open(items: List<LightboxItem>, tapped: ZhihuImage) {
+        val index = items.indexOfFirst { it is LightboxItem.Image && it.image === tapped }
+        openAt(items, index)
+    }
+
+    /**
+     * Opens the lightbox on [tapped], under the same terms as the image overload.
+     *
+     * @param items The document's pictures, in the order they are drawn.
+     * @param tapped The formula the reader pressed; it has to come from [items] itself.
+     */
+    fun open(items: List<LightboxItem>, tapped: ZhihuFormula) {
+        val index = items.indexOfFirst { it is LightboxItem.Formula && it.formula === tapped }
+        openAt(items, index)
     }
 
     /** Closes the lightbox. A no-op when nothing is open. */
     fun dismiss() {
         state = null
+    }
+
+    private fun openAt(items: List<LightboxItem>, index: Int) {
+        if (index == -1) return
+        state = State(items, index)
     }
 }
 
@@ -63,7 +102,7 @@ fun ImageLightboxHost(modifier: Modifier = Modifier) {
     val controller = koinInject<ImageLightboxController>()
     controller.state?.let { state ->
         ImageLightbox(
-            images = state.images,
+            items = state.items,
             initialIndex = state.initialIndex,
             onDismiss = controller::dismiss,
             modifier = modifier,
@@ -81,19 +120,18 @@ fun ImageLightboxHost(modifier: Modifier = Modifier) {
 @Composable
 fun rememberSingleImageLightbox(url: String?): () -> Unit {
     val controller = koinInject<ImageLightboxController>()
-    val images = remember(url) {
+    val image = remember(url) {
         url?.takeIf { it.isNotBlank() }?.let { nonBlank ->
-            listOf(
-                ZhihuImage(
-                    urls = listOf(nonBlank),
-                    width = 0,
-                    height = 0,
-                    description = "",
-                    isGif = false,
-                )
+            ZhihuImage(
+                urls = listOf(nonBlank),
+                width = 0,
+                height = 0,
+                description = "",
+                isGif = false,
             )
-        }.orEmpty()
+        }
     }
-    val first = images.firstOrNull() ?: return {}
-    return { controller.open(images, first) }
+    val items = remember(image) { image?.let { listOf(LightboxItem.Image(it)) }.orEmpty() }
+    val first = image ?: return {}
+    return { controller.open(items, first) }
 }

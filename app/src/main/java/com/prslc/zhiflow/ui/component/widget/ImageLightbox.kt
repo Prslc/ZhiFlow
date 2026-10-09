@@ -21,6 +21,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Functions
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
@@ -62,16 +63,24 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.ImageHelper
-import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
+import com.prslc.zhiflow.ui.component.richtext.component.formulaColorFilter
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 
 /**
- * A full-screen image viewer. Its system bars belong to the dialog's own window rather than the
+ * A full-screen picture viewer. Its system bars belong to the dialog's own window rather than the
  * activity's, and fall back to the activity's when there is none (a preview, say).
  *
- * @param images The images to page through. An empty list draws nothing at all.
+ * A formula's page is not drawn like an image's, because this surface is black whatever the
+ * reader's theme says: the API's formula bitmaps are black ink on a transparent ground, so the ink
+ * is inverted against black the way the body inverts it against a dark page. And a formula is drawn
+ * at its own bitmap's size rather than fitted to the screen, since a formula's bitmap is small and
+ * fitting it would enlarge it by several times over -- pixels the bitmap never had. Taking either
+ * kind further is the zoom gesture's business.
+ *
+ * @param items The pictures to page through. An empty list draws nothing at all.
  * @param initialIndex The page to open on. It is clamped into range, so an index left over from a
  *   list that has since shrunk is safe.
  * @param onDismiss Called when the reader asks to close it: a back, a swipe, or the dialog's own
@@ -82,12 +91,12 @@ import me.saket.telephoto.zoomable.rememberZoomableImageState
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ImageLightbox(
-    images: List<ZhihuImage>,
+    items: List<LightboxItem>,
     initialIndex: Int,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (images.isEmpty()) return
+    if (items.isEmpty()) return
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -97,8 +106,8 @@ fun ImageLightbox(
         ),
     ) {
         val pagerState = rememberPagerState(
-            initialPage = initialIndex.coerceIn(0, (images.size - 1).coerceAtLeast(0))
-        ) { images.size }
+            initialPage = initialIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0))
+        ) { items.size }
         var isCurrentPageZoomed by remember { mutableStateOf(false) }
         var isMenuExpanded by remember { mutableStateOf(false) }
 
@@ -106,11 +115,14 @@ fun ImageLightbox(
         val appContext = remember(context) { context.applicationContext }
         val scope = rememberCoroutineScope()
         val haptic = LocalHapticFeedback.current
+        val copyToClipboard = rememberCopyTextToClipboard()
 
         val successText = stringResource(R.string.lightbox_image_save_success)
         val failedText = stringResource(R.string.lightbox_image_save_failed)
         val shareText = stringResource(R.string.lightbox_action_share)
         val saveActionText = stringResource(R.string.lightbox_action_save)
+        val copyFormulaText = stringResource(R.string.lightbox_action_copy_formula)
+        val imageDescText = stringResource(R.string.lightbox_image_desc)
         val backText = stringResource(R.string.general_back)
         val moreText = stringResource(R.string.general_more)
 
@@ -159,7 +171,8 @@ fun ImageLightbox(
                 pageSpacing = 16.dp,
                 userScrollEnabled = !isCurrentPageZoomed
             ) { pageIndex ->
-                val url = images[pageIndex].displayUrl ?: return@HorizontalPager
+                val item = items[pageIndex]
+                val url = item.imageUrl ?: return@HorizontalPager
 
                 val zoomableImageState = rememberZoomableImageState()
 
@@ -179,10 +192,20 @@ fun ImageLightbox(
                     ZoomableAsyncImage(
                         model = ImageRequest.Builder(context).data(url)
                             .crossfade(true).build(),
-                        contentDescription = stringResource(R.string.lightbox_image_desc),
+                        contentDescription = when (item) {
+                            is LightboxItem.Image -> imageDescText
+                            is LightboxItem.Formula -> item.formula.content
+                        },
                         state = zoomableImageState,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit,
+                        contentScale = when (item) {
+                            is LightboxItem.Image -> ContentScale.Fit
+                            is LightboxItem.Formula -> ContentScale.Inside
+                        },
+                        colorFilter = when (item) {
+                            is LightboxItem.Image -> null
+                            is LightboxItem.Formula -> formulaColorFilter(invert = true)
+                        },
                         onClick = {
                             if ((zoomableImageState.zoomableState.zoomFraction ?: 0f) <= 0.01f) {
                                 onDismiss()
@@ -244,6 +267,21 @@ fun ImageLightbox(
                             expanded = isMenuExpanded,
                             onDismissRequest = { isMenuExpanded = false }
                         ) {
+                            val current = items.getOrNull(pagerState.currentPage)
+
+                            if (current is LightboxItem.Formula) {
+                                // The ƒ of "function", not a copy glyph: the label says copy.
+                                DropdownMenuItem(text = { Text(copyFormulaText) }, leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Functions,
+                                        contentDescription = null
+                                    )
+                                }, onClick = {
+                                    isMenuExpanded = false
+                                    copyToClipboard(current.formula.content)
+                                })
+                            }
+
                             DropdownMenuItem(text = { Text(shareText) }, leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Share, contentDescription = null
@@ -251,7 +289,7 @@ fun ImageLightbox(
                             }, onClick = {
                                 isMenuExpanded = false
                                 scope.launch {
-                                    val currentUrl = images[pagerState.currentPage].displayUrl
+                                    val currentUrl = items[pagerState.currentPage].imageUrl
                                     if (currentUrl != null &&
                                         ImageHelper.shareImage(context, currentUrl).isFailure
                                     ) {
@@ -270,7 +308,7 @@ fun ImageLightbox(
                             }, onClick = {
                                 isMenuExpanded = false
                                 scope.launch {
-                                    val currentUrl = images[pagerState.currentPage].displayUrl
+                                    val currentUrl = items[pagerState.currentPage].imageUrl
                                     val saved = currentUrl != null &&
                                         ImageHelper.saveImageToGallery(
                                             appContext, currentUrl
@@ -290,9 +328,9 @@ fun ImageLightbox(
                 }
             }
 
-            if (images.size > 1 && !isCurrentPageZoomed) {
+            if (items.size > 1 && !isCurrentPageZoomed) {
                 Text(
-                    text = "${pagerState.currentPage + 1} / ${images.size}",
+                    text = "${pagerState.currentPage + 1} / ${items.size}",
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 48.dp),

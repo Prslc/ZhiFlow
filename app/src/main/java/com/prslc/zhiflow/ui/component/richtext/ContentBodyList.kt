@@ -49,6 +49,7 @@ import com.prslc.zhiflow.core.utils.formatDateTime
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.ContentAgeUnit
 import com.prslc.zhiflow.data.model.content.ContentStamp
+import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuImage
@@ -56,6 +57,7 @@ import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.FollowButton
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
+import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import com.prslc.zhiflow.ui.navigation.Navigator
 import org.koin.compose.koinInject
 
@@ -179,7 +181,8 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
  * selection to recycling either.
  *
  * @param content The content being read: its author, what it says, and when it was published.
- * @param elements The parsed body, in order. The images the lightbox can open are taken from it.
+ * @param elements The parsed body, in order. The pictures the lightbox can open -- its images and
+ *   its block formulas -- are taken from it.
  * @param state The list's scroll position, where its text ends, and its outline.
  * @param navigator What the body's own taps go through: links, cards, and the author's row.
  * @param topPadding A producer rather than a value: it is read while measuring, so a frame in
@@ -214,10 +217,17 @@ fun ContentBodyList(
     onProgress: (ReadingPosition) -> Unit,
 ) {
     val lightbox = koinInject<ImageLightboxController>()
-    val images = remember(elements) {
-        elements.filterIsInstance<RichTextElement.Image>().map { it.data }
+    val lightboxItems = remember(elements) {
+        elements.mapNotNull { element ->
+            when (element) {
+                is RichTextElement.Image -> LightboxItem.Image(element.data)
+                is RichTextElement.FormulaBlock -> LightboxItem.Formula(element.data)
+                else -> null
+            }
+        }
     }
-    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(images, tapped) }
+    val onImageClick: (ZhihuImage) -> Unit = { tapped -> lightbox.open(lightboxItems, tapped) }
+    val onFormulaClick: (Formula) -> Unit = { tapped -> lightbox.open(lightboxItems, tapped) }
 
     ReadingProgressEffect(
         state = state.listState,
@@ -268,6 +278,7 @@ fun ContentBodyList(
                     RichTextSingleElement(
                         element = element,
                         onImageClick = onImageClick,
+                        onFormulaClick = onFormulaClick,
                         segmentLikes = segmentLikes,
                         onSegmentLikeClick = onSegmentLikeClick,
                     )
