@@ -13,6 +13,7 @@ navigation-compose = "2.10.2"
 okhttp = "5.5.0"
 compose-lint = "1.6.1"
 material3 = "1.5.0-beta01"
+highlights = "1.1.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -46,6 +47,7 @@ coil-gif = { group = "io.coil-kt.coil3", name = "coil-gif", version.ref = "coil"
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil" }
 telephoto-zoomable-image-coil = { group = "me.saket.telephoto", name = "zoomable-image-coil3", version.ref = "telephoto" }
+highlights = { group = "dev.snipme", name = "highlights", version.ref = "highlights" }
 
 # okhttp
 okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
