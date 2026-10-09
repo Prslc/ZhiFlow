@@ -113,8 +113,12 @@ fun BlockquoteComponent(
     }
 }
 
-/** The narrowest a table column is drawn before the table scrolls instead of sharing the width. */
-private val MIN_TABLE_CELL_WIDTH = 120.dp
+/**
+ * The narrowest a table column is drawn before the table scrolls instead of sharing the width: five
+ * characters of the cell's own text plus its padding, which is the point past which a cell holds
+ * nothing on one line and squeezing the columns only makes the table unreadable.
+ */
+private val MIN_TABLE_CELL_WIDTH = 76.dp
 
 /**
  * A table of a body.
