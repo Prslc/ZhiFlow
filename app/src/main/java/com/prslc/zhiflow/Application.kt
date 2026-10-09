@@ -10,6 +10,7 @@ import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.crossfade
+import coil3.svg.SvgDecoder
 import com.prslc.zhiflow.core.network.HeaderProvider
 import com.prslc.zhiflow.core.native.AppIntegrity
 import com.prslc.zhiflow.di.appModule
@@ -42,6 +43,7 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
             .components {
                 add(OkHttpNetworkFetcherFactory(okHttpClient))
                 add(AnimatedImageDecoder.Factory())
+                add(SvgDecoder.Factory())
             }
             .memoryCache {
                 MemoryCache.Builder()
