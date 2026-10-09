@@ -1,9 +1,11 @@
 package com.prslc.zhiflow.data.dto
 
+import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.model.comment.Author
 import com.prslc.zhiflow.data.model.comment.CommentAuthor
 import com.prslc.zhiflow.data.model.comment.CommentContent
 
+@Immutable
 data class CommentDto(
     val id: String,
     val author: CommentAuthor,

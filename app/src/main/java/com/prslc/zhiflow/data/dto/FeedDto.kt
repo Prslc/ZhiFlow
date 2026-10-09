@@ -1,7 +1,9 @@
 package com.prslc.zhiflow.data.dto
 
+import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.ui.component.common.ImageData
 
+@Immutable
 data class FeedDto(
     val id: String,
     val type: String,

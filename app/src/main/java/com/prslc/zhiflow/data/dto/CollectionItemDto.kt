@@ -1,8 +1,11 @@
 package com.prslc.zhiflow.data.dto
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Flat, UI-ready representation of a content item within a user's collection.
  */
+@Immutable
 data class CollectionItemDto(
     val id: String,
     val type: String,

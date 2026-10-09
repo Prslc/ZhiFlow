@@ -1,8 +1,10 @@
 package com.prslc.zhiflow.data.dto
 
+import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.model.moment.MediaImage
 import com.prslc.zhiflow.ui.page.people.moment.MomentContentType
 
+@Immutable
 data class MomentDto(
     val id: String,
     val type: MomentContentType,

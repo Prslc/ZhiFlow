@@ -1,5 +1,8 @@
 package com.prslc.zhiflow.data.dto
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class ReadHistoryDto(
     val questionTitle: String,
     val questionToken: String?,
