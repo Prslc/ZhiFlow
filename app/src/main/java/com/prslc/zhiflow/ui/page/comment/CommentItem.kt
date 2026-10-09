@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -38,13 +39,13 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.formatToDate
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
+import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
 import org.koin.compose.koinInject
-import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
-import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 
 @Composable
 fun CommentItem(
@@ -217,8 +218,9 @@ fun CommentItem(
                 // Sub-comment
                 if (!isChild && comment.childCount > 0 && showReplyButton) {
                     Text(
-                        text = stringResource(
-                            R.string.comment_reply_count_with_arrow,
+                        text = pluralStringResource(
+                            R.plurals.comment_reply_count_with_arrow,
+                            comment.childCount,
                             comment.childCount
                         ),
                         style = metaStyle.copy(

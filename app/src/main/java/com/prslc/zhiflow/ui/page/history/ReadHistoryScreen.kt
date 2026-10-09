@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -331,13 +332,14 @@ private fun HistoryItem(
                         item.followerCount
                     )
 
-                    "profile" -> stringResource(
-                        R.string.history_user_meta,
+                    "profile" -> pluralStringResource(
+                        R.plurals.history_user_meta,
+                        item.followerCount,
                         item.voteCount,
                         item.followerCount
                     )
 
-                    else -> stringResource(R.string.history_meta, item.voteCount, item.commentCount)
+                    else -> pluralStringResource(R.plurals.history_meta, item.commentCount, item.voteCount, item.commentCount)
                 }
 
                 Text(

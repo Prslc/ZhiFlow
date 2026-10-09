@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.prslc.zhiflow.R
 
@@ -22,7 +23,7 @@ fun ContentMeta(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = stringResource(R.string.feed_meta, voteCount, commentCount),
+        text = pluralStringResource(R.plurals.feed_meta, commentCount, voteCount, commentCount),
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.outline,
         modifier = modifier,

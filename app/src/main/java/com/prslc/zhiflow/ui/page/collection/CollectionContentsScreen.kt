@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -236,8 +237,9 @@ private fun CollectionContentCard(
             if (item.collectionNames.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 val folderText = if (item.collectionNames.size > 1) {
-                    stringResource(
-                        R.string.collection_contents_folder_many,
+                    pluralStringResource(
+                        R.plurals.collection_contents_folder_many,
+                        item.collectionNames.size,
                         item.collectionNames.first(),
                         item.collectionNames.size,
                     )

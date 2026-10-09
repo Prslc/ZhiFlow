@@ -39,6 +39,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -253,13 +254,13 @@ private fun SectionTitle(text: String) {
 private fun keywordHint(state: FeedbackBlockListViewModel.BlockUiState): String =
     when (state.keywordIssue) {
         KeywordIssue.TOO_SHORT ->
-            stringResource(R.string.feedback_block_keyword_too_short, state.minLength)
+            pluralStringResource(R.plurals.feedback_block_keyword_too_short, state.minLength, state.minLength)
 
         KeywordIssue.TOO_LONG ->
-            stringResource(R.string.feedback_block_keyword_too_long, state.maxLength)
+            pluralStringResource(R.plurals.feedback_block_keyword_too_long, state.maxLength, state.maxLength)
 
         KeywordIssue.MAX_COUNT ->
-            stringResource(R.string.feedback_block_keyword_max_count, state.maxCount)
+            pluralStringResource(R.plurals.feedback_block_keyword_max_count, state.maxCount, state.maxCount)
 
         KeywordIssue.DUPLICATE -> stringResource(R.string.feedback_block_keyword_duplicate)
 

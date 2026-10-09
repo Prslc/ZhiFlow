@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">ZhiFlow</string>
 
     <!-- general -->
@@ -27,7 +27,10 @@
     <!-- feed -->
     <string name="anonymous_user">Anonymous user</string>
     <string name="avatar_desc">Avatar</string>
-    <string name="feed_meta">%1$d Agree · %2$d Comments</string>
+    <plurals name="feed_meta">
+        <item quantity="one">%1$d Agree · %2$d Comment</item>
+        <item quantity="other">%1$d Agree · %2$d Comments</item>
+    </plurals>
     <string name="feed_retry">Click retry</string>
 
     <!-- feedback -->
@@ -36,10 +39,20 @@
     <string name="feedback_block_tags">Topics you would rather not see</string>
     <string name="feedback_block_keywords">Blocked keywords</string>
     <string name="feedback_block_keyword_hint">Add a keyword</string>
-    <string name="feedback_block_keyword_rule">%1$d-%2$d characters, up to %3$d</string>
-    <string name="feedback_block_keyword_too_short">At least %1$d characters</string>
-    <string name="feedback_block_keyword_too_long">At most %1$d characters</string>
-    <string name="feedback_block_keyword_max_count">Up to %1$d keywords</string>
+    <!-- A range, not a count: neither end of %1$d-%2$d is what `characters` agrees with. -->
+    <string name="feedback_block_keyword_rule" tools:ignore="PluralsCandidate">%1$d-%2$d characters, up to %3$d</string>
+    <plurals name="feedback_block_keyword_too_short">
+        <item quantity="one">At least %1$d character</item>
+        <item quantity="other">At least %1$d characters</item>
+    </plurals>
+    <plurals name="feedback_block_keyword_too_long">
+        <item quantity="one">At most %1$d character</item>
+        <item quantity="other">At most %1$d characters</item>
+    </plurals>
+    <plurals name="feedback_block_keyword_max_count">
+        <item quantity="one">Up to %1$d keyword</item>
+        <item quantity="other">Up to %1$d keywords</item>
+    </plurals>
     <string name="feedback_block_keyword_duplicate">Already blocked</string>
     <string name="feedback_block_add">Add</string>
     <string name="feedback_block_confirm">Confirm</string>
@@ -91,14 +104,20 @@
     <!-- collection -->
     <string name="collection_title">Save to Collections</string>
     <string name="collection_item_empty">No favorites yet</string>
-    <string name="collection_item_count">%1$d items</string>
+    <plurals name="collection_item_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
     <string name="collection_default_label">Default</string>
     <string name="collection_private_desc">Private collection</string>
 
     <!-- comment -->
     <string name="comment_count">Comment %1d</string>
     <string name="comment_reply_detail">Reply Details</string>
-    <string name="comment_reply_count_with_arrow">%1$d replies &gt;</string>
+    <plurals name="comment_reply_count_with_arrow">
+        <item quantity="one">%1$d reply &gt;</item>
+        <item quantity="other">%1$d replies &gt;</item>
+    </plurals>
     <string name="comment_empty_root">No comments yet. Be the first to comment!</string>
     <string name="comment_empty_child">No replies yet</string>
     <string name="comment_end_root">All comments shown</string>
@@ -118,8 +137,14 @@
     <!-- question -->
     <string name="action_expand">Expand All</string>
     <string name="action_collapse">Collapse</string>
-    <string name="question_stats_answers">%1$d answers</string>
-    <string name="question_stats_followers">%1$d followers</string>
+    <plurals name="question_stats_answers">
+        <item quantity="one">%1$d answer</item>
+        <item quantity="other">%1$d answers</item>
+    </plurals>
+    <plurals name="question_stats_followers">
+        <item quantity="one">%1$d follower</item>
+        <item quantity="other">%1$d followers</item>
+    </plurals>
 
     <!-- moment -->
     <string name="people_works_empty">No content yet</string>
@@ -138,15 +163,25 @@
 
     <!-- history -->
     <string name="history_title">Browsing History</string>
-    <string name="history_meta">%1$d Agree · %2$d Comments</string>
-    <string name="history_user_meta">%1$d Agree · %2$d Followers</string>
-    <string name="history_question_meta">%1$d Answers · %2$d Followers</string>
+    <plurals name="history_meta">
+        <item quantity="one">%1$d Agree · %2$d Comment</item>
+        <item quantity="other">%1$d Agree · %2$d Comments</item>
+    </plurals>
+    <plurals name="history_user_meta">
+        <item quantity="one">%1$d Agree · %2$d Follower</item>
+        <item quantity="other">%1$d Agree · %2$d Followers</item>
+    </plurals>
+    <!-- Two nouns inflect here and a plural carries one quantity; fixing it means building the line from two. -->
+    <string name="history_question_meta" tools:ignore="PluralsCandidate">%1$d Answers · %2$d Followers</string>
     <string name="history_read_progress">Read %1$d%%</string>
 
     <!-- collection contents -->
     <string name="collection_contents_title">Collections</string>
     <string name="collection_contents_folder_one">Saved in %1$s</string>
-    <string name="collection_contents_folder_many">Saved in %1$s and %2$d other folders</string>
+    <plurals name="collection_contents_folder_many">
+        <item quantity="one">Saved in %1$s and %2$d other folder</item>
+        <item quantity="other">Saved in %1$s and %2$d other folders</item>
+    </plurals>
     <!-- debug -->
     <string name="debug_item_open_link_title">Open Link</string>
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>

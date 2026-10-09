@@ -28,7 +28,9 @@
     <!-- feed -->
     <string name="anonymous_user">匿名用户</string>
     <string name="avatar_desc">头像</string>
-    <string name="feed_meta">%1$d 赞同 · %2$d 评论</string>
+    <plurals name="feed_meta">
+        <item quantity="other">%1$d 赞同 · %2$d 评论</item>
+    </plurals>
     <string name="feed_retry">点击重试</string>
 
     <!-- feedback -->
@@ -38,9 +40,15 @@
     <string name="feedback_block_keywords">屏蔽关键词</string>
     <string name="feedback_block_keyword_hint">输入关键词</string>
     <string name="feedback_block_keyword_rule">%1$d-%2$d 个字，最多 %3$d 个</string>
-    <string name="feedback_block_keyword_too_short">至少 %1$d 个字</string>
-    <string name="feedback_block_keyword_too_long">最多 %1$d 个字</string>
-    <string name="feedback_block_keyword_max_count">最多 %1$d 个关键词</string>
+    <plurals name="feedback_block_keyword_too_short">
+        <item quantity="other">至少 %1$d 个字</item>
+    </plurals>
+    <plurals name="feedback_block_keyword_too_long">
+        <item quantity="other">最多 %1$d 个字</item>
+    </plurals>
+    <plurals name="feedback_block_keyword_max_count">
+        <item quantity="other">最多 %1$d 个关键词</item>
+    </plurals>
     <string name="feedback_block_keyword_duplicate">已经屏蔽过了</string>
     <string name="feedback_block_add">添加</string>
     <string name="feedback_block_confirm">确认</string>
@@ -91,7 +99,9 @@
 
     <!-- collection -->
     <string name="collection_title">收藏到文件夹</string>
-    <string name="collection_item_count">%1$d 条内容</string>
+    <plurals name="collection_item_count">
+        <item quantity="other">%1$d 条内容</item>
+    </plurals>
     <string name="collection_default_label">默认</string>
     <string name="collection_private_desc">私密收藏夹</string>
 
@@ -99,7 +109,9 @@
     <string name="comment_count">评论 %1d</string>
     <string name="comment_reply_detail">回复详情</string>
     <string name="collection_item_empty">暂无收藏夹</string>
-    <string name="comment_reply_count_with_arrow">%1$d 条回复 &gt;</string>
+    <plurals name="comment_reply_count_with_arrow">
+        <item quantity="other">%1$d 条回复 &gt;</item>
+    </plurals>
     <string name="comment_empty_root">暂无评论，快来抢沙发</string>
     <string name="comment_empty_child">暂无回复</string>
     <string name="comment_end_root">已显示全部评论</string>
@@ -119,8 +131,12 @@
     <!-- question -->
     <string name="action_expand">展开全部</string>
     <string name="action_collapse">收起详情</string>
-    <string name="question_stats_answers">%1$d 个回答</string>
-    <string name="question_stats_followers">%1$d 人关注</string>
+    <plurals name="question_stats_answers">
+        <item quantity="other">%1$d 个回答</item>
+    </plurals>
+    <plurals name="question_stats_followers">
+        <item quantity="other">%1$d 人关注</item>
+    </plurals>
 
     <!-- moment -->
     <string name="people_works_empty">暂无内容</string>
@@ -139,15 +155,21 @@
 
     <!-- history -->
     <string name="history_title">浏览历史</string>
-    <string name="history_meta">%1$d 赞同 · %2$d 评论</string>
-    <string name="history_user_meta">%1$d 赞同 · %2$d 关注</string>
+    <plurals name="history_meta">
+        <item quantity="other">%1$d 赞同 · %2$d 评论</item>
+    </plurals>
+    <plurals name="history_user_meta">
+        <item quantity="other">%1$d 赞同 · %2$d 关注</item>
+    </plurals>
     <string name="history_question_meta">%1$d 回答 · %2$d 关注</string>
     <string name="history_read_progress">已读 %1$d%%</string>
 
     <!-- collection contents -->
     <string name="collection_contents_title">我的收藏</string>
     <string name="collection_contents_folder_one">收藏于 %1$s</string>
-    <string name="collection_contents_folder_many">收藏于 %1$s 等 %2$d 个收藏夹</string>
+    <plurals name="collection_contents_folder_many">
+        <item quantity="other">收藏于 %1$s 等 %2$d 个收藏夹</item>
+    </plurals>
 
     <!-- debug -->
     <string name="debug_item_open_link_title">打开链接</string>
