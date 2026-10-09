@@ -5,13 +5,9 @@
     <string name="general_close">close</string>
     <string name="general_back">back</string>
     <string name="general_more">more</string>
-    <string name="general_undeveloped">Undeveloped</string>
-    <string name="general_loading">loading…</string>
     <string name="end_of_list">— End of list —</string>
-    <string name="published_format">Posted in %1$s · %2$s</string>
 
     <!-- error box -->
-    <string name="error_load_failed">Failed to load</string>
     <string name="error_retry">Retry</string>
 
     <!-- error msg -->
@@ -20,18 +16,15 @@
     <string name="error_not_found">Content deleted or does not exist</string>
     <string name="error_server">Server error (%1$d)</string>
     <string name="error_unknown">An unknown error occurred</string>
-    <string name="error_empty">No content found</string>
 
     <!-- navigation -->
     <string name="nav_home">Home</string>
-    <string name="nav_favorites">Favorites</string>
     <string name="nav_debug">Debug</string>
     <string name="nav_profile">Profile</string>
     <string name="error_unable_to_open_link">Unable to open link.</string>
     <string name="error_unknown_nav_type">Unknown type: %1$s</string>
 
     <!-- feed -->
-    <string name="unknown_content">Unknown content</string>
     <string name="anonymous_user">Anonymous user</string>
     <string name="avatar_desc">Avatar</string>
     <string name="feed_meta">%1$d Agree · %2$d Comments</string>
@@ -76,8 +69,6 @@
     <string name="profile_default_headline">Add a brief bio</string>
     <string name="profile_stat_following">Following</string>
     <string name="profile_stat_followers">Followers</string>
-    <string name="profile_error_load_failed">Failed to load</string>
-    <string name="profile_retry">Retry</string>
     <string name="profile_nav_history">History</string>
     <string name="profile_nav_history_summary">Your browsing history</string>
     <string name="profile_nav_comments">Comments &amp; Forwards</string>
@@ -96,9 +87,6 @@
 
     <!-- bottom Bar -->
     <string name="bottom_upvote">Upvote %1$s</string>
-    <string name="bottom_downvote">Downvote</string>
-    <string name="bottom_save">Save</string>
-    <string name="bottom_comment">Comment</string>
 
     <!-- collection -->
     <string name="collection_title">Save to Collections</string>
@@ -110,7 +98,6 @@
     <!-- comment -->
     <string name="comment_count">Comment %1d</string>
     <string name="comment_reply_detail">Reply Details</string>
-    <string name="comment_reply_count">%1$d replies</string>
     <string name="comment_reply_count_with_arrow">%1$d replies &gt;</string>
     <string name="comment_empty_root">No comments yet. Be the first to comment!</string>
     <string name="comment_empty_child">No replies yet</string>
@@ -135,11 +122,7 @@
     <string name="question_stats_followers">%1$d followers</string>
 
     <!-- moment -->
-    <string name="moment_title">Moments</string>
-    <string name="moment_stat_vote">Votes</string>
     <string name="people_works_empty">No content yet</string>
-    <string name="moment_stat_comment">Comments</string>
-    <string name="moment_stat_collect">Collects</string>
     <string name="moment_pin">Pinned</string>
 
     <!-- people -->
@@ -162,7 +145,6 @@
 
     <!-- collection contents -->
     <string name="collection_contents_title">Collections</string>
-    <string name="collection_contents_meta">%1$d Agree · %2$d Comments</string>
     <string name="collection_contents_folder_one">Saved in %1$s</string>
     <string name="collection_contents_folder_many">Saved in %1$s and %2$d other folders</string>
     <!-- debug -->

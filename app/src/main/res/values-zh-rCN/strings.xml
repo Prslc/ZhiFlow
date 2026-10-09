@@ -6,13 +6,9 @@
     <string name="general_close">关闭</string>
     <string name="general_back">返回</string>
     <string name="general_more">更多</string>
-    <string name="general_undeveloped">未开发</string>
-    <string name="general_loading">加载中…</string>
     <string name="end_of_list">— 已到尽头 —</string>
-    <string name="published_format">发布于 %1$s · %2$s</string>
 
     <!-- error box -->
-    <string name="error_load_failed">加载失败</string>
     <string name="error_retry">重试</string>
 
     <!-- error msg -->
@@ -21,18 +17,15 @@
     <string name="error_not_found">内容已被删除或不存在</string>
     <string name="error_server">知乎服务器开小差了 (%1$d)</string>
     <string name="error_unknown">发生了未知错误</string>
-    <string name="error_empty">这里什么都没有</string>
 
     <!-- navigation -->
     <string name="nav_home">首页</string>
-    <string name="nav_favorites">收藏</string>
     <string name="nav_debug">调试</string>
     <string name="nav_profile">个人中心</string>
     <string name="error_unable_to_open_link">无法打开链接</string>
     <string name="error_unknown_nav_type">未知类型：%1$s</string>
 
     <!-- feed -->
-    <string name="unknown_content">未知内容</string>
     <string name="anonymous_user">匿名用户</string>
     <string name="avatar_desc">头像</string>
     <string name="feed_meta">%1$d 赞同 · %2$d 评论</string>
@@ -77,8 +70,6 @@
     <string name="profile_default_headline">添加一句话介绍</string>
     <string name="profile_stat_following">关注</string>
     <string name="profile_stat_followers">粉丝</string>
-    <string name="profile_error_load_failed">获取数据失败</string>
-    <string name="profile_retry">重试</string>
     <string name="profile_nav_history">历史记录</string>
     <string name="profile_nav_history_summary">你的浏览记录</string>
     <string name="profile_nav_comments">评论转发</string>
@@ -97,9 +88,6 @@
 
     <!-- buttomBar -->
     <string name="bottom_upvote">赞同 %1$s</string>
-    <string name="bottom_downvote">不赞同</string>
-    <string name="bottom_save">收藏</string>
-    <string name="bottom_comment">评论</string>
 
     <!-- collection -->
     <string name="collection_title">收藏到文件夹</string>
@@ -111,7 +99,6 @@
     <string name="comment_count">评论 %1d</string>
     <string name="comment_reply_detail">回复详情</string>
     <string name="collection_item_empty">暂无收藏夹</string>
-    <string name="comment_reply_count">%1$d 条回复</string>
     <string name="comment_reply_count_with_arrow">%1$d 条回复 &gt;</string>
     <string name="comment_empty_root">暂无评论，快来抢沙发</string>
     <string name="comment_empty_child">暂无回复</string>
@@ -136,11 +123,7 @@
     <string name="question_stats_followers">%1$d 人关注</string>
 
     <!-- moment -->
-    <string name="moment_title">动态</string>
-    <string name="moment_stat_vote">赞同</string>
     <string name="people_works_empty">暂无内容</string>
-    <string name="moment_stat_comment">评论</string>
-    <string name="moment_stat_collect">收藏</string>
     <string name="moment_pin">置顶</string>
 
     <!-- popele -->
@@ -163,7 +146,6 @@
 
     <!-- collection contents -->
     <string name="collection_contents_title">我的收藏</string>
-    <string name="collection_contents_meta">%1$d 赞同 · %2$d 评论</string>
     <string name="collection_contents_folder_one">收藏于 %1$s</string>
     <string name="collection_contents_folder_many">收藏于 %1$s 等 %2$d 个收藏夹</string>
 
