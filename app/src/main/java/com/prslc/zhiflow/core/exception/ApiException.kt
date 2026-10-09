@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.core.exception
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalResources
 import com.prslc.zhiflow.R
 
@@ -31,4 +32,5 @@ sealed class ApiException(val resId: Int, val code: Int? = null) : Exception() {
 
 val ApiException.uiMessage: String
     @Composable
+    @ReadOnlyComposable
     get() = getMessage(LocalResources.current)

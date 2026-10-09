@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -42,13 +43,16 @@ fun PeopleTabContent(
 }
 
 @Composable
+@NonRestartableComposable
 fun PeoplePostsTab(urlToken: String, vm: PostsViewModel = koinViewModel()) =
     PeopleTabContent(urlToken, vm)
 
 @Composable
+@NonRestartableComposable
 fun PeopleActivitiesTab(urlToken: String, vm: ActivitiesViewModel = koinViewModel()) =
     PeopleTabContent(urlToken, vm)
 
 @Composable
+@NonRestartableComposable
 fun PeopleUpvotesTab(urlToken: String, vm: UpvotesViewModel = koinViewModel()) =
     PeopleTabContent(urlToken, vm)

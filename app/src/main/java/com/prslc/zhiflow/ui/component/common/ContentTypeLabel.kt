@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -61,6 +62,7 @@ data class ContentTypeConfig(
  *   null, gets the unknown badge.
  */
 @Composable
+@ReadOnlyComposable
 fun contentTypeConfig(type: String?): ContentTypeConfig = when (type) {
     "answer" -> ContentTypeConfig(
         labelResId = R.string.type_answer,

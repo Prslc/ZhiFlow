@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -248,6 +249,7 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun keywordHint(state: FeedbackBlockListViewModel.BlockUiState): String =
     when (state.keywordIssue) {
         KeywordIssue.TOO_SHORT ->
