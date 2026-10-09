@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Build
 import android.webkit.WebSettings
-import com.prslc.zhiflow.core.native.AppIntegrity
 import com.prslc.zhiflow.core.native.Natives
 
 object HeaderProvider {
@@ -49,7 +48,7 @@ object HeaderProvider {
      */
     fun zse96( urlPath: String, auth: String, xUdid: String): String {
         val signStr = "$ZSE_93+$urlPath+${APP_VERSION}+$auth+$xUdid"
-        return Natives.zse96Sign(signStr, AppIntegrity.signingCertSha256)
+        return Natives.zse96Sign(signStr)
     }
 
     val xAppZa: String by lazy {
