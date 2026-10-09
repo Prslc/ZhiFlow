@@ -50,7 +50,7 @@ fun RichTextSingleElement(
         is RichTextElement.Heading -> Heading(element, modifier)
         is RichTextElement.FormulaBlock -> LatexComponent(element.data, modifier, isInline = false)
         is RichTextElement.Image -> ImageComponent(element.data, onImageClick, modifier)
-        is RichTextElement.Code -> CodeBlock(element.code, element.lang, modifier)
+        is RichTextElement.Code -> CodeBlock(element.code, element.lang, element.tokens, modifier)
         is RichTextElement.BulletItem -> BulletItemRow(element, modifier)
         is RichTextElement.Blockquote -> BlockquoteComponent(element, modifier)
         is RichTextElement.Card -> when (element.cardType) {

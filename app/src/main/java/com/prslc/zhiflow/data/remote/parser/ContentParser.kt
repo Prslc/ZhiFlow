@@ -69,7 +69,13 @@ object ContentParser {
                 "card" -> parseCard(segment.card)
                 "image" -> segment.image?.let { listOf(RichTextElement.Image(it)) } ?: emptyList()
                 "code_block" -> segment.codeBlock?.let {
-                    listOf(RichTextElement.Code(it.content, it.language))
+                    listOf(
+                        RichTextElement.Code(
+                            it.content,
+                            it.language,
+                            CodeHighlighter.highlight(it.content, it.language),
+                        )
+                    )
                 } ?: emptyList()
 
                 "reference_block" -> segment.referenceBlock?.let { block ->

@@ -20,6 +20,31 @@ data class ProcessedText(
     val segmentLikes: List<SegmentLikeTarget> = emptyList(),
 )
 
+/**
+ * One run of code that shares a colour, as a half-open `[start, end)` range.
+ *
+ * Runs never overlap and never cover text the tokenizer said nothing about, so a renderer paints
+ * them in the order it is handed them and the gaps keep the block's own colour.
+ */
+@Immutable
+data class CodeToken(
+    val start: Int,
+    val end: Int,
+    val kind: CodeTokenKind,
+)
+
+/** What a [CodeToken] is, one entry per set the tokenizer answers with. */
+enum class CodeTokenKind {
+    Mark,
+    Punctuation,
+    Keyword,
+    String,
+    Literal,
+    Annotation,
+    Comment,
+    MultilineComment,
+}
+
 @Stable
 sealed class DetailElement {
     /** Plain text segment extracted from question HTML. */
@@ -47,9 +72,18 @@ sealed interface RichTextElement {
     /** Standalone block-level LaTeX formula. */
     @Immutable
     data class FormulaBlock(val data: Formula) : RichTextElement
-    /** Code block with optional language identifier. */
+    /**
+     * Code block with optional language identifier.
+     *
+     * [tokens] carries no colour of its own — which colour a kind gets is the renderer's, and the
+     * block is cached across both themes on that account.
+     */
     @Immutable
-    data class Code(val code: String, val lang: String?) : RichTextElement
+    data class Code(
+        val code: String,
+        val lang: String?,
+        val tokens: List<CodeToken>,
+    ) : RichTextElement
     /** Collection of reference items (footnotes). */
     @Stable
     data class Reference(val items: List<ParsedText>) : RichTextElement

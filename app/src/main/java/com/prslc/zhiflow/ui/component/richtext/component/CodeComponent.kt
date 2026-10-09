@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,13 +22,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
+import com.prslc.zhiflow.data.remote.parser.model.CodeToken
+import com.prslc.zhiflow.ui.theme.SyntaxColors
 
 /**
  * A block of code, on a card of its own.
@@ -38,16 +45,35 @@ import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
  * @param code The code as the parser found it, with the fence already off.
  * @param lang The language the fence named, or null when it named none. It is drawn upper-cased,
  *   with `CODE` standing in where there is nothing to name.
+ * @param tokens The runs the tokenizer found, never overlapping and carrying no colour of their
+ *   own. A kind the palette leaves unspecified keeps the text's colour, so a block the tokenizer
+ *   had nothing to say about draws exactly as it did before there was a tokenizer.
  * @param modifier Applied to the card ahead of the `fillMaxWidth` it adds itself.
  */
 @Composable
 fun CodeBlock(
     code: String,
     lang: String?,
+    tokens: List<CodeToken>,
     modifier: Modifier = Modifier
 ) {
     val copyText = rememberCopyTextToClipboard()
     val scrollState = rememberScrollState()
+    val isDark = isSystemInDarkTheme()
+
+    // Keyed on the mode: the block is parsed once and cached across both, so the colours are the
+    // one part of it that has to be rebuilt when the reader switches.
+    val styledCode = remember(code, tokens, isDark) {
+        buildAnnotatedString {
+            append(code)
+            tokens.forEach { token ->
+                val color = SyntaxColors.of(token.kind, isDark)
+                if (color != Color.Unspecified) {
+                    addStyle(SpanStyle(color = color), token.start, token.end)
+                }
+            }
+        }
+    }
 
     // Has its own whole-block copy button and scrolls horizontally; selection would fight that.
     DisableSelection {
@@ -93,7 +119,7 @@ fun CodeBlock(
 
                 Box(modifier = Modifier.horizontalScroll(scrollState)) {
                     Text(
-                        text = code,
+                        text = styledCode,
                         modifier = Modifier.padding(12.dp),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontFamily = FontFamily.Monospace,

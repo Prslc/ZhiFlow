@@ -328,7 +328,12 @@ private fun codeCase(): LabCase = LabCase(
         Segment(
             type = "code_block",
             codeBlock = CodeBlock(
-                content = "fun main() {\n    println(\"a code block with a language\")\n}",
+                content = "/* What a cart is worth, in cents. */\n" +
+                    "@JvmStatic\n" +
+                    "fun price(items: List<Int>, tag: String = \"cart\"): Int {\n" +
+                    "    // 3 items, at 1.5 each.\n" +
+                    "    return if (items.size > 3) 12 else items.size\n" +
+                    "}",
                 language = "kotlin",
             ),
         ),
