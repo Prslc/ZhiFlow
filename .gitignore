@@ -1,11 +1,9 @@
 # IntelliJ / Android Studio
+# The IDE's own settings stay on the machine that wrote them: Studio rewrites those files on its
+# own schedule, so tracking them buys diffs nobody made. What the project insists on lives in
+# `.editorconfig`, which every editor reads.
 *.iml
 /.idea/
-/.idea/**/workspace.xml
-.idea/**/modules.xml
-.idea/**/caches
-.idea/**/navEditor.xml
-.idea/**/assetWizardSettings.xml
 
 # Gradle
 .gradle
@@ -26,3 +24,6 @@ local.properties
 
 # Native libraries (distributed separately for release builds)
 /app/libs/
+
+# Claude Code (MCP servers, with paths local to this machine)
+.mcp.json
