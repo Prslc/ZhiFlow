@@ -76,6 +76,7 @@ data class CardElement(
     val type: String? = null,
     val style: String? = null,
     val text: JsonElement? = null,
+    @SerialName("test_id") val testId: String? = null,
     val count: Int = 0,
     val reaction: String? = null,
     val image: CardImage? = null,

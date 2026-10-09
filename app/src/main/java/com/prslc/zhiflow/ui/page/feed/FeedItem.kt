@@ -13,16 +13,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.dto.FeedAuthorNote
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.dto.FeedReason
 import com.prslc.zhiflow.ui.component.common.AuthorRow
@@ -91,7 +95,7 @@ fun FeedItem(
             nameStyle = MaterialTheme.typography.labelMedium,
             nameColor = MaterialTheme.colorScheme.primary,
         ) {
-            display.authorNote?.let { RelationNote(it) }
+            display.authorNote?.let { RelationNote(authorNoteText(it)) }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -142,6 +146,27 @@ private fun ReasonLine(reason: FeedReason) {
     }
 }
 
+/**
+ * What a relation note says, in the reader's language where this app knows the kind.
+ *
+ * The server writes the sentence itself, so a kind that is not in the table -- one the server has
+ * added since -- is drawn as it came. The kind that counts followers names the number only inside
+ * that sentence, and it is the one kind here whose number this app reads for itself.
+ *
+ * @param note The chip's own text and the kind its `test_id` named.
+ */
+@Composable
+@ReadOnlyComposable
+private fun authorNoteText(note: FeedAuthorNote): String = when (note.kind) {
+    "following" -> stringResource(R.string.feed_note_following)
+    "FollowingMemberFollowing" -> stringResource(R.string.feed_note_following_member)
+    "RelationEndorseTypeUnfollowPeopleUpvote" -> stringResource(R.string.feed_note_upvoted)
+    "FollowerNum" -> note.count
+        ?.let { pluralStringResource(R.plurals.feed_note_followers, it, it) }
+        ?: note.text
+    else -> note.text
+}
+
 @Composable
 private fun RelationNote(text: String) {
     Surface(
@@ -154,6 +179,9 @@ private fun RelationNote(text: String) {
             text = text,
             style = MaterialTheme.typography.labelSmall,
             maxLines = 1,
+            // The row gives the name its width first, so a long name can leave this chip short:
+            // it ellipsizes rather than being clipped mid-word.
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
         )
     }

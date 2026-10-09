@@ -33,6 +33,14 @@
     </plurals>
     <string name="feed_retry">点击重试</string>
 
+    <!-- 作者名后面那枚小标签，按 test_id 给出的类别取（服务端自己也是这么分的）。 -->
+    <string name="feed_note_following">你的关注</string>
+    <string name="feed_note_following_member">你关注的人关注</string>
+    <string name="feed_note_upvoted">你赞同过 TA</string>
+    <plurals name="feed_note_followers">
+        <item quantity="other">%1$d 人关注</item>
+    </plurals>
+
     <!-- feedback -->
     <string name="feedback_empty">暂无可选操作</string>
     <string name="feedback_block_title">不感兴趣</string>

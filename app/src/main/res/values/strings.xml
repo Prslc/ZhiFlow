@@ -33,6 +33,15 @@
     </plurals>
     <string name="feed_retry">Click retry</string>
 
+    <!-- The chip a card puts after the author's name, by the kind its test_id names. -->
+    <string name="feed_note_following">You follow</string>
+    <string name="feed_note_following_member">Followed by your follows</string>
+    <string name="feed_note_upvoted">You upvoted</string>
+    <plurals name="feed_note_followers">
+        <item quantity="one">%1$d follower</item>
+        <item quantity="other">%1$d followers</item>
+    </plurals>
+
     <!-- feedback -->
     <string name="feedback_empty">No options available</string>
     <string name="feedback_block_title">Not interested</string>

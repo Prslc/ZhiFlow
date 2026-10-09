@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.mapper
 
+import com.prslc.zhiflow.data.dto.FeedAuthorNote
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.dto.FeedReason
 import com.prslc.zhiflow.data.model.feed.CardChild
@@ -44,6 +45,12 @@ private const val BOX_SCALE = 1000
 
 private const val TITLE_STYLE = "text_recommend_title"
 
+/**
+ * Matches the count a relation note names, as in "1.2 万人关注".
+ * Group 1: the number, Group 2: its 万 suffix.
+ */
+private val NOTE_COUNT_REGEX = Regex("([\\d.]+)\\s*(万?)")
+
 private fun JsonElement?.textValue(): String =
     (this as? JsonPrimitive)?.contentOrNull.orEmpty()
 
@@ -78,7 +85,10 @@ private fun List<CardChild>.authorRow(): List<CardElement> =
 
 /** The author's name, then whatever the card adds about them. */
 private fun List<CardChild>.authorTexts(): List<String> =
-    authorRow().filter { it.type == "Text" }.map { it.text.textValue() }
+    authorElements().map { it.text.textValue() }
+
+private fun List<CardChild>.authorElements(): List<CardElement> =
+    authorRow().filter { it.type == "Text" }
 
 private fun List<CardChild>.authorName(): String =
     authorTexts().firstOrNull().orEmpty()
@@ -86,9 +96,26 @@ private fun List<CardChild>.authorName(): String =
 private fun List<CardChild>.authorAvatar(): String? =
     authorRow().firstOrNull { it.type == "Avatar" }?.image?.url
 
-/** The note's style id is minted per card, so it is found by its place after the name instead. */
-private fun List<CardChild>.authorNote(): String? =
-    authorTexts().getOrNull(1)?.takeIf { it.isNotEmpty() }
+/**
+ * The note the card adds after the name.
+ *
+ * Its style id is minted per card, so it is found by its place after the name instead -- and the
+ * kind it names is read off the `test_id`, whose last segment is the one the server words the note
+ * by. The count that one of those kinds names is only inside the sentence, so it is read out of
+ * there; every other kind says nothing about numbers.
+ */
+private fun List<CardChild>.authorNote(): FeedAuthorNote? {
+    val element = authorElements().getOrNull(1) ?: return null
+    val text = element.text.textValue()
+    if (text.isEmpty()) return null
+
+    return FeedAuthorNote(
+        text = text,
+        kind = element.testId?.substringAfterLast('.')?.takeIf { it.isNotEmpty() },
+        count = NOTE_COUNT_REGEX.find(text)
+            ?.let { parseCount(it.groupValues[1], it.groupValues[2]) },
+    )
+}
 
 private fun List<CardChild>.images(): List<CardImage> =
     firstOrNull { it.type == "Images" }?.images.orEmpty()
