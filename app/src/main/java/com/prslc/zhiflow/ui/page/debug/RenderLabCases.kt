@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.debug
 
-import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.R
@@ -26,35 +25,77 @@ private const val FORMULA_TEXT = "[公式]"
 
 private const val PLACEHOLDER = FORMULA_TEXT
 
-/** The LaTeX the cases draw, each of them measured in [FORMULA_ASPECTS]. */
-private const val LATEX_PYTHAGORAS = "a^2+b^2=c^2"
-private const val LATEX_FRACTION = "\\frac{a}{b}"
-private const val LATEX_PRODUCT =
-    "\\displaystyle C_{m\\times k}=A_{m\\times n}\\cdot B_{n\\times k}"
-private const val LATEX_TWO_PRODUCTS =
-    "\\displaystyle C_{m\\times k}=A_{m\\times n}\\cdot B_{n\\times k},\\quad" +
-        " D_{p\\times q}=E_{p\\times r}\\cdot F_{r\\times q}"
-private const val LATEX_INTEGRAL = "\\displaystyle \\int_0^1 f(x)\\,dx"
-private const val LATEX_SQUARE = "x^2"
-private const val LATEX_MASS_ENERGY = "E=mc^2"
+/**
+ * A formula as the API sends it: its LaTeX, the address of the bitmap the server rendered for it,
+ * and the dp box that bitmap was rendered at.
+ */
+@Immutable
+private data class LabFormula(
+    val content: String,
+    val url: String,
+    val width: Int,
+    val height: Int,
+)
 
 /**
- * How wide each case's formula is drawn, as a multiple of its height.
+ * The formulas the cases draw, taken from a capture of an answer.
  *
- * Measured off the endpoint's own SVG -- its width and height, both in ex -- rather than made up:
- * the image is fitted to the box it is given, so a box of the wrong proportions comes out
- * stretched. The API sends a size that matches, for the same reason. Measuring one is a `curl` of
- * its url and a division; a formula drawn here without that measurement stops the page rather than
- * being drawn at a guessed shape.
+ * The lab uses captured addresses rather than ones it builds from the equation endpoint, because a
+ * formula's box is the API's to decide: the bitmap is three times the dp size, transparent, with
+ * its ink centred in the box. An address built from the endpoint answers with a box tight around
+ * the ink, which is a different picture, and a case would be showing something no reader sees.
  */
-private val FORMULA_ASPECTS = mapOf(
-    LATEX_PYTHAGORAS to 4.34f,
-    LATEX_FRACTION to 0.43f,
-    LATEX_PRODUCT to 8.39f,
-    LATEX_TWO_PRODUCTS to 15.30f,
-    LATEX_INTEGRAL to 1.82f,
-    LATEX_SQUARE to 0.89f,
-    LATEX_MASS_ENERGY to 3.35f,
+private val SMALL_FORMULA = LabFormula(
+    content = "n^2",
+    url = "https://picx.zhimg.com/v2-4620adc1c46d46a7528f1a5e7c936d5a.jpg" +
+        "?source=7e7ef6e2&needBackground=1",
+    width = 18,
+    height = 20,
+)
+
+private val TINY_FORMULA = LabFormula(
+    content = "\\varepsilon",
+    url = "https://picx.zhimg.com/v2-460a6ba3eeee65b706f3f1c53993f2dd.jpg" +
+        "?source=7e7ef6e2&needBackground=1",
+    width = 8,
+    height = 13,
+)
+
+private val WIDEISH_FORMULA = LabFormula(
+    content = "n \\times n = n^2",
+    url = "https://picx.zhimg.com/v2-bdfa9d725446079f8ab0e42ccb8d855f.jpg" +
+        "?source=7e7ef6e2&needBackground=1",
+    width = 84,
+    height = 20,
+)
+
+private val TALL_FORMULA = LabFormula(
+    content = "\\begin{aligned} T(n) = 8 T\\left(\\frac{n}{2}\\right) + " +
+        "4\\mathcal{O}(n^2) \\end{aligned}",
+    url = "https://pic1.zhimg.com/v2-f66cef394f15a55638e19eaa69694e4d.jpg" +
+        "?source=7e7ef6e2&needBackground=1",
+    width = 202,
+    height = 36,
+)
+
+private val TALLER_FORMULA = LabFormula(
+    content = "\\begin{aligned} C_{11} &= A_{11}B_{11} + A_{12}B_{21} \\\\ " +
+        "C_{12} &= A_{11}B_{12} + A_{12}B_{22} \\\\ C_{21} &= A_{21}B_{11} + A_{22}B_{21} \\\\ " +
+        "C_{22} &= A_{21}B_{12} + A_{22}B_{22} \\end{aligned}",
+    url = "https://picx.zhimg.com/v2-70897a1a53e0fb13afcfc2d38fbb98f8.jpg" +
+        "?source=7e7ef6e2&needBackground=1",
+    width = 186,
+    height = 89,
+)
+
+private val OVERWIDE_FORMULA = LabFormula(
+    content = "\\begin{aligned} \\omega = \\inf \\{ \\tau \\mid R(\\langle n, n, n \\rangle) = " +
+        "\\mathcal{O}(n^\\tau) \\} = \\inf \\{ \\tau \\mid \\underline{R}(\\langle n, n, n " +
+        "\\rangle) = \\mathcal{O}(n^\\tau) \\} \\end{aligned}",
+    url = "https://pica.zhimg.com/v2-0ba3b251bf1bf54156f9570337453269.jpg" +
+        "?source=7e7ef6e2&needBackground=1",
+    width = 498,
+    height = 26,
 )
 
 /**
@@ -111,26 +152,25 @@ fun labCases(params: LabParams): List<LabCase> = listOf(
 )
 
 /**
- * The url a formula's bitmap is rendered from. The size is ours to pick, which is the point of the
- * lab: the same formula at 13dp and at 120dp are two different things to look at. A case lays out
- * correctly whether or not the bitmap arrives.
+ * A formula whose box is [height] dp tall, the width following the one the API rendered it at so
+ * that the picture keeps its shape.
  */
-private fun equationUrl(latex: String) = "https://www.zhihu.com/equation?tex=${Uri.encode(latex)}"
-
-/** A formula of [height] dp, as wide as its own shape makes it. */
-private fun formula(latex: String, height: Int) = Formula(
-    content = latex,
-    imgUrl = equationUrl(latex),
-    width = (height * (FORMULA_ASPECTS[latex] ?: error("unmeasured formula: $latex"))).roundToInt(),
-    height = height,
-)
+private fun formula(basis: LabFormula, height: Int): Formula {
+    val scale = height.toFloat() / basis.height
+    return Formula(
+        content = basis.content,
+        imgUrl = basis.url,
+        width = (basis.width * scale).roundToInt().coerceAtLeast(1),
+        height = height,
+    )
+}
 
 /** A paragraph whose single inline formula sits at [start], the text carrying the placeholder. */
-private fun formulaMark(text: String, start: Int, latex: String, height: Int) = Mark(
+private fun formulaMark(text: String, start: Int, basis: LabFormula, height: Int) = Mark(
     type = "formula",
     start = start,
     end = start + FORMULA_TEXT.length,
-    formula = formula(latex, height),
+    formula = formula(basis, height),
 )
 
 private fun paragraph(text: String, marks: List<Mark>) =
@@ -159,7 +199,7 @@ private fun headingsCase(params: LabParams): LabCase {
                     formulaMark(
                         text,
                         text.indexOf(PLACEHOLDER),
-                        LATEX_PYTHAGORAS,
+                        SMALL_FORMULA,
                         params.formulaHeight,
                     )
                 ),
@@ -187,7 +227,7 @@ private fun paragraphCase(params: LabParams): LabCase {
                     formulaMark(
                         text,
                         text.indexOf(PLACEHOLDER),
-                        LATEX_FRACTION,
+                        WIDEISH_FORMULA,
                         params.formulaHeight,
                     )
                 ),
@@ -209,7 +249,7 @@ private fun blockFormulaCase(params: LabParams): LabCase = LabCase(
                     start = 0,
                     end = FORMULA_TEXT.length,
                     formula = formula(
-                        LATEX_PRODUCT,
+                        TALLER_FORMULA,
                         params.formulaHeight,
                     ),
                 )
@@ -230,7 +270,7 @@ private fun wideFormulaCase(params: LabParams): LabCase = LabCase(
                     type = "formula",
                     start = 0,
                     end = FORMULA_TEXT.length,
-                    formula = formula(LATEX_TWO_PRODUCTS, params.formulaHeight),
+                    formula = formula(OVERWIDE_FORMULA, params.formulaHeight),
                 )
             ),
         )
@@ -253,7 +293,7 @@ private fun quoteCase(params: LabParams): LabCase {
                         formulaMark(
                             text,
                             text.indexOf(PLACEHOLDER),
-                            LATEX_INTEGRAL,
+                            TALL_FORMULA,
                             params.formulaHeight,
                         )
                     ),
@@ -293,7 +333,7 @@ private fun listItem(text: String, depth: Int, formulaHeight: Int? = null): List
     text = text,
     indentLevel = depth,
     marks = formulaHeight?.let {
-        listOf(formulaMark(text, text.indexOf(PLACEHOLDER), LATEX_SQUARE, it))
+        listOf(formulaMark(text, text.indexOf(PLACEHOLDER), TINY_FORMULA, it))
     } ?: emptyList(),
 )
 
@@ -369,7 +409,7 @@ private fun referenceCase(params: LabParams): LabCase {
                                 formulaMark(
                                     text,
                                     text.indexOf(PLACEHOLDER),
-                                    LATEX_MASS_ENERGY,
+                                    WIDEISH_FORMULA,
                                     params.formulaHeight,
                                 )
                             ),
