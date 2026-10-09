@@ -125,15 +125,16 @@ sealed interface RichTextElement {
         val hasHeader: Boolean
     ) : RichTextElement
 
-    /** Link card with cover image, description, and content type metadata. */
+    /** Link card with cover image, content type metadata, and the counts it reports. */
     @Immutable
     data class Card(
         val cardType: String,
         val title: String,
         val url: String,
         val cover: String?,
-        val desc: String?,
-        val contentType: String?
+        val contentType: String?,
+        val voteCount: Int = 0,
+        val commentCount: Int = 0,
     ) : RichTextElement
 
     /** Standard text paragraph with optional inline formulas. */

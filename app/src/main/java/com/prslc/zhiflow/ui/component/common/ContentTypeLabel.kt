@@ -58,12 +58,12 @@ data class ContentTypeConfig(
  * The article and pin badges take their hue from the primary one rather than naming a colour of
  * their own, so they follow the scheme the reader is on.
  *
- * @param type The API's content-type string: `answer`, `article` or `pin`. Anything else, including
- *   null, gets the unknown badge.
+ * @param type The API's content-type string: `answer`, `article` or `pin`, in whatever case it
+ *   comes in. Anything else, including null, gets the unknown badge.
  */
 @Composable
 @ReadOnlyComposable
-fun contentTypeConfig(type: String?): ContentTypeConfig = when (type) {
+fun contentTypeConfig(type: String?): ContentTypeConfig = when (type?.lowercase()) {
     "answer" -> ContentTypeConfig(
         labelResId = R.string.type_answer,
         containerColor = MaterialTheme.colorScheme.primaryContainer,

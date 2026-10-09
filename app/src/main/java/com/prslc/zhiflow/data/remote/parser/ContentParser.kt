@@ -2,6 +2,7 @@ package com.prslc.zhiflow.data.remote.parser
 
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.core.utils.JsonHelper
+import com.prslc.zhiflow.data.mapper.voteStatsOf
 import com.prslc.zhiflow.data.model.content.Card
 import com.prslc.zhiflow.data.model.content.Mark
 import com.prslc.zhiflow.data.model.content.Paragraph
@@ -250,14 +251,22 @@ object ContentParser {
                 )
             } ?: emptyList()
         } else {
+            val stats = voteStatsOf(extra?.desc)
             listOf(
                 RichTextElement.Card(
                     cardType = it.cardType,
-                    title = it.title ?: extra?.title ?: "No title",
-                    url = it.url ?: extra?.url ?: "",
+                    // A card that keeps its words in extra_info sends its own title and url down as
+                    // empty strings, not as nulls: blank has to count as absent, or the empty field
+                    // wins the fallback and the card draws without a title.
+                    title = it.title?.takeIf { t -> t.isNotBlank() } ?: extra?.title ?: "No title",
+                    url = it.url?.takeIf { u -> u.isNotBlank() } ?: extra?.url ?: "",
                     cover = extra?.cover?.takeIf { c -> c.isNotBlank() } ?: it.cover,
-                    desc = JsonHelper.cleanHtmlDesc(extra?.desc),
-                    contentType = it.contentType ?: extra?.contentType
+                    // The type to wear is the one of what the card points at, and that is
+                    // extra_info's: the card's own names the content it sits in, so a link to an
+                    // answer inside a pin arrives as PIN.
+                    contentType = extra?.contentType ?: it.contentType,
+                    voteCount = stats?.voteCount ?: 0,
+                    commentCount = stats?.commentCount ?: 0,
                 ))
         }
     } ?: emptyList()

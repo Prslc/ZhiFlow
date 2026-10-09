@@ -24,18 +24,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
  * A card a body embeds: a link out to other content.
  *
- * It is a teaser and not a copy -- two lines of title, one of description -- and there is no text
- * to select, so selection is off and the whole surface is the tap target.
+ * It is a teaser and not a copy -- two lines of title, and a meta line under them carrying the
+ * counts and the word for what the link points at -- and there is no text to select, so selection
+ * is off and the whole surface is the tap target.
  *
  * @param element The card segment. Its url is what a tap opens, through the navigator.
  * @param modifier Applied to the surface, ahead of the `fillMaxWidth` and the 4dp of vertical
@@ -49,7 +54,20 @@ fun CardComponent(
     val navigator = LocalNavigator.current
     val hasImage = !element.cover.isNullOrBlank()
 
-    // Tappable teaser: title clipped to 2 lines, description to 1 — no full text to select.
+    val typeLabel = stringResource(contentTypeConfig(element.contentType).labelResId)
+    val metaLine = if (element.voteCount > 0 || element.commentCount > 0) {
+        val counts = pluralStringResource(
+            R.plurals.feed_meta,
+            element.commentCount,
+            element.voteCount,
+            element.commentCount,
+        )
+        "$counts  $typeLabel"
+    } else {
+        typeLabel
+    }
+
+    // Tappable teaser: title clipped to 2 lines, the meta line to 1 — no full text to select.
     DisableSelection {
         Surface(
             modifier = modifier
@@ -102,18 +120,16 @@ fun CardComponent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
 
-                    if (!element.desc.isNullOrEmpty()) {
-                        Text(
-                            text = element.desc,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = TextStyles.cardDescSize
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
+                    Text(
+                        text = metaLine,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = TextStyles.cardDescSize
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
                 }
             }
         }
