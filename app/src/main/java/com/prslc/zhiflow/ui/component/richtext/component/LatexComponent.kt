@@ -3,12 +3,10 @@ package com.prslc.zhiflow.ui.component.richtext.component
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +36,7 @@ import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.rememberInlineContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import kotlinx.serialization.json.Json
@@ -237,25 +236,9 @@ fun FormulaTextSection(
     onFormulaClick: (String) -> Unit = {},
 ) {
     val navigator = LocalNavigator.current
-    val density = LocalDensity.current
-    val maxWidthDp = rememberFormulaMaxWidth()
     val underlineColor = MaterialTheme.colorScheme.outline
 
-    val inlineContentMap = remember(element.inlineMetas, density, maxWidthDp) {
-        element.inlineMetas.associate { meta ->
-            val (widthDp, heightDp) = constrainedSize(
-                meta.formula.width.toFloat(), meta.formula.height.toFloat(), maxWidthDp
-            )
-            meta.inlineId to InlineTextContent(formulaPlaceholder(density, widthDp, heightDp)) {
-                LatexComponent(
-                    formula = meta.formula,
-                    isInline = true,
-                    modifier = Modifier.fillMaxSize(),
-                    maxWidthDp = maxWidthDp,
-                )
-            }
-        }
-    }
+    val inlineContentMap = element.inlineMetas.rememberInlineContent()
     val bubbleContentMap = element.content.rememberSegmentLikeIcons(
         tint = underlineColor,
         onClick = onSegmentLikeClick,
