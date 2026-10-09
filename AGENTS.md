@@ -208,6 +208,56 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically. Changing them must call `UserSession.invalidate()`, since the cached current user id would otherwise go stale. DebugScreen's clear action removes only these three keys, never the whole prefs file (it also holds `http_log_enabled`).
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 
+## Comments
+
+Comments are decided by layer, not by taste. The contract layers are documented, the UI is mostly
+silent, and a note earns its place only by naming something the code itself cannot say. The shape of
+that, roughly, as the tree stands: `data/repository` and `data/session` run near 40% comments with
+every public function documented, `data/remote` near 20%, `core` near 25%, `ui/` at 5–8%, and
+`data/model`, `data/dto`, `data/mapper` effectively silent.
+
+| Where | What |
+|---|---|
+| `data/repository`, `data/session`, `data/remote/service` | KDoc on **every public function**, with `@param` / `@return`. Multi-line is fine. |
+| ViewModel public methods | KDoc: behaviour, side effects, boundaries — "Sets `[FeedUiState.globalError]` on failure", "No-op when `[nextPageUrl]` is null". |
+| Other public API (`core/`, `ui/navigation/`) | KDoc where the contract is not readable off the signature. |
+| UI composables | Nothing by default. A mechanism note goes on the KDoc of the host composable, where it explains the widget as a whole. |
+| `data/model`, `data/dto`, `data/mapper` | Nothing. The types and the server's own field names say it. |
+
+**The test.** Delete the note and ask whether the next reader will simplify the code and quietly break
+it. If yes, keep it: it names a framework or interface fact the code cannot show. If it only explains
+why we built something this way, delete it — that belongs in the commit message. What survives reads
+like the fact and its consequence:
+
+```kotlin
+// M3's Button enforces a 58x40dp minimum on its inner content row, and an outer `height()` is the
+// only way under that.
+// Judged by rest, not by targetState: a gesture's seek has already pointed that at this side.
+```
+
+**Shape.**
+
+- In a function body: one line, two at most. Beyond that it is an essay and the reader skips it.
+- Above a group of declarations: a short paragraph is allowed — the block over `CustomBottomSheet`'s
+  timing constants explains how the three numbers relate, which none of them can say alone.
+- Never between two local `val`/`var` declarations. A block of locals has to read in one glance, and
+  the reason is a contract: it goes in the KDoc of the host, or on the line it actually explains.
+- Backticks and `[Name]` links belong to KDoc. A line comment is plain prose, and refers to an
+  identifier by writing it out.
+- Section markers over long declarative lists are their own kind and take a bare noun — `// Feed`,
+  `// Comment` in `AppModule`.
+- An affordance that is drawn but does nothing yet is marked where it is inert —
+  `onClick = { /* TODO: Search Action */ }`. In that shape rather than `//`, because a line comment
+  would swallow the closing brace.
+
+**Which syntax.** `/** */` is not a style choice: it is the only form that attaches to a declaration,
+so it is what quick doc, Dokka, `[links]` and `@param` all read — worth remembering because a note
+written with KDoc's markup under a plain `/*` looks documented and is not. `//` and `/* */` are
+identical to the compiler and to every tool; Kotlin's block comments even nest, so `/* */` is not the
+fragile one, and the only mechanical difference is that `//` runs to the end of the line. That is the
+whole rule: `//` everywhere, except where a line comment cannot go (inside an expression) or a
+licence header that has to stay verbatim as it came.
+
 ## Git Conventions
 
 - Commit format: `<type>: <description>` header, blank line, `- ` bullet list of changes, optional closing paragraph for motivation. Types: `feat`, `fix`, `refactor`, `build`, `chore`.
