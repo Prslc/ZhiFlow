@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +45,10 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgressEffect
+import com.prslc.zhiflow.core.utils.formatDateTime
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
+import com.prslc.zhiflow.data.model.content.ContentAgeUnit
+import com.prslc.zhiflow.data.model.content.ContentStamp
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuImage
@@ -135,6 +140,34 @@ private fun outlineOf(elements: List<RichTextElement>): List<OutlineEntry> {
             index = LEADING_ITEMS + index,
         )
     }
+}
+
+/** The plurals each age unit is drawn with. */
+private fun agePlurals(unit: ContentAgeUnit): Int = when (unit) {
+    ContentAgeUnit.Second -> R.plurals.content_age_second
+    ContentAgeUnit.Minute -> R.plurals.content_age_minute
+    ContentAgeUnit.Hour -> R.plurals.content_age_hour
+    ContentAgeUnit.Day -> R.plurals.content_age_day
+    ContentAgeUnit.Week -> R.plurals.content_age_week
+    ContentAgeUnit.Month -> R.plurals.content_age_month
+    ContentAgeUnit.Year -> R.plurals.content_age_year
+}
+
+/**
+ * What a stamp says, in the reader's own language.
+ *
+ * @param stamp The date or the age the server worded.
+ */
+@Composable
+@ReadOnlyComposable
+private fun stampText(stamp: ContentStamp): String = when (stamp) {
+    is ContentStamp.At -> formatDateTime(stamp.value)
+    is ContentStamp.JustNow -> stringResource(R.string.content_age_just_now)
+    is ContentStamp.Ago -> pluralStringResource(
+        agePlurals(stamp.unit),
+        stamp.count,
+        stamp.count,
+    )
 }
 
 /**
@@ -244,8 +277,22 @@ fun ContentBodyList(
             item {
                 DisableSelection {
                     content.contentEnd?.let { contentEnd ->
-                        val timeDisplay = contentEnd.updateTime?.takeIf { it.isNotBlank() }
-                            ?: contentEnd.createTime?.takeIf { it.isNotBlank() }
+                        // The server words these as text, and an update carries a marker in front
+                        // of its own: whichever form it came in is drawn in the reader's language,
+                        // and an update outranks the creation time, which is the order the server
+                        // writes them in. A stamp this cannot read is drawn as it came.
+                        val updated = contentEnd.updated
+                        val created = contentEnd.created
+                        val timeDisplay = when {
+                            updated != null ->
+                                stringResource(R.string.content_edited_on, stampText(updated))
+                            created != null -> stampText(created)
+                            !contentEnd.updateTime.isNullOrBlank() -> stringResource(
+                                R.string.content_edited_on,
+                                contentEnd.updateTime,
+                            )
+                            else -> contentEnd.createTime?.takeIf { it.isNotBlank() }
+                        }
 
                         if (!timeDisplay.isNullOrBlank()) {
                             Column(modifier = Modifier.padding(20.dp)) {

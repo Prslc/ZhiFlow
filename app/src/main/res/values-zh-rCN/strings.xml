@@ -90,6 +90,29 @@
     <string name="content_title_filed">标题加载失败</string>
     <string name="content_published_with_ip">发布于 %1$s · %2$s</string>
     <string name="content_published_no_ip">发布于 %1$s</string>
+    <string name="content_edited_on">编辑于 %1$s</string>
+    <string name="content_age_just_now">刚刚</string>
+    <plurals name="content_age_second">
+        <item quantity="other">%1$d 秒前</item>
+    </plurals>
+    <plurals name="content_age_minute">
+        <item quantity="other">%1$d 分钟前</item>
+    </plurals>
+    <plurals name="content_age_hour">
+        <item quantity="other">%1$d 小时前</item>
+    </plurals>
+    <plurals name="content_age_day">
+        <item quantity="other">%1$d 天前</item>
+    </plurals>
+    <plurals name="content_age_week">
+        <item quantity="other">%1$d 周前</item>
+    </plurals>
+    <plurals name="content_age_month">
+        <item quantity="other">%1$d 个月前</item>
+    </plurals>
+    <plurals name="content_age_year">
+        <item quantity="other">%1$d 年前</item>
+    </plurals>
 
     <!-- light box -->
     <string name="lightbox_image_save_success">已保存至相册</string>

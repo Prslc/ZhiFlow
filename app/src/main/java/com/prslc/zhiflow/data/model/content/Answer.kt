@@ -90,7 +90,13 @@ data class ContentEndInfo(
     @SerialName("ip_info") val ipInfo: String,
     @SerialName("create_time_text") val createTime: String? = null,
     @SerialName("update_time_text") val updateTime: String? = null,
-)
+) {
+    /** When the content was made, where the server worded that as a date or an age. */
+    val created: ContentStamp? get() = parseContentStamp(createTime)
+
+    /** When it was last edited, likewise, marker and all. */
+    val updated: ContentStamp? get() = parseContentStamp(updateTime)
+}
 
 @Immutable
 @Serializable
