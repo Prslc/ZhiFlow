@@ -172,6 +172,33 @@
     </plurals>
 
     <!-- debug -->
+    <string name="lab_item_title">渲染实验室</string>
+    <string name="lab_item_subtitle">用可调参数构造渲染用例，不必去翻真实内容</string>
+    <string name="lab_title">渲染实验室</string>
+    <string name="lab_knob_formula_height">行内公式高度</string>
+    <string name="lab_knob_formula_line">公式所在行</string>
+    <string name="lab_knob_quote_lines">引用行数</string>
+    <string name="lab_knob_table_cols">表格列数</string>
+    <string name="lab_knob_cell_chars">单元格字数</string>
+    <string name="lab_knob_list_depth">列表层级</string>
+    <string name="lab_value_dp">%1$d dp</string>
+    <string name="lab_value_count">%1$d</string>
+    <string name="lab_note_formula">公式 %1$d dp</string>
+    <string name="lab_note_formula_line">公式 %1$d dp · 落在第 %2$d 行</string>
+    <string name="lab_note_formula_width">公式 %1$d dp · 该高度下自然宽超出正文列</string>
+    <string name="lab_note_quote">%1$d 行 · 公式在第 %2$d 行</string>
+    <string name="lab_note_table">%1$d 列 × %2$d 行 · 单元格 %3$d 字</string>
+    <string name="lab_note_list">层级 %1$d</string>
+    <string name="lab_case_headings">标题，各级都带行内公式</string>
+    <string name="lab_case_paragraph">段落，公式落在指定行</string>
+    <string name="lab_case_block_formula">块级公式</string>
+    <string name="lab_case_wide_formula">宽到放不下的块级公式</string>
+    <string name="lab_case_quote">引用，多行且带公式</string>
+    <string name="lab_case_list">列表，无序与有序，都带公式</string>
+    <string name="lab_case_table">表格</string>
+    <string name="lab_case_code">代码块</string>
+    <string name="lab_case_divider">分割线</string>
+    <string name="lab_case_reference">脚注</string>
     <string name="debug_item_open_link_title">打开链接</string>
     <string name="debug_item_open_link_subtitle">粘贴知乎 URL 以测试 LinkParser</string>
     <string name="debug_item_config_credentials_title">配置凭证</string>

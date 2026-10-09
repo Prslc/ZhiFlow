@@ -96,6 +96,14 @@ fun DebugScreen(
                     onClick = { navigator.navigateToHttpLog() }
                 )
             }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.lab_item_title),
+                    description = stringResource(R.string.lab_item_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = { navigator.navigateToRenderLab() }
+                )
+            }
         }
     }
 

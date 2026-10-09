@@ -80,4 +80,6 @@ class Navigator(
     fun navigateToFeedbackBlockList(route: FeedbackBlockList) = navController.navigate(route)
 
     fun navigateToHttpLog() = navController.navigate(HttpLog)
+
+    fun navigateToRenderLab() = navController.navigate(RenderLab)
 }

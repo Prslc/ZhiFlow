@@ -53,6 +53,10 @@ object HttpLog
 
 @Immutable
 @Serializable
+object RenderLab
+
+@Immutable
+@Serializable
 object CollectionContents
 
 /**

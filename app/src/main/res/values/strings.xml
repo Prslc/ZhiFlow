@@ -183,6 +183,33 @@
         <item quantity="other">Saved in %1$s and %2$d other folders</item>
     </plurals>
     <!-- debug -->
+    <string name="lab_item_title">Render Lab</string>
+    <string name="lab_item_subtitle">Build rendering cases from adjustable parameters</string>
+    <string name="lab_title">Render Lab</string>
+    <string name="lab_knob_formula_height">Inline formula height</string>
+    <string name="lab_knob_formula_line">Formula on line</string>
+    <string name="lab_knob_quote_lines">Quote lines</string>
+    <string name="lab_knob_table_cols">Table columns</string>
+    <string name="lab_knob_cell_chars">Cell characters</string>
+    <string name="lab_knob_list_depth">List level</string>
+    <string name="lab_value_dp">%1$d dp</string>
+    <string name="lab_value_count">%1$d</string>
+    <string name="lab_note_formula">Formula %1$d dp</string>
+    <string name="lab_note_formula_line">Formula %1$d dp, on line %2$d</string>
+    <string name="lab_note_formula_width">Formula %1$d dp, whose own width is past the column</string>
+    <string name="lab_note_quote">Lines: %1$d, formula on line %2$d</string>
+    <string name="lab_note_table">Columns: %1$d, rows: %2$d, characters per cell: %3$d</string>
+    <string name="lab_note_list">Level %1$d</string>
+    <string name="lab_case_headings">Headings, each with an inline formula</string>
+    <string name="lab_case_paragraph">Paragraph, formula on a chosen line</string>
+    <string name="lab_case_block_formula">Display formula</string>
+    <string name="lab_case_wide_formula">Display formula too wide for the page</string>
+    <string name="lab_case_quote">Quote, several lines with a formula</string>
+    <string name="lab_case_list">Lists, bulleted and numbered, with formulas</string>
+    <string name="lab_case_table">Table</string>
+    <string name="lab_case_code">Code blocks</string>
+    <string name="lab_case_divider">Divider</string>
+    <string name="lab_case_reference">Footnotes</string>
     <string name="debug_item_open_link_title">Open Link</string>
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>
     <string name="debug_item_config_credentials_title">Configure Credentials</string>
