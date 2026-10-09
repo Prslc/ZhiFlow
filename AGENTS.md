@@ -66,13 +66,13 @@ ZhiFlow/
 │           │   ├── mapper/                     # model → dto extensions
 │           │   ├── model/                      # Raw API response models, one subpackage per domain (content, comment, feed, moment, user)
 │           │   ├── remote/
-│           │   │   ├── parser/                 # Segments → RichTextElement: links, formulas, tables, emoji (emoji/), the annotated-string engine (engine/)
+│           │   │   ├── parser/                 # Segments → RichTextElement: links, formulas, tables, emoji (emoji/), code colour (CodeHighlighter), the annotated-string engine (engine/)
 │           │   │   └── service/                # One OkHttp service per API domain
 │           │   ├── repository/                 # Service + mapper per domain, returning Result<T>
 │           │   └── session/                    # The current user's hash id, resolved lazily and kept in memory
 │           ├── di/                             # The single Koin module
 │           └── ui/                             # Compose only
-│               ├── theme/                      # Colour, type, dynamic-colour fallback
+│               ├── theme/                      # Colour, type, dynamic-colour fallback, and a syntax palette that follows neither
 │               ├── navigation/                 # Type-safe routes, the NavHost graph, the Navigator
 │               ├── component/                  # Reusable pieces no page owns
 │               │   ├── common/                 # Error and empty states, paging footer, author row
@@ -160,7 +160,7 @@ var uiState by mutableStateOf(UiState())
 
 The rich text pipeline:
 1. API returns `List<Segment>` (paragraph, heading, blockquote, code_block, list_node, table, image, card, formula, etc.)
-2. `ContentParser.transform(segments, isDark)` → `List<RichTextElement>` (sealed interface hierarchy of Compose-ready primitives)
+2. `ContentParser.transform(segments)` → `List<RichTextElement>` (sealed interface hierarchy of Compose-ready primitives). No mode and no colour: one parse serves both themes, which is what lets its result be cached
 3. Each `RichTextElement` renders via a corresponding composable in `ui/component/richtext/component/`
 4. `ZRichText` composable wraps `Text` with clickable link interception and inline formula support via `InlineTextContent`
 
@@ -176,6 +176,16 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
 - A row is only as tall as its style asks for: Compose re-imposes an explicit `lineHeight` on a row a tall placeholder has grown, so a formula taller than the line would be drawn across its neighbours. Every host of an inline formula — `FormulaTextSection` for a paragraph, `ZRichText` for a heading, quote, list item, reference or table cell — takes its line height from `withFormulaLineHeight`, which raises it to the tallest formula plus 8dp of clearance.
 - Dark mode inverts the white-background bitmap via a `ColorMatrix`, not a tint.
 - Why images instead of `latex-renderer`: the library measured + laid out each formula synchronously on the main thread inside `LatexDocument`'s `remember`, causing ~23% janky frames and up to 1s p99 while scrolling formula-heavy pages. Image rendering uses the API's pre-rendered bitmaps with zero measurement; Coil loads/decodes off the main thread. The cost is extra network traffic for the formula images.
+
+#### Code colour (tokenizer-based)
+
+The API sends a code block as `{content, language}` and nothing more — the server does no colouring, so the client tokenizes:
+- `CodeHighlighter` (in `parser/CodeHighlighter.kt`, over `dev.snipme:highlights`) runs inside `ContentParser.transform`, on the same `Dispatchers.Default` as the rest of the body. It builds a fresh tokenizer per block, against the library's own advice to keep one around: the instance holds the analysed code in mutable state, so a shared one would answer with a block another page parsed a moment earlier.
+- The tokenizer answers with **eight sets of ranges that overlap** — only comments and strings are kept out of the keyword search, so the `.` in `// foo.bar` is punctuation and comment at once. They are laid down in the library's own order — the later set wins — and then cut into runs that never overlap, so a renderer adds them in the order it is handed them and the gaps keep the block's own colour. Language names go through an alias table, because a fence is written by hand: `c++`, `js` and `bash` are not the spellings the tokenizer knows.
+- `RichTextElement.Code` carries those runs and no colour. Which colour a kind gets is the renderer's, which is what lets one parsed body be cached and drawn in either mode.
+- `SyntaxColors` (in `ui/theme/SyntaxColors.kt`) holds the palette, one arm per mode. It is its own and not the scheme's: eight kinds do not fit the scheme's few accents, and code colour is a convention the reader arrives with from every other editor. Every colour clears 4.5:1 on the card it is drawn on, the dark arm measured against that card's own `#1A1F24`. Brackets, commas and the like are left unspecified, so they keep the text's colour rather than making the block busier.
+- A fence naming a language the tokenizer does not carry — `text`, and SQL, JSON, HTML and the rest — yields no runs, and the block draws in one colour exactly as it did before there was a tokenizer.
+- Why not the library's own themes: a theme is consumed only by `getHighlights()`, which resolves the colours into its result. That result is mode-dependent, and the parse is deliberately mode-free (step 2 above) — so a palette resolved while parsing would force a body to be parsed twice, or its cache keyed by mode. The presets are also tuned for an IDE's background rather than for this app's card.
 
 ### Error Handling
 
@@ -264,5 +274,5 @@ licence header that has to stay verbatim as it came.
 
 ## Git Conventions
 
-- Commit format: `<type>: <description>` header, blank line, `- ` bullet list of changes, optional closing paragraph for motivation. Types: `feat`, `fix`, `refactor`, `build`, `chore`.
+- Commit format: `<type>: <description>` header, blank line, `- ` bullet list of changes, optional closing paragraph for motivation. Types: `feat`, `fix`, `refactor`, `build`, `docs`, `chore`.
 - Never run destructive git commands (force push, hard reset, skip hooks) without explicit approval
