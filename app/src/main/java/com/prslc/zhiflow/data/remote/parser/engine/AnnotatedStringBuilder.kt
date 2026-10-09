@@ -37,11 +37,14 @@ object AnnotatedStringBuilder {
      * `seg_like` ranges are annotated rather than styled: whether their underline is solid or
      * dashed depends on live like state, which the built string cannot hold. Each range ends where
      * its bubble begins — the offset mapping that the tail of the loop leaves behind points past
-     * the bubble, and the underline has to stop short of it.
+     * the bubble, and the underline has to stop short of it. A range with nothing said about it
+     * carries no bubble and ends at its own last character instead; its underline is still there,
+     * and still opens the panel.
      *
      * @param onFormulaFound returns null to drop the mark's raw text instead of placing inline
      *   content over it.
-     * @param segmentLikes the ranges to mark up, in raw-text order.
+     * @param segmentLikes the ranges to mark up, in raw-text order. One whose
+     *   [SegmentLikeTarget.commentCount] is zero is underlined but gets no bubble.
      */
     fun build(
         rawText: String,
@@ -56,7 +59,8 @@ object AnnotatedStringBuilder {
 
         val insertions = buildList {
             formulaMarks.forEach { add(Insertion.Replace(it.start, it.end, it)) }
-            segmentLikes.forEach { add(Insertion.Point(it.rawEnd, it)) }
+            segmentLikes.filter { it.commentCount > 0 }
+                .forEach { add(Insertion.Point(it.rawEnd, it)) }
         }.sortedBy { it.start }
 
         val rawToBuiltMap = IntArray(rawText.length + 1)
