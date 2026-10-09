@@ -18,7 +18,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.ui.component.common.ErrorView
@@ -53,6 +55,7 @@ fun FeedScreen(
     val globalError = viewModel.uiState.globalError
     val loadMoreError = viewModel.uiState.loadMoreError
     val isEmpty = items.isEmpty()
+    val endText = if (viewModel.uiState.isEnd) stringResource(R.string.end_of_list) else null
 
     Box(modifier = modifier.fillMaxSize()) {
         val pullRefreshState = rememberPullToRefreshState()
@@ -97,6 +100,7 @@ fun FeedScreen(
                         isLoading = viewModel.uiState.isNextLoading,
                         error = loadMoreError,
                         onRetry = { viewModel.loadMore() },
+                        endText = endText,
                     )
                 }
             }

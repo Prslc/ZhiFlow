@@ -25,6 +25,7 @@ class FeedViewModel(
         val items: List<FeedDto> = emptyList(),
         val isRefreshing: Boolean = false,
         val isNextLoading: Boolean = false,
+        val isEnd: Boolean = false,
         val globalError: ApiException? = null,
         val loadMoreError: ApiException? = null,
     )
@@ -53,29 +54,50 @@ class FeedViewModel(
 
     val listState = LazyListState()
     private var nextPageUrl: String? = null
+    private var previousPageUrl: String? = null
 
-    /** Load feeds if the list is currently empty. */
+    /** Load the first page if the list is currently empty. */
     fun loadIfEmpty() {
         if (uiState.items.isEmpty()) {
-            refresh()
+            load(cold = true)
         }
     }
 
     /**
-     * Force refresh: clear existing items and reload from page 1.
+     * Pull to refresh: asks for the page above the one on screen and replaces the list with it.
      *
      * Sets [FeedUiState.globalError] on failure.
      */
     fun refresh() {
+        load(cold = false)
+    }
+
+    /**
+     * Requests one page and replaces the list with it.
+     *
+     * A cold load asks for a new session's first page; a refresh asks through the cursor the last
+     * response carried, which the server reads as "the content above what you hold".
+     *
+     * Sets [FeedUiState.globalError] on failure.
+     *
+     * @param cold True for the load the screen makes on its own, false for a gesture.
+     */
+    private fun load(cold: Boolean) {
         if (uiState.isRefreshing) return
         viewModelScope.launch {
             uiState = uiState.copy(isRefreshing = true, globalError = null)
 
-            repository.getFeeds(isRefresh = true, nextUrl = null)
+            repository.getFeeds(
+                isColdStart = cold,
+                nextUrl = if (cold) null else previousPageUrl,
+            )
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
+                    previousPageUrl = result.previousPageUrl
                     uiState = uiState.copy(
-                        items = result.items,
+                        // content_id keys the list; Compose throws when a key repeats.
+                        items = result.items.distinctBy { it.id },
+                        isEnd = result.isEnd,
                         isRefreshing = false,
                         loadMoreError = null,
                     )
@@ -90,19 +112,25 @@ class FeedViewModel(
      * Load the next page of feeds.
      *
      * Appends results to the existing list. Sets [FeedUiState.loadMoreError] on failure.
-     * No-op when [nextPageUrl] is null (all pages consumed).
+     * No-op when [nextPageUrl] is null or the server has said the feed ends here.
      */
     fun loadMore() {
-        if (uiState.isNextLoading || uiState.isRefreshing || nextPageUrl == null) return
+        if (uiState.isNextLoading || uiState.isRefreshing) return
+        if (nextPageUrl == null || uiState.isEnd) return
 
         viewModelScope.launch {
             uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
 
-            repository.getFeeds(isRefresh = false, nextUrl = nextPageUrl)
+            repository.getFeeds(isColdStart = false, nextUrl = nextPageUrl)
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
+                    previousPageUrl = result.previousPageUrl
+                    // Same key, and here the repeat crosses the page boundary.
+                    val current = uiState.items
+                    val known = current.mapTo(HashSet()) { it.id }
                     uiState = uiState.copy(
-                        items = uiState.items + result.items,
+                        items = current + result.items.filter { known.add(it.id) },
+                        isEnd = result.isEnd,
                         isNextLoading = false,
                     )
                 }
