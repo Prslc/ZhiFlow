@@ -26,6 +26,7 @@ import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
 import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
 import com.prslc.zhiflow.ui.component.richtext.component.drawSegmentUnderline
 import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
+import com.prslc.zhiflow.ui.component.richtext.component.rememberEmojiContent
 import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
 import com.prslc.zhiflow.ui.component.richtext.component.withFormulaLineHeight
@@ -173,10 +174,12 @@ fun ZRichText(
     Text(
         text = interceptedContent,
         style = style.withFormulaLineHeight(inlineMetas, maxFormulaWidthDp),
-        inlineContent = inlineContent + interceptedContent.rememberSegmentLikeIcons(
-            tint = underlineColor,
-            onClick = onSegmentLikeClick,
-        ),
+        inlineContent = inlineContent +
+            interceptedContent.rememberSegmentLikeIcons(
+                tint = underlineColor,
+                onClick = onSegmentLikeClick,
+            ) +
+            interceptedContent.rememberEmojiContent(),
         maxLines = maxLines,
         overflow = overflow,
         onTextLayout = { layoutResult.value = it },

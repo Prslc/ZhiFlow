@@ -8,6 +8,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import com.prslc.zhiflow.data.model.content.Mark
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
+import com.prslc.zhiflow.data.remote.parser.emoji.EmojiMap
+import com.prslc.zhiflow.data.remote.parser.emoji.EmojiMatch
+import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.ProcessedText
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -37,14 +40,25 @@ object AnnotatedStringBuilder {
     /** Range of a `reference` mark, marked for the same reason as [CODE_TAG]. */
     const val REFERENCE_TAG = "REFERENCE"
 
+    /** Range of an emoji, which the renderer draws from the asset its path names. */
+    const val EMOJI_ID_TAG = "EMOJI_ID"
+
+    /** Path of the asset one emoji is drawn from. */
+    const val EMOJI_PATH_TAG = "EMOJI_PATH"
+
     /** Built-offset key of the inline content for that bubble. */
     fun segmentLikeIconId(position: Int) = "seg_like_icon_$position"
+
+    /** Built-offset key of the inline content for that emoji. */
+    fun emojiInlineId(position: Int) = "emoji_$position"
 
     /**
      * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.
      *
      * Segments text by mark boundaries, applies the span styles that carry no theme (bold, italic,
-     * strikethrough), and invokes [onFormulaFound] for inline formula placeholders.
+     * strikethrough), and invokes [onFormulaFound] for inline formula placeholders. A bracket that
+     * names an emoji this app carries is replaced the same way -- one placeholder, two annotations
+     * -- so the words around it keep the offsets the marks were measured against.
      *
      * Three kinds of range are annotated rather than styled, because what they look like is not
      * known here. A `seg_like` range's underline is solid or dashed with live like state; a link, a
@@ -77,6 +91,7 @@ object AnnotatedStringBuilder {
 
         val insertions = buildList {
             formulaMarks.forEach { add(Insertion.Replace(it.start, it.end, it)) }
+            EmojiParser.knownEmoji(rawText).forEach { add(Insertion.Emoji(it)) }
             segmentLikes.filter { it.commentCount > 0 }
                 .forEach { add(Insertion.Point(it.passageEnd, it)) }
         }.sortedBy { it.start }
@@ -109,6 +124,26 @@ object AnnotatedStringBuilder {
                             appendInlineContent(meta.inlineId, FORMULA_PLACEHOLDER)
                             addStringAnnotation("INLINE_ID", meta.inlineId, insertionStart, length)
                         }
+
+                        while (currentRawIndex < end) {
+                            rawToBuiltMap[currentRawIndex] = insertionStart
+                            currentRawIndex++
+                        }
+                    }
+
+                    is Insertion.Emoji -> {
+                        val end = insertion.match.end.coerceIn(start, rawText.length)
+                        val insertionStart = length
+                        val inlineId = emojiInlineId(insertionStart)
+
+                        appendInlineContent(inlineId, insertion.match.tag)
+                        addStringAnnotation(EMOJI_ID_TAG, inlineId, insertionStart, length)
+                        addStringAnnotation(
+                            EMOJI_PATH_TAG,
+                            EmojiMap.getFullUrl(insertion.match.fileName),
+                            insertionStart,
+                            length,
+                        )
 
                         while (currentRawIndex < end) {
                             rawToBuiltMap[currentRawIndex] = insertionStart
@@ -174,6 +209,11 @@ object AnnotatedStringBuilder {
 
         /** Replaces `[start, end)` of the raw text with one inline-content placeholder. */
         data class Replace(override val start: Int, val end: Int, val mark: Mark) : Insertion
+
+        /** Replaces an emoji's bracket with the asset that draws it. */
+        data class Emoji(val match: EmojiMatch) : Insertion {
+            override val start: Int get() = match.start
+        }
 
         /** Inserts one inline-content placeholder between two raw characters. */
         data class Point(override val start: Int, val target: SegmentLikeTarget) : Insertion

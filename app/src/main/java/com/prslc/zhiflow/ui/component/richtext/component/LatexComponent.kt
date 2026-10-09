@@ -243,6 +243,7 @@ fun FormulaTextSection(
         tint = underlineColor,
         onClick = onSegmentLikeClick,
     )
+    val emojiContentMap = element.content.rememberEmojiContent()
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -292,7 +293,7 @@ fun FormulaTextSection(
                     }
                 }
             },
-        inlineContent = inlineContentMap + bubbleContentMap,
+        inlineContent = inlineContentMap + bubbleContentMap + emojiContentMap,
         onTextLayout = { layoutResult.value = it },
         style = MaterialTheme.typography.bodyLarge
             .copy(letterSpacing = 0.25.sp)

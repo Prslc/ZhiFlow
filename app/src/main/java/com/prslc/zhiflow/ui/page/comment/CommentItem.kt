@@ -5,12 +5,10 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbUp
@@ -30,8 +28,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +37,7 @@ import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
+import com.prslc.zhiflow.ui.component.richtext.component.rememberEmojiContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -67,35 +64,7 @@ fun CommentItem(
     val lightbox = koinInject<ImageLightboxController>()
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val inlineContent = remember(comment.parsedContent.text) {
-        val map = mutableMapOf<String, InlineTextContent>()
-        val text = comment.parsedContent.text
-
-        text.getStringAnnotations("EMOJI_PATH", 0, text.length).forEach { pathAnno ->
-            val idAnno =
-                text.getStringAnnotations("EMOJI_ID", pathAnno.start, pathAnno.end).firstOrNull()
-
-            if (idAnno != null) {
-                val inlineId = idAnno.item
-                map[inlineId] = InlineTextContent(
-                    placeholder = Placeholder(
-                        width = TextStyles.emojiSize,
-                        height = TextStyles.emojiSize,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                    ),
-                    children = {
-                        AsyncImage(
-                            model = pathAnno.item,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit,
-                        )
-                    }
-                )
-            }
-        }
-        map
-    }
+    val inlineContent = comment.parsedContent.text.rememberEmojiContent()
 
     Row(
         modifier = modifier
