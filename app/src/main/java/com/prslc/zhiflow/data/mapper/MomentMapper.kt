@@ -106,7 +106,7 @@ internal fun MomentsFeedItem.toDto(): MomentDto {
         ?: bem?.router
 
     val voteCount = target?.voteupCount
-        ?: (bem?.reactionMap?.like?.count ?: 0) + (bem?.reactionMap?.voteUp?.count ?: 0)
+        ?: ((bem?.reactionMap?.like?.count ?: 0) + (bem?.reactionMap?.voteUp?.count ?: 0))
 
     val commentCount = target?.commentCount
         ?: bem?.reactionMap?.comment?.count
@@ -131,7 +131,7 @@ internal fun MomentsFeedItem.toDto(): MomentDto {
         ?: ""
 
     val actionTime = source?.actionTime
-        ?: (bem?.momentsBizData?.actionTimeMs ?: 0L) / 1000
+        ?: ((bem?.momentsBizData?.actionTimeMs ?: 0L) / 1000)
 
     val collectCount = bem?.reactionMap?.collect?.count ?: 0
 
