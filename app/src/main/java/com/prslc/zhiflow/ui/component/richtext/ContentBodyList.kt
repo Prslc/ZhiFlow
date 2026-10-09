@@ -229,11 +229,8 @@ fun ContentBodyList(
                 },
                 contentType = { _, element -> element::class.simpleName }
             ) { _, element ->
-                // List items are consecutive lines, not paragraphs: paragraph spacing leaves every
-                // bullet floating on its own. The row carries its own 2dp.
-                val vertical = if (element is RichTextElement.BulletItem) 0.dp else 16.dp
                 Box(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = vertical)
+                    modifier = Modifier.padding(bodyElementPadding(element))
                 ) {
                     RichTextSingleElement(
                         element = element,
@@ -278,6 +275,19 @@ fun ContentBodyList(
         }
     }
 }
+
+/**
+ * The room the body gives one element, shared with everything else that draws the body's elements.
+ *
+ * List items are consecutive lines rather than paragraphs: the paragraph spacing leaves every
+ * bullet floating on its own, and the row already carries its own 2dp. The render lab lays the same
+ * column out and had drawn the horizontal half of this rule only — so the rule lives here rather
+ * than being repeated beside each caller.
+ */
+fun bodyElementPadding(element: RichTextElement): PaddingValues = PaddingValues(
+    horizontal = 20.dp,
+    vertical = if (element is RichTextElement.BulletItem) 0.dp else 16.dp,
+)
 
 /**
  * Top padding resolved while measuring, where [Modifier.padding] would have resolved it while

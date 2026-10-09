@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.ContentParser
 import com.prslc.zhiflow.ui.component.richtext.RichTextSingleElement
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
 import kotlin.math.roundToInt
 
 /**
@@ -203,7 +204,7 @@ private fun LabCaseBlock(case: LabCase) {
             RichTextSingleElement(
                 element = element,
                 onImageClick = {},
-                modifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(bodyElementPadding(element)),
             )
         }
     }
