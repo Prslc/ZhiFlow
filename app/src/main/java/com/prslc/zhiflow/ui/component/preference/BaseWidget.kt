@@ -85,10 +85,12 @@ val LocalSegmentedItemStyle = staticCompositionLocalOf { SegmentedItemStyle() }
  * If [onClick] is not null, this also controls clickability.
  * @param isError If true, applies the error color to the description text.
  * @param selected If true, highlights the widget with a primary container background.
- * @param onClick Callback to be invoked when the widget is clicked. If null, the widget is not clickable.
+ * @param onClick Callback to be invoked when the widget is clicked. If null, the widget is not
+ *   clickable.
  * @param clickHaptic The type of haptic feedback to perform on click. Set to null to disable.
  * @param foreContent A composable slot for content displayed alongside/over the headline.
- * @param trailingContent A composable slot for trailing content, e.g. switches, checkboxes, or arrows.
+ * @param trailingContent A composable slot for trailing content, e.g. switches, checkboxes, or
+ *   arrows.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

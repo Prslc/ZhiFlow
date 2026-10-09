@@ -58,15 +58,19 @@ annotation class SegmentedColumnDsl
 /**
  * Represents the configuration and content of an individual item within a [SegmentedColumn].
  *
- * @property key A unique identifier for the item, utilized for optimized composition and state tracking.
+ * @property key A unique identifier for the item, utilized for optimized composition and state
+ *   tracking.
  * @property visible Determines the target visibility state of the item within the layout phase.
  * Transitions of this state dictate the progress of enter and exit animations. If an item is not
  * intended to be displayed at any point during its lifecycle, it should not be instantiated
  * as a [SegmentedItemData] to prevent unnecessary layout measurement overhead.
  * @property customTopPadding Optional custom padding applied to the top of this specific item.
- * @property forceFlatTop If `true`, overrides the default corner rounding and forces the top corner radius to 0.dp.
- * @property forceFlatBottom If `true`, overrides the default corner rounding and forces the bottom corner radius to 0.dp.
- * @property content The composable payload of the item, which receives the dynamically calculated [Shape].
+ * @property forceFlatTop If `true`, overrides the default corner rounding and forces the top
+ *   corner radius to 0.dp.
+ * @property forceFlatBottom If `true`, overrides the default corner rounding and forces the
+ *   bottom corner radius to 0.dp.
+ * @property content The composable payload of the item, which receives the dynamically
+ *   calculated [Shape].
  */
 @Immutable
 data class SegmentedItemData(
@@ -92,7 +96,8 @@ class SegmentedColumnScope {
      * @param animatedVisibility The visibility state of the item. Use this parameter for dynamic
      * state changes that require enter/exit animations. If the item should remain hidden for its
      * entire lifecycle, do not use this parameter; instead, omit calling [item] entirely
-     * (e.g., wrap the [item] call in a Kotlin `if` statement) to avoid unnecessary composition overhead.
+     * (e.g., wrap the [item] call in a Kotlin `if` statement) to avoid unnecessary composition
+     * overhead.
      * @param topPadding Optional explicit top padding for this item.
      * @param forceFlatTop Disables top corner rounding if `true`.
      * @param forceFlatBottom Disables bottom corner rounding if `true`.
@@ -106,7 +111,12 @@ class SegmentedColumnScope {
         forceFlatBottom: Boolean = false,
         content: @Composable (Shape) -> Unit
     ) {
-        items.add(SegmentedItemData(key ?: items.size, animatedVisibility, topPadding, forceFlatTop, forceFlatBottom, content))
+        items.add(
+            SegmentedItemData(
+                key ?: items.size, animatedVisibility, topPadding,
+                forceFlatTop, forceFlatBottom, content
+            )
+        )
     }
 
     /**
@@ -121,7 +131,8 @@ class SegmentedColumnScope {
      * If the unit is permanently hidden, wrap the [expandableItem] call in a Kotlin `if` statement.
      * @param expanded Whether the body content is currently expanded (visible) or collapsed.
      * @param topPadding Optional explicit top padding applied to the header item.
-     * @param bottomPadding Spacing applied above the body content, effectively acting as bottom padding for the expanded visual block.
+     * @param bottomPadding Spacing applied above the body content, effectively acting as bottom
+     *   padding for the expanded visual block.
      * @param topContent The composable representing the persistently visible header.
      * @param bottomContent The composable representing the expansible body content.
      */
@@ -154,7 +165,8 @@ class SegmentedColumnScope {
 }
 
 /**
- * A highly customized vertical layout group that visually splices multiple composable items together.
+ * A highly customized vertical layout group that visually splices multiple composable items
+ * together.
  *
  * This layout dynamically calculates and animates the corner radii of its children to maintain
  * a unified rounded appearance for the outermost edges of the group, while adjusting interior
@@ -180,7 +192,10 @@ fun SegmentedColumn(
     connectionRadius: Dp = ConnectionRadius,
     itemGap: Dp = ListItemDefaults.SegmentedGap,
     itemContainerColor: Color? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = PADDING_HORIZONTAL.dp, vertical = PADDING_VERTICAL.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = PADDING_HORIZONTAL.dp,
+        vertical = PADDING_VERTICAL.dp
+    ),
     content: SegmentedColumnScope.() -> Unit
 ) {
     val scope = SegmentedColumnScope().apply(content)
@@ -194,7 +209,11 @@ fun SegmentedColumn(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = PADDING_HORIZONTAL.dp, top = PADDING_VERTICAL.dp, bottom = 16.dp)
+                modifier = Modifier.padding(
+                    start = PADDING_HORIZONTAL.dp,
+                    top = PADDING_VERTICAL.dp,
+                    bottom = 16.dp
+                )
             )
         }
 
@@ -224,19 +243,26 @@ fun SegmentedColumn(
             content = {
                 allItems.forEachIndexed { index, itemData ->
                     key(itemData.key ?: index) {
-                        val isFirst = index == firstVisibleIndex || (index == 0 && !itemData.visible)
-                        val isLast = index == lastVisibleIndex || (index == allItems.lastIndex && !itemData.visible)
+                        val isFirst = index == firstVisibleIndex ||
+                            (index == 0 && !itemData.visible)
+                        val isLast = index == lastVisibleIndex ||
+                            (index == allItems.lastIndex && !itemData.visible)
 
-                        // 1. Establish the foundational corner radius based on the item's positional boundary.
+                        // 1. Establish the foundational corner radius based on the item's
+                        // positional boundary.
                         val baseTopRadius = if (isFirst) cornerRadius else connectionRadius
                         val baseBottomRadius = if (isLast) cornerRadius else connectionRadius
 
-                        // 2. Incorporate structural overrides. Flatten boundaries where 'forceFlat' flags dictate.
+                        // 2. Incorporate structural overrides. Flatten boundaries where 'forceFlat'
+                        // flags dictate.
                         val targetTopRadius = if (itemData.forceFlatTop) 0.dp else baseTopRadius
-                        val targetBottomRadius = if (itemData.forceFlatBottom) 0.dp else baseBottomRadius
+                        val targetBottomRadius =
+                            if (itemData.forceFlatBottom) 0.dp else baseBottomRadius
 
-                        // Dynamic corner animation is only supported on Android 13 (Tiramisu) and above.
-                        val isDynamicDpSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                        // Dynamic corner animation is only supported on Android 13 (Tiramisu) and
+                        // above.
+                        val isDynamicDpSupported =
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
                         // 3. Drive the corner transition animations. Provides a fluid shift between
                         // rounded and flat states during expand/collapse interactions.
@@ -247,7 +273,9 @@ fun SegmentedColumn(
                         }).coerceAtLeast(0.dp)
 
                         val currentBottomRadius = (if (isDynamicDpSupported) {
-                            animateDpAsState(targetBottomRadius, dpSpring, label = "BottomRadius").value
+                            animateDpAsState(
+                                targetBottomRadius, dpSpring, label = "BottomRadius"
+                            ).value
                         } else {
                             targetBottomRadius
                         }).coerceAtLeast(0.dp)
@@ -259,7 +287,8 @@ fun SegmentedColumn(
                             bottomEnd = currentBottomRadius
                         )
 
-                        val targetTopPadding = itemData.customTopPadding ?: (if (isFirst) 0.dp else itemGap)
+                        val targetTopPadding =
+                            itemData.customTopPadding ?: (if (isFirst) 0.dp else itemGap)
                         val currentTopPadding = (if (isDynamicDpSupported) {
                             animateDpAsState(targetTopPadding, dpSpring, label = "TopPadding").value
                         } else {
@@ -277,22 +306,33 @@ fun SegmentedColumn(
 
                         Box(
                             modifier = Modifier
-                                .zIndex(if (itemData.visible) (allItems.size - index).toFloat() else -index.toFloat())
+                                .zIndex(
+                                    if (itemData.visible) (allItems.size - index).toFloat()
+                                    else -index.toFloat()
+                                )
                                 .onFocusChanged { hasFocus = it.hasFocus }
                                 .semantics {
-                                    // Remove from accessibility and focus traversal completely when hidden
+                                    // Remove from accessibility and focus traversal completely when
+                                    // hidden
                                     if (!itemData.visible) hideFromAccessibility()
                                 }
                                 .graphicsLayer {
                                     // Defer state reading into the drawing phase.
-                                    // This prevents the animation progression from causing frame-by-frame recompositions.
+                                    // This prevents the animation progression from causing
+                                    // frame-by-frame recompositions.
                                     val currentProgress = progresses[index].value
                                     val safeProgress = currentProgress.coerceAtLeast(0f)
 
                                     clip = true
                                     this.shape = object : Shape {
-                                        override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density) =
-                                            Outline.Rectangle(Rect(0f, 0f, size.width, size.height * safeProgress))
+                                        override fun createOutline(
+                                            size: Size,
+                                            layoutDirection: LayoutDirection,
+                                            density: Density
+                                        ) =
+                                            Outline.Rectangle(
+                                                Rect(0f, 0f, size.width, size.height * safeProgress)
+                                            )
                                     }
                                     alpha = (currentProgress * 1.5f).coerceIn(0f, 1f)
                                 }

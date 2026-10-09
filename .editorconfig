@@ -5,22 +5,13 @@ root = true
 
 [*.{kt,kts}]
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
-# The code wraps at 100: of 14564 lines, 87 run longer, and those are the ones that cannot be
-# broken (a one-line data class, a long `when` condition). Comments follow the same margin.
+# The margin is 100. A word is never broken to fit it: a word that does not fit moves down whole,
+# and one with nowhere to go is left where it is, taking its line past the margin. That is what the
+# over-long lines here are -- a one-line data class, a long `when` condition, a url.
+# Nothing in the build reports a line length, so this is a rule for whoever edits the file, and for
+# whatever reformats it.
 max_line_length = 100
 # Nowhere in the repo are two blank lines kept in a row.
 ij_kotlin_keep_blank_lines_in_code = 1
 ij_kotlin_keep_blank_lines_in_declarations = 1
 ij_kotlin_keep_blank_lines_before_right_brace = 1
-
-# Vendored from InstallerX Revived and kept as it came, down to the 135-column comment, so the
-# margin above does not apply to them. That is the only rule of ours they disagree with: their
-# import order and their blank lines already match. Add a section when another file is vendored in.
-[app/src/main/java/com/prslc/zhiflow/ui/component/preference/SegmentedColumn.kt]
-max_line_length = off
-
-[app/src/main/java/com/prslc/zhiflow/ui/component/preference/BaseWidget.kt]
-max_line_length = off
-
-[app/src/main/java/com/prslc/zhiflow/ui/component/preference/NavigationItemWidget.kt]
-max_line_length = off
