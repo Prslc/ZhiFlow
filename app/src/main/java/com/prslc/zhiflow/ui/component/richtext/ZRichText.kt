@@ -30,16 +30,21 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
  * The Zhihu API provides each formula's rendered image URL plus its display size in dp.
  * Placeholder bounds use those exact dp dimensions, so the layout is tight with no extra
  * vertical whitespace.
+ *
+ * @param maxWidthDp The width the formulas are clamped to, or any value at or below 0 to measure
+ *   the screen instead.
  */
 @Composable
-fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextContent> {
+fun List<InlineFormulaMeta>.rememberInlineContent(
+    maxWidthDp: Float = -1f
+): Map<String, InlineTextContent> {
     val density = LocalDensity.current
-    val maxWidthDp = rememberFormulaMaxWidth()
-    return remember(this, density, maxWidthDp) {
+    val effectiveMaxWidth = if (maxWidthDp > 0f) maxWidthDp else rememberFormulaMaxWidth()
+    return remember(this, density, effectiveMaxWidth) {
         this@rememberInlineContent.associate { meta ->
             val formula = meta.formula
             val (widthDp, heightDp) = constrainedSize(
-                formula.width.toFloat(), formula.height.toFloat(), maxWidthDp
+                formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth
             )
 
             meta.inlineId to InlineTextContent(formulaPlaceholder(density, widthDp, heightDp)) {
@@ -47,7 +52,7 @@ fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextConte
                     formula = formula,
                     isInline = true,
                     modifier = Modifier.fillMaxSize(),
-                    maxWidthDp = maxWidthDp,
+                    maxWidthDp = effectiveMaxWidth,
                 )
             }
         }
@@ -67,6 +72,9 @@ fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextConte
  * @param modifier Applied to the `Text`.
  * @param inlineMetas The paragraph's inline formulas. Each is drawn as an image over the
  *   placeholder the builder left in the text for it.
+ * @param maxFormulaWidthDp The width the formulas are clamped to, or any value at or below 0 to
+ *   measure the screen instead. A host narrower than the page -- a table cell -- passes its own
+ *   width.
  * @param maxLines The most lines to draw before [overflow] applies.
  * @param overflow What to do with text that does not fit.
  */
@@ -76,13 +84,14 @@ fun ZRichText(
     style: TextStyle,
     modifier: Modifier = Modifier,
     inlineMetas: List<InlineFormulaMeta> = emptyList(),
+    maxFormulaWidthDp: Float = -1f,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
 ) {
     val navigator = LocalNavigator.current
     val isDark = isSystemInDarkTheme()
 
-    val inlineContent = inlineMetas.rememberInlineContent()
+    val inlineContent = inlineMetas.rememberInlineContent(maxFormulaWidthDp)
 
     val interceptedContent = remember(content, navigator, isDark) {
         buildAnnotatedString {
@@ -123,7 +132,7 @@ fun ZRichText(
 
     Text(
         text = interceptedContent,
-        style = style.withFormulaLineHeight(inlineMetas),
+        style = style.withFormulaLineHeight(inlineMetas, maxFormulaWidthDp),
         inlineContent = inlineContent + interceptedContent.rememberSegmentLikeIcons(
             tint = MaterialTheme.colorScheme.outline,
         ),

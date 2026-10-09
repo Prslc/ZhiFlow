@@ -114,16 +114,22 @@ private const val FORMULA_CLEARANCE_DP = 8f
  * @param inlineMetas The paragraph's inline formulas. An empty list has nothing to fit and returns
  *   the style unchanged; so does a style that states no line height, where there is no height to
  *   hold the formula down to and the row grows around it on its own.
+ * @param maxWidthDp The width the formulas are clamped to, or any value at or below 0 to measure
+ *   the screen instead. A host narrower than the page -- a table cell -- passes its own width, so
+ *   that the height raised for is the height the formula will be drawn at.
  */
 @Composable
 @ReadOnlyComposable
 internal fun TextStyle.withFormulaLineHeight(
-    inlineMetas: List<InlineFormulaMeta>
+    inlineMetas: List<InlineFormulaMeta>,
+    maxWidthDp: Float = -1f,
 ): TextStyle {
     if (inlineMetas.isEmpty() || lineHeight.isUnspecified) return this
-    val maxWidthDp = rememberFormulaMaxWidth()
+    val effectiveMaxWidth = if (maxWidthDp > 0f) maxWidthDp else rememberFormulaMaxWidth()
     val tallestDp = inlineMetas.maxOf {
-        constrainedSize(it.formula.width.toFloat(), it.formula.height.toFloat(), maxWidthDp).second
+        constrainedSize(
+            it.formula.width.toFloat(), it.formula.height.toFloat(), effectiveMaxWidth
+        ).second
     }
     val needed = with(LocalDensity.current) { (tallestDp + FORMULA_CLEARANCE_DP).dp.toSp() }
     return if (needed.value > lineHeight.value) copy(lineHeight = needed) else this

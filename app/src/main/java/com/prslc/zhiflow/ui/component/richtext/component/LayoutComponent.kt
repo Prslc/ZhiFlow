@@ -114,8 +114,10 @@ fun BlockquoteComponent(
 /**
  * A table of a body.
  *
- * Its cells are sized by their content and not to the screen, so a table wider than the page
- * scrolls sideways. Selection is off inside it for that reason: a drag would fight the scroll.
+ * Its cells are a fixed width rather than the page's, so a table wider than the screen scrolls
+ * sideways. A formula inside a cell is clamped to that cell for the same reason: against the page's
+ * width it would be drawn across the cells beside it. Selection is off inside the table, where a
+ * drag would fight the sideways scroll.
  *
  * @param element The table segment.
  * @param modifier Applied to the box that centres the table, ahead of the `fillMaxWidth` it adds.
@@ -126,6 +128,9 @@ fun TableComponent(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val cellWidth = 120.dp
+    val cellPadding = 8.dp
+    val cellContentWidthDp = (cellWidth - cellPadding * 2).value
 
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -158,15 +163,16 @@ fun TableComponent(
 
                                     Box(
                                         modifier = Modifier
-                                            .width(120.dp)
+                                            .width(cellWidth)
                                             .fillMaxHeight()
-                                            .padding(8.dp),
+                                            .padding(cellPadding),
                                         contentAlignment = Alignment.CenterStart
                                     ) {
                                         cell?.let { nonNullCell ->
                                             ZRichText(
                                                 content = nonNullCell.content,
                                                 inlineMetas = nonNullCell.inlineMetas,
+                                                maxFormulaWidthDp = cellContentWidthDp,
                                                 style = MaterialTheme.typography.bodySmall.copy(
                                                     fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
                                                 )
