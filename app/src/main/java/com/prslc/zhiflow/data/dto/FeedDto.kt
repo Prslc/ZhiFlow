@@ -8,10 +8,17 @@ data class FeedDto(
     val id: String,
     val type: String,
     val title: String,
+    val reason: FeedReason?,
     val authorName: String,
     val authorAvatar: String?,
     val excerpt: String,
     val images: List<ImageData>,
     val voteCount: Int,
     val commentCount: Int,
+)
+
+@Immutable
+data class FeedReason(
+    val text: String,
+    val iconUrl: String?,
 )

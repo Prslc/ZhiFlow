@@ -7,17 +7,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.dto.FeedDto
+import com.prslc.zhiflow.data.dto.FeedReason
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
@@ -50,6 +56,12 @@ fun FeedItem(
             )
             .padding(20.dp)
     ) {
+        display.reason?.let { reason ->
+            ReasonLine(reason)
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         if (hasTitle) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ContentTypeLabel(
@@ -99,6 +111,30 @@ fun FeedItem(
         ContentMeta(
             voteCount = display.voteCount,
             commentCount = display.commentCount,
+        )
+    }
+}
+
+@Composable
+private fun ReasonLine(reason: FeedReason) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        AsyncImage(
+            model = reason.iconUrl,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            contentScale = ContentScale.Fit,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.outline),
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            text = reason.text,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.outline,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
     }
 }

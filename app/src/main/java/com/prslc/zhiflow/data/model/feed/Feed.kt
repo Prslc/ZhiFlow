@@ -66,6 +66,7 @@ data class CardChild(
     val elements: List<CardElement> = emptyList(),
     val images: List<CardImage> = emptyList(),
     val image: CardImage? = null,
+    val icon: CardImage? = null,
 )
 
 @Immutable
