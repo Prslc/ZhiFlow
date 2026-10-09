@@ -222,6 +222,7 @@ every public function documented, `data/remote` near 20%, `core` near 25%, `ui/`
 | ViewModel public methods | KDoc: behaviour, side effects, boundaries — "Sets `[FeedUiState.globalError]` on failure", "No-op when `[nextPageUrl]` is null". |
 | Other public API (`core/`, `ui/navigation/`) | KDoc where the contract is not readable off the signature. |
 | UI composables | Nothing by default. A mechanism note goes on the KDoc of the host composable, where it explains the widget as a whole. |
+| A composable in `ui/component/` | Carries a KDoc, because another screen calls it. The summary says what the widget is; every parameter gets its own line. |
 | `data/model`, `data/dto`, `data/mapper` | Nothing. The types and the server's own field names say it. |
 
 **The test.** Delete the note and ask whether the next reader will simplify the code and quietly break
@@ -244,6 +245,9 @@ like the fact and its consequence:
   the reason is a contract: it goes in the KDoc of the host, or on the line it actually explains.
 - Backticks and `[Name]` links belong to KDoc. A line comment is plain prose, and refers to an
   identifier by writing it out.
+- A KDoc lists **every** parameter, not only the ones with something to say. The list is part of
+  what the caller reads, and a gap in it leaves them unable to tell a plain parameter from one that
+  was forgotten. What each line must not be is empty.
 - Section markers over long declarative lists are their own kind and take a bare noun — `// Feed`,
   `// Comment` in `AppModule`.
 - An affordance that is drawn but does nothing yet is marked where it is inert —
