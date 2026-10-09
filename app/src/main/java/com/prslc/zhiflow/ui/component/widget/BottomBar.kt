@@ -42,6 +42,25 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.formatCount
 
+/**
+ * The action bar a content page pins to the bottom: vote, favourite, comment.
+ *
+ * The two vote directions arrive as separate flags rather than as one value, so a caller seeding
+ * the bar from the API passes both as the API gave them.
+ *
+ * @param isUpvoted Whether the reader's upvote is on. The button's colours animate with it.
+ * @param isDownvoted Whether the reader's downvote is on; it tints the icon in the error colour.
+ * @param isFavorite Whether the content is in the reader's collection.
+ * @param upvoteCount The votes to show, or null to draw the button with no count at all.
+ *   Abbreviated past 10000, like the profile's stat row.
+ * @param favCount The collections to show, or null to leave the label empty.
+ * @param commentCount The comments to show, or null to leave the label empty.
+ * @param onVoteClick Called with `"up"` or `"down"`, with the haptic already played. The bar holds
+ *   no vote state, so what a second tap on the same direction means is the caller's.
+ * @param onStarClick Called when the favourite button is pressed.
+ * @param modifier Applied to the bar's `Surface`, ahead of the `fillMaxWidth` it adds itself.
+ * @param onCommentClick Called when the comment button is pressed.
+ */
 @Composable
 fun BottomBar(
     isUpvoted: Boolean,

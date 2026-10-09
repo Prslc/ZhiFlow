@@ -17,6 +17,19 @@ import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
 import com.prslc.zhiflow.ui.component.richtext.component.ReferenceSection
 import com.prslc.zhiflow.ui.component.richtext.component.TableComponent
 
+/**
+ * Draws one parsed element of a body.
+ *
+ * This is the pipeline's dispatcher: a screen walks its element list and hands each one here, and
+ * nothing above this point has to know which kind it is.
+ *
+ * @param element The element to draw.
+ * @param onImageClick Called with the image that was tapped, for the kinds that carry one.
+ * @param modifier Applied to whichever composable the element turns out to need.
+ * @param segmentLikes The live like state of the paragraph's `seg_like` ranges, keyed by the
+ *   range's own key. Empty for every element that has none.
+ * @param onSegmentLikeClick Called with a range's key when the reader opens its panel.
+ */
 @Composable
 fun RichTextSingleElement(
     element: RichTextElement,

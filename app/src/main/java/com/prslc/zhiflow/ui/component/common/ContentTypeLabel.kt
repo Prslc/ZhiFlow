@@ -13,6 +13,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 
+/**
+ * The badge a card wears to say what it is.
+ *
+ * @param text The label to draw; callers take it from [contentTypeConfig].
+ * @param modifier Applied to the `Surface` the badge is drawn on, so a caller's padding lands
+ *   outside the badge's own.
+ * @param containerColor The badge's background; [contentTypeConfig] supplies the pair it
+ *   belongs to.
+ * @param contentColor What the label is drawn in. The surface carries it, so the text inherits it.
+ */
 @Composable
 fun ContentTypeLabel(
     text: String,
@@ -41,6 +51,15 @@ data class ContentTypeConfig(
     val contentColor: Color,
 )
 
+/**
+ * The label and colours a content type is drawn with.
+ *
+ * The article and pin badges take their hue from the primary one rather than naming a colour of
+ * their own, so they follow the scheme the reader is on.
+ *
+ * @param type The API's content-type string: `answer`, `article` or `pin`. Anything else, including
+ *   null, gets the unknown badge.
+ */
 @Composable
 fun contentTypeConfig(type: String?): ContentTypeConfig = when (type) {
     "answer" -> ContentTypeConfig(

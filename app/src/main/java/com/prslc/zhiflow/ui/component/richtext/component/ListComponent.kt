@@ -29,9 +29,13 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 
 /**
- * One list item. Its bullet is drawn rather than written as a "•": a glyph's size comes from the font
- * and it cannot be centred on the line, which is where a bullet reads as belonging to the text. Hence
- * a fixed-size mark inside a box the height of the first line.
+ * One list item. Its bullet is drawn rather than written as a "•": a glyph's size comes from the
+ * font and it cannot be centred on the line, which is where a bullet reads as belonging to the
+ * text. Hence a fixed-size mark inside a box the height of the first line.
+ *
+ * @param element The item segment. Its level sets the indent, at 12dp for each level past the
+ *   first; the bullet itself is drawn in a 24dp column that the text is laid out beside.
+ * @param modifier Applied to the row ahead of the `fillMaxWidth` it adds itself.
  */
 @Composable
 fun BulletItemRow(
@@ -82,6 +86,14 @@ fun BulletItemRow(
     }
 }
 
+/**
+ * The footnote list a body ends with: the entries the `reference` marks point at.
+ *
+ * The heading is this component's own, so the items arrive without their numbers.
+ *
+ * @param items The reference entries, drawn in the order the marks gave them.
+ * @param modifier Applied to the column ahead of its 8dp of vertical padding.
+ */
 @Composable
 fun ReferenceSection(
     items: List<RichTextElement.ParsedText>,

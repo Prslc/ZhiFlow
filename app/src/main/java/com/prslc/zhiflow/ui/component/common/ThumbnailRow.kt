@@ -39,8 +39,14 @@ private fun ImageData.toZhihuImage(): ZhihuImage = ZhihuImage(
 )
 
 /**
- * A row of tappable thumbnails. The lightbox is opened with a list kept 1:1 with [images]: the click
- * handler indexes into it and the controller matches by identity.
+ * A row of tappable thumbnails. The lightbox is opened with a list kept 1:1 with [images]: the
+ * click handler indexes into it and the controller matches by identity.
+ *
+ * @param images The thumbnails to draw, in order. An empty list draws nothing at all.
+ * @param modifier Applied to the scrolling `Row`, so the horizontal scroll belongs to it; a caller
+ *   does not wrap it for that.
+ * @param imageHeight The height each thumbnail is drawn at; the width follows the image's own
+ *   ratio, capped at 150dp.
  */
 @Composable
 fun ThumbnailRow(

@@ -56,6 +56,15 @@ fun List<InlineFormulaMeta>.rememberInlineContent(): Map<String, InlineTextConte
  *
  * - Extends [Text] with interceptors for `URL` and `INLINE_FORMULA_DATA` spatial gestures.
  * - Inline formulas are rendered via [LatexComponent] using the API-provided image.
+ *
+ * @param content The text to draw: its marks already applied, and the annotations that carry its
+ *   links, formulas and `seg_like` ranges still on it.
+ * @param style The text style to draw it in.
+ * @param modifier Applied to the `Text`.
+ * @param inlineMetas The paragraph's inline formulas. Each is drawn as an image over the
+ *   placeholder the builder left in the text for it.
+ * @param maxLines The most lines to draw before [overflow] applies.
+ * @param overflow What to do with text that does not fit.
  */
 @Composable
 fun ZRichText(

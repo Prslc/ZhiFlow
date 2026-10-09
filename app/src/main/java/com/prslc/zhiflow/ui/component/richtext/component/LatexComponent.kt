@@ -47,8 +47,10 @@ import kotlinx.serialization.json.Json
  * converted via density and then divided by fontScale so the final rendered pixels stay
  * constant regardless of the user's system font size.
  *
- * @param widthDp server-reported width in dp
- * @param heightDp server-reported height in dp
+ * @param density The density the server's dp is converted through, on the way to the sp a
+ *   [Placeholder] takes.
+ * @param widthDp The server-reported width, in dp.
+ * @param heightDp The server-reported height, in dp.
  */
 fun formulaPlaceholder(density: Density, widthDp: Float, heightDp: Float): Placeholder {
     val widthSp = with(density) { widthDp.dp.toPx().toSp() }
@@ -86,6 +88,20 @@ internal fun constrainedSize(
     return maxWidthDp to (heightDp * scale)
 }
 
+/**
+ * A formula, drawn from the image the API pre-rendered for it.
+ *
+ * The API never omits that image or its dp size, so nothing here measures a formula or lays one
+ * out: the bitmap is loaded and drawn at the size it came with, which is what keeps a page of them
+ * off the main thread. Over-wide formulas are scaled down to fit rather than cropped or scrolled.
+ *
+ * @param formula The formula to draw: its image url and the dp size to draw it at.
+ * @param modifier Applied to the image, before the size it draws at is set.
+ * @param isInline True for a formula inside a line of text, false for one on a line of its own. The
+ *   two differ in padding as well as in how they are sized.
+ * @param maxWidthDp The width to clamp an over-wide formula to, or any value at or below 0 to
+ *   measure the screen instead.
+ */
 @Composable
 fun LatexComponent(
     formula: Formula,
@@ -157,9 +173,14 @@ private fun FormulaImage(
  * placeholder, so the line height is raised to cover the tallest formula in it — otherwise a
  * `\displaystyle` fraction overlaps the rows around it.
  *
- * @param segmentLikes live state of the paragraph's `seg_like` ranges, keyed by the range's own key.
- *   Only the liked flag is read here: the underline style follows it, and the count lives in the
- *   panel the range opens.
+ * @param element The paragraph to draw. Its inline formulas are already placeholders in the text.
+ * @param modifier Applied to the `Text`, ahead of the pointer input that handles taps on it.
+ * @param segmentLikes The live state of the paragraph's `seg_like` ranges, keyed by the range's
+ *   own key. Only the liked flag is read here: the underline style follows it, and the count lives
+ *   in the panel the range opens.
+ * @param onSegmentLikeClick Called with a range's key when the bubble or its underlined text is
+ *   tapped.
+ * @param onFormulaClick Called with a formula's image url when the reader taps it.
  */
 @Composable
 fun FormulaTextSection(

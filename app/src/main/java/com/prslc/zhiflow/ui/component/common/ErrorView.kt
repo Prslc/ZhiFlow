@@ -23,6 +23,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 
+/**
+ * The failure state of a surface that has nothing else to draw, with the retry it needs.
+ *
+ * For a page that failed while a list is already up, use [LoadMoreErrorItem] instead: this one
+ * takes the whole screen.
+ *
+ * @param message What went wrong, in the words the reader should read. It is centred and may wrap.
+ * @param onRetry Called when the retry button is pressed; the button is drawn here, so a caller
+ *   supplies only the work.
+ * @param modifier Applied ahead of this column's own 32dp padding, so a caller's padding stacks
+ *   outside it.
+ */
 @Composable
 fun ErrorView(
     message: String,

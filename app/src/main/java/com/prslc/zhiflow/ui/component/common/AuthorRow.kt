@@ -22,6 +22,22 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 
+/**
+ * An avatar and a name, with room after them for whatever the caller's row needs.
+ *
+ * A blank [authorName] is drawn as the anonymous-user string, so a caller may pass an absent name
+ * straight through.
+ *
+ * @param avatarUrl The avatar to load, or null to leave Coil's placeholder.
+ * @param authorName The name to draw; blank becomes the anonymous-user string.
+ * @param modifier Applied to the `Row`, so a caller's padding and arrangement reach the avatar and
+ *   the trailing slot too.
+ * @param avatarSize The avatar's diameter; the name is not sized from it.
+ * @param nameStyle The style the name is drawn with. [fontWeight] overrides the weight it carries.
+ * @param nameColor The colour of the name; the avatar is not tinted.
+ * @param fontWeight The name's weight, or null to take the one in [nameStyle].
+ * @param trailing Content drawn after the name, for a trailing action.
+ */
 @Composable
 fun AuthorRow(
     avatarUrl: String?,

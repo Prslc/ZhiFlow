@@ -14,6 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+/**
+ * What a surface shows while its first page is still on the way.
+ *
+ * @param modifier Applied to the `Column` that centres the spinner and the message, so the caller's
+ *   size is what decides where the pair lands.
+ * @param message A line under the spinner, or null to draw the spinner alone.
+ */
 @Composable
 fun LoadingView(
     modifier: Modifier = Modifier,

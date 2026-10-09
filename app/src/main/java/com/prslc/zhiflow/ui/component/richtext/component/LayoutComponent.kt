@@ -33,6 +33,11 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import com.prslc.zhiflow.ui.theme.TextStyles
 
+/**
+ * The rule a body draws between two of its blocks.
+ *
+ * @param modifier Applied to the divider ahead of the 12dp of vertical padding it adds.
+ */
 @Composable
 fun Divider(modifier: Modifier = Modifier) {
     HorizontalDivider(
@@ -42,6 +47,13 @@ fun Divider(modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * A heading of a body.
+ *
+ * @param element The heading segment. Its level picks the text style, so two headings at the same
+ *   level look the same however deep in the document they sit.
+ * @param modifier Applied to the text ahead of the 8dp of top padding it adds.
+ */
 @Composable
 fun Heading(
     element: RichTextElement.Heading,
@@ -55,6 +67,15 @@ fun Heading(
     )
 }
 
+/**
+ * A quoted passage, with the rule that runs down its left side.
+ *
+ * The rule is drawn to the height of the quote rather than to a size of its own, which is why the
+ * row is measured with an intrinsic height.
+ *
+ * @param element The quoted segment.
+ * @param modifier Applied to the row ahead of its 8dp of vertical padding.
+ */
 @Composable
 fun BlockquoteComponent(
     element: RichTextElement.Blockquote,
@@ -90,6 +111,15 @@ fun BlockquoteComponent(
     }
 }
 
+/**
+ * A table of a body.
+ *
+ * Its cells are sized by their content and not to the screen, so a table wider than the page
+ * scrolls sideways. Selection is off inside it for that reason: a drag would fight the scroll.
+ *
+ * @param element The table segment.
+ * @param modifier Applied to the box that centres the table, ahead of the `fillMaxWidth` it adds.
+ */
 @Composable
 fun TableComponent(
     element: RichTextElement.Table,

@@ -27,12 +27,17 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 
 /**
- * The outline of a content body: its headings, indented by how deep each sits, the one the reader is
- * in marked, and a tap that takes them to one. The screen owns the sheet, this only draws it.
+ * The outline of a content body: its headings, indented by how deep each sits, the one the reader
+ * is in marked, and a tap that takes them to one. The screen owns the sheet, this only draws it.
  *
- * @param currentIndex hands back the entry being read, and is taken as a lambda so that the read
+ * @param visible Whether the sheet is up. The screen owns the flag; this only draws what it says.
+ * @param entries The headings to list, already indented by the outline that produced them.
+ * @param currentIndex Hands back the entry being read, and is taken as a lambda so that the read
  * happens here: as a value it would be read in the screen's scope, and every heading the reader
  * crosses would recompose the whole screen.
+ * @param onEntryClick Called with the entry the reader picked. Scrolling the body is the screen's.
+ * @param onDismissRequest Called when the sheet is sent away, by a back or by a tap outside it.
+ * @param modifier Applied to the sheet itself, so it reaches the surface and the scrim under it.
  */
 @Composable
 fun BodyOutlineSheet(

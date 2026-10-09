@@ -32,7 +32,9 @@ private val ICON_LEADING_DP = 2.dp
  * string rebuilt for interception (`ZRichText`) still carries them, and no element signature has to
  * grow a field for them.
  *
- * @param onClick called with the range's key, or null where the paragraph that owns the range is
+ * @param tint The colour of the bubble. It is the underline's colour too, so the mark reads as one
+ *   thing rather than as a glyph sitting next to a line.
+ * @param onClick Called with the range's key, or null where the paragraph that owns the range is
  *   not the one handling taps (`seg_like` only ever arrives on paragraphs).
  */
 @Composable
@@ -91,6 +93,16 @@ fun AnnotatedString.rememberSegmentLikeIcons(
  *
  * The line follows each line's baseline rather than the glyph boxes: those dip under descenders,
  * which would make the underline wobble.
+ *
+ * @param layout The layout the paragraph was drawn in. The line is measured off it rather than off
+ *   the string, which is what lets it follow the baseline of every line the range covers.
+ * @param start The range's first offset in the built string.
+ * @param end Its end offset, exclusive. Both are clamped to the string, and a range that comes out
+ *   empty draws nothing.
+ * @param color The colour of the line.
+ * @param dashed True for a passage the reader has not liked, false for one they have. The solid
+ *   line is the thicker of the pair.
+ * @param baselineGap How far below each line's baseline the rule is drawn, in pixels.
  */
 fun DrawScope.drawSegmentUnderline(
     layout: TextLayoutResult,

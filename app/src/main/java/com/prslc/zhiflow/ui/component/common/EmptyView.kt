@@ -17,6 +17,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/**
+ * What a surface shows in place of a list it has nothing to put in.
+ *
+ * @param message The line under the icon. It is centred and free to wrap, so a sentence fits.
+ * @param modifier Applied to the `Column`, which is what centres the pair; a surface that wants the
+ *   placeholder centred gives it `fillMaxSize`.
+ * @param icon The icon above the message. Its size and tint are set here, not by the caller.
+ */
 @Composable
 fun EmptyView(
     message: String,

@@ -50,20 +50,26 @@ private const val ENTER_DURATION_MS = 240
 private const val EXIT_DURATION_MS = 160
 
 /**
- * A sheet a screen owns: it draws the scrim, the surface and the exits, and the caller supplies only
- * the content. The back progress it tracks is the predictive-back gesture's own, 0..1.
+ * A sheet a screen owns: it draws the scrim, the surface and the exits, and the caller supplies
+ * only the content. The back progress it tracks is the predictive-back gesture's own, 0..1.
  *
  * A back is taken only while the sheet is up and staying: once one has sent it on its way, later
  * ones belong to the screen behind. Taking them would cancel the retraction in progress and spring
  * the sheet back up, because the platform cancels the previous gesture when a new one starts.
  *
- * @param onDismissRequest called once the sheet is gone, whichever way it went: one of its own exits,
- *   or the owner hiding it.
- * @param animateResize whether a height the content takes on is animated. It keeps a row or two
- *   arriving under the finger from landing as a jolt; a sheet whose content changes only as it loads
- *   wants it off, so the swap arrives in one frame instead of sliding the content into place.
- * @param heightFraction how much of the available height the sheet may take. A sheet that fills
+ * @param visible Whether the sheet is up. Setting it false starts the exit rather than removing the
+ *   sheet, and the caller's content stays composed for the whole of that exit -- so whatever the
+ *   content reads has to outlive this flag.
+ * @param onDismissRequest Called once the sheet is gone, whichever way it went: one of its own
+ *   exits, or the owner hiding it.
+ * @param modifier Applied to the container holding the scrim and the sheet, which also carries the
+ *   `zIndex` that keeps them above the screen's content.
+ * @param animateResize Whether a height the content takes on is animated. It keeps a row or two
+ *   arriving under the finger from landing as a jolt; a sheet whose content changes only as it
+ *   loads wants it off, so the swap arrives in one frame instead of sliding the content into place.
+ * @param heightFraction How much of the available height the sheet may take. A sheet that fills
  *   whatever it is given wants the default; one that should sit at a height of its own passes less.
+ * @param content What the sheet holds.
  */
 @Composable
 fun CustomBottomSheet(

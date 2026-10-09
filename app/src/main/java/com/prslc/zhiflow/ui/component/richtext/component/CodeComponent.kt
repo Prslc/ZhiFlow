@@ -29,6 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 
+/**
+ * A block of code, on a card of its own.
+ *
+ * The block carries its own copy button and scrolls sideways, so selection is off inside it: a drag
+ * would fight the scroll, and there is nothing to select that the button does not already take.
+ *
+ * @param code The code as the parser found it, with the fence already off.
+ * @param lang The language the fence named, or null when it named none. It is drawn upper-cased,
+ *   with `CODE` standing in where there is nothing to name.
+ * @param modifier Applied to the card ahead of the `fillMaxWidth` it adds itself.
+ */
 @Composable
 fun CodeBlock(
     code: String,

@@ -42,6 +42,23 @@ import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+/**
+ * The picker a reader saves content into: it loads the collections they own, lets them tick and
+ * untick, and writes the lot as one request when they confirm.
+ *
+ * The dialog owns that request and its own list, so [onResult] is all a caller has to act on -- and
+ * it only arrives when something actually changed, since the confirm button stays disabled until
+ * then.
+ *
+ * @param id The content being placed.
+ * @param contentType What that content is; the API needs it beside the id.
+ * @param onDismissRequest Called when the reader backs out, cancels, or confirms.
+ * @param onResult Called with whether the content sits in any collection once the change has
+ *   landed, before the dialog is dismissed.
+ * @param modifier Applied to the sheet's `Surface`, ahead of the `fillMaxWidth` and the vertical
+ *   padding it adds itself.
+ * @param viewModel The dialog loads and writes through it; a caller passes one only to test.
+ */
 @Composable
 fun CollectionDialog(
     id: String,
@@ -186,6 +203,17 @@ fun CollectionDialog(
     }
 }
 
+/**
+ * One row of the collection picker.
+ *
+ * @param title The collection's name.
+ * @param itemCount How many contents it holds, drawn under the name.
+ * @param isPublic False draws a lock beside the name.
+ * @param isDefault True draws the chip that marks the reader's default collection.
+ * @param isSelected The checkbox's state; the row holds none of its own.
+ * @param modifier Applied to the row, ahead of the tap target and the padding it adds itself.
+ * @param onToggle Called by a tap on the row or on the checkbox.
+ */
 @Composable
 fun CollectionItem(
     title: String,

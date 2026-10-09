@@ -31,6 +31,16 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
 
+/**
+ * A card a body embeds: a link out to other content.
+ *
+ * It is a teaser and not a copy -- two lines of title, one of description -- and there is no text
+ * to select, so selection is off and the whole surface is the tap target.
+ *
+ * @param element The card segment. Its url is what a tap opens, through the navigator.
+ * @param modifier Applied to the surface, ahead of the `fillMaxWidth` and the 4dp of vertical
+ *   padding it adds itself.
+ */
 @Composable
 fun CardComponent(
     element: RichTextElement.Card,

@@ -17,6 +17,12 @@ import com.prslc.zhiflow.core.utils.formatCount
  *
  * Callers have to give the row a full line of its own. Beside an avatar there are only ~253dp,
  * which three inline pairs overflow once the counts reach six figures.
+ *
+ * @param label The name of the count, drawn after it.
+ * @param count The count, drawn bold before the label. Past 10000 it is abbreviated to one decimal
+ *   and a `w`; the feed's own vote line does not abbreviate.
+ * @param modifier Applied to the `Row`. The pair is laid out inline, so this is the only place to
+ *   give it room.
  */
 @Composable
 fun StatItem(

@@ -71,8 +71,10 @@ data class ProfileStat(val label: String, val count: Int)
  * The cover sits behind the status bar, so [StatusBarScrim] darkens that strip; anything a caller
  * puts on the cover itself has to carry contrast of its own -- see [iconScrim].
  *
+ * @param user The profile being shown: its cover, avatar, name and headline are all read off it.
  * @param stats Counts for the row under the headline. Keep it short: the row is a single line and
  * three pairs already need ~330dp of the 353dp available.
+ * @param modifier Applied to the header's `Box`, so the caller sizes the whole cover block.
  * @param coverContentDescription Null when the cover is decorative rather than a thing to open.
  * @param topEndAction A control for the cover's top-right corner. The slot is positioned and given
  * an [iconScrim] disc and white content colour; the caller supplies only the icon button.

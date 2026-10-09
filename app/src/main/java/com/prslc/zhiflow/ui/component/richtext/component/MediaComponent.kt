@@ -26,6 +26,15 @@ import coil3.request.crossfade
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.ui.theme.TextStyles
 
+/**
+ * An image in a body, with its caption under it.
+ *
+ * @param image The image to draw, or null to draw nothing. One the API gave no display url for
+ *   draws nothing either.
+ * @param onImageClick Called with the image that was tapped.
+ * @param modifier Applied to the column that holds the image and its caption, ahead of the
+ *   `fillMaxWidth` it adds itself.
+ */
 @Composable
 fun ImageComponent(
     image: ZhihuImage?,

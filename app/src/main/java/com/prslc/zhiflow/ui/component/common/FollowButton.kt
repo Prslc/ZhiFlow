@@ -31,8 +31,18 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 
 /**
- * A follow toggle. `compact` sizes it down by capping the height from outside: M3's Button enforces a
- * 58x40dp minimum on its inner content row, and an outer `height()` is the only way under that.
+ * A follow toggle. `compact` sizes it down by capping the height from outside: M3's Button enforces
+ * a 58x40dp minimum on its inner content row, and an outer `height()` is the only way under that.
+ *
+ * The button draws [isFollowing] and nothing more; flipping it is the caller's, which is why the
+ * tap arrives as a plain callback.
+ *
+ * @param isFollowing Whether the reader follows the author. The button shows this state, it does
+ *   not hold it.
+ * @param onClick Called when the button is pressed, with the haptic for the new state already
+ *   played.
+ * @param modifier Applied to the animated content, so it survives the swap between the two states.
+ * @param compact True to size the button down for a card's header row.
  */
 @Composable
 fun FollowButton(

@@ -10,6 +10,15 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 
+/**
+ * The hairline a content page shows at its very top, tracking how far the reader has got.
+ *
+ * @param progress Read while drawing rather than while composing, once per frame. A caller passes
+ *   a lambda that reads its own state, never a value: as a `Float` parameter it would be read in
+ *   the caller's scope, and the screen would recompose on every frame the list scrolls.
+ * @param modifier Applied to the bar's `Box` ahead of its own 2dp height, so a caller cannot make
+ *   it thicker.
+ */
 @Composable
 fun ReadingProgressBar(
     progress: () -> Float,
@@ -20,8 +29,6 @@ fun ReadingProgressBar(
         modifier = modifier
             .fillMaxWidth()
             .height(2.dp)
-            // Read while drawing, not while composing: a Float parameter would read the state in the
-            // caller's scope and recompose the screen on every frame the list scrolls.
             .drawBehind {
                 drawRect(
                     color = color,

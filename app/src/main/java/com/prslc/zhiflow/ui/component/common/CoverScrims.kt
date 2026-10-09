@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.dp
  *
  * Place it over the cover and under everything else. It deliberately stops just past the status
  * bar: it is not a general purpose header scrim.
+ *
+ * @param modifier Applied to the strip ahead of its own height, so a caller cannot change how far
+ *   past the status bar it reaches.
  */
 @Composable
 fun StatusBarScrim(modifier: Modifier = Modifier) {

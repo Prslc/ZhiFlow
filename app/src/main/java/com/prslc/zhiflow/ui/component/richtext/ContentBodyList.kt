@@ -58,8 +58,9 @@ import org.koin.compose.koinInject
 private const val LEADING_ITEMS = 1
 
 /**
- * One heading, as the outline lists it: [depth] is 0 for the shallowest heading in the body, and the
- * content is carried whole — inline formulas included — so the outline can draw what the body draws.
+ * One heading, as the outline lists it: [depth] is 0 for the shallowest heading in the body, and
+ * the content is carried whole — inline formulas included — so the outline can draw what the body
+ * draws.
  */
 @Immutable
 data class OutlineEntry(
@@ -73,8 +74,8 @@ data class OutlineEntry(
  * The state of a content body list: the list, plus the geometry anything outside it needs to reason
  * about — which is where the progress bar and the outline read from.
  *
- * [bodyEnd] is the index of the first item after the body. Trailing chrome stays out of the scale, so
- * the progress bar completes at the end of the text rather than at the end of the list.
+ * [bodyEnd] is the index of the first item after the body. Trailing chrome stays out of the scale,
+ * so the progress bar completes at the end of the text rather than at the end of the list.
  */
 @Stable
 class ContentBodyState internal constructor(
@@ -93,6 +94,14 @@ class ContentBodyState internal constructor(
     }
 }
 
+/**
+ * The state a body's list is drawn with: where it is scrolled to, where its text ends, and the
+ * headings it can jump to.
+ *
+ * @param elements The parsed body. The outline and the end are both derived from it, so a list that
+ *   is still arriving gives an outline that is still arriving -- which is why the caller hands over
+ *   the body it has rather than waiting for the whole of it.
+ */
 @Composable
 fun rememberContentBodyState(elements: List<RichTextElement>): ContentBodyState {
     val listState = rememberLazyListState()
@@ -106,8 +115,8 @@ fun rememberContentBodyState(elements: List<RichTextElement>): ContentBodyState 
 }
 
 /**
- * The headings of [elements], indented by how far each sits below the shallowest one: a writer's own
- * levels can start anywhere, so they mean something only relative to each other.
+ * The headings of [elements], indented by how far each sits below the shallowest one: a writer's
+ * own levels can start anywhere, so they mean something only relative to each other.
  */
 private fun outlineOf(elements: List<RichTextElement>): List<OutlineEntry> {
     val headings = elements.mapIndexedNotNull { index, element ->
@@ -132,9 +141,29 @@ private fun outlineOf(elements: List<RichTextElement>): List<OutlineEntry> {
  * The body of a piece of content: the author's row, what they wrote, and the line saying when. Both
  * detail screens render the same list, so it and the geometry of it are kept in one place.
  *
- * @param topPadding a producer rather than a value: it is read while measuring, so a frame in which
- *   the bar above has just changed height places the list against that height rather than the one
- *   before it.
+ * Selection wraps the whole list on purpose. Inside the items loop it would stop at a single
+ * paragraph, and Compose pins selected lazy items, so putting it out here does not lose the
+ * selection to recycling either.
+ *
+ * @param content The content being read: its author, what it says, and when it was published.
+ * @param elements The parsed body, in order. The images the lightbox can open are taken from it.
+ * @param state The list's scroll position, where its text ends, and its outline.
+ * @param navigator What the body's own taps go through: links, cards, and the author's row.
+ * @param topPadding A producer rather than a value: it is read while measuring, so a frame in
+ *   which the bar above has just changed height places the list against that height rather than
+ *   the one before it.
+ * @param bodyComplete Whether the parse has finished. Nothing at all is reported while it is
+ *   false: the effect it gates returns instead of starting, so a body that is still growing sends
+ *   no position rather than a partial one.
+ * @param showAuthorDivider Whether to draw a rule under the author's row. A page whose body
+ *   starts with its own heading passes false.
+ * @param onFollowClick Called when the follow button in the author's row is pressed.
+ * @param modifier Applied to the selection container that wraps the list, not to the list itself.
+ * @param segmentLikes The live like state of the body's `seg_like` ranges, keyed by the range's
+ *   own key.
+ * @param onSegmentLikeClick Called with a range's key when the reader opens its panel.
+ * @param onProgress Called as the reader's position in the body changes, for the read marker the
+ *   app reports back.
  */
 @Composable
 fun ContentBodyList(
@@ -164,8 +193,6 @@ fun ContentBodyList(
         onProgress = onProgress,
     )
 
-    // Wraps the whole list on purpose: moving this inside the items loop would cap selection at a
-    // single paragraph. Compose pins selected lazy items, so recycling does not drop the selection.
     SelectionContainer(modifier = modifier) {
         LazyColumn(
             state = state.listState,
@@ -254,10 +281,11 @@ fun ContentBodyList(
 
 /**
  * Top padding resolved while measuring, where [Modifier.padding] would have resolved it while
- * composing. `Scaffold` hands its content a `PaddingValues` backed by a state it writes once the top
- * bar has been measured — after that frame's composition has already run — so a value read while
- * composing describes the previous frame, and a list under a bar that has just changed height is
- * placed against the height the bar no longer has. Read here, it belongs to the frame it measures in.
+ * composing. `Scaffold` hands its content a `PaddingValues` backed by a state it writes once the
+ * top bar has been measured — after that frame's composition has already run — so a value read
+ * while composing describes the previous frame, and a list under a bar that has just changed height
+ * is placed against the height the bar no longer has. Read here, it belongs to the frame it
+ * measures in.
  */
 private fun Modifier.topPadding(top: () -> Dp): Modifier = layout { measurable, constraints ->
     val topPx = top().roundToPx()

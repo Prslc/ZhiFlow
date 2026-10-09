@@ -71,6 +71,14 @@ import me.saket.telephoto.zoomable.rememberZoomableImageState
 /**
  * A full-screen image viewer. Its system bars belong to the dialog's own window rather than the
  * activity's, and fall back to the activity's when there is none (a preview, say).
+ *
+ * @param images The images to page through. An empty list draws nothing at all.
+ * @param initialIndex The page to open on. It is clamped into range, so an index left over from a
+ *   list that has since shrunk is safe.
+ * @param onDismiss Called when the reader asks to close it: a back, a swipe, or the dialog's own
+ *   dismissal.
+ * @param modifier Applied to the full-screen `Box` that holds the pager, ahead of the black
+ *   background it paints itself.
  */
 @Composable
 fun ImageLightbox(

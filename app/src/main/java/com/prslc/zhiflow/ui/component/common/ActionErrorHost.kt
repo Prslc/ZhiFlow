@@ -18,6 +18,9 @@ import kotlinx.coroutines.launch
  * [SnackbarHostState.showSnackbar] suspends for as long as the snackbar is visible, so
  * consuming afterwards would skip the callback whenever the screen is torn down mid-display,
  * leaving the stale error to pop again on the next visit.
+ *
+ * @param error The screen's pending failure, or null when there is nothing to show.
+ * @param onConsumed Called once the error has been taken, before the snackbar appears.
  */
 @Composable
 fun rememberActionErrorHost(
