@@ -35,9 +35,9 @@ import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import kotlinx.serialization.json.Json
-import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 
 /**
  * Builds an inline formula placeholder sized by the server-provided dp dimensions.

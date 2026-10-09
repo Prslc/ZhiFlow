@@ -1,7 +1,8 @@
 package com.prslc.zhiflow.ui.component.richtext
 
-import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,8 +12,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
 import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
@@ -20,8 +22,6 @@ import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
 import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
-import androidx.compose.foundation.isSystemInDarkTheme
 
 /**
  * Builds [InlineTextContent] entries for inline formulas.
