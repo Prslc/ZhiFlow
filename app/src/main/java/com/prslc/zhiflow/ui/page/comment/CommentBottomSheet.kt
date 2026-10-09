@@ -34,7 +34,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
  * The content's own comment surface: its root list, and one comment's replies behind it. The pair
  * and its pull-back live in [CommentPaneTransition], shared with a passage's panel.
  *
- * @param showComments whether the sheet is up; a back belongs to the surface only while it is up
+ * @param showComments Whether the sheet is up; a back belongs to the surface only while it is up
  *   and staying, so the root list keeps the sheet's own dismissal gesture.
  */
 @Composable

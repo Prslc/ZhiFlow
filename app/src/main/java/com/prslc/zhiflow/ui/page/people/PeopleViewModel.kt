@@ -61,8 +61,9 @@ class PeopleViewModel(
      * Puts the visit in the reader's history.
      *
      * A profile has no reading progress, and the entry is written on arrival rather than on the way
-     * out — which is why this does not go through the progress the content screens keep. The history
-     * addresses the reader by the account's own id, not by the url token the page was opened with.
+     * out — which is why this does not go through the progress the content screens keep. The
+     * history addresses the reader by the account's own id, not by the url token the page was
+     * opened with.
      */
     private fun recordVisit(userId: String) {
         if (userId.isEmpty()) return

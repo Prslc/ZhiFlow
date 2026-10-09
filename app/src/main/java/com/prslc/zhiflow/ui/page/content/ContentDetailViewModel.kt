@@ -239,8 +239,8 @@ class ContentViewModel(
     /**
      * Toggles the like on one passage with optimistic UI, rolling back on failure.
      *
-     * The like request answers with the reader's own segment id, and that is the one undoing needs —
-     * the shared id the page was parsed with is not accepted for it. So the answer is folded back
+     * The like request answers with the reader's own segment id, and that is the one undoing needs
+     * — the shared id the page was parsed with is not accepted for it. So the answer is folded back
      * into the state, and the next tap on this range can undo.
      */
     fun toggleSegmentLike(key: String) {
@@ -286,8 +286,8 @@ class ContentViewModel(
     /**
      * Publishes a freshly parsed body and lifts its `seg_like` ranges into [segmentLikes].
      *
-     * Ranges arrive a chunk at a time, so the state only ever grows; a range already in it keeps the
-     * live like the reader just made.
+     * Ranges arrive a chunk at a time, so the state only ever grows; a range already in it keeps
+     * the live like the reader just made.
      */
     private fun setElements(elements: List<RichTextElement>) {
         richTextElements = elements

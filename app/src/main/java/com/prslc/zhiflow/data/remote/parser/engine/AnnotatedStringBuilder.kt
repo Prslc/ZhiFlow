@@ -41,9 +41,9 @@ object AnnotatedStringBuilder {
      * carries no bubble and ends at its own last character instead; its underline is still there,
      * and still opens the panel.
      *
-     * @param onFormulaFound returns null to drop the mark's raw text instead of placing inline
+     * @param onFormulaFound Returns null to drop the mark's raw text instead of placing inline
      *   content over it.
-     * @param segmentLikes the ranges to mark up, in raw-text order. One whose
+     * @param segmentLikes The ranges to mark up, in raw-text order. One whose
      *   [SegmentLikeTarget.commentCount] is zero is underlined but gets no bubble.
      */
     fun build(

@@ -240,12 +240,13 @@ fun PeopleScreen(
 }
 
 /**
- * Hands back only as much of the header as is still on screen: the scroll offset comes off its height
- * as well as its position, so the tabs and the feeds under it rise with it and stay under it. The
- * header is measured whole either way, so nothing is cut off — only the room it claims.
+ * Hands back only as much of the header as is still on screen: the scroll offset comes off its
+ * height as well as its position, so the tabs and the feeds under it rise with it and stay under
+ * it. The header is measured whole either way, so nothing is cut off — only the room it claims.
  *
- * It belongs in the column with them rather than over them: a row laid out after it is placed against
- * the height this pass reports, where an overlay leaves it a frame behind, measured off state.
+ * It belongs in the column with them rather than over them: a row laid out after it is placed
+ * against the height this pass reports, where an overlay leaves it a frame behind, measured off
+ * state.
  */
 private fun Modifier.collapsingHeader(offset: () -> Float): Modifier =
     layout { measurable, constraints ->

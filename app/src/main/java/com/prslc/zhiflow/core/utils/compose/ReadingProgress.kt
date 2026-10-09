@@ -52,8 +52,8 @@ internal fun LazyListLayoutInfo.readingPosition(bodyEnd: Int): ReadingPosition {
 }
 
 /**
- * Reports nothing until [bodyComplete]: a half-published body ends at its last published item, which
- * [readingPosition] cannot tell from the end of the body.
+ * Reports nothing until [bodyComplete]: a half-published body ends at its last published item,
+ * which [readingPosition] cannot tell from the end of the body.
  */
 @Composable
 internal fun ReadingProgressEffect(

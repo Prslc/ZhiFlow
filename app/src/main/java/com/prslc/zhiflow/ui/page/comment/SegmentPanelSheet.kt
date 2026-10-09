@@ -69,10 +69,10 @@ private const val PANEL_HEIGHT_FRACTION = 0.77f
  * non-null would collapse to an empty panel in the frame a dismissal clears it, and the exit would
  * play on nothing.
  *
- * @param onToggleLike takes the range's key, so the like state stays with the screen that owns the
+ * @param onToggleLike Takes the range's key, so the like state stays with the screen that owns the
  *   body rather than with the panel.
- * @param navigateToUser a url token the reader asked for, which the panel cannot open itself.
- * @param actionError failures of either the passage like or a comment like; the sheet carries the
+ * @param navigateToUser A url token the reader asked for, which the panel cannot open itself.
+ * @param actionError Failures of either the passage like or a comment like; the sheet carries the
  *   only host that is visible while it is up.
  */
 @Composable

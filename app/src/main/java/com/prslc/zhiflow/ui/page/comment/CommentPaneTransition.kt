@@ -54,27 +54,27 @@ private const val STALL_CHECK_MS = 150L
 
 /**
  * The two panes of a comment surface — a root list and one root comment's replies — as a single
- * seekable transition, so the back gesture drives the exit under the finger, and the header's arrow,
- * the back key and a released gesture all land on the same specs: the app's own push and pop
+ * seekable transition, so the back gesture drives the exit under the finger, and the header's
+ * arrow, the back key and a released gesture all land on the same specs: the app's own push and pop
  * (MainActivity). The content's sheet and a passage's panel both show this pair, and share it from
  * here rather than keeping a copy of the traps below each.
  *
  * Three traps come with that shape.
  *
- * A drive has to be re-issued rather than issued once: the framework hands its mutator mutex between
- * callers, so a gesture's seek, the next intent or a pull-back cancels whichever drive is running,
- * and a cancelled drive leaves the panes part-way across with nobody left to finish them. The stall
- * watch is what repairs that.
+ * A drive has to be re-issued rather than issued once: the framework hands its mutator mutex
+ * between callers, so a gesture's seek, the next intent or a pull-back cancels whichever drive is
+ * running, and a cancelled drive leaves the panes part-way across with nobody left to finish them.
+ * The stall watch is what repairs that.
  *
- * The intent has to be read through `rememberUpdatedState`: [isDetail] is a parameter, a value rather
- * than a state holder, so anything outliving a recomposition would keep reading the one it was
- * composed with.
+ * The intent has to be read through `rememberUpdatedState`: [isDetail] is a parameter, a value
+ * rather than a state holder, so anything outliving a recomposition would keep reading the one it
+ * was composed with.
  *
- * And a commit has to be judged by where the panes *are*, not by `targetState`: a gesture's seek has
- * already pointed that at the side being asked for, so asking it whether there is anything to do
- * answers no, and the panes stay where the finger let go until the stall watch's next sample.
+ * And a commit has to be judged by where the panes *are*, not by `targetState`: a gesture's seek
+ * has already pointed that at the side being asked for, so asking it whether there is anything to
+ * do answers no, and the panes stay where the finger let go until the stall watch's next sample.
  *
- * @param backEnabled whether the surface is up and staying. A back is taken only then: once one has
+ * @param backEnabled Whether the surface is up and staying. A back is taken only then: once one has
  *   sent the surface on its way, later ones belong to the screen behind. The root pane keeps the
  *   surface's own dismissal gesture either way.
  */

@@ -27,7 +27,8 @@ object HeaderProvider {
     * Initializes the dynamic User-Agent by fetching the system's underlying WebView UA.
     *
     * **Note:** This method must be invoked eagerly at application startup (e.g., via Koin's
-    * `createdAtStart` scope) to ensure [UA] is fully populated before any network requests are dispatched.
+    * `createdAtStart` scope) to ensure [UA] is fully populated before any network requests are
+    * dispatched.
     *
     * @param context The application context used to resolve [WebSettings].
     */

@@ -14,11 +14,12 @@ private val SEARCH_WORD_REGEX = """<a[^>]+class="[^"]*search_word[^"]*"[^>]*>(.*
 private val LINK_COLOR = Color(0xFF1E88E5)
 
 /**
- * The HTML the backend writes, as text this app can draw: entities decoded, emoji as images, and the
- * links it carries kept as spans to tap.
+ * The HTML the backend writes, as text this app can draw: entities decoded, emoji as images, and
+ * the links it carries kept as spans to tap.
  *
- * The search links it injects into the wording come off first. The word belongs to the sentence; the
- * link is to a search this app does not run, and it was arriving as a blue link that did nothing.
+ * The search links it injects into the wording come off first. The word belongs to the sentence;
+ * the link is to a search this app does not run, and it was arriving as a blue link that did
+ * nothing.
  *
  * Each link is annotated as its run is emitted, and the runs are emitted through the emoji pass one
  * at a time, so nothing can shorten the ground an offset was measured on.

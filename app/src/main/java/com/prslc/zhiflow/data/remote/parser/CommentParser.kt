@@ -9,8 +9,8 @@ object CommentParser {
     /**
      * Parse Zhihu comment HTML into a [CommentContent] with extracted images.
      *
-     * Strips image `<a>` tags from the HTML, extracts them as [ZhihuImage], and renders what is left
-     * through [htmlToAnnotatedString].
+     * Strips image `<a>` tags from the HTML, extracts them as [ZhihuImage], and renders what is
+     * left through [htmlToAnnotatedString].
      */
     fun parse(html: String): CommentContent {
         val extractedImages = mutableListOf<ZhihuImage>()

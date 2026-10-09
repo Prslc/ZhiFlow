@@ -111,8 +111,8 @@ object ContentParser {
      * The API sends the range twice — the shared record and, once the reader has liked it, the
      * reader's own record under a second key. Counts only live on the shared one, and the id to
      * unlike with only on the reader's. Both the liked flag and that id are therefore read from the
-     * reader's record alone: taking the flag from the shared one could report a like that carries no
-     * id to undo it with.
+     * reader's record alone: taking the flag from the shared one could report a like that carries
+     * no id to undo it with.
      */
     private fun segmentLikeTargets(
         rawText: String,
