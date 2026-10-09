@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.people
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +22,6 @@ import kotlin.math.absoluteValue
 private val INDICATOR_TEXT_WIDTH = 30.dp
 private val INDICATOR_HEIGHT = 3.dp
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PeopleTabBar(
     pagerState: PagerState,

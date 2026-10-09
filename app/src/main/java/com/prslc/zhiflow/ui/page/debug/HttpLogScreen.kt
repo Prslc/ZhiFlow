@@ -22,7 +22,6 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,7 +60,6 @@ import java.time.format.DateTimeFormatter
 private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss")
 private const val SUMMARY_MAX_CHARS = 120
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HttpLogScreen(
     onBack: () -> Unit,

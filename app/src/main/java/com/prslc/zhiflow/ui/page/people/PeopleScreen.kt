@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -65,7 +64,6 @@ private val TOP_BAR_SIDE_PADDING = 4.dp
 // on a black screen in a single frame is what reads as a flash.
 private const val CONTENT_FADE_MS = 120
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PeopleScreen(
     urlToken: String,
