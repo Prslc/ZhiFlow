@@ -20,6 +20,8 @@ import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
 import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import androidx.compose.foundation.isSystemInDarkTheme
 
 /**
  * Builds [InlineTextContent] entries for inline formulas.
@@ -76,18 +78,23 @@ fun ZRichText(
     overflow: TextOverflow = TextOverflow.Clip,
 ) {
     val navigator = LocalNavigator.current
+    val isDark = isSystemInDarkTheme()
 
     val inlineContent = inlineMetas.rememberInlineContent()
 
-    val interceptedContent = remember(content, navigator) {
+    val interceptedContent = remember(content, navigator, isDark) {
         buildAnnotatedString {
             append(content.text)
 
             content.spanStyles.forEach { addStyle(it.item, it.start, it.end) }
             content.paragraphStyles.forEach { addStyle(it.item, it.start, it.end) }
 
+            // Before the loop below: it replaces the URL ranges with link annotations, which takes the
+            // tag this reads them by with it.
+            applyThemeSpans(content, isDark)
+
             content.getStringAnnotations(0, content.length).forEach { annotation ->
-                if (annotation.tag == "URL") {
+                if (annotation.tag == AnnotatedStringBuilder.URL_TAG) {
                     addLink(
                         clickable = LinkAnnotation.Clickable(
                             tag = annotation.item,

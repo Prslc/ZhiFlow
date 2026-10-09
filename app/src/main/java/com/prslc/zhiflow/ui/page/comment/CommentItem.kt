@@ -43,6 +43,8 @@ import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.theme.TextStyles
 import org.koin.compose.koinInject
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 
 @Composable
 fun CommentItem(
@@ -151,7 +153,7 @@ fun CommentItem(
             // leave nothing meaningful to select across two of them.
             SelectionContainer {
                 Text(
-                    text = comment.parsedContent.text,
+                    text = comment.parsedContent.text.withThemeSpans(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     inlineContent = inlineContent,
@@ -163,7 +165,7 @@ fun CommentItem(
                                 layoutResult?.let { result ->
                                     val offset = result.getOffsetForPosition(pos)
                                     if (offset < comment.parsedContent.text.length) {
-                                        comment.parsedContent.text.getStringAnnotations("URL", offset, offset)
+                                        comment.parsedContent.text.getStringAnnotations(AnnotatedStringBuilder.URL_TAG, offset, offset)
                                             .firstOrNull()?.let { annotation ->
                                                 navigator.handleUrl(annotation.item)
                                             }

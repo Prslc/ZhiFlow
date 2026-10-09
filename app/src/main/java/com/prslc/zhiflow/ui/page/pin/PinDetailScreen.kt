@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.page.pin
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,11 +71,6 @@ fun PinDetailScreen(
     // author's own text — a 152dp expanded bar costs a quarter of the screen for it.
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    val isDark = isSystemInDarkTheme()
-
-    LaunchedEffect(isDark) {
-        viewModel.setDarkMode(isDark)
-    }
 
     LaunchedEffect(presentation.showComments) {
         if (presentation.showComments && commentState.comments.isEmpty()) {

@@ -75,6 +75,8 @@ import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 
 @Composable
 fun QuestionDetailScreen(
@@ -291,7 +293,7 @@ private fun QuestionElement(
             is DetailElement.Text -> {
                 SelectionContainer {
                     Text(
-                        text = element.content,
+                        text = element.content.withThemeSpans(),
                         maxLines = if (isExpanded) Int.MAX_VALUE else 3,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
@@ -307,7 +309,7 @@ private fun QuestionElement(
                                 localLayoutResult?.let { result ->
                                     val position = result.getOffsetForPosition(offset)
                                     element.content.getStringAnnotations(
-                                        tag = "URL",
+                                        tag = AnnotatedStringBuilder.URL_TAG,
                                         start = position,
                                         end = position
                                     ).firstOrNull()?.let { annotation ->

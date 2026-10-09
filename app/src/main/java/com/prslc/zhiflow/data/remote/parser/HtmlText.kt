@@ -3,15 +3,12 @@ package com.prslc.zhiflow.data.remote.parser
 import android.text.Html
 import android.text.Spanned
 import android.text.style.URLSpan
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.remote.parser.emoji.EmojiParser
+import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 
 private val SEARCH_WORD_REGEX = """<a[^>]+class="[^"]*search_word[^"]*"[^>]*>(.*?)</a>""".toRegex()
-
-private val LINK_COLOR = Color(0xFF1E88E5)
 
 /**
  * The HTML the backend writes, as text this app can draw: entities decoded, emoji as images, and
@@ -48,8 +45,7 @@ internal fun htmlToAnnotatedString(html: String): AnnotatedString {
 
                 val linkStart = length
                 append(EmojiParser.parse(text.substring(start, end)))
-                addStringAnnotation("URL", span.url, linkStart, length)
-                addStyle(SpanStyle(color = LINK_COLOR), linkStart, length)
+                addStringAnnotation(AnnotatedStringBuilder.URL_TAG, span.url, linkStart, length)
 
                 cursor = end
             }

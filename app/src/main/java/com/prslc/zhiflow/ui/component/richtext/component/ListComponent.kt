@@ -113,7 +113,16 @@ fun ReferenceSection(
             val fullAnnotatedString = remember(item.content) {
                 buildAnnotatedString {
                     append("${index + 1}. ")
+                    // The number shifts every range, and append carries only the text and the
+                    // annotations over -- the two style lists have to be copied at that offset.
+                    val offset = length
                     append(item.content)
+                    item.content.spanStyles.forEach {
+                        addStyle(it.item, offset + it.start, offset + it.end)
+                    }
+                    item.content.paragraphStyles.forEach {
+                        addStyle(it.item, offset + it.start, offset + it.end)
+                    }
                 }
             }
             ZRichText(

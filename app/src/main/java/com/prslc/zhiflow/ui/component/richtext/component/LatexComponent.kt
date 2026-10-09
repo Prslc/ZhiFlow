@@ -37,6 +37,7 @@ import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import kotlinx.serialization.json.Json
+import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 
 /**
  * Builds an inline formula placeholder sized by the server-provided dp dimensions.
@@ -239,7 +240,7 @@ fun FormulaTextSection(
     }
 
     Text(
-        text = element.content,
+        text = element.content.withThemeSpans(),
         modifier = modifier
             .drawBehind {
                 val layout = layoutResult.value ?: return@drawBehind
@@ -258,7 +259,7 @@ fun FormulaTextSection(
                 detectTapGestures { pos ->
                     layoutResult.value?.let { layout ->
                         val offset = layout.getOffsetForPosition(pos)
-                        element.content.getStringAnnotations("URL", offset, offset)
+                        element.content.getStringAnnotations(AnnotatedStringBuilder.URL_TAG, offset, offset)
                             .firstOrNull()?.let { navigator.handleUrl(it.item) }
 
                         element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)

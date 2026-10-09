@@ -23,6 +23,15 @@ object AnnotatedStringBuilder {
     /** The speech-bubble placeholder at the end of that range, carrying the same key. */
     const val SEGMENT_LIKE_ICON_TAG = "SEGMENT_LIKE_ICON"
 
+    /** Range that carries a url to open. Coloured by the theme, like [CODE_TAG]. */
+    const val URL_TAG = "URL"
+
+    /** Range of a `code` mark. Its colours are the theme's, so the range is marked and not styled. */
+    const val CODE_TAG = "CODE"
+
+    /** Range of a `reference` mark, marked for the same reason as [CODE_TAG]. */
+    const val REFERENCE_TAG = "REFERENCE"
+
     private const val NO_BUBBLE = -1
 
     /** Built-offset key of the inline content for that bubble. */
@@ -31,15 +40,21 @@ object AnnotatedStringBuilder {
     /**
      * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.
      *
-     * Segments text by mark boundaries, applies span styles (bold, italic, code, link, etc.),
-     * and invokes [onFormulaFound] for inline formula placeholders.
+     * Segments text by mark boundaries, applies the span styles that carry no theme (bold, italic,
+     * strikethrough), and invokes [onFormulaFound] for inline formula placeholders.
      *
-     * `seg_like` ranges are annotated rather than styled: whether their underline is solid or
-     * dashed depends on live like state, which the built string cannot hold. Each range ends where
-     * its bubble begins — the offset mapping that the tail of the loop leaves behind points past
-     * the bubble, and the underline has to stop short of it. A range with nothing said about it
-     * carries no bubble and ends at its own last character instead; its underline is still there,
-     * and still opens the panel.
+     * Three kinds of range are annotated rather than styled, because what they look like is not
+     * known here. A `seg_like` range's underline is solid or dashed with live like state; a link, a
+     * `code` block and a `reference` take their colours from the theme, which flips while a body
+     * stays parsed. Carrying a mode in the string would make the parse depend on it, and every cache
+     * of a parsed body would have to be purged whenever the reader changed theme. The renderer knows
+     * the mode and applies those three styles, reading the ranges back off these annotations -- the
+     * same way a rebuilt string keeps carrying a `seg_like` range.
+     *
+     * A `seg_like` range ends where its bubble begins — the offset mapping that the tail of the loop
+     * leaves behind points past the bubble, and the underline has to stop short of it. A range with
+     * nothing said about it carries no bubble and ends at its own last character instead; its
+     * underline is still there, and still opens the panel.
      *
      * @param onFormulaFound Returns null to drop the mark's raw text instead of placing inline
      *   content over it.
@@ -50,7 +65,6 @@ object AnnotatedStringBuilder {
         rawText: String,
         marks: List<Mark>,
         onFormulaFound: (formulaMark: Mark, position: Int) -> InlineFormulaMeta?,
-        isDark: Boolean,
         segmentLikes: List<SegmentLikeTarget> = emptyList(),
     ): ProcessedText {
         val inlineMetas = mutableListOf<InlineFormulaMeta>()
@@ -131,7 +145,7 @@ object AnnotatedStringBuilder {
                 val finalEnd = rawToBuiltMap[markEnd]
 
                 if (finalStart < finalEnd) {
-                    applyMarkStyle(mark, finalStart, finalEnd, isDark)
+                    applyMarkStyle(mark, finalStart, finalEnd)
                 }
             }
 
@@ -161,23 +175,26 @@ object AnnotatedStringBuilder {
     }
 }
 
+/**
+ * Applies what a mark says without asking the theme anything: the styles that carry no colour are
+ * set here, and the marks whose colour belongs to the theme are left as annotations for the
+ * renderer to find.
+ */
 private fun AnnotatedString.Builder.applyMarkStyle(
     mark: Mark,
     start: Int,
     end: Int,
-    isDark: Boolean
 ) {
     when (mark.type) {
         "bold" -> addStyle(TextStyles.boldStyle, start, end)
         "italic" -> addStyle(TextStyles.italicStyle, start, end)
         "strikethrough" -> addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, end)
-        "code" -> addStyle(TextStyles.codeStyle(isDark), start, end)
-        "reference" -> addStyle(TextStyles.referenceStyle(isDark), start, end)
+        "code" -> addStringAnnotation(AnnotatedStringBuilder.CODE_TAG, "", start, end)
+        "reference" -> addStringAnnotation(AnnotatedStringBuilder.REFERENCE_TAG, "", start, end)
         "link" -> {
             val url = mark.link?.href ?: mark.entityWord?.url
             if (!url.isNullOrEmpty()) {
-                addStringAnnotation("URL", url, start, end)
-                addStyle(TextStyles.linkStyle(isDark), start, end)
+                addStringAnnotation(AnnotatedStringBuilder.URL_TAG, url, start, end)
             }
         }
     }

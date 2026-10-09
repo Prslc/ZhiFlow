@@ -100,7 +100,6 @@ class ContentViewModel(
     var isBodyComplete by mutableStateOf(false)
         private set
 
-    private var isDark by mutableStateOf(false)
 
     private var contentType: ContentType? = null
     private val pendingSegmentLikes = mutableSetOf<String>()
@@ -148,12 +147,6 @@ class ContentViewModel(
                 loadingState = loadingState.copy(error = error)
             }
         }
-    }
-
-    fun setDarkMode(dark: Boolean) {
-        if (isDark == dark) return
-        isDark = dark
-        if (loadingState.content != null) parseRichText()
     }
 
     /**
@@ -363,7 +356,7 @@ class ContentViewModel(
             }
 
             segments.chunked(10).forEachIndexed { _, chunk ->
-                val chunkResult = ContentParser.transform(chunk, isDark)
+                val chunkResult = ContentParser.transform(chunk)
                 fullList.addAll(chunkResult)
 
                 val currentSnapshot = fullList.toList()

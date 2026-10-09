@@ -82,7 +82,6 @@ class PinViewModel(
     var isBodyComplete by mutableStateOf(false)
         private set
 
-    private var isDark by mutableStateOf(false)
 
     private var loadJob: Job? = null
     private var parseJob: Job? = null
@@ -116,12 +115,6 @@ class PinViewModel(
                     loadingState = loadingState.copy(error = error)
                 }
         }
-    }
-
-    fun setDarkMode(dark: Boolean) {
-        if (isDark == dark) return
-        isDark = dark
-        if (loadingState.content != null) parseRichText()
     }
 
     fun vote(targetAction: String) {
@@ -245,7 +238,7 @@ class PinViewModel(
                 }
             } else {
                 segments.chunked(10).forEachIndexed { _, chunk ->
-                    val chunkResult = ContentParser.transform(chunk, isDark)
+                    val chunkResult = ContentParser.transform(chunk)
                     fullList.addAll(chunkResult)
 
                     val currentSnapshot = fullList.toList()

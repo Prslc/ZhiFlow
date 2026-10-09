@@ -29,14 +29,13 @@ object ContentParser {
      */
     fun transform(
         segments: List<Segment>,
-        isDark: Boolean = false
     ): List<RichTextElement> {
         return segments.flatMap { segment ->
             when (segment.type) {
-                "paragraph" -> processParagraph(segment.paragraph, isDark)
+                "paragraph" -> processParagraph(segment.paragraph)
 
                 "heading" -> segment.heading?.let {
-                    val p = parseContent(it.text, it.marks, isDark)
+                    val p = parseContent(it.text, it.marks)
                     listOf(RichTextElement.Heading(p.content, p.inlineMetas, it.level))
                 } ?: emptyList()
 
@@ -47,7 +46,7 @@ object ContentParser {
                     // boundary fell.
                     val counter = OrderedListCounter()
                     listNode.items.map { item ->
-                        val p = parseContent(item.text, item.marks, isDark)
+                        val p = parseContent(item.text, item.marks)
                         RichTextElement.BulletItem(
                             p.content, p.inlineMetas, item.indentLevel,
                             listNode.type == "ordered", counter.next(item.indentLevel)
@@ -56,13 +55,13 @@ object ContentParser {
                 } ?: emptyList()
 
                 "blockquote" -> segment.blockquote?.let {
-                    val p = parseContent(it.text, it.marks, isDark)
+                    val p = parseContent(it.text, it.marks)
                     listOf(RichTextElement.Blockquote(p.content, p.inlineMetas))
                 } ?: emptyList()
 
                 "table" -> segment.table?.let {
                     listOf(TableParser.parse(it) { text ->
-                        parseContent(text, emptyList(), isDark)
+                        parseContent(text, emptyList())
                     })
                 } ?: emptyList()
 
@@ -74,7 +73,7 @@ object ContentParser {
 
                 "reference_block" -> segment.referenceBlock?.let { block ->
                     val items = block.items.map {
-                        val p = parseContent(it.text, it.marks, isDark)
+                        val p = parseContent(it.text, it.marks)
                         RichTextElement.ParsedText(p.content, p.inlineMetas)
                     }
                     listOf(RichTextElement.Reference(items))
@@ -89,14 +88,12 @@ object ContentParser {
     private fun parseContent(
         rawText: String,
         marks: List<Mark>,
-        isDark: Boolean,
         paragraphId: String? = null
     ): ProcessedText {
         return AnnotatedStringBuilder.build(
             rawText = rawText,
             marks = marks,
             segmentLikes = segmentLikeTargets(rawText, marks, paragraphId),
-            isDark = isDark,
             onFormulaFound = { mark, pos ->
                 mark.formula?.let {
                     FormulaHandler.prepareInlineMeta(it, pos)
@@ -146,7 +143,6 @@ object ContentParser {
 
     private fun processParagraph(
         paragraph: Paragraph?,
-        isDark: Boolean
     ): List<RichTextElement> {
         if (paragraph == null) return emptyList()
 
@@ -161,7 +157,7 @@ object ContentParser {
         }.sortedBy { it.start }
 
         if (blockFormulaMarks.isEmpty()) {
-            val processed = parseContent(rawText, marks, isDark, paragraph.pid)
+            val processed = parseContent(rawText, marks, paragraph.pid)
             return listOf(
                 RichTextElement.ParsedText(
                     processed.content,
@@ -180,7 +176,7 @@ object ContentParser {
                 if (subText.isNotBlank() && subText != "\n") {
                     val subMarks = marks.filter { it.start >= lastIndex && it.end <= mark.start }
                         .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
-                    val processed = parseContent(subText, subMarks, isDark, paragraph.pid)
+                    val processed = parseContent(subText, subMarks, paragraph.pid)
                     elements.add(
                         RichTextElement.ParsedText(
                             processed.content,
@@ -199,7 +195,7 @@ object ContentParser {
             if (subText.isNotBlank() && subText != "\n") {
                 val subMarks = marks.filter { it.start >= lastIndex }
                     .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
-                val processed = parseContent(subText, subMarks, isDark, paragraph.pid)
+                val processed = parseContent(subText, subMarks, paragraph.pid)
                 elements.add(
                     RichTextElement.ParsedText(
                         processed.content,

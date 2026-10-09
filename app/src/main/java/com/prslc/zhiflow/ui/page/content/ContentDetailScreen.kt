@@ -2,7 +2,6 @@ package com.prslc.zhiflow.ui.page.content
 
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -93,11 +92,6 @@ fun ContentDetailScreen(
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    val isDark = isSystemInDarkTheme()
-
-    LaunchedEffect(isDark) {
-        viewModel.setDarkMode(isDark)
-    }
 
     LaunchedEffect(presentation.showComments) {
         if (presentation.showComments && commentState.comments.isEmpty()) {
