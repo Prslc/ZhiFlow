@@ -117,12 +117,20 @@ data class Link(
     @SerialName("icon_name") val iconName: String? = null,
 )
 
+/**
+ * A phrase in the body the reader could search for.
+ *
+ * [type] says what kind of entity it is — `search`, in every capture we have — and [entityId] names
+ * it within that kind. [url] is the search it would open; nothing renders it as a link, since this
+ * app runs no search of its own.
+ */
 @Immutable
 @Serializable
 data class EntityWord(
     val word: String,
     val url: String? = null,
-    @SerialName("entity_id") val entityId: String? = null,
+    @SerialName("id") val entityId: String? = null,
+    val type: String? = null,
 )
 
 @Immutable
