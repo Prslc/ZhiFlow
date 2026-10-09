@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -112,13 +113,17 @@ fun BlockquoteComponent(
     }
 }
 
+/** The narrowest a table column is drawn before the table scrolls instead of sharing the width. */
+private val MIN_TABLE_CELL_WIDTH = 120.dp
+
 /**
  * A table of a body.
  *
- * Its cells are a fixed width rather than the page's, so a table wider than the screen scrolls
- * sideways. A formula inside a cell is clamped to that cell for the same reason: against the page's
- * width it would be drawn across the cells beside it. Selection is off inside the table, where a
- * drag would fight the sideways scroll.
+ * Its columns share the width the page gives them, down to [MIN_TABLE_CELL_WIDTH] each; a table
+ * whose columns cannot all reach that keeps the floor and scrolls sideways. A formula inside a cell
+ * is clamped to that cell for the same reason: against the page's width it would be drawn across
+ * the cells beside it. Selection is off inside the table, where a drag would fight the sideways
+ * scroll.
  *
  * @param element The table segment.
  * @param modifier Applied to the box that centres the table, ahead of the `fillMaxWidth` it adds.
@@ -129,16 +134,27 @@ fun TableComponent(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    val cellWidth = 120.dp
     val cellPadding = 8.dp
-    val cellContentWidthDp = (cellWidth - cellPadding * 2).value
+    val gridLine = 0.5.dp
 
-    Box(
+    BoxWithConstraints(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        // Fixed-width cells inside a horizontal scroll; a selection dragged across them would fight
-        // it.
+        // The dividers stand between the columns, so their width comes out of what the columns
+        // share.
+        val cellWidth = if (element.cols > 0) {
+            maxOf(
+                MIN_TABLE_CELL_WIDTH,
+                (maxWidth - gridLine * (element.cols - 1)) / element.cols,
+            )
+        } else {
+            MIN_TABLE_CELL_WIDTH
+        }
+        val cellContentWidthDp = (cellWidth - cellPadding * 2).value
+
+        // A horizontal scroll that a table narrower than the page never uses; a selection dragged
+        // across one would fight it.
         DisableSelection {
             Card(
                 colors = CardDefaults.cardColors(
@@ -198,6 +214,7 @@ fun TableComponent(
                                     if (colIndex < element.cols - 1) {
                                         VerticalDivider(
                                             modifier = Modifier.fillMaxHeight(),
+                                            thickness = gridLine,
                                             color = MaterialTheme.colorScheme.outlineVariant
                                                 .copy(alpha = 0.5f),
                                         )
@@ -207,7 +224,7 @@ fun TableComponent(
 
                             if (rowIndex < element.rows - 1) {
                                 HorizontalDivider(
-                                    thickness = 0.5.dp,
+                                    thickness = gridLine,
                                     color = MaterialTheme.colorScheme.outlineVariant
                                         .copy(alpha = 0.5f),
                                 )
