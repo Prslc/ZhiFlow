@@ -70,7 +70,7 @@ fun List<InlineFormulaMeta>.rememberInlineContent(
 /**
  * Rich text display engine with inline formula support.
  *
- * - Extends [Text] with interceptors for `URL` and `INLINE_FORMULA_DATA` spatial gestures.
+ * - Extends [Text] with an interceptor for `URL` taps and one for the text of a `seg_like` range.
  * - Inline formulas are rendered via [LatexComponent] using the API-provided image.
  *
  * @param content The text to draw: its marks already applied, and the annotations that carry its

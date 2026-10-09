@@ -122,7 +122,6 @@ object AnnotatedStringBuilder {
                         onFormulaFound(insertion.mark, insertionStart)?.let { meta ->
                             inlineMetas.add(meta)
                             appendInlineContent(meta.inlineId, FORMULA_PLACEHOLDER)
-                            addStringAnnotation("INLINE_ID", meta.inlineId, insertionStart, length)
                         }
 
                         while (currentRawIndex < end) {

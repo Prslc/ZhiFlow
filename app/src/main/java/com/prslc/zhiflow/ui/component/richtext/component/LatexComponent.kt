@@ -39,7 +39,6 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.rememberInlineContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import kotlinx.serialization.json.Json
 
 /**
  * Builds an inline formula placeholder sized by the server-provided dp dimensions.
@@ -231,7 +230,6 @@ private fun FormulaImage(
  *   in the panel the range opens.
  * @param onSegmentLikeClick Called with a range's key when the bubble or its underlined text is
  *   tapped.
- * @param onFormulaClick Called with a formula's image url when the reader taps it.
  */
 @Composable
 fun FormulaTextSection(
@@ -239,7 +237,6 @@ fun FormulaTextSection(
     modifier: Modifier = Modifier,
     segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
     onSegmentLikeClick: (String) -> Unit = {},
-    onFormulaClick: (String) -> Unit = {},
 ) {
     val navigator = LocalNavigator.current
     val underlineColor = MaterialTheme.colorScheme.outline
@@ -282,12 +279,6 @@ fun FormulaTextSection(
                         val offset = layout.getOffsetForPosition(pos)
                         element.content.getStringAnnotations(AnnotatedStringBuilder.URL_TAG, offset, offset)
                             .firstOrNull()?.let { navigator.handleUrl(it.item) }
-
-                        element.content.getStringAnnotations("INLINE_FORMULA_DATA", offset, offset)
-                            .firstOrNull()?.let { annotation ->
-                                runCatching { Json.decodeFromString<Formula>(annotation.item) }
-                                    .getOrNull()?.imgUrl?.let { onFormulaClick(it) }
-                            }
 
                         // The bubble carries its own tap target; this covers a tap that lands on
                         // the underlined text instead.
