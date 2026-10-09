@@ -52,7 +52,8 @@ fun AnnotatedString.rememberSegmentLikeIcons(
     }
 
     return remember(annotations, density, tint, onClick) {
-        // Sized in px through sp like the formulas: the bubble marks the text, it does not grow with it.
+        // Sized in px through sp like the formulas: the bubble marks the text, it does not grow
+        // with it.
         val side = with(density) { ICON_SIZE_DP.dp.toPx().toSp() }
 
         annotations.associate { annotation ->

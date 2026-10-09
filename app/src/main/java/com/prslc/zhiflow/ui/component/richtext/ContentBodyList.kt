@@ -121,8 +121,8 @@ fun rememberContentBodyState(elements: List<RichTextElement>): ContentBodyState 
 private fun outlineOf(elements: List<RichTextElement>): List<OutlineEntry> {
     val headings = elements.mapIndexedNotNull { index, element ->
         val heading = element as? RichTextElement.Heading ?: return@mapIndexedNotNull null
-        // A heading that is nothing but a formula is still a heading: its text is the placeholder the
-        // formula is drawn over, never blank.
+        // A heading that is nothing but a formula is still a heading: its text is the placeholder
+        // the formula is drawn over, never blank.
         if (heading.content.text.isBlank()) null else index to heading
     }
     val shallowest = headings.minOfOrNull { (_, heading) -> heading.level } ?: return emptyList()

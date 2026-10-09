@@ -131,7 +131,8 @@ fun TableComponent(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        // Fixed-width cells inside a horizontal scroll; a selection dragged across them would fight it.
+        // Fixed-width cells inside a horizontal scroll; a selection dragged across them would fight
+        // it.
         DisableSelection {
             Card(
                 modifier = Modifier.wrapContentWidth(Alignment.Start),

@@ -100,7 +100,9 @@ internal class ReadingProgress {
     }
 }
 
-/** Reports on the way out, from either exit: the app pausing, or the screen leaving the back stack. */
+/**
+ * Reports on the way out, from either exit: the app pausing, or the screen leaving the back stack.
+ */
 @Composable
 internal fun FlushProgressOnLeave(onFlush: () -> Unit) {
     val flush by rememberUpdatedState(onFlush)

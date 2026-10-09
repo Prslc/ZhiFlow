@@ -100,7 +100,8 @@ fun CustomBottomSheet(
         if (transitionState.currentState || transitionState.targetState) {
             hasBeenUp.value = true
         } else if (hasBeenUp.value) {
-            // Both ends false is also how a sheet that was never up reads; the flag tells them apart.
+            // Both ends false is also how a sheet that was never up reads; the flag tells them
+            // apart.
             hasBeenUp.value = false
             onDismissRequest()
         }

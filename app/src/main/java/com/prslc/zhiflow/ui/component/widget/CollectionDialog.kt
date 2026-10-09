@@ -145,7 +145,8 @@ fun CollectionDialog(
                     }
                 }
 
-                // Only a submit failure reaches here; a failed initial load shows LoadMoreErrorItem.
+                // Only a submit failure reaches here; a failed initial load shows
+                // LoadMoreErrorItem.
                 val submitError = state.error?.takeIf { state.collections.isNotEmpty() }
                 LaunchedEffect(submitError) {
                     if (submitError != null) haptic.performHapticFeedback(HapticFeedbackType.Reject)

@@ -14,7 +14,10 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 
 @Immutable
 object AnnotatedStringBuilder {
-    /** Stands in for an inline formula in the built text; the inline content draws the image over it. */
+    /**
+     * Stands in for an inline formula in the built text; the inline content draws the image over
+     * it.
+     */
     const val FORMULA_PLACEHOLDER = "\uFFFD"
 
     /** Range of a `seg_like` mark, carrying the [SegmentLikeTarget.key] that identifies it. */
@@ -26,7 +29,9 @@ object AnnotatedStringBuilder {
     /** Range that carries a url to open. Coloured by the theme, like [CODE_TAG]. */
     const val URL_TAG = "URL"
 
-    /** Range of a `code` mark. Its colours are the theme's, so the range is marked and not styled. */
+    /**
+     * Range of a `code` mark. Its colours are the theme's, so the range is marked and not styled.
+     */
     const val CODE_TAG = "CODE"
 
     /** Range of a `reference` mark, marked for the same reason as [CODE_TAG]. */
@@ -46,14 +51,14 @@ object AnnotatedStringBuilder {
      * Three kinds of range are annotated rather than styled, because what they look like is not
      * known here. A `seg_like` range's underline is solid or dashed with live like state; a link, a
      * `code` block and a `reference` take their colours from the theme, which flips while a body
-     * stays parsed. Carrying a mode in the string would make the parse depend on it, and every cache
-     * of a parsed body would have to be purged whenever the reader changed theme. The renderer knows
-     * the mode and applies those three styles, reading the ranges back off these annotations -- the
-     * same way a rebuilt string keeps carrying a `seg_like` range.
+     * stays parsed. Carrying a mode in the string would make the parse depend on it, and every
+     * cache of a parsed body would have to be purged whenever the reader changed theme. The
+     * renderer knows the mode and applies those three styles, reading the ranges back off these
+     * annotations -- the same way a rebuilt string keeps carrying a `seg_like` range.
      *
-     * A `seg_like` range ends where its bubble begins — the offset mapping that the tail of the loop
-     * leaves behind points past the bubble, and the underline has to stop short of it. A range with
-     * nothing said about it carries no bubble and ends at its own last character instead; its
+     * A `seg_like` range ends where its bubble begins — the offset mapping that the tail of the
+     * loop leaves behind points past the bubble, and the underline has to stop short of it. A range
+     * with nothing said about it carries no bubble and ends at its own last character instead; its
      * underline is still there, and still opens the panel.
      *
      * @param onFormulaFound Returns null to drop the mark's raw text instead of placing inline

@@ -89,8 +89,8 @@ fun ZRichText(
             content.spanStyles.forEach { addStyle(it.item, it.start, it.end) }
             content.paragraphStyles.forEach { addStyle(it.item, it.start, it.end) }
 
-            // Before the loop below: it replaces the URL ranges with link annotations, which takes the
-            // tag this reads them by with it.
+            // Before the loop below: it replaces the URL ranges with link annotations, which takes
+            // the tag this reads them by with it.
             applyThemeSpans(content, isDark)
 
             content.getStringAnnotations(0, content.length).forEach { annotation ->

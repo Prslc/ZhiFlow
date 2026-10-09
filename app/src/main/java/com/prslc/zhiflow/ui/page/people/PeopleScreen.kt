@@ -61,8 +61,8 @@ private val TOP_BAR_HEIGHT = 48.dp
 /** M3's top app bars inset their actions by 4dp; flush to the edge reads as clipped. */
 private val TOP_BAR_SIDE_PADDING = 4.dp
 
-// The loaded page resolves over the loading one rather than cutting to it: a bright cover landing on
-// a black screen in a single frame is what reads as a flash.
+// The loaded page resolves over the loading one rather than cutting to it: a bright cover landing
+// on a black screen in a single frame is what reads as a flash.
 private const val CONTENT_FADE_MS = 120
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -132,8 +132,9 @@ fun PeopleScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .collapsingHeader { viewModel.headerScrollOffset }
-                                        // Inside the collapsing modifier on purpose: the scroll limits want
-                                        // the header's own height, not the part of it left on screen.
+                                        // Inside the collapsing modifier on purpose: the scroll
+                                        // limits want the header's own height, not the part of it
+                                        // left on screen.
                                         .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() },
                                 ) {
                                     PeopleHeader(user = user, onFollowClick = viewModel::toggleFollow)
@@ -229,8 +230,9 @@ fun PeopleScreen(
                             }
                         }
 
-                        // Empty, and it has to stay sized: this is also the copy that fades out under
-                        // the loaded one, so it cannot collapse. Nothing is drawn while it loads.
+                        // Empty, and it has to stay sized: this is also the copy that fades out
+                        // under the loaded one, so it cannot collapse. Nothing is drawn while it
+                        // loads.
                         else -> Box(Modifier.fillMaxSize())
                     }
                 }

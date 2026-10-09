@@ -18,7 +18,9 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 @Immutable
 object ContentParser {
 
-    /** Page furniture rather than content: dropped here so the parsed body is the body everywhere. */
+    /**
+     * Page furniture rather than content: dropped here so the parsed body is the body everywhere.
+     */
     private val DROPPED_CARD_TYPES = setOf("reward_tail_truncate", "free_column_card")
 
     /**
@@ -41,9 +43,9 @@ object ContentParser {
 
                 "list_node" -> segment.listNode?.let { listNode ->
                     // One counter per list, not per call: a new list_node means the list was
-                    // interrupted, and the API gives no signal that the numbering carries on. Sharing
-                    // one across a parsing chunk instead made the result depend on where the chunk
-                    // boundary fell.
+                    // interrupted, and the API gives no signal that the numbering carries on.
+                    // Sharing one across a parsing chunk instead made the result depend on where
+                    // the chunk boundary fell.
                     val counter = OrderedListCounter()
                     listNode.items.map { item ->
                         val p = parseContent(item.text, item.marks)

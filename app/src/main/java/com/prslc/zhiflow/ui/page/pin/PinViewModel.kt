@@ -74,7 +74,9 @@ class PinViewModel(
 
     private val progress = ReadingProgress()
 
-    /** Reading position as a 0f..1f fraction: the progress bar draws it, [flushProgress] reports it. */
+    /**
+     * Reading position as a 0f..1f fraction: the progress bar draws it, [flushProgress] reports it.
+     */
     val readProgress: Float
         get() = progress.fraction
 

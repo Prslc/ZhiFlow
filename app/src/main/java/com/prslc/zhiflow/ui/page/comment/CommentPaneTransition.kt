@@ -94,7 +94,8 @@ fun CommentPaneTransition(
     var isGesturing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isDetail) {
-        // Judged by rest, not by targetState: a gesture's seek has already pointed that at this side.
+        // Judged by rest, not by targetState: a gesture's seek has already pointed that at this
+        // side.
         if (!detailState.isAt(isDetail)) {
             if (isDetail) detailState.animateTo(true) else detailState.completeExit()
         }
@@ -139,8 +140,8 @@ fun CommentPaneTransition(
         onBackToMain()
     }
 
-    // The pane behind carries the dim, the way the page being covered does in MainActivity; riding the
-    // transition's own play time is what keeps it on the same curve as the move.
+    // The pane behind carries the dim, the way the page being covered does in MainActivity; riding
+    // the transition's own play time is what keeps it on the same curve as the move.
     val behind by detailTransition.animateFloat(
         transitionSpec = { tween(PANE_MS, easing = FastOutSlowInEasing) },
         label = "paneBehind",
@@ -148,14 +149,14 @@ fun CommentPaneTransition(
 
     detailTransition.AnimatedContent(
         transitionSpec = {
-            // The app's own push and pop (MainActivity) without their fades: the arriving pane takes
-            // the full width while the one behind it drifts a fifth.
+            // The app's own push and pop (MainActivity) without their fades: the arriving pane
+            // takes the full width while the one behind it drifts a fifth.
             if (targetState) {
                 slideInHorizontally(PANE_MOVE) { it } togetherWith
                         slideOutHorizontally(PANE_MOVE) { -it / 5 }
             } else {
-                // The arriving pane is the one that was behind, so the leaving one stays on top: at the
-                // default order the parent would be drawn over the pane it is revealing.
+                // The arriving pane is the one that was behind, so the leaving one stays on top: at
+                // the default order the parent would be drawn over the pane it is revealing.
                 ContentTransform(
                     targetContentEnter = slideInHorizontally(PANE_MOVE) { -it / 5 },
                     initialContentExit = slideOutHorizontally(PANE_MOVE) { it },

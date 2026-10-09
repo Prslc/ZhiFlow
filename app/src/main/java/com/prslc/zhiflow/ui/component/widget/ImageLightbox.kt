@@ -130,7 +130,8 @@ fun ImageLightbox(
         DisposableEffect(insetsController) {
             insetsController?.isAppearanceLightStatusBars = false
             onDispose {
-                // Show both bars, not just status: dismissing while zoomed would leave the nav bar hidden.
+                // Show both bars, not just status: dismissing while zoomed would leave the nav bar
+                // hidden.
                 insetsController?.show(barsType)
                 insetsController?.isAppearanceLightStatusBars = defaultDarkIcons
             }

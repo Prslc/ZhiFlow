@@ -67,8 +67,8 @@ fun BulletItemRow(
                 modifier = Modifier.width(markerWidth).height(firstLineHeight),
                 contentAlignment = Alignment.Center,
             ) {
-                // A sub-list changes its mark as well as its indent, the way a nested ul does on the
-                // web: filled disc, then ring, then square, and back round.
+                // A sub-list changes its mark as well as its indent, the way a nested ul does on
+                // the web: filled disc, then ring, then square, and back round.
                 val color = MaterialTheme.colorScheme.primary
                 when ((element.level - 1) % 3) {
                     1 -> Box(modifier = Modifier.size(dotSize).border(1.5.dp, color, CircleShape))

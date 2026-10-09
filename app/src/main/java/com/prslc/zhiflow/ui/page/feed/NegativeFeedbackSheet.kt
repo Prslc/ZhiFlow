@@ -76,8 +76,9 @@ fun NegativeFeedbackSheet(
         animateResize = false,
     ) {
         when {
-            // Nothing drawn while they load: the panel is the rows, and the first thing a long-press
-            // shows is the feed dimming. The height stays, because the entry slides through it.
+            // Nothing drawn while they load: the panel is the rows, and the first thing a
+            // long-press shows is the feed dimming. The height stays, because the entry slides
+            // through it.
             state.isLoading -> Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
