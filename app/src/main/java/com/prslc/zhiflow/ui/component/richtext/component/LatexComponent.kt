@@ -129,7 +129,7 @@ fun LatexComponent(
         )
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp, horizontal = 16.dp),
         ) {
