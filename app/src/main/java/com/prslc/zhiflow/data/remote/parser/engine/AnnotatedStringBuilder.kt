@@ -18,10 +18,11 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 @Immutable
 object AnnotatedStringBuilder {
     /**
-     * Stands in for an inline formula in the built text; the inline content draws the image over
-     * it.
+     * Stands in for the speech bubble at the end of a `seg_like` range; the inline content draws
+     * the icon over it. It is text, so a copy of the paragraph hands this character over where the
+     * bubble is.
      */
-    const val FORMULA_PLACEHOLDER = "\uFFFD"
+    const val BUBBLE_PLACEHOLDER = "\uFFFD"
 
     /** Range of a `seg_like` mark, carrying the [SegmentLikeTarget.key] that identifies it. */
     const val SEGMENT_LIKE_TAG = "SEGMENT_LIKE"
@@ -56,9 +57,12 @@ object AnnotatedStringBuilder {
      * Build an [AnnotatedString] from raw text and a list of [Mark] style definitions.
      *
      * Segments text by mark boundaries, applies the span styles that carry no theme (bold, italic,
-     * strikethrough), and invokes [onFormulaFound] for inline formula placeholders. A bracket that
-     * names an emoji this app carries is replaced the same way -- one placeholder, two annotations
-     * -- so the words around it keep the offsets the marks were measured against.
+     * strikethrough), and invokes [onFormulaFound] for inline formula placeholders. What an inline
+     * formula leaves in the text is the LaTeX the API sent rather than a stand-in character: the
+     * bitmap is drawn over it, so the reader never sees it, and copying the paragraph is where it
+     * comes out. A bracket that names an emoji this app carries is replaced the same way -- one
+     * placeholder, two annotations -- so the words around it keep the offsets the marks were
+     * measured against.
      *
      * Three kinds of range are annotated rather than styled, because what they look like is not
      * known here. A `seg_like` range's underline is solid or dashed with live like state; a link, a
@@ -121,7 +125,7 @@ object AnnotatedStringBuilder {
 
                         onFormulaFound(insertion.mark, insertionStart)?.let { meta ->
                             inlineMetas.add(meta)
-                            appendInlineContent(meta.inlineId, FORMULA_PLACEHOLDER)
+                            appendInlineContent(meta.inlineId, meta.formula.content)
                         }
 
                         while (currentRawIndex < end) {
@@ -154,7 +158,7 @@ object AnnotatedStringBuilder {
                         val insertionStart = length
                         appendInlineContent(
                             segmentLikeIconId(insertionStart),
-                            FORMULA_PLACEHOLDER,
+                            BUBBLE_PLACEHOLDER,
                         )
                         addStringAnnotation(
                             SEGMENT_LIKE_ICON_TAG,
