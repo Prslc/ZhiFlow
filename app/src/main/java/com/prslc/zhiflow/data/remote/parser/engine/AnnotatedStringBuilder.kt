@@ -19,10 +19,11 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 object AnnotatedStringBuilder {
     /**
      * Stands in for the speech bubble at the end of a `seg_like` range; the inline content draws
-     * the icon over it. It is text, so a copy of the paragraph hands this character over where the
-     * bubble is.
+     * the icon over it. It has to be a character -- the layout reserves the bubble's room with one,
+     * and an empty stand-in is refused -- but what it should amount to in a copy is nothing, so it
+     * is a word joiner: zero-width, and not a place a line may break.
      */
-    const val BUBBLE_PLACEHOLDER = "\uFFFD"
+    const val BUBBLE_PLACEHOLDER = "\u2060"
 
     /** Range of a `seg_like` mark, carrying the [SegmentLikeTarget.key] that identifies it. */
     const val SEGMENT_LIKE_TAG = "SEGMENT_LIKE"
