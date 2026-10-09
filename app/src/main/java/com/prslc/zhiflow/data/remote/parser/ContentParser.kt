@@ -252,6 +252,7 @@ object ContentParser {
             } ?: emptyList()
         } else {
             val stats = voteStatsOf(extra?.desc)
+            val isExternal = extra != null && extra.contentType.isNullOrBlank()
             listOf(
                 RichTextElement.Card(
                     cardType = it.cardType,
@@ -264,7 +265,10 @@ object ContentParser {
                     // The type to wear is the one of what the card points at, and that is
                     // extra_info's: the card's own names the content it sits in, so a link to an
                     // answer inside a pin arrives as PIN.
-                    contentType = extra?.contentType ?: it.contentType,
+                    contentType = if (isExternal) null else extra?.contentType ?: it.contentType,
+                    // A card leading off Zhihu is sent a blank content type, and carries the address
+                    // itself in desc, where a card to our own content puts the counts line.
+                    externalLink = extra?.desc?.takeIf { d -> isExternal && d.startsWith("http") },
                     voteCount = stats?.voteCount ?: 0,
                     commentCount = stats?.commentCount ?: 0,
                 ))

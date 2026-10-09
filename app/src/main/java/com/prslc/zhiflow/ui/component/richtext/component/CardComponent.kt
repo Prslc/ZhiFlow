@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,8 +42,8 @@ import com.prslc.zhiflow.ui.theme.TextStyles
  * A card a body embeds: a link out to other content.
  *
  * It is a teaser and not a copy -- two lines of title, and a meta line under them carrying the
- * counts and the word for what the link points at -- and there is no text to select, so selection
- * is off and the whole surface is the tap target.
+ * counts and the word for what the link points at, or the address itself when it leads off Zhihu
+ * -- and there is no text to select, so selection is off and the whole surface is the tap target.
  *
  * @param element The card segment. Its url is what a tap opens, through the navigator.
  * @param modifier Applied to the surface, ahead of the `fillMaxWidth` and the 4dp of vertical
@@ -53,19 +56,6 @@ fun CardComponent(
 ) {
     val navigator = LocalNavigator.current
     val hasImage = !element.cover.isNullOrBlank()
-
-    val typeLabel = stringResource(contentTypeConfig(element.contentType).labelResId)
-    val metaLine = if (element.voteCount > 0 || element.commentCount > 0) {
-        val counts = pluralStringResource(
-            R.plurals.feed_meta,
-            element.commentCount,
-            element.voteCount,
-            element.commentCount,
-        )
-        "$counts  $typeLabel"
-    } else {
-        typeLabel
-    }
 
     // Tappable teaser: title clipped to 2 lines, the meta line to 1 — no full text to select.
     DisableSelection {
@@ -120,18 +110,66 @@ fun CardComponent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
 
-                    Text(
-                        text = metaLine,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = TextStyles.cardDescSize
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
+                    CardMetaLine(element, Modifier.padding(top = 4.dp))
                 }
             }
         }
+    }
+}
+
+/**
+ * The line under a card's title: what the card points at, or the address of the page it leads to.
+ */
+@Composable
+private fun CardMetaLine(
+    element: RichTextElement.Card,
+    modifier: Modifier = Modifier
+) {
+    val style = MaterialTheme.typography.bodySmall.copy(
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = TextStyles.cardDescSize
+    )
+
+    val link = element.externalLink
+    if (link != null) {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Link,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(14.dp),
+            )
+            Text(
+                text = link.substringAfter("://"),
+                style = style,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    } else {
+        val typeLabel = stringResource(contentTypeConfig(element.contentType).labelResId)
+        val metaLine = if (element.voteCount > 0 || element.commentCount > 0) {
+            val counts = pluralStringResource(
+                R.plurals.feed_meta,
+                element.commentCount,
+                element.voteCount,
+                element.commentCount,
+            )
+            "$counts  $typeLabel"
+        } else {
+            typeLabel
+        }
+
+        Text(
+            text = metaLine,
+            style = style,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier,
+        )
     }
 }
