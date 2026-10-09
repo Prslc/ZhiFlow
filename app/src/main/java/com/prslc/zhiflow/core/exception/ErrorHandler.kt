@@ -4,12 +4,10 @@ import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
-/*
- * Converters from [Throwable] and OkHttp [Response] to domain-specific [ApiException].
- *
- * Since OkHttp does not throw exceptions for non-2xx status codes, we provide
- * an extension for [Response] to handle HTTP errors explicitly.
- */
+// Converters from Throwable and OkHttp Response to domain-specific ApiException.
+//
+// Since OkHttp does not throw exceptions for non-2xx status codes, we provide an extension for
+// Response to handle HTTP errors explicitly.
 
 /**
  * Handles network-level exceptions (e.g., timeouts, no internet).
