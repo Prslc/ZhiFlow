@@ -3,14 +3,16 @@ package com.prslc.zhiflow.ui.component.richtext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -19,12 +21,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
+
+/** What a row's text keeps from the sheet's edges, and what each level of depth adds to it. */
+private const val ROW_INSET_DP = 20
+private const val ROW_LEVEL_INDENT_DP = 16
+
+/** The bar marking the row being read, and the room the indent leaves for it. */
+private val CURRENT_RAIL_WIDTH = 3.dp
+private val CURRENT_RAIL_GAP = 12.dp
+
+// The second level and the chevrons step back by opacity rather than by taking the scheme's variant
+// tones: on the dynamic palette this runs on, onSurfaceVariant measured within 2/255 of onSurface,
+// so a step written in tones is not there to see.
+private const val SECOND_LEVEL_ALPHA = 0.7f
+
+// A row's chevron is the one mark that repeats on every row, so it has to sit far enough down that
+// it is read only when looked for: at the text's own half-strength it was a column of its own.
+private const val CHEVRON_ALPHA = 0.25f
 
 /**
  * The outline of a content body: its headings, indented by how deep each sits, the one the reader
@@ -62,7 +85,7 @@ fun BodyOutlineSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -88,35 +111,82 @@ fun BodyOutlineSheet(
                 }
             }
 
+            HorizontalDivider(
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+            )
+
+            // Not weight(1f) on its own: filling the share it is given is what would hold a short
+            // outline's sheet up at the height cap instead of letting it sit at its own height.
             LazyColumn(
                 state = listState,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f, fill = false),
             ) {
                 itemsIndexed(entries) { index, entry ->
                     val isCurrent = index == current
-                    ZRichText(
-                        content = entry.content,
-                        inlineMetas = entry.inlineMetas,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isCurrent) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                        ),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                    val topLevel = entry.depth == 0
+                    val indent = (ROW_INSET_DP + entry.depth * ROW_LEVEL_INDENT_DP).dp
+                    val railColor = MaterialTheme.colorScheme.primary
+                    val levelStyle = if (topLevel) {
+                        MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                    } else {
+                        MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                                .copy(alpha = SECOND_LEVEL_ALPHA),
+                        )
+                    }
+
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            // Marks the row, not only the words: the blue says where the reader
+                            // is in the text, this says which row they are about to tap.
+                            .drawBehind {
+                                if (!isCurrent) return@drawBehind
+                                val railWidth = CURRENT_RAIL_WIDTH.toPx()
+                                drawRoundRect(
+                                    color = railColor,
+                                    topLeft = Offset(
+                                        indent.toPx() - CURRENT_RAIL_GAP.toPx(),
+                                        0f,
+                                    ),
+                                    size = Size(railWidth, size.height),
+                                    cornerRadius = CornerRadius(railWidth / 2f),
+                                )
+                            }
                             .clickable { onEntryClick(entry) }
                             .padding(
-                                start = (20 + entry.depth * 16).dp,
-                                end = 20.dp,
+                                start = indent,
+                                end = ROW_INSET_DP.dp,
                                 top = 12.dp,
                                 bottom = 12.dp,
                             ),
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        ZRichText(
+                            content = entry.content,
+                            inlineMetas = entry.inlineMetas,
+                            style = levelStyle.copy(
+                                color = if (isCurrent) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    levelStyle.color
+                                },
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                                .copy(alpha = CHEVRON_ALPHA),
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(20.dp),
+                        )
+                    }
                 }
             }
         }
