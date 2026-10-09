@@ -170,7 +170,7 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
 - Each `Formula` carries `content`, `img_url`, and dp `width`/`height` (the PNG is 3x that). The API never omits these.
 - `LatexComponent` (in `component/LatexComponent.kt`) loads the image via Coil `AsyncImage`. Inline and block formulas share the same component; block formulas are centered with no horizontal scroll.
 - Sizing follows the values the API sends:
-  - Image and `Placeholder` bounds use the exact server dp `width`/`height`, so formulas keep their natural size variation (simple subscripts ~13dp, display fractions up to ~56dp).
+  - Image and `Placeholder` bounds use the exact server dp `width`/`height`, so formulas keep their natural size variation (simple subscripts ~13dp, display blocks up to ~164dp — 89dp and 164dp both occur in a single answer).
   - Widths are clamped to screen width minus 42dp (`constrainedSize`), scaling height proportionally — over-wide formulas are scaled down, never cropped or scrolled.
   - The dp→sp conversion divides by `fontScale` (`formulaPlaceholder`), so rendered pixels stay constant regardless of the user's system font size.
 - A row is only as tall as its style asks for: Compose re-imposes an explicit `lineHeight` on a row a tall placeholder has grown, so a formula taller than the line would be drawn across its neighbours. Every host of an inline formula — `FormulaTextSection` for a paragraph, `ZRichText` for a heading, quote, list item, reference or table cell — takes its line height from `withFormulaLineHeight`, which raises it to the tallest formula plus 8dp of clearance.
