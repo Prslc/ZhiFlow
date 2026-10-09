@@ -173,7 +173,7 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
   - Image and `Placeholder` bounds use the exact server dp `width`/`height`, so formulas keep their natural size variation (simple subscripts ~13dp, display fractions up to ~56dp).
   - Widths are clamped to screen width minus 42dp (`constrainedSize`), scaling height proportionally — over-wide formulas are scaled down, never cropped or scrolled.
   - The dp→sp conversion divides by `fontScale` (`formulaPlaceholder`), so rendered pixels stay constant regardless of the user's system font size.
-- `FormulaTextSection` (paragraph path) raises the paragraph `lineHeight` to the tallest inline formula so tall fractions don't overlap adjacent rows (Compose does not grow a row for a tall placeholder).
+- A row is only as tall as its style asks for: Compose re-imposes an explicit `lineHeight` on a row a tall placeholder has grown, so a formula taller than the line would be drawn across its neighbours. Every host of an inline formula — `FormulaTextSection` for a paragraph, `ZRichText` for a heading, quote, list item, reference or table cell — takes its line height from `withFormulaLineHeight`, which raises it to the tallest formula plus 8dp of clearance.
 - Dark mode inverts the white-background bitmap via a `ColorMatrix`, not a tint.
 - Why images instead of `latex-renderer`: the library measured + laid out each formula synchronously on the main thread inside `LatexDocument`'s `remember`, causing ~23% janky frames and up to 1s p99 while scrolling formula-heavy pages. Image rendering uses the API's pre-rendered bitmaps with zero measurement; Coil loads/decodes off the main thread. The cost is extra network traffic for the formula images.
 
