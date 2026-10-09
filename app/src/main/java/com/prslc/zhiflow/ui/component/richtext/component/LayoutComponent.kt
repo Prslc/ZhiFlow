@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
@@ -140,9 +141,19 @@ fun TableComponent(
         // it.
         DisableSelection {
             Card(
+                colors = CardDefaults.cardColors(
+                    // The grid draws its own edges; a filled container under them only muddies the
+                    // band and the lines. The content colour has to be stated, since a transparent
+                    // container maps to none.
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 modifier = Modifier.wrapContentWidth(Alignment.Start),
                 shape = RoundedCornerShape(4.dp),
-                border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+                border = BorderStroke(
+                    0.5.dp,
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                )
             ) {
                 Box(modifier = Modifier.horizontalScroll(scrollState)) {
                     Column(modifier = Modifier.width(IntrinsicSize.Max)) {
@@ -152,8 +163,12 @@ fun TableComponent(
                             Row(
                                 modifier = Modifier
                                     .background(
-                                        if (isHeader) MaterialTheme.colorScheme.surfaceVariant
-                                        else Color.Transparent
+                                        if (isHeader) {
+                                            MaterialTheme.colorScheme.surfaceVariant
+                                                .copy(alpha = 0.4f)
+                                        } else {
+                                            Color.Transparent
+                                        }
                                     )
                                     .height(IntrinsicSize.Min),
                                 verticalAlignment = Alignment.CenterVertically
@@ -181,13 +196,21 @@ fun TableComponent(
                                     }
 
                                     if (colIndex < element.cols - 1) {
-                                        VerticalDivider(modifier = Modifier.fillMaxHeight())
+                                        VerticalDivider(
+                                            modifier = Modifier.fillMaxHeight(),
+                                            color = MaterialTheme.colorScheme.outlineVariant
+                                                .copy(alpha = 0.5f),
+                                        )
                                     }
                                 }
                             }
 
                             if (rowIndex < element.rows - 1) {
-                                HorizontalDivider(thickness = 0.5.dp)
+                                HorizontalDivider(
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                        .copy(alpha = 0.5f),
+                                )
                             }
                         }
                     }
