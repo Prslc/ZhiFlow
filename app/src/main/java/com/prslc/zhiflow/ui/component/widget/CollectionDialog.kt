@@ -42,7 +42,6 @@ import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 /**
  * The picker a reader saves content into: it loads the collections they own, lets them tick and
  * untick, and writes the lot as one request when they confirm.
@@ -60,6 +59,7 @@ import org.koin.androidx.compose.koinViewModel
  *   padding it adds itself.
  * @param viewModel The dialog loads and writes through it; a caller passes one only to test.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionDialog(
     id: String,

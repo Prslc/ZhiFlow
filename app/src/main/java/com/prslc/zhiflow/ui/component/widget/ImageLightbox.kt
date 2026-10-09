@@ -67,7 +67,6 @@ import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 /**
  * A full-screen image viewer. Its system bars belong to the dialog's own window rather than the
  * activity's, and fall back to the activity's when there is none (a preview, say).
@@ -80,6 +79,7 @@ import me.saket.telephoto.zoomable.rememberZoomableImageState
  * @param modifier Applied to the full-screen `Box` that holds the pager, ahead of the black
  *   background it paints itself.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ImageLightbox(
     images: List<ZhihuImage>,
