@@ -125,7 +125,7 @@ fun SegmentPanelSheet(
                     Column(modifier = Modifier.fillMaxSize()) {
                         held?.let { range ->
                             Text(
-                                text = range.text,
+                                text = range.passageText,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 3,
@@ -142,7 +142,7 @@ fun SegmentPanelSheet(
                                 likeCount = range.likeCount,
                                 isLiked = range.isLiked,
                                 commentCount = comments.totalCount,
-                                onCopy = { copyText(range.text) },
+                                onCopy = { copyText(range.passageText) },
                                 onLike = { onToggleLike(range.key) },
                                 onComments = { scope.launch { listState.animateScrollToItem(0) } },
                             )

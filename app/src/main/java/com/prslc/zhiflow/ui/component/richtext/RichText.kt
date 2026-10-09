@@ -52,7 +52,12 @@ fun RichTextSingleElement(
         is RichTextElement.Image -> ImageComponent(element.data, onImageClick, modifier)
         is RichTextElement.Code -> CodeBlock(element.code, element.lang, element.tokens, modifier)
         is RichTextElement.BulletItem -> BulletItemRow(element, modifier)
-        is RichTextElement.Blockquote -> BlockquoteComponent(element, modifier)
+        is RichTextElement.Blockquote -> BlockquoteComponent(
+            element = element,
+            modifier = modifier,
+            segmentLikes = segmentLikes,
+            onSegmentLikeClick = onSegmentLikeClick,
+        )
         is RichTextElement.Card -> when (element.cardType) {
             "reward_tail_truncate" -> { /* TODO: custom rendering */ }
             "free_column_card" -> { /* TODO: custom rendering */ }

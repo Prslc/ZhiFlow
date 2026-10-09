@@ -56,8 +56,8 @@ object ContentParser {
                 } ?: emptyList()
 
                 "blockquote" -> segment.blockquote?.let {
-                    val p = parseContent(it.text, it.marks)
-                    listOf(RichTextElement.Blockquote(p.content, p.inlineMetas))
+                    val p = parseContent(it.text, it.marks, it.pid, segLikeHost = true)
+                    listOf(RichTextElement.Blockquote(p.content, p.inlineMetas, p.segmentLikes))
                 } ?: emptyList()
 
                 "table" -> segment.table?.let {
@@ -92,15 +92,27 @@ object ContentParser {
         }
     }
 
+    /**
+     * Parse one host's text into the string a renderer draws.
+     *
+     * @param rawText The host's text, as the API sent it.
+     * @param marks Its marks, offset into [rawText].
+     * @param paragraphId The host's `pid`, which a like request addresses its ranges by.
+     * @param segLikeHost True for the two hosts whose ranges the reader can open -- a paragraph and
+     *   a quote. Every other host parses without them, so that no bubble is drawn that nothing
+     *   answers.
+     */
     private fun parseContent(
         rawText: String,
         marks: List<Mark>,
-        paragraphId: String? = null
+        paragraphId: String? = null,
+        segLikeHost: Boolean = false,
     ): ProcessedText {
         return AnnotatedStringBuilder.build(
             rawText = rawText,
             marks = marks,
-            segmentLikes = segmentLikeTargets(rawText, marks, paragraphId),
+            segmentLikes = if (segLikeHost) segmentLikeTargets(rawText, marks, paragraphId)
+            else emptyList(),
             onFormulaFound = { mark, pos ->
                 mark.formula?.let {
                     FormulaHandler.prepareInlineMeta(it, pos)
@@ -164,7 +176,7 @@ object ContentParser {
         }.sortedBy { it.start }
 
         if (blockFormulaMarks.isEmpty()) {
-            val processed = parseContent(rawText, marks, paragraph.pid)
+            val processed = parseContent(rawText, marks, paragraph.pid, segLikeHost = true)
             return listOf(
                 RichTextElement.ParsedText(
                     processed.content,
@@ -183,7 +195,9 @@ object ContentParser {
                 if (subText.isNotBlank() && subText != "\n") {
                     val subMarks = marks.filter { it.start >= lastIndex && it.end <= mark.start }
                         .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
-                    val processed = parseContent(subText, subMarks, paragraph.pid)
+                    val processed = parseContent(
+                        subText, subMarks, paragraph.pid, segLikeHost = true
+                    )
                     elements.add(
                         RichTextElement.ParsedText(
                             processed.content,
@@ -202,7 +216,7 @@ object ContentParser {
             if (subText.isNotBlank() && subText != "\n") {
                 val subMarks = marks.filter { it.start >= lastIndex }
                     .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
-                val processed = parseContent(subText, subMarks, paragraph.pid)
+                val processed = parseContent(subText, subMarks, paragraph.pid, segLikeHost = true)
                 elements.add(
                     RichTextElement.ParsedText(
                         processed.content,

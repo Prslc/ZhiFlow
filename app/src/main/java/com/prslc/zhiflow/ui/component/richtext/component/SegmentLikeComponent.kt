@@ -19,6 +19,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 
@@ -103,7 +104,8 @@ fun AnnotatedString.rememberSegmentLikeIcons(
  * @param color The colour of the line.
  * @param dashed True for a passage the reader has not liked, false for one they have. The solid
  *   line is the thicker of the pair.
- * @param baselineGap How far below each line's baseline the rule is drawn, in pixels.
+ * @param baselineGap How far below each line's baseline the rule is drawn. No host passes one: the
+ *   gap is the same wherever a range is drawn.
  */
 fun DrawScope.drawSegmentUnderline(
     layout: TextLayoutResult,
@@ -111,7 +113,7 @@ fun DrawScope.drawSegmentUnderline(
     end: Int,
     color: Color,
     dashed: Boolean,
-    baselineGap: Float,
+    baselineGap: Dp = 3.dp,
 ) {
     val textLength = layout.layoutInput.text.length
     val from = start.coerceIn(0, textLength)
@@ -119,6 +121,7 @@ fun DrawScope.drawSegmentUnderline(
     if (from >= to) return
 
     val thickness = if (dashed) 1.dp.toPx() else 1.5.dp.toPx()
+    val gap = baselineGap.toPx()
     val pathEffect = if (dashed) {
         PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx()))
     } else {
@@ -131,7 +134,7 @@ fun DrawScope.drawSegmentUnderline(
 
     fun flush() {
         if (line < 0) return
-        val y = layout.getLineBaseline(line) + baselineGap
+        val y = layout.getLineBaseline(line) + gap
         drawLine(
             color = color,
             start = Offset(left, y),

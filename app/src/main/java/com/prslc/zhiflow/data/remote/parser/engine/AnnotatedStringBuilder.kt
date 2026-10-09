@@ -37,8 +37,6 @@ object AnnotatedStringBuilder {
     /** Range of a `reference` mark, marked for the same reason as [CODE_TAG]. */
     const val REFERENCE_TAG = "REFERENCE"
 
-    private const val NO_BUBBLE = -1
-
     /** Built-offset key of the inline content for that bubble. */
     fun segmentLikeIconId(position: Int) = "seg_like_icon_$position"
 
@@ -64,7 +62,8 @@ object AnnotatedStringBuilder {
      * @param onFormulaFound Returns null to drop the mark's raw text instead of placing inline
      *   content over it.
      * @param segmentLikes The ranges to mark up, in raw-text order. One whose
-     *   [SegmentLikeTarget.commentCount] is zero is underlined but gets no bubble.
+     *   [SegmentLikeTarget.commentCount] is zero is underlined but gets no bubble, and a range is
+     *   marked to its [SegmentLikeTarget.passageEnd] rather than to its raw end.
      */
     fun build(
         rawText: String,
@@ -79,11 +78,13 @@ object AnnotatedStringBuilder {
         val insertions = buildList {
             formulaMarks.forEach { add(Insertion.Replace(it.start, it.end, it)) }
             segmentLikes.filter { it.commentCount > 0 }
-                .forEach { add(Insertion.Point(it.rawEnd, it)) }
+                .forEach { add(Insertion.Point(it.passageEnd, it)) }
         }.sortedBy { it.start }
 
         val rawToBuiltMap = IntArray(rawText.length + 1)
-        val bubbleStarts = IntArray(rawText.length + 1) { NO_BUBBLE }
+        // Keyed by the range, not by the offset a bubble sits at: two ranges can share an offset,
+        // and an underline read off the wrong one would stop at a bubble that is not its own.
+        val bubbleStarts = mutableMapOf<String, Int>()
 
         val annotated = buildAnnotatedString {
             var currentRawIndex = 0
@@ -127,7 +128,7 @@ object AnnotatedStringBuilder {
                             insertionStart,
                             length,
                         )
-                        bubbleStarts[start] = insertionStart
+                        bubbleStarts[insertion.target.key] = insertionStart
                         // Zero-width in raw text: the bubble sits between [start] and the character
                         // after it, so every offset mapping stays as it was.
                     }
@@ -155,10 +156,9 @@ object AnnotatedStringBuilder {
             }
 
             segmentLikes.forEach { target ->
-                val rawEnd = target.rawEnd.coerceIn(0, rawText.length)
+                val end = target.passageEnd.coerceIn(0, rawText.length)
                 val finalStart = rawToBuiltMap[target.rawStart.coerceIn(0, rawText.length)]
-                val bubbleStart = bubbleStarts[rawEnd]
-                val finalEnd = if (bubbleStart == NO_BUBBLE) rawToBuiltMap[rawEnd] else bubbleStart
+                val finalEnd = bubbleStarts[target.key] ?: rawToBuiltMap[end]
 
                 if (finalStart < finalEnd) {
                     addStringAnnotation(SEGMENT_LIKE_TAG, target.key, finalStart, finalEnd)

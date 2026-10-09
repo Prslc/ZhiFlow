@@ -266,7 +266,6 @@ fun FormulaTextSection(
                         end = range.end,
                         color = underlineColor,
                         dashed = segmentLikes[range.item]?.isLiked != true,
-                        baselineGap = 3.dp.toPx(),
                     )
                 }
             }

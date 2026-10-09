@@ -29,6 +29,16 @@ data class SegmentLikeTarget(
     val commentCount: Int = 0,
 ) {
     val key: String get() = "$paragraphId:$rawStart:$rawEnd"
+
+    /**
+     * The passage the range covers: [text] without the whitespace it trails with. A quote's range
+     * runs to the end of its line, so its raw end is a line break rather than a character of the
+     * passage, and everything drawn -- underline, bubble, panel -- stops short of it.
+     */
+    val passageText: String get() = text.trimEnd()
+
+    /** Where [passageText] ends, as an offset into the text the range was marked in. */
+    val passageEnd: Int get() = rawEnd - (text.length - passageText.length)
 }
 
 @Immutable

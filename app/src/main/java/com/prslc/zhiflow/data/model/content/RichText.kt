@@ -76,6 +76,7 @@ data class Mark(
 data class Blockquote(
     val text: String,
     val marks: List<Mark> = emptyList(),
+    val pid: String? = null,
 )
 
 @Immutable

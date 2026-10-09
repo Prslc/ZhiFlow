@@ -95,8 +95,9 @@ sealed interface RichTextElement {
     @Stable
     data class Blockquote(
         val content: AnnotatedString,
-        val inlineMetas: List<InlineFormulaMeta>
-    ) : RichTextElement
+        val inlineMetas: List<InlineFormulaMeta>,
+        override val segmentLikes: List<SegmentLikeTarget> = emptyList(),
+    ) : RichTextElement, SegLikeHost
 
     /** List item with nesting support for ordered/unordered lists. */
     @Stable
@@ -140,6 +141,16 @@ sealed interface RichTextElement {
     data class ParsedText(
         val content: AnnotatedString,
         val inlineMetas: List<InlineFormulaMeta>,
-        val segmentLikes: List<SegmentLikeTarget> = emptyList(),
-    ) : RichTextElement
+        override val segmentLikes: List<SegmentLikeTarget> = emptyList(),
+    ) : RichTextElement, SegLikeHost
+}
+
+/**
+ * An element whose text can carry `seg_like` ranges, and so can open a passage panel.
+ *
+ * A paragraph and a quote are the two the API was seen to put those marks on. Every other host is
+ * parsed without them: a range marked up in one would draw a bubble nothing answers.
+ */
+interface SegLikeHost {
+    val segmentLikes: List<SegmentLikeTarget>
 }

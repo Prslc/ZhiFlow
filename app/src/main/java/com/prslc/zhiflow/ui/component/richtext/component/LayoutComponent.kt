@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -77,11 +78,16 @@ fun Heading(
  *
  * @param element The quoted segment.
  * @param modifier Applied to the row ahead of its 8dp of vertical padding.
+ * @param segmentLikes The live like state of the quote's `seg_like` ranges, keyed by the range's
+ *   own key. A quote carries passages like a paragraph does.
+ * @param onSegmentLikeClick Called with a range's key when the reader opens its panel.
  */
 @Composable
 fun BlockquoteComponent(
     element: RichTextElement.Blockquote,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
+    onSegmentLikeClick: (String) -> Unit = {},
 ) {
     Row(
         modifier = modifier
@@ -109,6 +115,8 @@ fun BlockquoteComponent(
                 lineHeight = 24.sp
             ),
             modifier = Modifier.padding(start = 12.dp),
+            segmentLikes = segmentLikes,
+            onSegmentLikeClick = onSegmentLikeClick,
         )
     }
 }

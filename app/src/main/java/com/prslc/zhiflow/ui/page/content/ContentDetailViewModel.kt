@@ -24,6 +24,7 @@ import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import com.prslc.zhiflow.data.remote.parser.ContentParser
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.data.remote.parser.model.SegLikeHost
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.UserRepository
@@ -288,7 +289,7 @@ class ContentViewModel(
         richTextElements = elements
 
         val targets = elements
-            .filterIsInstance<RichTextElement.ParsedText>()
+            .filterIsInstance<SegLikeHost>()
             .flatMap { it.segmentLikes }
             .filterNot { segmentLikes.containsKey(it.key) }
 
