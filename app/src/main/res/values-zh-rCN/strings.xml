@@ -55,6 +55,23 @@
     <string name="feedback_block_remove">移除关键词</string>
     <string name="feedback_block_submitted">反馈成功，将为你优化推荐结果</string>
 
+    <!-- 服务端驱动的面板行：文案随响应一起下发，这里是客户端自己认得的那些模块的叫法。 -->
+    <string name="feedback_row_not_interested">不喜欢该内容</string>
+    <string name="feedback_row_author">不再推荐作者：%1$s</string>
+    <string name="feedback_row_story">不喜欢小说故事</string>
+    <string name="feedback_row_keywords">设置屏蔽关键词</string>
+    <string name="feedback_row_repetitive">太多重复或相似内容</string>
+    <string name="feedback_row_extreme">内容极端或引战</string>
+    <string name="feedback_row_vulgar">低俗擦边</string>
+    <string name="feedback_row_poor">内容质量差</string>
+    <string name="feedback_toast_not_interested">将为你减少此类内容推荐</string>
+    <string name="feedback_toast_author">将减少该作者的推荐</string>
+    <string name="feedback_toast_story">将减少小说故事推荐</string>
+    <string name="feedback_toast_repetitive">将减少重复与相似内容</string>
+    <string name="feedback_toast_extreme">将减少此类内容推荐</string>
+    <string name="feedback_toast_vulgar">将减少此类内容推荐</string>
+    <string name="feedback_toast_poor">将减少低质量内容推荐</string>
+
     <!-- type -->
     <string name="type_answer">回答</string>
     <string name="type_article">文章</string>

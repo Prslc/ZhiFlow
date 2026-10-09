@@ -62,6 +62,7 @@ import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feed.NegativeFeedbackSheet
+import com.prslc.zhiflow.ui.page.feed.feedbackToastText
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
@@ -259,12 +260,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
         )
 
         val feedbackToast = feedViewModel.feedbackToast
+        val toastText = feedbackToast?.let { feedbackToastText(it) }
         val feedbackError = feedViewModel.feedbackError
         val feedbackErrorText = feedbackError?.uiMessage
 
-        LaunchedEffect(feedbackToast) {
-            if (feedbackToast != null) {
-                Toast.makeText(context, feedbackToast, Toast.LENGTH_SHORT).show()
+        LaunchedEffect(toastText) {
+            if (toastText != null) {
+                Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
                 feedViewModel.consumeFeedbackToast()
             }
         }

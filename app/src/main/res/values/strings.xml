@@ -59,6 +59,24 @@
     <string name="feedback_block_remove">Remove keyword</string>
     <string name="feedback_block_submitted">Feedback submitted</string>
 
+    <!-- The server-driven panel's rows, named here by module: the rows arrive worded in the
+         server's language, so the ones this app knows are drawn from these instead. -->
+    <string name="feedback_row_not_interested">Not interested in this</string>
+    <string name="feedback_row_author">Stop recommending %1$s</string>
+    <string name="feedback_row_story">Not interested in fiction</string>
+    <string name="feedback_row_keywords">Topics and keywords to block</string>
+    <string name="feedback_row_repetitive">Too repetitive or similar</string>
+    <string name="feedback_row_extreme">Extreme or inflammatory</string>
+    <string name="feedback_row_vulgar">Vulgar or suggestive</string>
+    <string name="feedback_row_poor">Poor quality</string>
+    <string name="feedback_toast_not_interested">Fewer posts like this</string>
+    <string name="feedback_toast_author">Fewer posts from this author</string>
+    <string name="feedback_toast_story">Fewer stories</string>
+    <string name="feedback_toast_repetitive">Fewer repeats</string>
+    <string name="feedback_toast_extreme">Fewer posts like this</string>
+    <string name="feedback_toast_vulgar">Fewer posts like this</string>
+    <string name="feedback_toast_poor">Fewer low-quality posts</string>
+
     <!-- type -->
     <string name="type_answer">Answer</string>
     <string name="type_article">Article</string>

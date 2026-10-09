@@ -112,6 +112,7 @@ fun NegativeFeedbackSheet(
                 state.actions.forEach { action ->
                     FeedbackRow(
                         action = action,
+                        authorName = state.authorName,
                         onClick = {
                             when (action) {
                                 is FeedbackAction.Request -> onSubmit(action)
@@ -128,9 +129,18 @@ fun NegativeFeedbackSheet(
     }
 }
 
+/**
+ * One row of the panel: the icon the server sent, and the wording this app draws for its module.
+ *
+ * @param action The row to draw.
+ * @param authorName The author of the card the panel was opened on, for the one row that names
+ *   them.
+ * @param onClick Taken with the row itself, which is what carries its request or its link.
+ */
 @Composable
 private fun FeedbackRow(
     action: FeedbackAction,
+    authorName: String?,
     onClick: () -> Unit,
 ) {
     val iconUrl = if (isSystemInDarkTheme()) {
@@ -155,7 +165,7 @@ private fun FeedbackRow(
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = action.label,
+            text = feedbackRowLabel(action, authorName),
             style = MaterialTheme.typography.bodyLarge,
             maxLines = action.maxLines,
             overflow = TextOverflow.Ellipsis,

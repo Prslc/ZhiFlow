@@ -36,6 +36,8 @@ class FeedViewModel(
         val actions: List<FeedbackAction> = emptyList(),
         val isLoading: Boolean = false,
         val error: ApiException? = null,
+        /** The author of the card the panel was opened on, where the feed still holds it. */
+        val authorName: String? = null,
     )
 
     var uiState by mutableStateOf(FeedUiState())
@@ -44,7 +46,8 @@ class FeedViewModel(
     var feedbackState by mutableStateOf(FeedbackUiState())
         private set
 
-    var feedbackToast by mutableStateOf<String?>(null)
+    /** The row whose request has just gone through, until the screen has said so. */
+    var feedbackToast by mutableStateOf<FeedbackAction.Request?>(null)
         private set
 
     var feedbackError by mutableStateOf<ApiException?>(null)
@@ -148,7 +151,11 @@ class FeedViewModel(
      */
     fun openFeedback(id: String, type: String) {
         feedbackTarget = FeedbackTarget(id, type)
-        feedbackState = FeedbackUiState(isVisible = true, isLoading = true)
+        feedbackState = FeedbackUiState(
+            isVisible = true,
+            isLoading = true,
+            authorName = uiState.items.find { it.id == id }?.authorName,
+        )
         loadPanel(id, type)
     }
 
@@ -195,7 +202,7 @@ class FeedViewModel(
         viewModelScope.launch {
             feedbackRepository.submit(action.url, action.method)
                 .onSuccess {
-                    feedbackToast = action.toastText
+                    feedbackToast = action
                     removeContent(target.id)
                 }
                 .onApiFailure { error -> feedbackError = error }

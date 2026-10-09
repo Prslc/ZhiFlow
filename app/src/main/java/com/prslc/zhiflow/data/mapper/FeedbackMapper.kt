@@ -29,6 +29,7 @@ internal fun NegativeFeedbackItem.toDto(): FeedbackAction? {
     button.action.backendUrl?.takeIf { it.isApiUrl() }?.let { url ->
         return FeedbackAction.Request(
             label = label,
+            moduleId = moduleId,
             iconUrl = iconUrl,
             nightIconUrl = nightIconUrl,
             hasChevron = hasChevron,
@@ -42,6 +43,7 @@ internal fun NegativeFeedbackItem.toDto(): FeedbackAction? {
     button.action.intentUrl?.let { url ->
         return FeedbackAction.OpenUrl(
             label = label,
+            moduleId = moduleId,
             iconUrl = iconUrl,
             nightIconUrl = nightIconUrl,
             hasChevron = hasChevron,
