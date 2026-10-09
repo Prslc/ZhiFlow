@@ -17,8 +17,8 @@ A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Comp
 | Min SDK | 33 (Android 13) |
 | Target/Compile SDK | compileSdk 37, targetSdk 36 |
 | Java | 21 |
-| Kotlin | 2.4.10 |
-| AGP | 9.2.1 |
+| Kotlin | 2.4.21 |
+| AGP | 9.4.1 |
 
 ## Build System
 
