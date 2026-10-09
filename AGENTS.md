@@ -275,4 +275,5 @@ licence header that has to stay verbatim as it came.
 ## Git Conventions
 
 - Commit format: `<type>: <description>` header, blank line, `- ` bullet list of changes, optional closing paragraph for motivation. Types: `feat`, `fix`, `refactor`, `build`, `docs`, `chore`.
+- Split by story, not by motive or by layer: one commit is one change the repo can be described as having made, told end to end. A fix that runs through the layers — the parse that carries something and the drawing that shows it — is one commit; two changes that merely share a reason are two. Nothing lands that only makes sense once the next commit is in.
 - Never run destructive git commands (force push, hard reset, skip hooks) without explicit approval
