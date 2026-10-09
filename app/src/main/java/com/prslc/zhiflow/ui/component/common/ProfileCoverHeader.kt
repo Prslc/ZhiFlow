@@ -37,7 +37,8 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.widget.rememberSingleImageLightbox
 
-private val CoverHeight = 160.dp
+/** The cover's height, from the top of the page. The status bar's icons are told it as well. */
+internal val ProfileCoverHeight = 160.dp
 private val AvatarSize = 84.dp
 private val HeaderGutter = 20.dp
 
@@ -100,7 +101,7 @@ fun ProfileCoverHeader(
                 contentDescription = coverContentDescription,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(CoverHeight)
+                    .height(ProfileCoverHeight)
                     .clickable(onClick = openCover),
                 contentScale = ContentScale.Crop,
             )

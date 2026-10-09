@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -88,9 +89,11 @@ fun PeopleScreen(
     scrollState.totalTopHeightPx = statusBarHeightPx + topBarHeightPx
 
 
-    // White status bar icons while the cover image is behind the status bar;
-    // dark icons once the opaque top bar scrolls underneath.
-    StatusBarIconEffect(darkIcons = scrollState.topBarAlpha > 0.9f)
+    // White status bar icons while the cover image is behind the status bar; once the opaque top
+    // bar is underneath they follow the theme, that bar being the theme's own surface.
+    StatusBarIconEffect(
+        darkIcons = scrollState.topBarAlpha > 0.9f && !isSystemInDarkTheme(),
+    )
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
     }

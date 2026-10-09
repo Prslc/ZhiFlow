@@ -36,8 +36,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.ui.component.common.CoverStatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeader
+import com.prslc.zhiflow.ui.component.common.ProfileCoverHeight
 import com.prslc.zhiflow.ui.component.common.ProfileStat
 import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
 import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
@@ -71,12 +73,18 @@ fun ProfileScreen(
     Box(modifier = modifier.fillMaxSize()) {
         if (user != null) {
             val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            val scrollState = rememberScrollState()
+
+            CoverStatusBarIconEffect(
+                scrollState = scrollState,
+                coverHeight = ProfileCoverHeight,
+            )
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset(y = -statusBarHeight)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
             ) {
                 ProfileCoverHeader(
                     user = user,
