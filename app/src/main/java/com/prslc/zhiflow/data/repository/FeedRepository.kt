@@ -26,8 +26,9 @@ class FeedRepository(private val service: FeedService) {
     suspend fun getFeeds(isColdStart: Boolean, nextUrl: String?): Result<FeedResult> {
         return service.getRecommendFeed(isColdStart, nextUrl)
             .map { response ->
+                val styles = response.styles.associateBy { it.id.orEmpty() }
                 FeedResult(
-                    items = response.data.mapNotNull { it.toDto() },
+                    items = response.data.mapNotNull { it.toDto(styles) },
                     nextPageUrl = response.paging.next,
                     previousPageUrl = response.paging.previous,
                     isEnd = response.paging.isEnd,

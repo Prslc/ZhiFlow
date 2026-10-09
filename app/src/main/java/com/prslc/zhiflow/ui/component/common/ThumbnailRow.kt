@@ -23,6 +23,12 @@ import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import org.koin.compose.koinInject
 
+/**
+ * One image and the box it is drawn in.
+ *
+ * [width] and [height] carry that box's proportions, not a pixel size: a thumbnail is drawn at
+ * their ratio, and a feed card's images already carry the ratio its own style asks for.
+ */
 data class ImageData(
     val url: String,
     val width: Int,

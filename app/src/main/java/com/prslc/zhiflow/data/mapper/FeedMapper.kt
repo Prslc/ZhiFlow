@@ -4,13 +4,15 @@ import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.model.feed.CardChild
 import com.prslc.zhiflow.data.model.feed.CardElement
 import com.prslc.zhiflow.data.model.feed.CardImage
+import com.prslc.zhiflow.data.model.feed.CardStyle
 import com.prslc.zhiflow.data.model.feed.ComponentCard
 import com.prslc.zhiflow.ui.component.common.ImageData
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
+import kotlin.math.roundToInt
 
-internal fun ComponentCard.toDto(): FeedDto? {
+internal fun ComponentCard.toDto(styles: Map<String, CardStyle>): FeedDto? {
     val contentId = extra.contentId ?: return null
 
     return FeedDto(
@@ -20,12 +22,21 @@ internal fun ComponentCard.toDto(): FeedDto? {
         authorName = children.authorName(),
         authorAvatar = children.authorAvatar(),
         excerpt = children.summaryText(),
-        images = children.images()
-            .map { ImageData(url = it.url ?: "", width = 0, height = 0) },
+        images = children.images().map { image ->
+            val ratio = image.style?.let(styles::get)?.scaleRatio
+            ImageData(
+                url = image.url ?: "",
+                width = BOX_SCALE,
+                height = ratio?.let { (BOX_SCALE / it).roundToInt() } ?: BOX_SCALE,
+            )
+        },
         voteCount = children.reactionCount("Vote"),
         commentCount = children.reactionCount("Comment"),
     )
 }
+
+/** An image's box arrives as a proportion, so one side of the pair carries a fixed scale. */
+private const val BOX_SCALE = 1000
 
 private fun JsonElement?.textValue(): String =
     (this as? JsonPrimitive)?.contentOrNull.orEmpty()

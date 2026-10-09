@@ -9,7 +9,15 @@ import kotlinx.serialization.json.JsonElement
 @Serializable
 data class ZhihuResponse(
     val data: List<ComponentCard> = emptyList(),
+    val styles: List<CardStyle> = emptyList(),
     val paging: PagingData = PagingData(),
+)
+
+@Immutable
+@Serializable
+data class CardStyle(
+    val id: String? = null,
+    @SerialName("scale_ratio") val scaleRatio: Float? = null,
 )
 
 @Immutable
@@ -79,8 +87,7 @@ data class CardElement(
 data class CardImage(
     val id: String? = null,
     val type: String? = null,
+    val style: String? = null,
     val url: String? = null,
     val token: String? = null,
-    val width: Int = 0,
-    val height: Int = 0,
 )
