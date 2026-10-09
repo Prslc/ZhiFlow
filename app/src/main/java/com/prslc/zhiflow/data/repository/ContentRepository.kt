@@ -1,5 +1,8 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.data.model.content.ZhihuAnswer
+import com.prslc.zhiflow.data.model.content.ZhihuArticle
+import com.prslc.zhiflow.data.model.content.ZhihuPin
 import com.prslc.zhiflow.data.remote.service.ContentService
 
 class ContentRepository(private val service: ContentService) {
