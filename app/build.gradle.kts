@@ -16,6 +16,25 @@ val localProperties = Properties().apply {
     }
 }
 
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    require(file.exists()) {
+        """
+        keystore.properties is missing. Create ${file.path} with:
+            storeFile=/path/to/zhiflow.jks
+            storePassword=...
+            keyAlias=...
+            keyPassword=...
+        """.trimIndent()
+    }
+    file.inputStream().use { load(it) }
+    val missing = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+        .filter { getProperty(it).isNullOrBlank() }
+    require(missing.isEmpty()) {
+        "keystore.properties is missing ${missing.joinToString(", ")}"
+    }
+}
+
 @file:Suppress("UnstableApiUsage")
 android {
     namespace = "com.prslc.zhiflow"
@@ -34,13 +53,27 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+
+            enableV1Signing = false
+            enableV2Signing = true
+            enableV3Signing = false
+            enableV4Signing = false
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             multiDexEnabled = true
             vcsInfo.include = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -54,6 +87,7 @@ android {
         debug {
             isDebuggable = true
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

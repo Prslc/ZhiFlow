@@ -15,6 +15,9 @@
 # Local properties
 local.properties
 
+# Signing credentials
+keystore.properties
+
 # OS generated
 .DS_Store
 
