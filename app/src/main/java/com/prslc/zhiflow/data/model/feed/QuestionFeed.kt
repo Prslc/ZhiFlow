@@ -3,7 +3,6 @@ import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.model.user.Paging
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

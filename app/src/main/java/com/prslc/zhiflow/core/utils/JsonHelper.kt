@@ -3,8 +3,6 @@ package com.prslc.zhiflow.core.utils
 import android.text.Html
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.data.model.content.CardExtraInfo
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 /**
  * A utility object providing centralized JSON serialization and

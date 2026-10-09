@@ -3,7 +3,6 @@ package com.prslc.zhiflow.data.remote.parser
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.core.utils.JsonHelper
 import com.prslc.zhiflow.data.model.content.Card
-import com.prslc.zhiflow.data.model.content.CardExtraInfo
 import com.prslc.zhiflow.data.model.content.Mark
 import com.prslc.zhiflow.data.model.content.Paragraph
 import com.prslc.zhiflow.data.model.content.Segment
