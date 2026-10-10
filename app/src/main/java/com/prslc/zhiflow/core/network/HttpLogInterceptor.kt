@@ -13,12 +13,28 @@ private const val MAX_REQUEST_BODY_BYTES = 4 * 1024L
 private const val MAX_RESPONSE_BODY_BYTES = 16 * 1024L
 
 /**
+ * Endpoints whose response body hands over a credential in the clear — a session token, or the
+ * ticket the sign-in that follows has to carry.
+ *
+ * A body is read for every other endpoint. Request bodies need no such list: the ones that
+ * carry anything sensitive are sealed before they leave.
+ */
+private val CREDENTIAL_BODY_PATHS = setOf(
+    "/captcha",
+    "/api/account/prod/sign_in",
+    "/api/account/prod/guests/token",
+    "/api/account/prod/client_logout",
+)
+
+/**
  * Records Zhihu API traffic into [HttpLogStore] for the in-app log screen.
  *
  * Hand-rolled rather than OkHttp's `HttpLoggingInterceptor` because the screen wants
  * structured entries instead of line-oriented text, and nothing may reach logcat.
  * Installed after the auth interceptor, so it observes the request as it goes out.
- * Headers — Cookie, Authorization and the signing headers — are never recorded.
+ * Headers — Cookie, Authorization and the signing headers — are never recorded, and neither is
+ * the body of an endpoint listed in [CREDENTIAL_BODY_PATHS]: the entry still says the call
+ * happened and what it answered, which is what the screen is for, without the token it carried.
  */
 class HttpLogInterceptor(private val store: HttpLogStore) : Interceptor {
 
@@ -50,11 +66,15 @@ class HttpLogInterceptor(private val store: HttpLogStore) : Interceptor {
 
         // Failures are always worth recording; successes only while capture is on.
         if (store.isEnabled || !response.isSuccessful) {
-            val peeked = runCatching {
-                val body = response.peekBody(MAX_RESPONSE_BODY_BYTES)
-                val truncated = body.contentLength() >= MAX_RESPONSE_BODY_BYTES
-                body.string().takeIf { it.isNotEmpty() } to truncated
-            }.getOrNull()
+            val peeked = if (request.url.encodedPath in CREDENTIAL_BODY_PATHS) {
+                null
+            } else {
+                runCatching {
+                    val body = response.peekBody(MAX_RESPONSE_BODY_BYTES)
+                    val truncated = body.contentLength() >= MAX_RESPONSE_BODY_BYTES
+                    body.string().takeIf { it.isNotEmpty() } to truncated
+                }.getOrNull()
+            }
 
             record(
                 request = request,
