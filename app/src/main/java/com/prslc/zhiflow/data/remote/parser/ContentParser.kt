@@ -253,6 +253,14 @@ object ContentParser {
         } else {
             val stats = voteStatsOf(extra?.desc)
             val isExternal = extra != null && extra.contentType.isNullOrBlank()
+            // A card off Zhihu repeats its address across fields that can all hold one opening
+            // nowhere: CardLink reads them, and the address it settles serves tap and title line.
+            val address = if (isExternal) {
+                CardLink.resolve(
+                    addresses = listOf(extra.desc, it.url, extra.url),
+                    prose = listOf(it.title, extra.title),
+                )
+            } else null
             listOf(
                 RichTextElement.Card(
                     cardType = it.cardType,
@@ -260,15 +268,13 @@ object ContentParser {
                     // empty strings, not as nulls: blank has to count as absent, or the empty field
                     // wins the fallback and the card draws without a title.
                     title = it.title?.takeIf { t -> t.isNotBlank() } ?: extra?.title ?: "No title",
-                    url = it.url?.takeIf { u -> u.isNotBlank() } ?: extra?.url ?: "",
+                    url = address ?: it.url?.takeIf { u -> u.isNotBlank() } ?: extra?.url ?: "",
                     cover = extra?.cover?.takeIf { c -> c.isNotBlank() } ?: it.cover,
                     // The type to wear is the one of what the card points at, and that is
                     // extra_info's: the card's own names the content it sits in, so a link to an
                     // answer inside a pin arrives as PIN.
                     contentType = if (isExternal) null else extra?.contentType ?: it.contentType,
-                    // A card leading off Zhihu is sent a blank content type, and carries the address
-                    // itself in desc, where a card to our own content puts the counts line.
-                    externalLink = extra?.desc?.takeIf { d -> isExternal && d.startsWith("http") },
+                    externalLink = address,
                     voteCount = stats?.voteCount ?: 0,
                     commentCount = stats?.commentCount ?: 0,
                 ))

@@ -134,8 +134,9 @@ sealed interface RichTextElement {
         val cover: String?,
         val contentType: String?,
         /**
-         * The address to draw under the title when the card leads off Zhihu; null when the card
-         * points at our own content, which [contentType] names.
+         * The address to draw under the title when the card leads off Zhihu, and the one a tap
+         * opens, which is [url]; null when the card points at our own content, which [contentType]
+         * names, or when no address it carries can be opened.
          */
         val externalLink: String? = null,
         val voteCount: Int = 0,

@@ -20,18 +20,14 @@ sealed class LinkDestination {
 
 @Immutable
 object LinkParser {
+    private const val REDIRECT_HOST = "link.zhihu.com"
+
     /**
      * Resolves [url]: outbound links arrive wrapped in a redirect whose parameter holds the target,
      * and Zhihu's own URLs map to a route while everything else stays [LinkDestination.External].
      */
     fun parse(url: String): LinkDestination {
-        val uri = url.toUri()
-
-        val finalUrl = if (uri.host == "link.zhihu.com") {
-            uri.getQueryParameter("target") ?: url
-        } else {
-            url
-        }
+        val finalUrl = unwrapRedirect(url)
 
         val finalUri = finalUrl.toUri()
         val host = finalUri.host ?: ""
@@ -55,6 +51,22 @@ object LinkParser {
             LinkDestination.External(finalUrl)
         }
     }
+
+    /**
+     * The address a redirect link points at, or [url] itself when it is not one: outbound links
+     * arrive wrapped in `link.zhihu.com/?target=`.
+     */
+    internal fun unwrapRedirect(url: String): String {
+        val uri = url.toUri()
+        return if (uri.host == REDIRECT_HOST) {
+            uri.getQueryParameter("target") ?: url
+        } else {
+            url
+        }
+    }
+
+    /** Whether [url] is a link out still wrapped in `link.zhihu.com/?target=`, not an address. */
+    internal fun isRedirect(url: String): Boolean = url.toUri().host == REDIRECT_HOST
 
     /**
      * Map type and ID to a specific Navigation route.
