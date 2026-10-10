@@ -5,7 +5,9 @@ import com.prslc.zhiflow.core.exception.HttpStatusException
 import com.prslc.zhiflow.core.exception.toApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.int
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Request
@@ -43,25 +45,32 @@ internal fun Request.Builder.urlOrApiUrl(nextUrl: String?, fallbackPath: String)
  */
 internal inline fun <reified T> Response.body(): T {
     return use { res ->
-        if (!res.isSuccessful) throw HttpStatusException(res, res.apiErrorCode())
+        if (!res.isSuccessful) throw res.httpStatusException()
         HttpClientProvider.jsonInstance.decodeFromString<T>(res.body.string())
     }
 }
 
 /**
- * Reads the code a failed response carries in its body.
+ * The exception for a failed response, carrying whatever the body said about the failure.
  *
- * Read here because it has to happen while the response is still open: by the time anyone
+ * Built here because it has to happen while the response is still open: by the time anyone
  * catches the exception, [use] has closed the body.
  */
-private fun Response.apiErrorCode(): Int? = try {
+private fun Response.httpStatusException(): HttpStatusException {
+    val error = apiError()
+    return HttpStatusException(
+        this,
+        error?.get("code")?.jsonPrimitive?.intOrNull,
+        error?.get("message")?.jsonPrimitive?.contentOrNull,
+    )
+}
+
+/** Reads the error envelope off the body. Peeked, so the response is left as it was found. */
+private fun Response.apiError(): JsonObject? = try {
     HttpClientProvider.jsonInstance
         .parseToJsonElement(peekBody(ERROR_BODY_LIMIT).string())
         .jsonObject["error"]
         ?.jsonObject
-        ?.get("code")
-        ?.jsonPrimitive
-        ?.int
 } catch (_: Exception) {
     null
 }
@@ -96,10 +105,10 @@ internal suspend inline fun <reified T> ApiClient.safeApiCall(
 }
 
 /**
- * Executes an OkHttp request on [Dispatchers.IO] when only the outcome matters and the
- * response body is not parsed. Together with [safeApiCall] this helper never reports a
- * rejected request as a success: a non-2xx status is a failure carrying the mapped
- * [ApiException], status code included.
+ * Executes an OkHttp request on [Dispatchers.IO] when only the outcome matters. Together with
+ * [safeApiCall] this helper never reports a rejected request as a success: a non-2xx status is
+ * a failure carrying the mapped [ApiException] — status code, and whatever the body said about
+ * the failure, exactly as [safeApiCall] reports it.
  *
  * The response body is consumed and closed on IO to avoid
  * [android.os.NetworkOnMainThreadException] during cleanup.
@@ -115,7 +124,7 @@ internal suspend fun ApiClient.safeExecute(
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                Result.failure(HttpStatusException(response).toApiException())
+                Result.failure(response.httpStatusException().toApiException())
             }
         }
     } catch (e: Exception) {

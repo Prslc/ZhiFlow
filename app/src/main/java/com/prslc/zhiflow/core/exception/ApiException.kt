@@ -14,14 +14,26 @@ import com.prslc.zhiflow.R
  * - [ServerException]: other 4xx/5xx with HTTP status code
  * - [UnknownException]: unmatched errors
  */
-sealed class ApiException(val resId: Int, val code: Int? = null) : Exception() {
+sealed class ApiException(
+    val resId: Int,
+    val code: Int? = null,
+
+    /**
+     * The server's own wording for this failure, when it sent one. Preferred over [resId]:
+     * it names what actually went wrong, where [resId] can only name the status code.
+     */
+    val serverMessage: String? = null,
+) : Exception() {
     class NetworkException : ApiException(R.string.error_network)
     class UnAuthorizedException : ApiException(R.string.error_unauthorized)
     class NotFoundException : ApiException(R.string.error_not_found)
-    class ServerException(code: Int) : ApiException(R.string.error_server, code)
+    class ServerException(code: Int, serverMessage: String? = null) :
+        ApiException(R.string.error_server, code, serverMessage)
+
     class UnknownException : ApiException(R.string.error_unknown)
 
     fun getMessage(resources: android.content.res.Resources): String {
+        serverMessage?.takeIf { it.isNotBlank() }?.let { return it }
         return if (code != null) {
             resources.getString(resId, code)
         } else {

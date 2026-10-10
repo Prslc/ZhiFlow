@@ -22,7 +22,10 @@ private const val ERROR_INVALID_REFRESH_TOKEN = 100008
 internal fun Throwable.toApiException(): ApiException {
     if (this is CancellationException) throw this
     return when (this) {
-        is HttpStatusException -> response.toApiException(apiErrorCode) ?: ApiException.UnknownException()
+        is HttpStatusException -> {
+            response.toApiException(apiErrorCode, apiErrorMessage)
+                ?: ApiException.UnknownException()
+        }
         is IOException -> ApiException.NetworkException()
         is ApiException -> this
         else -> ApiException.UnknownException()
@@ -33,7 +36,7 @@ internal fun Throwable.toApiException(): ApiException {
  * Converts an OkHttp [Response] into an [ApiException] if it's not successful.
  * @return The corresponding [ApiException] or null if the response is successful.
  */
-private fun Response.toApiException(apiErrorCode: Int?): ApiException? {
+private fun Response.toApiException(apiErrorCode: Int?, apiErrorMessage: String?): ApiException? {
     if (isSuccessful) return null
 
     // A credential the server is finished with does not always arrive as a 401: the account
@@ -44,8 +47,8 @@ private fun Response.toApiException(apiErrorCode: Int?): ApiException? {
     return when (code) {
         401, 403 -> ApiException.UnAuthorizedException()
         404 -> ApiException.NotFoundException()
-        in 400..499 -> ApiException.ServerException(code) // Client-side but API error
-        in 500..599 -> ApiException.ServerException(code) // Server-side error
+        in 400..499 -> ApiException.ServerException(code, apiErrorMessage) // Client-side but API error
+        in 500..599 -> ApiException.ServerException(code, apiErrorMessage) // Server-side error
         else -> ApiException.UnknownException()
     }
 }
