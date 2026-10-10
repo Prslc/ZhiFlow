@@ -54,6 +54,8 @@ import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
@@ -62,13 +64,18 @@ import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feed.NegativeFeedbackSheet
+import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.page.feed.feedbackToastText
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), KoinComponent {
+
+    private val sessionManager: SessionManager by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -88,6 +95,18 @@ class MainActivity : ComponentActivity() {
                             context = context,
                             uriHandler = uriHandler,
                         )
+                    }
+
+                    // Sits outside the NavHost, so it stays composed whichever screen is on top.
+                    val droppedToGuest = sessionManager.droppedToGuest
+                    LaunchedEffect(Unit) {
+                        droppedToGuest.collect {
+                            Toast.makeText(
+                                context,
+                                R.string.login_session_expired,
+                                Toast.LENGTH_LONG,
+                            ).show()
+                        }
                     }
 
                     CompositionLocalProvider(LocalNavigator provides navigator) {

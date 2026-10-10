@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -44,8 +43,9 @@ fun DebugScreen(
 ) {
     val navigator = LocalNavigator.current
     var showDialog by remember { mutableStateOf(false) }
-    var showAuthDialog by remember { mutableStateOf(false) }
+    var showDeviceIdDialog by remember { mutableStateOf(false) }
     var inputUrl by remember { mutableStateOf("") }
+    var inputUdid by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -67,11 +67,12 @@ fun DebugScreen(
             }
             item {
                 NavigationItemWidget(
-                    title = stringResource(R.string.debug_item_config_credentials_title),
-                    description = stringResource(R.string.debug_item_config_credentials_subtitle),
+                    title = stringResource(R.string.debug_item_device_id_title),
+                    description = stringResource(R.string.debug_item_device_id_subtitle),
                     icon = Icons.Filled.BugReport,
                     onClick = {
-                        showAuthDialog = true
+                        inputUdid = viewModel.xUdid
+                        showDeviceIdDialog = true
                     }
                 )
             }
@@ -107,29 +108,15 @@ fun DebugScreen(
         }
     }
 
-    if (showAuthDialog) {
+    if (showDeviceIdDialog) {
         AlertDialog(
-            onDismissRequest = { showAuthDialog = false },
-            title = { Text(stringResource(R.string.debug_dialog_credentials_title)) },
+            onDismissRequest = { showDeviceIdDialog = false },
+            title = { Text(stringResource(R.string.debug_dialog_device_id_title)) },
             text = {
                 Column {
                     OutlinedTextField(
-                        value = viewModel.authorization,
-                        onValueChange = { viewModel.authorization = it },
-                        label = { Text(stringResource(R.string.debug_label_authorization)) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = viewModel.cookie,
-                        onValueChange = { viewModel.cookie = it },
-                        label = { Text(stringResource(R.string.debug_label_cookie)) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = viewModel.xUdid,
-                        onValueChange = { viewModel.xUdid = it },
+                        value = inputUdid,
+                        onValueChange = { inputUdid = it },
                         label = { Text(stringResource(R.string.debug_label_x_udid)) },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -142,28 +129,22 @@ fun DebugScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(
-                        onClick = {
-                            viewModel.clear()
-                            showAuthDialog = false
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
+                        onClick = { inputUdid = viewModel.regenerateUdid() }
                     ) {
-                        Text(stringResource(R.string.debug_action_clear))
+                        Text(stringResource(R.string.debug_action_regenerate))
                     }
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = { showAuthDialog = false }) {
+                        TextButton(onClick = { showDeviceIdDialog = false }) {
                             Text(stringResource(R.string.debug_action_cancel))
                         }
                         Button(
                             onClick = {
-                                viewModel.save()
-                                showAuthDialog = false
+                                viewModel.saveUdid(inputUdid.trim())
+                                showDeviceIdDialog = false
                             }
                         ) {
                             Text(stringResource(R.string.debug_action_save))

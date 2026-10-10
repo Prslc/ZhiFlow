@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.profile
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -35,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.ui.component.common.CoverStatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.ErrorView
@@ -65,8 +68,11 @@ fun ProfileScreen(
 ) {
     val uiState = viewModel.uiState
     val user = uiState.user
+    val navigator = LocalNavigator.current
 
-    LaunchedEffect(Unit) {
+    // Keyed on the guest flag as well as on the first composition: signing in from another
+    // screen leaves this tab otherwise still holding its anonymous state.
+    LaunchedEffect(uiState.isGuest) {
         if (user == null) viewModel.loadProfile()
     }
 
@@ -168,6 +174,20 @@ fun ProfileScreen(
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
+            }
+        } else if (uiState.isGuest) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.profile_guest_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Button(onClick = navigator::navigateToLogin) {
+                    Text(stringResource(R.string.login_action_submit))
+                }
             }
         } else if (uiState.isLoading) {
             LoadingIndicator(modifier = Modifier.align(Alignment.Center))

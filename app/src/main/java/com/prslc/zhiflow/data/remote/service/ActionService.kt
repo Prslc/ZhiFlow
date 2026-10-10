@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
@@ -11,14 +12,13 @@ import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Service for handling user interactions such as voting and history tracking.
  */
-class ActionService(private val okHttpClient: OkHttpClient) {
+class ActionService(private val api: ApiClient) {
 
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
@@ -29,7 +29,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] indicating success or failure.
      */
     suspend fun addReadHistory(request: ReadHistoryRequest): Result<Unit> =
-        okHttpClient.safeExecute {
+        api.safeExecute {
             val jsonBody = HttpClientProvider.jsonInstance.encodeToString(request)
             val body = jsonBody.toRequestBody(jsonMediaType)
 
@@ -52,7 +52,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
         id: String,
         contentType: ContentType,
         target: SegmentLikeTarget,
-    ): Result<SegmentReactionResponse> = okHttpClient.safeApiCall {
+    ): Result<SegmentReactionResponse> = api.safeApiCall {
         val body = HttpClientProvider.jsonInstance.encodeToString(
             SegmentLikeRequest(
                 segId = target.segId,
@@ -79,7 +79,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
         id: String,
         contentType: ContentType,
         segId: String,
-    ): Result<Unit> = okHttpClient.safeExecute {
+    ): Result<Unit> = api.safeExecute {
         val body = HttpClientProvider.jsonInstance
             .encodeToString(SegmentUnlikeRequest(segIds = segId))
             .toRequestBody(jsonMediaType)
@@ -104,7 +104,7 @@ class ActionService(private val okHttpClient: OkHttpClient) {
         contentType: ContentType,
         action: String,
         method: String = "POST"
-    ): Result<Unit> = okHttpClient.safeExecute {
+    ): Result<Unit> = api.safeExecute {
         val emptyBody = "".toRequestBody(null)
 
         Request.Builder()

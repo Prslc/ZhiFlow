@@ -13,6 +13,10 @@ object Settings
 
 @Immutable
 @Serializable
+object Login
+
+@Immutable
+@Serializable
 data class AnswerDetail(val id: String)
 
 @Immutable

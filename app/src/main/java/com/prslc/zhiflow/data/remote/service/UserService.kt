@@ -1,17 +1,17 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.data.model.user.ZhihuUser
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Service for retrieving user profile information and social data.
  */
-class UserService(private val okHttpClient: OkHttpClient) {
+class UserService(private val api: ApiClient) {
 
     /**
      * Fetches detailed profile information for a specific user.
@@ -24,7 +24,7 @@ class UserService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] containing [ZhihuUser] on success.
      */
     suspend fun getUserDetail(urlToken: String): Result<ZhihuUser> =
-        okHttpClient.safeApiCall {
+        api.safeApiCall {
             Request.Builder()
                 .apiUrl(
                     if (urlToken == SELF_TOKEN) "/people/$urlToken"
@@ -41,7 +41,7 @@ class UserService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] indicating success or failure.
      */
     suspend fun followUser(userId: String): Result<Unit> =
-        okHttpClient.safeExecute {
+        api.safeExecute {
             Request.Builder()
                 .apiUrl("/people/$userId/followers")
                 .post(ByteArray(0).toRequestBody())
@@ -59,7 +59,7 @@ class UserService(private val okHttpClient: OkHttpClient) {
         userId: String,
         currentUserId: String,
     ): Result<Unit> =
-        okHttpClient.safeExecute {
+        api.safeExecute {
             Request.Builder()
                 .apiUrl("/people/$userId/followers/$currentUserId")
                 .delete(ByteArray(0).toRequestBody())

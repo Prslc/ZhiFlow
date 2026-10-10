@@ -1,17 +1,17 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.urlOrApiUrl
 import com.prslc.zhiflow.data.model.content.QuestionDetail
 import com.prslc.zhiflow.data.model.feed.QuestionFeedResponse
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
  * Service for fetching question details and their associated answer feeds.
  */
-class QuestionService(private val okHttpClient: OkHttpClient) {
+class QuestionService(private val api: ApiClient) {
 
     /**
      * Fetches detailed information about a specific question.
@@ -20,7 +20,7 @@ class QuestionService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] containing [QuestionDetail] on success.
      */
     suspend fun getQuestionDetail(id: String): Result<QuestionDetail> =
-        okHttpClient.safeApiCall {
+        api.safeApiCall {
             Request.Builder()
                 .apiUrl("/questions/$id")
                 .get()
@@ -35,7 +35,7 @@ class QuestionService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] containing [QuestionFeedResponse] on success.
      */
     suspend fun getQuestionFeed(id: String, nextUrl: String? = null): Result<QuestionFeedResponse> =
-        okHttpClient.safeApiCall {
+        api.safeApiCall {
             Request.Builder()
                 .urlOrApiUrl(nextUrl, "/questions/$id/feeds")
                 .get()

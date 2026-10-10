@@ -1,16 +1,16 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.urlOrApiUrl
 import com.prslc.zhiflow.data.model.moment.MomentsFeedResponse
 import com.prslc.zhiflow.data.model.moment.MomentsResponse
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
  * Service handling moment-related API requests using OkHttp.
  */
-class MomentService(private val okHttpClient: OkHttpClient) {
+class MomentService(private val api: ApiClient) {
 
     /**
      * Fetches the publication history (posts, articles, answers) created by a specific user.
@@ -25,7 +25,7 @@ class MomentService(private val okHttpClient: OkHttpClient) {
     suspend fun getUserPosts(
         urlToken: String,
         nextUrl: String? = null
-    ): Result<MomentsResponse> = okHttpClient.safeApiCall {
+    ): Result<MomentsResponse> = api.safeApiCall {
         Request.Builder()
             .urlOrApiUrl(nextUrl, "/moments/$urlToken/origin")
             .get()
@@ -45,7 +45,7 @@ class MomentService(private val okHttpClient: OkHttpClient) {
     suspend fun getUserActivities(
         urlToken: String,
         nextUrl: String? = null
-    ): Result<MomentsFeedResponse> = okHttpClient.safeApiCall {
+    ): Result<MomentsFeedResponse> = api.safeApiCall {
         Request.Builder()
             .urlOrApiUrl(nextUrl, "/moments/$urlToken/activities")
             .get()
@@ -62,7 +62,7 @@ class MomentService(private val okHttpClient: OkHttpClient) {
     suspend fun getUserVote(
         urlToken: String,
         nextUrl: String? = null
-    ): Result<MomentsFeedResponse> = okHttpClient.safeApiCall {
+    ): Result<MomentsFeedResponse> = api.safeApiCall {
         Request.Builder()
             .urlOrApiUrl(nextUrl, "/moments/$urlToken/vote")
             .get()

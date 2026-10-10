@@ -1,0 +1,115 @@
+package com.prslc.zhiflow.data.session
+
+import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.network.CredentialStore
+import com.prslc.zhiflow.core.network.SessionGate
+import com.prslc.zhiflow.data.repository.AuthRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.atomic.AtomicBoolean
+
+/**
+ * Keeps a session in hand for every request, and renews it before it expires.
+ *
+ * An anonymous session is fetched when a request finds none stored, and a session is refreshed
+ * by the response that finds it past the point marked on it.
+ */
+class SessionManager(
+    private val credentialStore: CredentialStore,
+    private val authRepository: AuthRepository,
+) : SessionGate {
+
+    // Its own scope, not a caller's: a refresh has to outlive the request that noticed it was
+    // due, and must not be cancelled along with whichever screen made that request.
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private val bootstrapMutex = Mutex()
+    private val refreshing = AtomicBoolean(false)
+
+    private val _droppedToGuest = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    /**
+     * Emits when a refused session was replaced by an anonymous one.
+     *
+     * The reader is owed this: they were signed in a moment ago, and the next thing they tap may
+     * quietly behave differently. Nothing here says it — a toast or a screen does, because only
+     * a surface knows how to say anything.
+     */
+    val droppedToGuest: SharedFlow<Unit> = _droppedToGuest.asSharedFlow()
+
+    @Volatile
+    private var nextBootstrapAttemptAt = 0L
+
+    /**
+     * Fetches an anonymous session now, if none is stored.
+     *
+     * Called at startup so the fetch runs underneath composing the first screen; the funnel
+     * waits on the same work regardless.
+     */
+    fun prefetchGuestSession() {
+        if (credentialStore.read().hasToken) return
+        scope.launch { awaitReady() }
+    }
+
+    override suspend fun awaitReady() {
+        if (credentialStore.read().hasToken) return
+
+        bootstrapMutex.withLock {
+            if (credentialStore.read().hasToken) return@withLock
+            if (System.currentTimeMillis() < nextBootstrapAttemptAt) return@withLock
+
+            authRepository.startGuestSession().onApiFailure {
+                // Nothing to tell anyone: the request goes out without credentials and its own
+                // failure is what the reader sees. The delay is what keeps every request in
+                // flight from retrying the bootstrap at once while the network is down.
+                nextBootstrapAttemptAt = System.currentTimeMillis() + BOOTSTRAP_RETRY_DELAY_MS
+            }
+        }
+    }
+
+    override fun onExchange(status: Int) {
+        val credentials = credentialStore.read()
+        if (credentials.isGuest || !credentials.hasToken) return
+
+        val due = System.currentTimeMillis() >= credentials.nextRefreshAt
+        if (due || status == HTTP_UNAUTHORIZED) refreshInBackground()
+    }
+
+    private fun refreshInBackground() {
+        if (!refreshing.compareAndSet(false, true)) return
+
+        scope.launch {
+            try {
+                authRepository.refresh().onApiFailure { error ->
+                    // A refusal is not the same failure as an unreachable server: one means these
+                    // credentials are finished with, the other means try again later. Only the
+                    // first is worth acting on, and acting on it means taking a guest session.
+                    if (error is ApiException.UnAuthorizedException) dropToGuest()
+                }
+            } finally {
+                refreshing.set(false)
+            }
+        }
+    }
+
+    private suspend fun dropToGuest() {
+        val outcome = authRepository.startGuestSession()
+        outcome.onSuccess { _droppedToGuest.tryEmit(Unit) }
+        outcome.onApiFailure {
+            nextBootstrapAttemptAt = System.currentTimeMillis() + BOOTSTRAP_RETRY_DELAY_MS
+        }
+    }
+
+    private companion object {
+        const val HTTP_UNAUTHORIZED = 401
+        const val BOOTSTRAP_RETRY_DELAY_MS = 30_000L
+    }
+}

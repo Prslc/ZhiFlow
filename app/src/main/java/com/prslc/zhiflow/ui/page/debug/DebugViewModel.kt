@@ -1,22 +1,20 @@
 package com.prslc.zhiflow.ui.page.debug
 
-import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.core.content.edit
+import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.HttpLogStore
-import com.prslc.zhiflow.data.session.UserSession
+import com.prslc.zhiflow.core.network.newDeviceId
 
 class DebugViewModel(
-    private val sharedPreferences: SharedPreferences,
-    private val userSession: UserSession,
+    private val credentialStore: CredentialStore,
     private val httpLogStore: HttpLogStore,
 ) : ViewModel() {
-    var authorization by mutableStateOf(sharedPreferences.getString("auth", "") ?: "")
-    var cookie by mutableStateOf(sharedPreferences.getString("cookie", "") ?: "")
-    var xUdid by mutableStateOf(sharedPreferences.getString("x_udid", "") ?: "")
+
+    var xUdid by mutableStateOf(credentialStore.udid())
+        private set
 
     var loggingEnabled by mutableStateOf(httpLogStore.isEnabled)
         private set
@@ -27,25 +25,20 @@ class DebugViewModel(
         httpLogStore.isEnabled = enabled
     }
 
-    fun save() {
-        sharedPreferences.edit {
-            putString("auth", authorization)
-            putString("cookie", cookie)
-            putString("x_udid", xUdid)
-        }
-        userSession.invalidate()
+    /** @param value Stored as-is, except that a blank one is refused by the store. */
+    fun saveUdid(value: String) {
+        credentialStore.replaceUdid(value)
+        xUdid = credentialStore.udid()
     }
 
-    fun clear() {
-        authorization = ""
-        cookie = ""
-        xUdid = ""
-        // Remove only the credential keys, so unrelated preferences survive.
-        sharedPreferences.edit {
-            remove("auth")
-            remove("cookie")
-            remove("x_udid")
-        }
-        userSession.invalidate()
+    /**
+     * Replaces the device id with a fresh one, for when the stored one is in question.
+     *
+     * @return The new id, so the caller can show it without a second read.
+     */
+    fun regenerateUdid(): String {
+        credentialStore.replaceUdid(newDeviceId())
+        xUdid = credentialStore.udid()
+        return xUdid
     }
 }

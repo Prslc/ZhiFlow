@@ -5,7 +5,6 @@ import com.prslc.zhiflow.core.exception.HttpStatusException
 import com.prslc.zhiflow.core.exception.toApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
@@ -51,14 +50,26 @@ internal inline fun <reified T> Response.body(): T {
  * Failures (network errors, HTTP errors, parse errors) are caught and mapped
  * to [ApiException] via [toApiException].
  */
-internal suspend inline fun <reified T> OkHttpClient.safeApiCall(
+internal suspend inline fun <reified T> ApiClient.safeApiCall(
     crossinline requestBuilder: () -> Request
 ): Result<T> = withContext(Dispatchers.IO) {
-    try {
-        Result.success(newCall(requestBuilder()).execute().body<T>())
+    val request = requestBuilder()
+    if (!request.establishesSession()) gate.awaitReady()
+
+    var status = 0
+    val outcome = try {
+        http.newCall(request).execute().let { response ->
+            status = response.code
+            Result.success(response.body<T>())
+        }
     } catch (e: Exception) {
         Result.failure(e.toApiException())
     }
+
+    // A success counts as much as a rejection: the gate renews by watching for the response
+    // that finds the session due.
+    if (status != 0) gate.onExchange(status)
+    outcome
 }
 
 /**
@@ -70,11 +81,14 @@ internal suspend inline fun <reified T> OkHttpClient.safeApiCall(
  * The response body is consumed and closed on IO to avoid
  * [android.os.NetworkOnMainThreadException] during cleanup.
  */
-internal suspend fun OkHttpClient.safeExecute(
+internal suspend fun ApiClient.safeExecute(
     requestBuilder: () -> Request
 ): Result<Unit> = withContext(Dispatchers.IO) {
+    val request = requestBuilder()
+    if (!request.establishesSession()) gate.awaitReady()
     try {
-        newCall(requestBuilder()).execute().use { response ->
+        http.newCall(request).execute().use { response ->
+            gate.onExchange(response.code)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {

@@ -1,12 +1,12 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
 import com.prslc.zhiflow.data.model.content.ZhihuArticle
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuPin
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
@@ -15,7 +15,7 @@ import okhttp3.Request
  * This service leverages reified generics to handle polymorphic content types
  * like Answers, Articles, and Pins within a unified fetch logic.
  */
-class ContentService(private val okHttpClient: OkHttpClient) {
+class ContentService(private val api: ApiClient) {
 
     /**
      * Generic internal helper to fetch content by its ID and path.
@@ -28,7 +28,7 @@ class ContentService(private val okHttpClient: OkHttpClient) {
     private suspend inline fun <reified T : ZhihuContent> fetchContent(
         path: String,
         id: String
-    ): Result<T> = okHttpClient.safeApiCall {
+    ): Result<T> = api.safeApiCall {
         Request.Builder()
             .apiUrl("/$path/v2/$id")
             .get()

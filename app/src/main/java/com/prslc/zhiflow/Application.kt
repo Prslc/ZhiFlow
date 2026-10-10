@@ -11,6 +11,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import com.prslc.zhiflow.core.network.HeaderProvider
+import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.di.appModule
 import okhttp3.OkHttpClient
 import okio.Path.Companion.toPath
@@ -22,6 +23,7 @@ import org.koin.core.context.GlobalContext.startKoin
 class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
 
     private val okHttpClient: OkHttpClient by inject()
+    private val sessionManager: SessionManager by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -33,6 +35,10 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
             androidContext(this@Application)
             modules(appModule)
         }
+
+        // An anonymous session is the floor every request stands on, and fetching it here lets
+        // it happen while the first screen composes instead of in front of that screen's request.
+        sessionManager.prefetchGuestSession()
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {

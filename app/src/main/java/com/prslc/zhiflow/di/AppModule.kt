@@ -2,9 +2,14 @@ package com.prslc.zhiflow.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.prslc.zhiflow.core.network.ApiClient
+import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.HttpLogStore
+import com.prslc.zhiflow.core.network.SessionCookieJar
+import com.prslc.zhiflow.core.network.SessionGate
 import com.prslc.zhiflow.data.repository.ActionRepository
+import com.prslc.zhiflow.data.repository.AuthRepository
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
@@ -15,6 +20,7 @@ import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.repository.ReadHistoryRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import com.prslc.zhiflow.data.remote.service.ActionService
+import com.prslc.zhiflow.data.remote.service.AuthService
 import com.prslc.zhiflow.data.remote.service.CollectionService
 import com.prslc.zhiflow.data.remote.service.CommentService
 import com.prslc.zhiflow.data.remote.service.ContentService
@@ -24,6 +30,8 @@ import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
 import com.prslc.zhiflow.data.remote.service.UserService
+import com.prslc.zhiflow.data.session.CredentialStoreImpl
+import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.data.session.UserSession
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
@@ -36,12 +44,14 @@ import com.prslc.zhiflow.ui.page.debug.HttpLogViewModel
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
+import com.prslc.zhiflow.ui.page.login.LoginViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
 import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
 import com.prslc.zhiflow.ui.page.people.moment.UpvotesViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import com.prslc.zhiflow.ui.page.question.QuestionViewModel
+import okhttp3.CookieJar
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -54,9 +64,23 @@ val appModule = module {
     }
 
     singleOf(::HttpLogStore)
+    single<CookieJar> { SessionCookieJar(get()) }
     singleOf(::HttpClientProvider)
     single { get<HttpClientProvider>().okHttpClient }
+    single { ApiClient(get()) { get() } }
     singleOf(::ImageLightboxController)
+
+    // Session
+    single<CredentialStore> { CredentialStoreImpl(get()) }
+    // Bound under both types: the funnel asks for the gate, the startup path asks for the
+    // manager's prefetch, and both have to be the same instance.
+    singleOf(::SessionManager)
+    single<SessionGate> { get<SessionManager>() }
+
+    // Account
+    singleOf(::AuthService)
+    singleOf(::AuthRepository)
+    viewModelOf(::LoginViewModel)
 
     // Feed
     singleOf(::FeedService)

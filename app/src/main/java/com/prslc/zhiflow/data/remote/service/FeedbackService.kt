@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.HeaderProvider
 import com.prslc.zhiflow.core.network.HttpClientProvider
@@ -15,14 +16,13 @@ import com.prslc.zhiflow.data.model.feedback.SCENE_RECOMMEND
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TEXT_PLAIN = "text/plain;charset=UTF-8"
 
 /** Service for the "not interested" panel and the block page it leads to. */
-class FeedbackService(private val okHttpClient: OkHttpClient) {
+class FeedbackService(private val api: ApiClient) {
 
     /**
      * Fetches the server-driven "not interested" panel for one piece of content.
@@ -35,7 +35,7 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
     suspend fun getPanel(
         contentId: String,
         contentType: String
-    ): Result<NegativeFeedbackPanel> = okHttpClient.safeApiCall {
+    ): Result<NegativeFeedbackPanel> = api.safeApiCall {
         val url = "$BASE_URL/negative-feedback/panel".toHttpUrl().newBuilder()
             .addQueryParameter("feed_deliver_type", DELIVER_NORMAL)
             .addQueryParameter("content_type", contentType.replaceFirstChar { it.uppercaseChar() })
@@ -63,7 +63,7 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
         contentToken: String,
         contentType: String,
         feedbackType: String
-    ): Result<ContentTagList> = okHttpClient.safeApiCall {
+    ): Result<ContentTagList> = api.safeApiCall {
         Request.Builder()
             .url(blockUrl("/zrec-feedback/content-tags", contentToken, contentType, feedbackType))
             .header("x-api-version", HeaderProvider.API_VERSION)
@@ -81,7 +81,7 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
         contentToken: String,
         contentType: String,
         feedbackType: String
-    ): Result<FeedRootBlock> = okHttpClient.safeApiCall {
+    ): Result<FeedRootBlock> = api.safeApiCall {
         Request.Builder()
             .url(blockUrl("/feed-root/block", contentToken, contentType, feedbackType))
             .header("x-api-version", HeaderProvider.API_VERSION)
@@ -96,7 +96,7 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
      * @param method The HTTP method that came with the same row.
      * @return A [Result] indicating success or failure.
      */
-    suspend fun submit(url: String, method: String): Result<Unit> = okHttpClient.safeExecute {
+    suspend fun submit(url: String, method: String): Result<Unit> = api.safeExecute {
         Request.Builder()
             .url(url)
             .method(method, "".toRequestBody(null))
@@ -111,7 +111,7 @@ class FeedbackService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] indicating success or failure.
      */
     suspend fun submitBlockFeedback(request: AggFeedbackRequest): Result<Unit> =
-        okHttpClient.safeExecute {
+        api.safeExecute {
             val body = HttpClientProvider.jsonInstance.encodeToString(request)
                 .toRequestBody(TEXT_PLAIN.toMediaType())
 

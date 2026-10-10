@@ -1,16 +1,16 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.data.model.feed.ZhihuResponse
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
  * Service handling feed-related API requests using OkHttp.
  */
-class FeedService(private val okHttpClient: OkHttpClient) {
+class FeedService(private val api: ApiClient) {
 
     /**
      * Fetches the recommended feed from Zhihu.
@@ -29,7 +29,7 @@ class FeedService(private val okHttpClient: OkHttpClient) {
     suspend fun getRecommendFeed(
         isColdStart: Boolean = false,
         nextUrl: String? = null
-    ): Result<ZhihuResponse> = okHttpClient.safeApiCall {
+    ): Result<ZhihuResponse> = api.safeApiCall {
         val urlBuilder = (nextUrl ?: "${BASE_URL}/topstory/recommend").toHttpUrl().newBuilder()
 
         urlBuilder.addQueryParameter("refresh_scene", "0")

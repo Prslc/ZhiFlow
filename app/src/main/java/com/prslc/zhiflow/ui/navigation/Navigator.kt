@@ -73,6 +73,8 @@ class Navigator(
 
     fun navigateToSettings() = navController.navigate(Settings)
 
+    fun navigateToLogin() = navController.navigate(Login)
+
     fun navigateToReadHistory() = navController.navigate(ReadHistory)
 
     fun navigateToCollectionContents() = navController.navigate(CollectionContents)

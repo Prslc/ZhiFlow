@@ -15,8 +15,7 @@ class UserRepository(
      *
      * @return A [Result] containing [ZhihuUser] on success
      */
-    suspend fun getMyDetail(): Result<ZhihuUser> =
-        service.getUserDetail("self").onSuccess { session.prime(it.id) }
+    suspend fun getMyDetail(): Result<ZhihuUser> = service.getUserDetail("self")
 
     /**
      * Fetch the public profile details of a specific user.

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
@@ -7,14 +8,13 @@ import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.data.model.comment.CommentResponse
 import com.prslc.zhiflow.data.model.content.ContentType
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Service managing top-level and nested child comments for various content types.
  */
-class CommentService(private val okHttpClient: OkHttpClient) {
+class CommentService(private val api: ApiClient) {
 
     /**
      * Fetches root comments for a specific content item.
@@ -32,7 +32,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         offset: String = "",
         orderBy: String = "score",
         limit: Int = 20
-    ): Result<CommentResponse> = okHttpClient.safeApiCall {
+    ): Result<CommentResponse> = api.safeApiCall {
         val url = "${BASE_URL}/comment_v5/${contentType.apiPath}/$id/root_comment"
             .toHttpUrl()
             .newBuilder()
@@ -60,7 +60,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         offset: String = "",
         orderBy: String = "score",
         limit: Int = 20
-    ): Result<CommentResponse> = okHttpClient.safeApiCall {
+    ): Result<CommentResponse> = api.safeApiCall {
         val url = "${BASE_URL}/comment_v5/${contentType.apiPath}/$id/segment/root_comment"
             .toHttpUrl()
             .newBuilder()
@@ -80,7 +80,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
         rootCommentId: String,
         offset: String = "",
         limit: Int = 20
-    ): Result<CommentResponse> = okHttpClient.safeApiCall {
+    ): Result<CommentResponse> = api.safeApiCall {
         val url = "${BASE_URL}/comment_v5/comment/$rootCommentId/child_comment"
             .toHttpUrl()
             .newBuilder()
@@ -98,7 +98,7 @@ class CommentService(private val okHttpClient: OkHttpClient) {
      * @param method Standard HTTP method string (e.g., "POST", "DELETE").
      */
     suspend fun commentReaction(commentId: String, action: String, method: String): Result<Unit> =
-        okHttpClient.safeExecute {
+        api.safeExecute {
             val emptyBody = "".toRequestBody(null)
 
             Request.Builder()

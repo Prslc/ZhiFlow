@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.remote.service
 
+import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
@@ -9,13 +10,12 @@ import com.prslc.zhiflow.data.model.user.CollectionContentsResponse
 import com.prslc.zhiflow.data.model.user.CollectionResponse
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
  * Service managing user collections (folders) and content categorization.
  */
-class CollectionService(private val okHttpClient: OkHttpClient) {
+class CollectionService(private val api: ApiClient) {
 
     /**
      * Retrieves the list of collections associated with a specific piece of content.
@@ -25,7 +25,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
      * @return A [Result] containing [CollectionResponse] on success.
      */
     suspend fun getCollectionsForContent(id: String, contentType: ContentType): Result<CollectionResponse> =
-        okHttpClient.safeApiCall {
+        api.safeApiCall {
             val url = "${BASE_URL}/collections/contents/${contentType.type}/$id"
                 .toHttpUrl()
                 .newBuilder()
@@ -47,7 +47,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
     suspend fun getCollectionContents(
         uid: String,
         limit: Int = 20,
-    ): Result<CollectionContentsResponse> = okHttpClient.safeApiCall {
+    ): Result<CollectionContentsResponse> = api.safeApiCall {
         val url = "${BASE_URL}/people/$uid/collection_contents"
             .toHttpUrl()
             .newBuilder()
@@ -68,7 +68,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
      */
     suspend fun getCollectionContentsByUrl(
         nextUrl: String,
-    ): Result<CollectionContentsResponse> = okHttpClient.safeApiCall {
+    ): Result<CollectionContentsResponse> = api.safeApiCall {
         Request.Builder()
             .url(nextUrl.toHttpUrl())
             .get()
@@ -89,7 +89,7 @@ class CollectionService(private val okHttpClient: OkHttpClient) {
         contentType: ContentType,
         addIds: List<Long>,
         removeIds: List<Long>
-    ): Result<Unit> = okHttpClient.safeExecute {
+    ): Result<Unit> = api.safeExecute {
         val formBuilder = FormBody.Builder()
 
         if (addIds.isNotEmpty()) {

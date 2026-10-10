@@ -17,6 +17,7 @@ import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
 import com.prslc.zhiflow.ui.page.debug.HttpLogScreen
 import com.prslc.zhiflow.ui.page.debug.RenderLabScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
+import com.prslc.zhiflow.ui.page.login.LoginScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -66,6 +67,10 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<Settings> {
         SettingsScreen()
+    }
+
+    composable<Login> {
+        LoginScreen(onSignedIn = { navController.popBackStack() })
     }
 
     composable<ReadHistory> {
