@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.debug
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
@@ -42,6 +44,7 @@ fun DebugScreen(
     viewModel: DebugViewModel = koinViewModel()
 ) {
     val navigator = LocalNavigator.current
+    val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var showDeviceIdDialog by remember { mutableStateOf(false) }
     var inputUrl by remember { mutableStateOf("") }
@@ -73,6 +76,44 @@ fun DebugScreen(
                     onClick = {
                         inputUdid = viewModel.xUdid
                         showDeviceIdDialog = true
+                    }
+                )
+            }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.debug_item_break_tokens_title),
+                    description = stringResource(R.string.debug_item_break_tokens_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = {
+                        val broken = viewModel.breakSessionTokens()
+                        Toast.makeText(
+                            context,
+                            if (broken) {
+                                R.string.debug_break_tokens_done
+                            } else {
+                                R.string.debug_refresh_unavailable
+                            },
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
+                )
+            }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.debug_item_force_refresh_title),
+                    description = stringResource(R.string.debug_item_force_refresh_subtitle),
+                    icon = Icons.Filled.BugReport,
+                    onClick = {
+                        val armed = viewModel.makeRefreshDue()
+                        Toast.makeText(
+                            context,
+                            if (armed) {
+                                R.string.debug_refresh_armed
+                            } else {
+                                R.string.debug_refresh_unavailable
+                            },
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     }
                 )
             }

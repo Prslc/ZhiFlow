@@ -280,6 +280,13 @@
     <string name="debug_label_x_udid">x_udid</string>
     <string name="debug_action_save">Save</string>
     <string name="debug_action_regenerate">Regenerate</string>
+    <string name="debug_item_break_tokens_title">Break the Session Tokens</string>
+    <string name="debug_item_break_tokens_subtitle">Make the next request, and its renewal, be refused</string>
+    <string name="debug_break_tokens_done">Tokens broken; the next request should fall back to a guest</string>
+    <string name="debug_item_force_refresh_title">Force a Session Refresh</string>
+    <string name="debug_item_force_refresh_subtitle">Move the due time to now; the next response renews it</string>
+    <string name="debug_refresh_armed">Armed: the next request renews the session</string>
+    <string name="debug_refresh_unavailable">No session to refresh</string>
     <string name="debug_dialog_navigator_title">Debug Navigator</string>
     <string name="debug_navigator_hint">Enter any URL (Answer, Article, or External)</string>
     <string name="debug_label_url">URL</string>

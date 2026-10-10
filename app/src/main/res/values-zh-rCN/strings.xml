@@ -260,6 +260,13 @@
     <string name="debug_label_x_udid">x_udid</string>
     <string name="debug_action_save">保存</string>
     <string name="debug_action_regenerate">重新生成</string>
+    <string name="debug_item_break_tokens_title">弄坏会话令牌</string>
+    <string name="debug_item_break_tokens_subtitle">让下一个请求和它触发的续期都被拒绝</string>
+    <string name="debug_break_tokens_done">令牌已弄坏，下一个请求应该就落到游客了</string>
+    <string name="debug_item_force_refresh_title">强制刷新会话</string>
+    <string name="debug_item_force_refresh_subtitle">把到期时间提前到现在，下一个响应就会续期</string>
+    <string name="debug_refresh_armed">已置为待刷新，下一个请求会续期</string>
+    <string name="debug_refresh_unavailable">当前没有可刷新的会话</string>
     <string name="debug_dialog_navigator_title">调试导航</string>
     <string name="debug_navigator_hint">输入任意 URL (回答、文章或外部链接)</string>
     <string name="debug_label_url">URL</string>
