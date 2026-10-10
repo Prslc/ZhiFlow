@@ -293,6 +293,7 @@
     <string name="debug_placeholder_url">https://www.zhihu.com/question/…</string>
     <string name="debug_action_go">Go</string>
     <string name="debug_action_cancel">Cancel</string>
+    <string name="login_brand_subtitle">Sign in with your Zhihu account</string>
     <string name="login_method_code">Code</string>
     <string name="login_method_password">Password</string>
     <string name="login_label_account">Phone or email</string>

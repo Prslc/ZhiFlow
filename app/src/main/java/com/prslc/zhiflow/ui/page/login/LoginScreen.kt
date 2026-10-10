@@ -1,28 +1,45 @@
 package com.prslc.zhiflow.ui.page.login
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -30,6 +47,15 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import org.koin.androidx.compose.koinViewModel
 
+/* Rhythm: 24dp between the brand block and the form, then 16dp between form
+ * rows, so the eye reads "who this is" then "one thing to fill in" rather than
+ * five equally weighted rows. */
+private val ScreenPadding = 24.dp
+private val BrandToForm = 32.dp
+private val BetweenFields = 16.dp
+private val FieldHeight = 56.dp
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onSignedIn: () -> Unit,
@@ -59,100 +85,197 @@ fun LoginScreen(
         LoginViewModel.Method.PASSWORD -> viewModel.password.isNotBlank()
     }
 
+    val codeFocus = remember { FocusRequester() }
+
     Scaffold(modifier = modifier.fillMaxSize()) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                // The keyboard must not be able to cover the submit button, and
+                // the form has to be reachable by scrolling on a short screen.
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = ScreenPadding)
+                .padding(top = 72.dp, bottom = 40.dp),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LoginViewModel.Method.entries.forEach { method ->
-                    FilterChip(
-                        selected = viewModel.method == method,
-                        onClick = { viewModel.selectMethod(method) },
-                        label = { Text(stringResource(method.labelRes)) },
-                    )
-                }
-            }
+            BrandBlock()
 
-            OutlinedTextField(
-                value = viewModel.account,
-                onValueChange = viewModel::onAccountChange,
-                label = { Text(stringResource(R.string.login_label_account)) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            when (viewModel.method) {
-                LoginViewModel.Method.CODE -> Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        OutlinedTextField(
-                            value = viewModel.code,
-                            onValueChange = viewModel::onCodeChange,
-                            label = { Text(stringResource(R.string.login_label_code)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.weight(1f),
-                        )
-                        TextButton(
-                            onClick = viewModel::sendCode,
-                            enabled = !viewModel.isSendingCode &&
-                                viewModel.resendIn == 0 &&
-                                viewModel.account.isNotBlank(),
-                        ) {
-                            Text(
-                                if (viewModel.resendIn > 0) {
-                                    stringResource(R.string.login_action_resend_in, viewModel.resendIn)
-                                } else {
-                                    stringResource(R.string.login_action_send_code)
-                                }
-                            )
-                        }
-                    }
-
-                    viewModel.codeSentTo?.let { number ->
-                        Text(
-                            text = stringResource(R.string.login_code_sent, number),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-
-                LoginViewModel.Method.PASSWORD -> OutlinedTextField(
-                    value = viewModel.password,
-                    onValueChange = viewModel::onPasswordChange,
-                    label = { Text(stringResource(R.string.login_label_password)) },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            Button(
-                onClick = viewModel::submit,
-                enabled = canSubmit,
-                modifier = Modifier.fillMaxWidth(),
+            Column(
+                modifier = Modifier.padding(top = BrandToForm),
+                verticalArrangement = Arrangement.spacedBy(BetweenFields),
             ) {
-                // In flight it stays enabled: the view model absorbs a repeat, and a disabled
-                // button would dim the spinner along with the label.
-                if (viewModel.isSubmitting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                    )
-                } else {
-                    Text(stringResource(R.string.login_action_submit))
+                MethodSelector(
+                    selected = viewModel.method,
+                    onSelect = viewModel::selectMethod,
+                )
+
+                OutlinedTextField(
+                    value = viewModel.account,
+                    onValueChange = viewModel::onAccountChange,
+                    label = { Text(stringResource(R.string.login_label_account)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone,
+                        imeAction = ImeAction.Next,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { codeFocus.requestFocus() },
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(FieldHeight),
+                )
+
+                // Swapping the two methods changes one row of the form; fading
+                // rather than cutting keeps the field above and the button below
+                // from appearing to jump.
+                AnimatedContent(
+                    targetState = viewModel.method,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    label = "login-method",
+                ) { method ->
+                    when (method) {
+                        LoginViewModel.Method.CODE -> Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                OutlinedTextField(
+                                    value = viewModel.code,
+                                    onValueChange = viewModel::onCodeChange,
+                                    label = { Text(stringResource(R.string.login_label_code)) },
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Done,
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(FieldHeight)
+                                        .focusRequester(codeFocus),
+                                )
+                                FilledTonalButton(
+                                    onClick = viewModel::sendCode,
+                                    enabled = !viewModel.isSendingCode &&
+                                        viewModel.resendIn == 0 &&
+                                        viewModel.account.isNotBlank(),
+                                    modifier = Modifier.height(FieldHeight),
+                                ) {
+                                    Text(
+                                        if (viewModel.resendIn > 0) {
+                                            stringResource(
+                                                R.string.login_action_resend_in,
+                                                viewModel.resendIn,
+                                            )
+                                        } else {
+                                            stringResource(R.string.login_action_send_code)
+                                        },
+                                    )
+                                }
+                            }
+
+                            // Sits under the field it describes rather than in
+                            // the gap between rows, so it reads as that field's
+                            // status and not as its own line of the form.
+                            viewModel.codeSentTo?.let { number ->
+                                Text(
+                                    text = stringResource(R.string.login_code_sent, number),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(start = 16.dp),
+                                )
+                            }
+                        }
+
+                        LoginViewModel.Method.PASSWORD -> OutlinedTextField(
+                            value = viewModel.password,
+                            onValueChange = viewModel::onPasswordChange,
+                            label = { Text(stringResource(R.string.login_label_password)) },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(FieldHeight),
+                        )
+                    }
                 }
+
+                Button(
+                    onClick = viewModel::submit,
+                    enabled = canSubmit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .height(FieldHeight),
+                ) {
+                    // In flight it stays enabled: the view model absorbs a repeat,
+                    // and a disabled button would dim the spinner along with the
+                    // label.
+                    if (viewModel.isSubmitting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.login_action_submit),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* The wordmark carries the identity, so it stays in the neutral on-surface tone
+ * and the accent is spent on the one action instead. Under dynamic colour a
+ * brand tinted with `primary` would come out whatever the wallpaper is, which is
+ * the opposite of what a wordmark is for. */
+@Composable
+private fun BrandBlock() {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(R.string.login_brand_subtitle),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/* A segmented row rather than chips: the two methods are alternatives, and only
+ * one can hold, which is what a single-choice group says and what a filter chip
+ * does not. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MethodSelector(
+    selected: LoginViewModel.Method,
+    onSelect: (LoginViewModel.Method) -> Unit,
+) {
+    val methods = LoginViewModel.Method.entries
+
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        methods.forEachIndexed { index, method ->
+            SegmentedButton(
+                selected = selected == method,
+                onClick = { onSelect(method) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = methods.size),
+            ) {
+                Text(stringResource(method.labelRes))
             }
         }
     }
