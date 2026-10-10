@@ -11,16 +11,15 @@ private object SealedBody
 /**
  * Seals [form] into this request's body, and marks it as one that carries no signature.
  *
- * The mark travels with the seal on purpose: the endpoints that take a sealed body are exactly
- * the ones that take no `x-zse-96` — one observation in the capture, two facts the interceptor
- * needs. Keeping them in one call is what stops a new sealed endpoint from being signed by
- * accident, which a path list in the interceptor would allow.
+ * The mark travels with the seal on purpose: a sealed request must not be signed, and keeping
+ * the two in one call is what stops a new sealed endpoint from being signed by accident — which
+ * a path list in the interceptor would allow.
  */
 internal fun Request.Builder.sealedBody(form: String): Request.Builder =
     post(Natives.sealBody(form).toByteArray(Charsets.UTF_8).toRequestBody(FORM_MEDIA_TYPE))
         .tag(SealedBody::class.java, SealedBody)
 
-/** True when this request's body was sealed, and so must go without `x-zse-96`. */
+/** True when this request's body was sealed, and so must go unsigned. */
 internal fun Request.hasSealedBody(): Boolean = tag(SealedBody::class.java) != null
 
 // No charset: the client sends this body as a bare `application/x-www-form-urlencoded`, and a

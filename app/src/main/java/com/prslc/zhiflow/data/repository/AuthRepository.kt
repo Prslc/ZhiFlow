@@ -25,8 +25,8 @@ class AuthRepository(
     /**
      * Asks for a login code.
      *
-     * Fetches a login ticket first: the code request is refused without one. It stays in the
-     * cookie jar for the sign-in that follows, so [signInWithDigits] must not fetch another.
+     * Fetches a ticket first — the request is refused without one — and that same ticket has to
+     * serve the sign-in that follows, so [signInWithDigits] must not fetch another.
      *
      * @param phoneNumber With its country code, e.g. `+8613800138000`.
      * @return A [Result] indicating whether a code was sent.

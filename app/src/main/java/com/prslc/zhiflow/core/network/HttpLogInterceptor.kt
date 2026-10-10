@@ -13,11 +13,10 @@ private const val MAX_REQUEST_BODY_BYTES = 4 * 1024L
 private const val MAX_RESPONSE_BODY_BYTES = 16 * 1024L
 
 /**
- * Endpoints whose response body hands over a credential in the clear — a session token, or the
- * ticket the sign-in that follows has to carry.
+ * Endpoints whose response body hands over a credential in the clear.
  *
- * A body is read for every other endpoint. Request bodies need no such list: the ones that
- * carry anything sensitive are sealed before they leave.
+ * A body is read for every other endpoint; request bodies need no such list, because the ones
+ * that carry anything sensitive are sealed before they leave.
  */
 private val CREDENTIAL_BODY_PATHS = setOf(
     "/captcha",

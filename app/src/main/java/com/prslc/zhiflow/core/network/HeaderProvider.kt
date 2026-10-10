@@ -41,12 +41,13 @@ object HeaderProvider {
     }
 
     /**
-     * Generate the `x-zse-96` request signature.
+     * Produces the signature header a request to [urlPath] has to carry.
      *
-     * Signs the concatenation of ZSE protocol version, URL path, app version,
-     * authorization token, and device UDID using the native encrypt library.
+     * @param urlPath The path and query the request will use, exactly as it will be sent
+     * @param auth The value of the `Authorization` header
+     * @param xUdid The device id
      */
-    fun zse96( urlPath: String, auth: String, xUdid: String): String {
+    fun zse96(urlPath: String, auth: String, xUdid: String): String {
         val signStr = "$ZSE_93+$urlPath+${APP_VERSION}+$auth+$xUdid"
         return Natives.zse96Sign(signStr)
     }

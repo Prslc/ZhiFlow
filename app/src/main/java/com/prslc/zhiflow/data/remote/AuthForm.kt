@@ -31,13 +31,11 @@ internal object AuthForm {
         )
     }
 
-    // Signed over the raw values, never the encoded ones: encoding first would sign a different
-    // message than the server checks. The key for it lives in the library, not here.
+    // Signed over the raw values, never the encoded ones. The key lives in the library.
     private fun signature(grantType: String, timestamp: String): String =
         Natives.authSignature(grantType + CLIENT_ID + SOURCE + timestamp)
 
-    // The client's own identifier, the same for every install and carried in the clear inside
-    // every sign-in form the server receives — not a secret, and so not worth hiding. The secret
-    // it pairs with is the library's.
+    // The client's own identifier: the same for every install and not a secret, so it is not
+    // hidden. The secret it pairs with is the library's.
     private const val CLIENT_ID = "8d5227e0aaaa4797a763ac64e0c3b8"
 }

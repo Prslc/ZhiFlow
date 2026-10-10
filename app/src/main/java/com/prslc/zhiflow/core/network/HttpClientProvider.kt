@@ -42,7 +42,7 @@ class HttpClientProvider(
                 builder.header("Authorization", auth)
             }
 
-            // A sealed body goes unsigned: those endpoints take no x-zse-96 either.
+            // A sealed body goes unsigned.
             if (!original.hasSealedBody()) {
                 builder.header("x-zse-96", zse96(urlPath, auth, xUdid))
             }

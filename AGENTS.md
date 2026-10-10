@@ -8,7 +8,7 @@ A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Comp
 |-------|-----------|
 | UI | Jetpack Compose + Material 3 + Navigation Compose (type-safe, serializable routes) |
 | DI | Koin (`koin-android`, `koin-compose-viewmodel`) |
-| HTTP | OkHttp 5 with custom interceptor for Zhihu API signing |
+| HTTP | OkHttp 5 with a custom interceptor |
 | Serialization | kotlinx-serialization-json (used for both DTOs and Navigation routes) |
 | Image Loading | Coil 3 (OkHttp network fetcher, GIF support, disk + memory cache) |
 | Zoom | Telephoto (`zoomable-image-coil3`) |
@@ -28,7 +28,7 @@ A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Comp
 - **App `build.gradle.kts`**: applies plugins, configures SDK versions, NDK ABI filter (`arm64-v8a`), release R8+shrink, Compose build feature, source sets
 - **`gradle.properties`**: `useAndroidX=true`, `nonTransitiveRClass=true`, `R8.fullMode=true`, `kotlin.code.style=official`
 - **Release**: R8 minification + resource shrink + multiDex; strips `kotlin.jvm.internal.Intrinsics` via ProGuard `-assumenosideeffects`
-- **Native library**: loads `libencrypt.so` from `app/src/main/libs/` (JNI for `x-zse-96` request signing)
+- **Native library**: loads `libencrypt.so` from `app/libs/` through JNI
 - **`local.properties`**: stores per-machine SDK path; gitignored
 
 Key Gradle tasks:
@@ -58,8 +58,8 @@ ZhiFlow/
 │           ├── MainActivity.kt                 # Single Activity: NavHost + bottom-bar HorizontalPager
 │           ├── core/                           # Infrastructure that knows nothing about Zhihu's domain
 │           │   ├── exception/                  # ApiException, ErrorHandler, Result extensions (onApiFailure / ignoreOutcome)
-│           │   ├── native/                     # JNI bridge for request signing
-│           │   ├── network/                    # OkHttp client and the funnel (ApiClient) over it; auth headers, signing, body sealing, the cookie jar, the credential store, the session gate, the HTTP log
+│           │   ├── native/                     # JNI bridge to the native library
+│           │   ├── network/                    # OkHttp client and the funnel (ApiClient) over it; the request headers, the cookie jar, the credential store, the session gate, the HTTP log
 │           │   └── utils/                      # Format and JSON helpers; compose/ holds lazy-list and text-layout extensions; platform/ clipboard and images
 │           ├── data/                           # Everything shaped by Zhihu's data
 │           │   ├── dto/                        # Flat, UI-ready data classes
@@ -117,10 +117,10 @@ API Server
 - **`safeApiCall<T>(requestBuilder)`** — Extension on `ApiClient`. Executes on `Dispatchers.IO`, parses JSON via `kotlinx.serialization`, catches all exceptions and maps to `ApiException` sealed types. Returns `Result<T>`.
 - **`safeExecute(requestBuilder)`** — Same, for writes whose response body is not needed; returns `Result<Unit>`. **Neither helper ever reports a non-2xx as a success** — both fail with an `ApiException` carrying the status code. Pick between them only by whether you need the parsed body.
 - **`Response.body<T>()`** — `inline reified` extension that `use`-closes the response and decodes JSON. Throws `HttpStatusException` on non-2xx.
-- Auth headers are injected by an OkHttp interceptor: `Authorization` and `x-udid` from `CredentialStore`, `x-zse-96` from `Natives` — except on a request whose body is sealed, which carries no signature. No `Cookie` header is written anywhere: that one belongs to the cookie jar.
+- Auth headers are injected by an OkHttp interceptor: `Authorization` and `x-udid` from `CredentialStore`, and the signature header from the native library — which a request with a sealed body does not carry. No `Cookie` header is written anywhere: that one belongs to the cookie jar.
 - The funnel is also where the session is kept in hand — `SessionGate.awaitReady()` before a request goes out, `onExchange(status)` after each response, successful or not.
 - **`HttpClientProvider`** holds the OkHttpClient singleton and a shared `Json` instance (lenient, coerce defaults, ignore unknown keys).
-- **`HeaderProvider`** is an `object` that initializes the dynamic User-Agent via `WebSettings` at app startup, and signs requests via JNI `Natives.zse96Sign()`.
+- **`HeaderProvider`** is an `object` that initializes the dynamic User-Agent via `WebSettings` at app startup, and produces the signature header through the native library.
 - **HTTP log** — `HttpLogInterceptor` records API traffic into `HttpLogStore` (bounded, in-memory, newest first) for the in-app log screen. It records only requests to the `BASE_URL` host (Coil shares the same client), never records headers, and never writes to logcat. Failures are always recorded; the Debug-page toggle (prefs key `http_log_enabled`) additionally captures successful requests.
 
 ### DI (Koin)
@@ -218,7 +218,7 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
-- **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore` — access token, refresh token, user id, user type, the time the next refresh comes due, and the device id. Reads go to storage every time, so a write reaches the next request with nothing having to be told. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
+- **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore`, read fresh on every request so a write reaches the next one with nothing having to be told. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 
 ## Comments
