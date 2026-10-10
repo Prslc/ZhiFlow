@@ -284,6 +284,7 @@
     <string name="profile_guest_hint">登录后查看你的主页</string>
     <string name="login_session_expired">登录已失效，已切换为游客浏览</string>
     <string name="login_action_submit">登录</string>
+    <string name="login_signed_in">已登录</string>
     <string name="http_log_title">HTTP 日志</string>
     <string name="http_log_empty">暂无请求记录</string>
     <string name="http_log_disabled">抓取已关闭 —— 仅记录失败的请求</string>

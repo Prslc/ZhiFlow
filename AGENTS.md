@@ -196,15 +196,23 @@ The API sends a code block as `{content, language}` and nothing more — the ser
 - Each carries an Android string resource ID; `.uiMessage` is a `@Composable` extension property
 - `ErrorView` and `LoadMoreErrorItem` composables in `component/common/` render error states with retry buttons
 
-**Presenting a failed user action** — the shape follows the surface, not taste:
+**Presenting a failed user action** — the shape follows the surface and the length, not taste.
+
+A Toast is capped at two lines and truncates whatever does not fit, without saying so: ≈53
+half-width characters, ≈26 Chinese, measured on the target device. Under that it is the lighter
+notice of the two; over it, only a host can show the message whole.
 
 | Surface | Use | Why |
 |---|---|---|
 | Screen with a `Scaffold` | `rememberActionErrorHost(viewModel.actionError, viewModel::consumeActionError)`, then `Scaffold(snackbarHost = { SnackbarHost(state) })` | the host can carry it |
+| Screen that pops itself on success, whose wording fits those two lines (`LoginScreen`) | Toast, for its failures as well as its success | the success notice has to outlive the screen, and its failure answers the same tap |
 | `Dialog()` (`CollectionDialog`) | render `error.uiMessage` inside the dialog | it draws in its own window; the host's snackbar would be hidden behind it |
 | App-level non-Composable (`Navigator`) | Toast | no `SnackbarHostState` is reachable, and it outlives the current screen |
 | Reusable widget with no host parameter (`ImageLightbox`) | Toast inside the widget | cannot require every call site to supply a host |
 | Surface with no `Scaffold` (comment bottom sheet) | `ErrorView` / `LoadMoreErrorItem` inside the surface | there is no host to use |
+
+A surface with no host to reach has no fallback: what it says has to fit those two lines on its
+own, because nothing else can show it.
 
 Do not pass a snackbar host down through a `CompositionLocal`: two of these rows have no host to reach at all.
 

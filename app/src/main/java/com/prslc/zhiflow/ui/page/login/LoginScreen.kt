@@ -1,30 +1,33 @@
 package com.prslc.zhiflow.ui.page.login
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
+import com.prslc.zhiflow.core.exception.uiMessage
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -33,11 +36,22 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = koinViewModel(),
 ) {
-    val snackbarHostState =
-        rememberActionErrorHost(viewModel.actionError, viewModel::consumeActionError)
+    val context = LocalContext.current
+    val actionError = viewModel.actionError
+    val actionErrorText = actionError?.uiMessage
+
+    LaunchedEffect(actionError) {
+        if (actionErrorText != null) {
+            viewModel.consumeActionError()
+            Toast.makeText(context, actionErrorText, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(viewModel.signedIn) {
-        if (viewModel.signedIn) onSignedIn()
+        if (viewModel.signedIn) {
+            Toast.makeText(context, R.string.login_signed_in, Toast.LENGTH_SHORT).show()
+            onSignedIn()
+        }
     }
 
     val canSubmit = viewModel.account.isNotBlank() && when (viewModel.method) {
@@ -45,10 +59,7 @@ fun LoginScreen(
         LoginViewModel.Method.PASSWORD -> viewModel.password.isNotBlank()
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { padding ->
+    Scaffold(modifier = modifier.fillMaxSize()) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -129,10 +140,19 @@ fun LoginScreen(
 
             Button(
                 onClick = viewModel::submit,
-                enabled = canSubmit && !viewModel.isSubmitting,
+                enabled = canSubmit,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(stringResource(R.string.login_action_submit))
+                // In flight it stays enabled: the view model absorbs a repeat, and a disabled
+                // button would dim the spinner along with the label.
+                if (viewModel.isSubmitting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(stringResource(R.string.login_action_submit))
+                }
             }
         }
     }

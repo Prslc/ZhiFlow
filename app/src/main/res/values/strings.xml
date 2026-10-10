@@ -304,6 +304,7 @@
     <string name="profile_guest_hint">Sign in to see your profile</string>
     <string name="login_session_expired">Your session has expired. Browsing as a guest.</string>
     <string name="login_action_submit">Sign in</string>
+    <string name="login_signed_in">Signed in</string>
     <string name="http_log_title">HTTP Log</string>
     <string name="http_log_empty">No requests captured yet</string>
     <string name="http_log_disabled">Capture is off — only failed requests are recorded</string>

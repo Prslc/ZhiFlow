@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.login
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -40,7 +41,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         private set
 
     /** Seconds left before another code may be asked for; 0 when one may. */
-    var resendIn by mutableStateOf(0)
+    var resendIn by mutableIntStateOf(0)
         private set
 
     private var cooldownJob: Job? = null
