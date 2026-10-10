@@ -4,6 +4,9 @@ import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
+/** The code the account endpoints answer with when the credential they were given is no good. */
+private const val ERROR_INVALID_REFRESH_TOKEN = 100008
+
 // Converters from Throwable and OkHttp Response to domain-specific ApiException.
 //
 // Since OkHttp does not throw exceptions for non-2xx status codes, we provide an extension for
@@ -19,7 +22,7 @@ import kotlin.coroutines.cancellation.CancellationException
 internal fun Throwable.toApiException(): ApiException {
     if (this is CancellationException) throw this
     return when (this) {
-        is HttpStatusException -> response.toApiException() ?: ApiException.UnknownException()
+        is HttpStatusException -> response.toApiException(apiErrorCode) ?: ApiException.UnknownException()
         is IOException -> ApiException.NetworkException()
         is ApiException -> this
         else -> ApiException.UnknownException()
@@ -30,8 +33,13 @@ internal fun Throwable.toApiException(): ApiException {
  * Converts an OkHttp [Response] into an [ApiException] if it's not successful.
  * @return The corresponding [ApiException] or null if the response is successful.
  */
-private fun Response.toApiException(): ApiException? {
+private fun Response.toApiException(apiErrorCode: Int?): ApiException? {
     if (isSuccessful) return null
+
+    // A credential the server is finished with does not always arrive as a 401: the account
+    // endpoints answer a bad refresh token with 400 and a code of their own. Missing this is
+    // silent — the session is simply never given up.
+    if (apiErrorCode == ERROR_INVALID_REFRESH_TOKEN) return ApiException.UnAuthorizedException()
 
     return when (code) {
         401, 403 -> ApiException.UnAuthorizedException()

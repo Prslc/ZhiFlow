@@ -90,14 +90,26 @@ class SessionManager(
             try {
                 authRepository.refresh().onApiFailure { error ->
                     // A refusal is not the same failure as an unreachable server: one means these
-                    // credentials are finished with, the other means try again later. Only the
-                    // first is worth acting on, and acting on it means taking a guest session.
-                    if (error is ApiException.UnAuthorizedException) dropToGuest()
+                    // credentials are finished with, the other means try again later.
+                    if (error is ApiException.UnAuthorizedException) dropToGuest() else backOff()
                 }
             } finally {
                 refreshing.set(false)
             }
         }
+    }
+
+    /**
+     * Pushes the next attempt out after a failure that says nothing about the credentials.
+     *
+     * Without it the due time stays in the past, and every response still in flight starts
+     * another attempt at a server that has just refused one.
+     */
+    private fun backOff() {
+        val session = credentialStore.read()
+        credentialStore.save(
+            session.copy(nextRefreshAt = System.currentTimeMillis() + REFRESH_RETRY_DELAY_MS)
+        )
     }
 
     private suspend fun dropToGuest() {
@@ -111,5 +123,6 @@ class SessionManager(
     private companion object {
         const val HTTP_UNAUTHORIZED = 401
         const val BOOTSTRAP_RETRY_DELAY_MS = 30_000L
+        const val REFRESH_RETRY_DELAY_MS = 24 * 60 * 60 * 1000L
     }
 }

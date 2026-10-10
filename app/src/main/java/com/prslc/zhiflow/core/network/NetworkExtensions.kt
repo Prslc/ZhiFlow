@@ -5,6 +5,9 @@ import com.prslc.zhiflow.core.exception.HttpStatusException
 import com.prslc.zhiflow.core.exception.toApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
@@ -40,10 +43,30 @@ internal fun Request.Builder.urlOrApiUrl(nextUrl: String?, fallbackPath: String)
  */
 internal inline fun <reified T> Response.body(): T {
     return use { res ->
-        if (!res.isSuccessful) throw HttpStatusException(res)
+        if (!res.isSuccessful) throw HttpStatusException(res, res.apiErrorCode())
         HttpClientProvider.jsonInstance.decodeFromString<T>(res.body.string())
     }
 }
+
+/**
+ * Reads the code a failed response carries in its body.
+ *
+ * Read here because it has to happen while the response is still open: by the time anyone
+ * catches the exception, [use] has closed the body.
+ */
+private fun Response.apiErrorCode(): Int? = try {
+    HttpClientProvider.jsonInstance
+        .parseToJsonElement(peekBody(ERROR_BODY_LIMIT).string())
+        .jsonObject["error"]
+        ?.jsonObject
+        ?.get("code")
+        ?.jsonPrimitive
+        ?.int
+} catch (_: Exception) {
+    null
+}
+
+private const val ERROR_BODY_LIMIT = 4 * 1024L
 
 /**
  * Executes an OkHttp request on [Dispatchers.IO] and parses the response body.
