@@ -59,7 +59,7 @@ ZhiFlow/
 │           ├── core/                           # Infrastructure that knows nothing about Zhihu's domain
 │           │   ├── exception/                  # ApiException, ErrorHandler, Result extensions (onApiFailure / ignoreOutcome)
 │           │   ├── native/                     # JNI bridge for request signing
-│           │   ├── network/                    # OkHttp client, auth headers, signing, the HTTP log
+│           │   ├── network/                    # OkHttp client and the funnel (ApiClient) over it; auth headers, signing, body sealing, the cookie jar, the credential store, the session gate, the HTTP log
 │           │   └── utils/                      # Format and JSON helpers; compose/ holds lazy-list and text-layout extensions; platform/ clipboard and images
 │           ├── data/                           # Everything shaped by Zhihu's data
 │           │   ├── dto/                        # Flat, UI-ready data classes
@@ -69,7 +69,7 @@ ZhiFlow/
 │           │   │   ├── parser/                 # Segments → RichTextElement: links, formulas, tables, emoji (emoji/), code colour (CodeHighlighter), the annotated-string engine (engine/)
 │           │   │   └── service/                # One OkHttp service per API domain
 │           │   ├── repository/                 # Service + mapper per domain, returning Result<T>
-│           │   └── session/                    # The current user's hash id, resolved lazily and kept in memory
+│           │   └── session/                    # The current user's hash id, kept in memory; the credential store's implementation; the session manager
 │           ├── di/                             # The single Koin module
 │           └── ui/                             # Compose only
 │               ├── theme/                      # Colour, type, dynamic-colour fallback, and a syntax palette that follows neither
@@ -83,7 +83,7 @@ ZhiFlow/
 │                   ├── feed/  content/  question/  comment/
 │                   ├── pin/                    # The thought page, with a screen of its own instead of the one answers and articles share
 │                   ├── people/                 # Profile page; moment/ is its second tab
-│                   └── profile/  history/  collection/  debug/
+│                   └── profile/  history/  collection/  login/  debug/
 ```
 
 ## Architecture Patterns
@@ -114,10 +114,11 @@ API Server
 
 ### Network Layer
 
-- **`safeApiCall<T>(requestBuilder)`** — Extension on `OkHttpClient`. Executes on `Dispatchers.IO`, parses JSON via `kotlinx.serialization`, catches all exceptions and maps to `ApiException` sealed types. Returns `Result<T>`.
+- **`safeApiCall<T>(requestBuilder)`** — Extension on `ApiClient`. Executes on `Dispatchers.IO`, parses JSON via `kotlinx.serialization`, catches all exceptions and maps to `ApiException` sealed types. Returns `Result<T>`.
 - **`safeExecute(requestBuilder)`** — Same, for writes whose response body is not needed; returns `Result<Unit>`. **Neither helper ever reports a non-2xx as a success** — both fail with an `ApiException` carrying the status code. Pick between them only by whether you need the parsed body.
 - **`Response.body<T>()`** — `inline reified` extension that `use`-closes the response and decodes JSON. Throws `HttpStatusException` on non-2xx.
-- Auth headers (Cookie, Authorization, x-udid, x-zse-96) are injected by an OkHttp interceptor reading from `SharedPreferences`.
+- Auth headers are injected by an OkHttp interceptor: `Authorization` and `x-udid` from `CredentialStore`, `x-zse-96` from `Natives` — except on a request whose body is sealed, which carries no signature. No `Cookie` header is written anywhere: that one belongs to the cookie jar.
+- The funnel is also where the session is kept in hand — `SessionGate.awaitReady()` before a request goes out, `onExchange(status)` after each response, successful or not.
 - **`HttpClientProvider`** holds the OkHttpClient singleton and a shared `Json` instance (lenient, coerce defaults, ignore unknown keys).
 - **`HeaderProvider`** is an `object` that initializes the dynamic User-Agent via `WebSettings` at app startup, and signs requests via JNI `Natives.zse96Sign()`.
 - **HTTP log** — `HttpLogInterceptor` records API traffic into `HttpLogStore` (bounded, in-memory, newest first) for the in-app log screen. It records only requests to the `BASE_URL` host (Coil shares the same client), never records headers, and never writes to logcat. Failures are always recorded; the Debug-page toggle (prefs key `http_log_enabled`) additionally captures successful requests.
@@ -129,8 +130,10 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 - `viewModelOf(::ViewModelName)` for ViewModels
 - `single { get<HttpClientProvider>().okHttpClient }` for the OkHttpClient instance
 - `SharedPreferences` is provided as a `single` pointing to the `"temp_auth_prefs"` file
-- `UserSession` is a `single` caching the current user's hash id in memory; it depends only on `UserService` and must never be made to depend on `UserRepository` (that would form a DI cycle)
-- Koin is started in `Application.onCreate()` with `startKoin { ... }`
+- `ApiClient` is what every service takes, because the funnel (`safeApiCall`/`safeExecute`) is an inline extension: anything it needs on every call has to hang off its receiver. Its `SessionGate` is resolved lazily — the gate needs a client of its own to talk to the server with, so the two cannot be built in either order
+- `SessionManager` is bound under both its own type and `SessionGate`. Koin matches keys exactly, so an interface binding does not answer a request for the concrete type; the startup path asks for the manager and the funnel asks for the gate
+- `UserSession` is a `single` caching the current user's hash id in memory, tagged with the access token it was resolved under, so a login, a sign-out or a drop to guest invalidates it by changing the token. It depends on `UserService` and `CredentialStore` and must never be made to depend on `UserRepository`; `CredentialStore` must stay in `core` for the same reason — either would form a DI cycle
+- Koin is started in `Application.onCreate()` with `startKoin { ... }`, and an anonymous session is fetched immediately after
 
 ### Navigation
 
@@ -215,7 +218,7 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
-- **Credentials**: Stored in `SharedPreferences` (`"temp_auth_prefs"`) — keys `auth`, `cookie`, `x_udid`. Managed via DebugScreen or programmatically. Changing them must call `UserSession.invalidate()`, since the cached current user id would otherwise go stale. DebugScreen's clear action removes only these three keys, never the whole prefs file (it also holds `http_log_enabled`).
+- **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore` — access token, refresh token, user id, user type, the time the next refresh comes due, and the device id. Reads go to storage every time, so a write reaches the next request with nothing having to be told. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 
 ## Comments
