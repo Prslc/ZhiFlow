@@ -279,6 +279,8 @@
     <string name="login_label_account">手机号或邮箱</string>
     <string name="login_label_code">验证码</string>
     <string name="login_label_password">密码</string>
+    <string name="login_action_show_password">显示密码</string>
+    <string name="login_action_hide_password">隐藏密码</string>
     <string name="login_action_send_code">获取验证码</string>
     <string name="login_action_resend_in">%1$d 秒</string>
     <string name="login_code_sent">验证码已发送至 %1$s</string>

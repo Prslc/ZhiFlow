@@ -18,10 +18,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -31,7 +35,11 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -42,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -55,7 +64,6 @@ private val BrandToForm = 32.dp
 private val BetweenFields = 16.dp
 private val FieldHeight = 56.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onSignedIn: () -> Unit,
@@ -191,16 +199,9 @@ fun LoginScreen(
                             }
                         }
 
-                        LoginViewModel.Method.PASSWORD -> OutlinedTextField(
+                        LoginViewModel.Method.PASSWORD -> PasswordField(
                             value = viewModel.password,
                             onValueChange = viewModel::onPasswordChange,
-                            label = { Text(stringResource(R.string.login_label_password)) },
-                            singleLine = true,
-                            visualTransformation = PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done,
-                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(FieldHeight),
@@ -260,7 +261,6 @@ private fun BrandBlock() {
 /* A segmented row rather than chips: the two methods are alternatives, and only
  * one can hold, which is what a single-choice group says and what a filter chip
  * does not. */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MethodSelector(
     selected: LoginViewModel.Method,
@@ -286,3 +286,47 @@ private val LoginViewModel.Method.labelRes: Int
         LoginViewModel.Method.CODE -> R.string.login_method_code
         LoginViewModel.Method.PASSWORD -> R.string.login_method_password
     }
+
+@Composable
+private fun PasswordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var visible by rememberSaveable { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(stringResource(R.string.login_label_password)) },
+        singleLine = true,
+        visualTransformation = if (visible) {
+            VisualTransformation.None
+        } else {
+            PasswordVisualTransformation()
+        },
+        trailingIcon = {
+            IconButton(onClick = { visible = !visible }) {
+                Icon(
+                    imageVector = if (visible) {
+                        Icons.Filled.VisibilityOff
+                    } else {
+                        Icons.Filled.Visibility
+                    },
+                    contentDescription = stringResource(
+                        if (visible) {
+                            R.string.login_action_hide_password
+                        } else {
+                            R.string.login_action_show_password
+                        }
+                    ),
+                )
+            }
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done,
+        ),
+        modifier = modifier,
+    )
+}
