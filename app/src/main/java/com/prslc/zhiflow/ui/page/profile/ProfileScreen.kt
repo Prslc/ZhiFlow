@@ -70,9 +70,9 @@ fun ProfileScreen(
     val user = uiState.user
     val navigator = LocalNavigator.current
 
-    // Keyed on the guest flag as well as on the first composition: signing in from another
-    // screen leaves this tab otherwise still holding its anonymous state.
-    LaunchedEffect(uiState.isGuest) {
+    // Runs again because returning here is a fresh composition; nothing here reacts to the
+    // session, so a login screen drawn over this one would leave the tab anonymous.
+    LaunchedEffect(Unit) {
         if (user == null) viewModel.loadProfile()
     }
 
