@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -92,7 +93,7 @@ fun PeopleScreen(
     // White status bar icons while the cover image is behind the status bar; once the opaque top
     // bar is underneath they follow the theme, that bar being the theme's own surface.
     StatusBarIconEffect(
-        darkIcons = scrollState.topBarAlpha > 0.9f && !isSystemInDarkTheme(),
+        darkIcons = scrollState.isTopBarOpaque && !isSystemInDarkTheme(),
     )
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
@@ -146,7 +147,7 @@ fun PeopleScreen(
                                     onTabSelected = { index ->
                                         coroutineScope.launch { pagerState.animateScrollToPage(index) }
                                     },
-                                    modifier = Modifier.shadow(if (scrollState.isTabsPinned) 2.dp else 0.dp),
+                                    modifier = Modifier.shadow(if (scrollState.tabsPinned) 2.dp else 0.dp),
                                 )
 
                                 HorizontalPager(
@@ -162,13 +163,22 @@ fun PeopleScreen(
                             }
 
                             // topbar
+                            // Drawn rather than composed: as a colour the fade would be a new
+                            // value every frame, and the surface has to be transparent for that.
+                            val topBarSurface = MaterialTheme.colorScheme.surface
                             Surface(
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = scrollState.topBarAlpha),
-                                shadowElevation = if (scrollState.topBarAlpha > 0.9f && !scrollState.isTabsPinned) 2.dp else 0.dp
+                                color = Color.Transparent,
+                                shadowElevation = if (scrollState.isTopBarOpaque && !scrollState.tabsPinned) 2.dp else 0.dp
                             ) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .drawBehind {
+                                            drawRect(
+                                                color = topBarSurface,
+                                                alpha = scrollState.topBarAlpha,
+                                            )
+                                        }
                                         .statusBarsPadding()
                                         .height(TOP_BAR_HEIGHT)
                                         .padding(horizontal = TOP_BAR_SIDE_PADDING)
@@ -177,16 +187,16 @@ fun PeopleScreen(
                                         onClick = onBack,
                                         modifier = Modifier
                                             .align(Alignment.CenterStart)
-                                            .iconScrim(0.55f * (1f - scrollState.topBarAlpha))
+                                            .iconScrim { 0.55f * (1f - scrollState.topBarAlpha) }
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = stringResource(R.string.general_back),
-                                            tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                                            tint = if (scrollState.iconsOnSurface) MaterialTheme.colorScheme.onSurface else Color.White,
                                         )
                                     }
 
-                                    if (scrollState.topBarAlpha > 0.8f) {
+                                    if (scrollState.isTitleShown) {
                                         Text(
                                             text = user.name.orEmpty(),
                                             modifier = Modifier.align(Alignment.Center),
@@ -199,12 +209,12 @@ fun PeopleScreen(
                                         onClick = { /* More */ },
                                         modifier = Modifier
                                             .align(Alignment.CenterEnd)
-                                            .iconScrim(0.55f * (1f - scrollState.topBarAlpha))
+                                            .iconScrim { 0.55f * (1f - scrollState.topBarAlpha) }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
                                             contentDescription = stringResource(R.string.general_more),
-                                            tint = if (scrollState.topBarAlpha > 0.5f) MaterialTheme.colorScheme.onSurface else Color.White,
+                                            tint = if (scrollState.iconsOnSurface) MaterialTheme.colorScheme.onSurface else Color.White,
                                         )
                                     }
                                 }

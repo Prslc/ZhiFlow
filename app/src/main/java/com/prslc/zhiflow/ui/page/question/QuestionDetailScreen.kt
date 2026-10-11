@@ -417,7 +417,11 @@ private fun QuestionTopBar(
         modifier = modifier,
         title = {
             val titleText = state.question?.title ?: ""
-            val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
+            // Behind a derived state: read straight, the fraction is a new value on every frame
+            // the bar collapses, and the title would recompose for each of them.
+            val isCollapsed by remember(scrollBehavior) {
+                derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5f }
+            }
             Text(
                 text = titleText,
                 modifier = Modifier.padding(end = 12.dp),

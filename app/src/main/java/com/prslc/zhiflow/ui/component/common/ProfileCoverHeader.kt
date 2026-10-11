@@ -126,7 +126,7 @@ fun ProfileCoverHeader(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = statusBarHeight + 4.dp, end = 8.dp)
-                        .iconScrim(0.55f),
+                        .iconScrim { 0.55f },
                 ) {
                     CompositionLocalProvider(LocalContentColor provides Color.White) {
                         topEndAction()

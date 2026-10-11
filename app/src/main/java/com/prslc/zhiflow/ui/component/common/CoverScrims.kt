@@ -57,9 +57,12 @@ private val IconScrimRadius = 20.dp
  * needs. Smaller reads as a pinched dot. [drawBehind] rather than `background` keeps the touch
  * target at 48dp regardless.
  *
- * @param alpha Strength of the disc. 0.55 holds a white glyph at 4.7:1 even over a white cover;
- * pass less as an opaque bar fades in over it.
+ * @param alpha Strength of the disc, read while drawing rather than while composing. A caller
+ *   passes a lambda that reads its own state, never a value: as a `Float` parameter it would be
+ *   read in the caller's scope, and the caller would recompose on every frame of the fade it is
+ *   following. 0.55 holds a white glyph at 4.7:1 even over a white cover; pass less as an opaque
+ *   bar fades in over it.
  */
-fun Modifier.iconScrim(alpha: Float): Modifier = drawBehind {
-    drawCircle(color = Color.Black.copy(alpha = alpha), radius = IconScrimRadius.toPx())
+fun Modifier.iconScrim(alpha: () -> Float): Modifier = drawBehind {
+    drawCircle(color = Color.Black.copy(alpha = alpha()), radius = IconScrimRadius.toPx())
 }

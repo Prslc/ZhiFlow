@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -330,7 +331,11 @@ private fun ContentDetailTopBar(
                 else -> stringResource(R.string.content_title_filed)
             }
 
-            val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
+            // Behind a derived state: read straight, the fraction is a new value on every frame
+            // the bar collapses, and the title would recompose for each of them.
+            val isCollapsed by remember(scrollBehavior) {
+                derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5f }
+            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
