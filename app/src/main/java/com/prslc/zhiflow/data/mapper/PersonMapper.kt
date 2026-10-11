@@ -1,10 +1,10 @@
 package com.prslc.zhiflow.data.mapper
 
 import com.prslc.zhiflow.data.dto.PersonDto
-import com.prslc.zhiflow.data.model.user.ZhihuFollowee
+import com.prslc.zhiflow.data.model.user.ZhihuPerson
 
-/** @return The person as the picker lists them. */
-internal fun ZhihuFollowee.toPerson(): PersonDto = PersonDto(
+/** @return The person as a list of people draws them. */
+internal fun ZhihuPerson.toPerson(): PersonDto = PersonDto(
     id = id,
     urlToken = urlToken,
     name = name,

@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.navigation.NavHostController
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.search.SearchTab
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.remote.parser.LinkDestination
 import com.prslc.zhiflow.data.remote.parser.LinkParser
 
@@ -76,6 +77,15 @@ class Navigator(
     fun navigateToPeople(urlToken: String) {
         navController.navigate(PeopleDetail(urlToken))
     }
+
+    /**
+     * Opens one of an account's lists of people.
+     *
+     * @param userId Whose list it is: the account's hash id.
+     * @param kind Which of the two lists.
+     */
+    fun navigateToPeopleList(userId: String, kind: PeopleListKind) =
+        navController.navigate(PeopleList(userId, kind.value))
 
     fun navigateToSettings() = navController.navigate(Settings)
 

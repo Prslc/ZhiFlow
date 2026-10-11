@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.PersonDto
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.repository.SearchRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.Job
@@ -32,6 +33,8 @@ class ChatInviteViewModel(
         val isLoading: Boolean = false,
         val isSearching: Boolean = false,
         val isNextLoading: Boolean = false,
+        /** Whether the reader's own list has been read to its end. A search never pages. */
+        val isEnd: Boolean = false,
         val error: ApiException? = null,
         val loadMoreError: ApiException? = null,
     )
@@ -59,10 +62,14 @@ class ChatInviteViewModel(
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)
 
-            userRepository.followees()
+            userRepository.people(PeopleListKind.FOLLOWING)
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
-                    uiState = uiState.copy(followees = result.people, isLoading = false)
+                    uiState = uiState.copy(
+                        followees = result.people,
+                        isLoading = false,
+                        isEnd = result.isEnd,
+                    )
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(error = error, isLoading = false)
@@ -73,17 +80,18 @@ class ChatInviteViewModel(
     /** Loads the next page of the people the reader follows. No-op at the end, mid-load, or none. */
     fun loadMore() {
         val url = nextPageUrl ?: return
-        if (uiState.isNextLoading || uiState.isLoading) return
+        if (uiState.isNextLoading || uiState.isLoading || uiState.isEnd) return
 
         viewModelScope.launch {
             uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
 
-            userRepository.followees(url)
+            userRepository.people(PeopleListKind.FOLLOWING, nextUrl = url)
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
                         followees = uiState.followees + result.people,
                         isNextLoading = false,
+                        isEnd = result.isEnd,
                     )
                 }
                 .onApiFailure { error ->

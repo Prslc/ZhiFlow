@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.CoverStatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.ErrorView
@@ -98,8 +99,20 @@ fun ProfileScreen(
                 ProfileCoverHeader(
                     user = user,
                     stats = listOf(
-                        ProfileStat(stringResource(R.string.profile_stat_following), user.followingCount),
-                        ProfileStat(stringResource(R.string.profile_stat_followers), user.followerCount),
+                        ProfileStat(
+                            stringResource(R.string.profile_stat_following),
+                            user.followingCount,
+                            onClick = {
+                                navigator.navigateToPeopleList(user.id, PeopleListKind.FOLLOWING)
+                            },
+                        ),
+                        ProfileStat(
+                            stringResource(R.string.profile_stat_followers),
+                            user.followerCount,
+                            onClick = {
+                                navigator.navigateToPeopleList(user.id, PeopleListKind.FOLLOWERS)
+                            },
+                        ),
                     ),
                     coverContentDescription = stringResource(R.string.profile_cover_desc),
                     topEndAction = {

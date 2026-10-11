@@ -3,16 +3,21 @@ package com.prslc.zhiflow.data.model.user
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/** A page of the people an account follows, which is a flat list rather than a page of cards. */
+/**
+ * One page of an account's people, which is a flat list rather than a page of cards.
+ *
+ * The people an account follows and the people following it answer with the same shape; the
+ * followees list adds a `contacts` object on top, which nothing here reads.
+ */
 @Serializable
-data class ZhihuFolloweesResponse(
-    val data: List<ZhihuFollowee> = emptyList(),
-    val paging: ZhihuFolloweePaging = ZhihuFolloweePaging(),
+data class ZhihuPeoplePage(
+    val data: List<ZhihuPerson> = emptyList(),
+    val paging: ZhihuPeoplePaging = ZhihuPeoplePaging(),
 )
 
 /** One of them, read for the name, the line under it and the picture beside it. */
 @Serializable
-data class ZhihuFollowee(
+data class ZhihuPerson(
     val id: String = "",
     @SerialName("url_token") val urlToken: String = "",
     val name: String = "",
@@ -21,7 +26,7 @@ data class ZhihuFollowee(
 )
 
 @Serializable
-data class ZhihuFolloweePaging(
+data class ZhihuPeoplePaging(
     @SerialName("is_end") val isEnd: Boolean = false,
     val next: String = "",
 )

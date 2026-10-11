@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.navigation
 
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.model.search.SearchTab
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import kotlinx.serialization.Serializable
 
 @Immutable
@@ -43,6 +44,16 @@ data class QuestionDetail(val id: String)
 @Immutable
 @Serializable
 data class PeopleDetail(val urlToken: String)
+
+/**
+ * One of an account's lists of people: who it follows, or who follows it.
+ *
+ * The list rides along as the identifier [PeopleListKind] names it by, for the reason [Search]'s
+ * tab does.
+ */
+@Immutable
+@Serializable
+data class PeopleList(val userId: String, val kind: String)
 
 @Immutable
 @Serializable

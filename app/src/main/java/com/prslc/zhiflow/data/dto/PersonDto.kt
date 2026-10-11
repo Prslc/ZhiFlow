@@ -2,7 +2,7 @@ package com.prslc.zhiflow.data.dto
 
 import androidx.compose.runtime.Immutable
 
-/** One person to write to, as the picker lists them. */
+/** One person as a list draws them: who to write to, and who the account is following. */
 @Immutable
 data class PersonDto(
     val id: String,

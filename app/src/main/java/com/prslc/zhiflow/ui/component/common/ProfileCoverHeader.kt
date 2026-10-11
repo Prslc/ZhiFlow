@@ -63,7 +63,12 @@ private val ActionOverhang = 12.dp
 
 /** One count-and-label pair of the header's stat row. */
 @Immutable
-data class ProfileStat(val label: String, val count: Int)
+data class ProfileStat(
+    val label: String,
+    val count: Int,
+    /** Where the pair leads when it is tapped; null for a count that is only a number. */
+    val onClick: (() -> Unit)? = null,
+)
 
 /**
  * The header both profile pages share: a full-bleed cover with the avatar hanging over its bottom
@@ -75,7 +80,8 @@ data class ProfileStat(val label: String, val count: Int)
  *
  * @param user The profile being shown: its cover, avatar, name and headline are all read off it.
  * @param stats Counts for the row under the headline. Keep it short: the row is a single line and
- * three pairs already need ~330dp of the 353dp available.
+ * three pairs already need ~330dp of the 353dp available. A pair carrying a [ProfileStat.onClick]
+ * is tappable; the rest are numbers.
  * @param modifier Applied to the header's `Box`, so the caller sizes the whole cover block.
  * @param coverContentDescription Null when the cover is decorative rather than a thing to open.
  * @param topEndAction A control for the cover's top-right corner. The slot is positioned and given
@@ -194,7 +200,7 @@ fun ProfileCoverHeader(
                 modifier = Modifier.padding(top = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                stats.forEach { StatItem(it.label, it.count) }
+                stats.forEach { StatItem(it.label, it.count, onClick = it.onClick) }
             }
         }
     }

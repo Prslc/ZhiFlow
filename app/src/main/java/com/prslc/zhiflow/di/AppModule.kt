@@ -59,6 +59,7 @@ import com.prslc.zhiflow.ui.page.notification.ChatInviteViewModel
 import com.prslc.zhiflow.ui.page.notification.ChatViewModel
 import com.prslc.zhiflow.ui.page.notification.MessageViewModel
 import com.prslc.zhiflow.ui.page.notification.NotificationCategoryViewModel
+import com.prslc.zhiflow.ui.page.people.PeopleListViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
 import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
@@ -178,6 +179,7 @@ val appModule = module {
 
     // People
     viewModelOf(::PeopleViewModel)
+    viewModelOf(::PeopleListViewModel)
 
     // debug
     viewModelOf(::DebugViewModel)

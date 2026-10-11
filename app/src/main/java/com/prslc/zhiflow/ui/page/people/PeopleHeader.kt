@@ -26,6 +26,9 @@ import com.prslc.zhiflow.ui.component.common.ProfileStat
  * @param user Whose profile this is.
  * @param onFollowClick Called when the follow toggle is pressed.
  * @param onMessageClick Called when the message button is pressed.
+ * @param onFollowersClick Called when the row's count of the people following this account is
+ *   pressed.
+ * @param onFollowingClick Called when its count of the people the account follows is pressed.
  * @param modifier Applied to the header, ahead of what it lays out itself.
  */
 @Composable
@@ -33,14 +36,24 @@ fun PeopleHeader(
     user: ZhihuUser,
     onFollowClick: () -> Unit,
     onMessageClick: () -> Unit,
+    onFollowersClick: () -> Unit,
+    onFollowingClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ProfileCoverHeader(
         user = user,
         stats = listOf(
             ProfileStat(stringResource(R.string.people_stat_voteup), user.voteupCount),
-            ProfileStat(stringResource(R.string.people_stat_followers), user.followerCount),
-            ProfileStat(stringResource(R.string.people_stat_following), user.followingCount),
+            ProfileStat(
+                stringResource(R.string.people_stat_followers),
+                user.followerCount,
+                onClick = onFollowersClick,
+            ),
+            ProfileStat(
+                stringResource(R.string.people_stat_following),
+                user.followingCount,
+                onClick = onFollowingClick,
+            ),
         ),
         modifier = modifier,
         actions = {

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.component.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
@@ -23,15 +24,18 @@ import com.prslc.zhiflow.core.utils.formatCount
  *   and a `w`; the feed's own vote line does not abbreviate.
  * @param modifier Applied to the `Row`. The pair is laid out inline, so this is the only place to
  *   give it room.
+ * @param onClick Called when the pair is tapped, for a count that leads somewhere. The pair is
+ *   text on a line, so the target is no taller than the text; null leaves it inert.
  */
 @Composable
 fun StatItem(
     label: String,
     count: Int,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = modifier,
+        modifier = if (onClick != null) modifier.clickable(onClick = onClick) else modifier,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(

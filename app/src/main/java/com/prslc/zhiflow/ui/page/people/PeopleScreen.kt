@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.iconScrim
@@ -146,6 +147,18 @@ fun PeopleScreen(
                                         onFollowClick = viewModel::toggleFollow,
                                         onMessageClick = {
                                             navigator.navigateToChat(user.id, CHAT_SOURCE_SEED)
+                                        },
+                                        onFollowersClick = {
+                                            navigator.navigateToPeopleList(
+                                                user.id,
+                                                PeopleListKind.FOLLOWERS,
+                                            )
+                                        },
+                                        onFollowingClick = {
+                                            navigator.navigateToPeopleList(
+                                                user.id,
+                                                PeopleListKind.FOLLOWING,
+                                            )
                                         },
                                     )
                                 }

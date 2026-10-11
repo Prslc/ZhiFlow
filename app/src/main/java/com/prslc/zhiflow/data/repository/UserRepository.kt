@@ -3,14 +3,21 @@ package com.prslc.zhiflow.data.repository
 import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.mapper.toPerson
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.remote.service.UserService
 import com.prslc.zhiflow.data.session.UserSession
 
-/** A page of the people the reader follows. */
-data class FolloweesResult(
+/** A page of an account's people: who it follows, or who follows it. */
+data class PeoplePageResult(
     val people: List<PersonDto>,
     val nextPageUrl: String?,
+    /**
+     * Whether that was the last page. The list answers with a `next` even at the end — the cursor
+     * is the page after the one asked for, not a promise that there is one — so this is the flag
+     * the server sets and not whether a cursor came back.
+     */
+    val isEnd: Boolean,
 )
 
 class UserRepository(
@@ -19,25 +26,39 @@ class UserRepository(
 ) {
 
     /**
-     * Retrieves a page of the people the reader follows.
+     * Retrieves a page of one of an account's lists of people.
      *
-     * @param nextUrl The page to ask for, from a previous result's cursor; null asks for the first
-     *   one, which is the reader's own list and so needs to know who they are.
+     * @param kind Which of the two lists to read.
+     * @param userId Whose lists to read; null reads the reader's own, which is what needs to know
+     *   who they are.
+     * @param nextUrl The page to ask for, from a previous result's cursor; null asks for the first.
+     *   A cursor carries the list and the account it was run against, so the two above go unread.
      * @return A [Result] holding the people and the cursor for the page after them when there is
      *   one.
      */
-    suspend fun followees(nextUrl: String? = null): Result<FolloweesResult> {
+    suspend fun people(
+        kind: PeopleListKind,
+        userId: String? = null,
+        nextUrl: String? = null,
+    ): Result<PeoplePageResult> {
         val response = if (nextUrl != null) {
-            service.followeesByUrl(nextUrl)
+            service.peopleByUrl(nextUrl)
         } else {
-            val userId = session.currentUserId().getOrElse { return Result.failure(it) }
-            service.followees(userId)
+            val id = userId ?: session.currentUserId().getOrElse { return Result.failure(it) }
+            when (kind) {
+                PeopleListKind.FOLLOWING -> service.followees(id)
+                PeopleListKind.FOLLOWERS -> service.followers(id)
+            }
         }
 
         return response.mapOffMain { body ->
-            FolloweesResult(
+            PeoplePageResult(
                 people = body.data.map { it.toPerson() },
                 nextPageUrl = body.paging.next.takeIf { it.isNotBlank() },
+                // A page holding nobody ends the list whatever the flag says: the reader's list is
+                // advanced by cursor, and one that answered nothing would have no next cursor to
+                // advance to.
+                isEnd = body.paging.isEnd || body.data.isEmpty(),
             )
         }
     }

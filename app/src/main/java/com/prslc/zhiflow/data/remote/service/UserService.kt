@@ -5,7 +5,7 @@ import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
-import com.prslc.zhiflow.data.model.user.ZhihuFolloweesResponse
+import com.prslc.zhiflow.data.model.user.ZhihuPeoplePage
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
@@ -66,26 +66,42 @@ class UserService(private val api: ApiClient) {
      * @param userId The account's user hash, not its url token.
      * @return A [Result] holding the page, or the failure that kept it away.
      */
-    suspend fun followees(userId: String): Result<ZhihuFolloweesResponse> = api.safeApiCall {
-        val url = "${BASE_URL}/people/$userId/followees".toHttpUrl().newBuilder()
-            .addQueryParameter("offset", "0")
-            .build()
-
-        Request.Builder()
-            .url(url)
-            .get()
-            .build()
-    }
+    suspend fun followees(userId: String): Result<ZhihuPeoplePage> =
+        api.safeApiCall { peopleRequest(userId, "followees") }
 
     /**
-     * Retrieves a subsequent page of the people an account follows.
+     * Retrieves the first page of the people following an account.
+     *
+     * The path is the same one the follow action is sent to; it is the method that says which of
+     * the two is meant.
+     *
+     * @param userId The account's user hash, not its url token.
+     * @return A [Result] holding the page, or the failure that kept it away.
+     */
+    suspend fun followers(userId: String): Result<ZhihuPeoplePage> =
+        api.safeApiCall { peopleRequest(userId, "followers") }
+
+    /**
+     * Retrieves a subsequent page of either list.
      *
      * @param nextUrl Absolute URL from the previous response's `paging.next`.
      * @return A [Result] holding the page, or the failure that kept it away.
      */
-    suspend fun followeesByUrl(nextUrl: String): Result<ZhihuFolloweesResponse> = api.safeApiCall {
+    suspend fun peopleByUrl(nextUrl: String): Result<ZhihuPeoplePage> = api.safeApiCall {
         Request.Builder()
             .url(nextUrl.toHttpUrl())
+            .get()
+            .build()
+    }
+
+    /** The first page of one of an account's lists of people, as a request. */
+    private fun peopleRequest(userId: String, path: String): Request {
+        val url = "${BASE_URL}/people/$userId/$path".toHttpUrl().newBuilder()
+            .addQueryParameter("offset", "0")
+            .build()
+
+        return Request.Builder()
+            .url(url)
             .get()
             .build()
     }

@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.search.SearchTab
+import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
@@ -20,6 +21,7 @@ import com.prslc.zhiflow.ui.page.login.LoginScreen
 import com.prslc.zhiflow.ui.page.notification.ChatInviteScreen
 import com.prslc.zhiflow.ui.page.notification.ChatScreen
 import com.prslc.zhiflow.ui.page.notification.NotificationCategoryScreen
+import com.prslc.zhiflow.ui.page.people.PeopleListScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
 import com.prslc.zhiflow.ui.page.profile.AboutScreen
@@ -72,6 +74,15 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: PeopleDetail = backStackEntry.toRoute()
         PeopleScreen(
             urlToken = route.urlToken,
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<PeopleList> { backStackEntry ->
+        val route: PeopleList = backStackEntry.toRoute()
+        PeopleListScreen(
+            userId = route.userId,
+            kind = PeopleListKind.from(route.kind),
             onBack = { navController.popBackStack() },
         )
     }
