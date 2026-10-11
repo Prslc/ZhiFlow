@@ -1,10 +1,13 @@
 package com.prslc.zhiflow.ui.component.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
@@ -20,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import org.koin.compose.koinInject
@@ -48,6 +52,9 @@ private fun ImageData.toZhihuImage(): ZhihuImage = ZhihuImage(
 /**
  * A row of tappable thumbnails. The lightbox is opened with a list kept 1:1 with [images]: the
  * click handler indexes into it and the controller matches by identity.
+ *
+ * The box is what holds the size and the tap, so a thumbnail whose image is not loaded still
+ * takes the room it would have, and still opens.
  *
  * @param images The thumbnails to draw, in order. An empty list draws nothing at all.
  * @param modifier Applied to the scrolling `Row`, so the horizontal scroll belongs to it; a caller
@@ -82,22 +89,31 @@ fun ThumbnailRow(
                     }
                 }
 
-                AsyncImage(
-                    model = image.url,
-                    contentDescription = null,
+                Box(
                     modifier = Modifier
                         .height(imageHeight)
                         .widthIn(max = 150.dp)
                         .aspectRatio(aspectRatio)
                         .clip(MaterialTheme.shapes.small)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                         .clickable {
                             if (image.url.isBlank()) return@clickable
                             val tapped = lightboxItems.getOrNull(index)?.image
                                 ?: return@clickable
                             lightbox.open(lightboxItems, tapped)
                         },
-                    contentScale = ContentScale.Crop,
-                )
+                ) {
+                    if (!LocalDataSaver.current) {
+                        AsyncImage(
+                            model = image.url,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
+                    } else {
+                        ImageOmitted()
+                    }
+                }
             }
         }
     }

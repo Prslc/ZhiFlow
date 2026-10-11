@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.DataSaverOn
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Translate
@@ -24,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -60,6 +62,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val language = viewModel.language
+    val dataSaver by viewModel.dataSaver.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -108,6 +111,17 @@ fun SettingsScreen(
             }
 
             SettingsGroup(title = stringResource(R.string.settings_section_general)) {
+                row {
+                    SettingsRow(
+                        title = stringResource(R.string.settings_data_saver_title),
+                        description = stringResource(R.string.settings_data_saver_summary),
+                        icon = Icons.Filled.DataSaverOn,
+                        onClick = { viewModel.setDataSaver(!dataSaver) },
+                        trailingContent = {
+                            Switch(checked = dataSaver, onCheckedChange = null)
+                        },
+                    )
+                }
                 row {
                     SettingsRow(
                         title = stringResource(R.string.settings_image_cache_title),

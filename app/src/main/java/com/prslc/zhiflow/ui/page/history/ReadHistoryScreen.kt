@@ -50,7 +50,9 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.data.dto.ReadHistoryDto
+import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.ErrorView
+import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -367,14 +369,23 @@ private fun HistoryItem(
         // coverImage
         if (hasContent && item.coverImage != null) {
             Spacer(modifier = Modifier.width(12.dp))
-            AsyncImage(
-                model = item.coverImage,
-                contentDescription = null,
+            Box(
                 modifier = Modifier
                     .size(width = 100.dp, height = 68.dp)
-                    .clip(RoundedCornerShape(6.dp)),
-                contentScale = ContentScale.Crop,
-            )
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+            ) {
+                if (!LocalDataSaver.current) {
+                    AsyncImage(
+                        model = item.coverImage,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    ImageOmitted()
+                }
+            }
         }
     }
 }

@@ -7,6 +7,9 @@
     <string name="general_back">返回</string>
     <string name="general_more">更多</string>
     <string name="general_cancel">取消</string>
+
+    <!-- content images -->
+    <string name="image_tap_to_view">点击查看</string>
     <string name="end_of_list">— 已到尽头 —</string>
 
     <!-- error box -->
@@ -319,6 +322,8 @@
     <string name="settings_language_system">跟随系统</string>
     <string name="settings_section_general">通用</string>
     <string name="settings_section_about">关于</string>
+    <string name="settings_data_saver_title">省流模式</string>
+    <string name="settings_data_saver_summary">不加载插图与缩略图</string>
     <string name="settings_image_cache_title">图片缓存</string>
     <string name="settings_image_cache_confirm_title">清除图片缓存？</string>
     <string name="settings_image_cache_confirm_message">已看过的图片在下次遇到时会重新下载。</string>

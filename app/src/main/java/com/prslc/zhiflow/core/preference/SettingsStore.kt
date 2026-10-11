@@ -29,9 +29,26 @@ interface SettingsStore {
     val themeMode: StateFlow<ThemeMode>
 
     /**
+     * Whether the reader has asked to save data.
+     *
+     * Emitting again whenever it changes: a page of images may already be on screen, and the
+     * choice has to reach it without a reload.
+     */
+    val dataSaver: StateFlow<Boolean>
+
+    /**
      * Stores the chosen theme, which the next composition draws in.
      *
      * @param mode The theme to draw in.
      */
     fun setThemeMode(mode: ThemeMode)
+
+    /**
+     * Stores whether to save data by leaving images unloaded.
+     *
+     * @param enabled True leaves each illustration and thumbnail a placeholder of its own size,
+     *   which still opens when tapped. Formulas, avatars and covers are not images a reader pays
+     *   traffic for, and are unaffected.
+     */
+    fun setDataSaver(enabled: Boolean)
 }

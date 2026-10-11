@@ -24,6 +24,8 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.ui.component.LocalDataSaver
+import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
@@ -66,15 +68,21 @@ fun ImageComponent(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             ),
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(displayUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.FillWidth,
-            )
+            // The card holds its aspect ratio either way, so what is left behind is a placeholder
+            // the size the image would have taken.
+            if (!LocalDataSaver.current) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(displayUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.FillWidth,
+                )
+            } else {
+                ImageOmitted()
+            }
         }
         if (image.description.isNotBlank()) {
             // Deliberately out of selection; the caption sits hard against the tappable image.

@@ -16,11 +16,20 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
 
     private val _themeMode = MutableStateFlow(readThemeMode())
 
+    private val _dataSaver = MutableStateFlow(readDataSaver())
+
     override val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
+
+    override val dataSaver: StateFlow<Boolean> = _dataSaver.asStateFlow()
 
     override fun setThemeMode(mode: ThemeMode) {
         preferences.edit { putString(KEY_THEME_MODE, mode.name) }
         _themeMode.value = mode
+    }
+
+    override fun setDataSaver(enabled: Boolean) {
+        preferences.edit { putBoolean(KEY_DATA_SAVER, enabled) }
+        _dataSaver.value = enabled
     }
 
     /** @return The stored theme, or [ThemeMode.System] when nothing readable is stored. */
@@ -28,7 +37,11 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
         ?: ThemeMode.System
 
+    /** @return The stored choice, or false when nothing is stored — a fresh install loads images. */
+    private fun readDataSaver(): Boolean = preferences.getBoolean(KEY_DATA_SAVER, false)
+
     private companion object {
         const val KEY_THEME_MODE = "theme_mode"
+        const val KEY_DATA_SAVER = "data_saver"
     }
 }

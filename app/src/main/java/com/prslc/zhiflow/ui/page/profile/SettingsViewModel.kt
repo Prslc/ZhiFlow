@@ -44,6 +44,9 @@ class SettingsViewModel(
     val language: AppLanguage
         get() = languageStore.language
 
+    /** Whether the reader asked to save data, emitting again whenever they change it. */
+    val dataSaver: StateFlow<Boolean> = settingsStore.dataSaver
+
     /** Bytes the image disk cache holds, or 0 until the first read lands. */
     var cacheSize by mutableLongStateOf(0L)
         private set
@@ -65,6 +68,13 @@ class SettingsViewModel(
      * @param language The language the reader picked.
      */
     fun setLanguage(language: AppLanguage) = languageStore.setLanguage(language)
+
+    /**
+     * Stores whether to save data by leaving images unloaded.
+     *
+     * @param enabled True leaves each of them a placeholder of its own size, which still opens.
+     */
+    fun setDataSaver(enabled: Boolean) = settingsStore.setDataSaver(enabled)
 
     /**
      * Reads the disk cache's current size, off the main thread — Coil answers it by walking its

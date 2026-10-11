@@ -6,6 +6,9 @@
     <string name="general_back">back</string>
     <string name="general_more">more</string>
     <string name="general_cancel">Cancel</string>
+
+    <!-- content images -->
+    <string name="image_tap_to_view">Tap to view</string>
     <string name="end_of_list">— End of list —</string>
 
     <!-- error box -->
@@ -342,6 +345,8 @@
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_section_general">General</string>
     <string name="settings_section_about">About</string>
+    <string name="settings_data_saver_title">Data saver</string>
+    <string name="settings_data_saver_summary">Leave illustrations and thumbnails unloaded</string>
     <string name="settings_image_cache_title">Image cache</string>
     <string name="settings_image_cache_confirm_title">Clear the image cache?</string>
     <string name="settings_image_cache_confirm_message">Images you have already seen will download again the next time you come across them.</string>

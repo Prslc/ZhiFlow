@@ -56,6 +56,7 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
 import com.prslc.zhiflow.data.session.SessionManager
+import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
@@ -87,6 +88,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
 
         setContent {
             val themeMode by settingsStore.themeMode.collectAsStateWithLifecycle()
+            val dataSaver by settingsStore.dataSaver.collectAsStateWithLifecycle()
             val darkTheme = when (themeMode) {
                 ThemeMode.System -> isSystemInDarkTheme()
                 ThemeMode.Light -> false
@@ -121,7 +123,8 @@ class MainActivity : ComponentActivity(), KoinComponent {
                         }
                     }
 
-                    CompositionLocalProvider(LocalNavigator provides navigator) {
+                    val imagesSetting = LocalDataSaver provides dataSaver
+                    CompositionLocalProvider(LocalNavigator provides navigator, imagesSetting) {
                         NavHost(
                             navController = navController,
                             startDestination = MainContainer,

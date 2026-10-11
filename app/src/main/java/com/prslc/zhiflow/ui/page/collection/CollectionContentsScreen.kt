@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.collection
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,10 +50,12 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.data.dto.CollectionItemDto
+import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ErrorView
+import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 import com.prslc.zhiflow.ui.component.common.pagingFooter
@@ -261,14 +264,23 @@ private fun CollectionContentCard(
         // cover image
         if (item.thumbnail != null) {
             Spacer(modifier = Modifier.width(12.dp))
-            AsyncImage(
-                model = item.thumbnail,
-                contentDescription = null,
+            Box(
                 modifier = Modifier
                     .size(width = 100.dp, height = 68.dp)
-                    .clip(RoundedCornerShape(6.dp)),
-                contentScale = ContentScale.Crop,
-            )
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+            ) {
+                if (!LocalDataSaver.current) {
+                    AsyncImage(
+                        model = item.thumbnail,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    ImageOmitted()
+                }
+            }
         }
     }
 }
