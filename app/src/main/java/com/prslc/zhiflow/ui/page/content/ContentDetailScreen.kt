@@ -77,8 +77,7 @@ fun ContentDetailScreen(
     val navigator = LocalNavigator.current
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
-    val richTextElements = viewModel.richTextElements
-    val bodyState = rememberContentBodyState(richTextElements)
+    val bodyState by rememberContentBodyState { viewModel.richTextElements }
     val presentation = viewModel.presentation
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
@@ -196,7 +195,7 @@ fun ContentDetailScreen(
                             key(id) {
                                 ContentBodyList(
                                     content = answer,
-                                    elements = richTextElements,
+                                    elements = viewModel.richTextElements,
                                     state = bodyState,
                                     navigator = navigator,
                                     topPadding = { padding.calculateTopPadding() },
@@ -295,7 +294,7 @@ fun ContentDetailScreen(
 
             BodyOutlineSheet(
                 visible = showOutline,
-                entries = bodyState.outline,
+                entries = { bodyState.outline },
                 currentIndex = { bodyState.currentOutlineIndex },
                 onEntryClick = { entry ->
                     showOutline = false

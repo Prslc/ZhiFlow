@@ -18,6 +18,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -56,8 +57,7 @@ fun PinDetailScreen(
     val navigator = LocalNavigator.current
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
-    val richTextElements = viewModel.richTextElements
-    val bodyState = rememberContentBodyState(richTextElements)
+    val bodyState by rememberContentBodyState { viewModel.richTextElements }
     val presentation = viewModel.presentation
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
@@ -162,7 +162,7 @@ fun PinDetailScreen(
                             key(id) {
                                 ContentBodyList(
                                     content = pin,
-                                    elements = richTextElements,
+                                    elements = viewModel.richTextElements,
                                     state = bodyState,
                                     navigator = navigator,
                                     topPadding = { padding.calculateTopPadding() },

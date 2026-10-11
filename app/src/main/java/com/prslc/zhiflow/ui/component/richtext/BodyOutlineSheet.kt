@@ -54,7 +54,10 @@ private const val CHEVRON_ALPHA = 0.25f
  * is in marked, and a tap that takes them to one. The screen owns the sheet, this only draws it.
  *
  * @param visible Whether the sheet is up. The screen owns the flag; this only draws what it says.
- * @param entries The headings to list, already indented by the outline that produced them.
+ * @param entries The headings to list, already indented by the outline that produced them, and taken
+ *   as a lambda for the reason [currentIndex] is: as a value the outline would be read in the
+ *   screen's scope, and the body arriving a chunk at a time would recompose the screen -- this sheet
+ *   and its siblings with it -- once per chunk.
  * @param currentIndex Hands back the entry being read, and is taken as a lambda so that the read
  * happens here: as a value it would be read in the screen's scope, and every heading the reader
  * crosses would recompose the whole screen.
@@ -65,7 +68,7 @@ private const val CHEVRON_ALPHA = 0.25f
 @Composable
 fun BodyOutlineSheet(
     visible: Boolean,
-    entries: List<OutlineEntry>,
+    entries: () -> List<OutlineEntry>,
     currentIndex: () -> Int?,
     onEntryClick: (OutlineEntry) -> Unit,
     onDismissRequest: () -> Unit,
@@ -122,7 +125,7 @@ fun BodyOutlineSheet(
                 state = listState,
                 modifier = Modifier.weight(1f, fill = false),
             ) {
-                itemsIndexed(entries) { index, entry ->
+                itemsIndexed(entries()) { index, entry ->
                     val isCurrent = index == current
                     val topLevel = entry.depth == 0
                     val indent = (ROW_INSET_DP + entry.depth * ROW_LEVEL_INDENT_DP).dp

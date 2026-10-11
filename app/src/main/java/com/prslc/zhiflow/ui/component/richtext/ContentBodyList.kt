@@ -25,9 +25,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -105,19 +107,29 @@ class ContentBodyState internal constructor(
  * The state a body's list is drawn with: where it is scrolled to, where its text ends, and the
  * headings it can jump to.
  *
- * @param elements The parsed body. The outline and the end are both derived from it, so a list that
- *   is still arriving gives an outline that is still arriving -- which is why the caller hands over
- *   the body it has rather than waiting for the whole of it.
+ * A [State] over a producer rather than the object itself. The body arrives a chunk at a time, and a
+ * screen that read the parsed list to build this would take that read on its own composition -- so
+ * every chunk would recompose the screen around the body as well: its bars, its sheets, everything
+ * the chunk cannot change. Behind [derivedStateOf] the read belongs to whoever asks for the state,
+ * which is the list and the two places that draw from it.
+ *
+ * @param elements The parsed body, read when the state is asked for. The outline and the end are
+ *   both derived from it, so a list that is still arriving gives an outline that is still arriving
+ *   -- which is why the caller hands over the body it has rather than waiting for the whole of it.
  */
 @Composable
-fun rememberContentBodyState(elements: List<RichTextElement>): ContentBodyState {
+fun rememberContentBodyState(elements: () -> List<RichTextElement>): State<ContentBodyState> {
     val listState = rememberLazyListState()
-    return remember(listState, elements) {
-        ContentBodyState(
-            listState = listState,
-            bodyEnd = LEADING_ITEMS + elements.size,
-            outline = outlineOf(elements),
-        )
+    val latestElements = rememberUpdatedState(elements)
+    return remember(listState) {
+        derivedStateOf {
+            val body = latestElements.value()
+            ContentBodyState(
+                listState = listState,
+                bodyEnd = LEADING_ITEMS + body.size,
+                outline = outlineOf(body),
+            )
+        }
     }
 }
 
@@ -180,6 +192,10 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
  * paragraph, and Compose pins selected lazy items, so putting it out here does not lose the
  * selection to recycling either.
  *
+ * The two taps go to the list as remembered callbacks that read the body when they fire. A fresh
+ * lambda here would be a fresh content lambda for every item, so an unremembered pair recomposes the
+ * whole visible list once per chunk while the body is still arriving.
+ *
  * @param content The content being read: its author, what it says, and when it was published.
  * @param elements The parsed body, in order. The pictures the lightbox can open -- its images and
  *   its block formulas -- are taken from it.
@@ -217,11 +233,12 @@ fun ContentBodyList(
     onProgress: (ReadingPosition) -> Unit,
 ) {
     val lightbox = koinInject<ImageLightboxController>()
-    val onImageClick: (ZhihuImage) -> Unit = { tapped ->
-        lightbox.open(bodyPages(elements), tapped)
+    val latestElements = rememberUpdatedState(elements)
+    val onImageClick: (ZhihuImage) -> Unit = remember(latestElements, lightbox) {
+        { tapped -> lightbox.open(bodyPages(latestElements.value), tapped) }
     }
-    val onFormulaClick: (Formula) -> Unit = { tapped ->
-        lightbox.open(bodyPages(elements), tapped)
+    val onFormulaClick: (Formula) -> Unit = remember(latestElements, lightbox) {
+        { tapped -> lightbox.open(bodyPages(latestElements.value), tapped) }
     }
 
     ReadingProgressEffect(
