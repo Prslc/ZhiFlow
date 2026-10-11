@@ -45,8 +45,9 @@ data class ZhihuSearchActionInfo(
 /**
  * The `object` of a `search_result` card.
  *
- * An article and an answer both land here: the fields a result row is drawn from are the ones the
- * two kinds share, and [type] is what tells them apart.
+ * An article, an answer and a person all land here: the fields a result row is drawn from are the
+ * ones the kinds share, and [type] is what tells them apart. A person is the one that carries
+ * [name] and [headline] instead of a title, and an id that is a user hash rather than a content id.
  */
 @Serializable
 data class ZhihuSearchContent(
@@ -54,6 +55,10 @@ data class ZhihuSearchContent(
     val type: String = "",
     val title: String = "",
     val excerpt: String = "",
+    val name: String = "",
+    val headline: String = "",
+    @SerialName("avatar_url") val avatarUrl: String = "",
+    @SerialName("url_token") val urlToken: String = "",
     @SerialName("created_time") val createdTime: Long = 0,
     @SerialName("voteup_count") val voteupCount: Int = 0,
     @SerialName("comment_count") val commentCount: Int = 0,

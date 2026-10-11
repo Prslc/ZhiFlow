@@ -17,6 +17,7 @@ import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.login.LoginScreen
+import com.prslc.zhiflow.ui.page.notification.ChatInviteScreen
 import com.prslc.zhiflow.ui.page.notification.ChatScreen
 import com.prslc.zhiflow.ui.page.notification.NotificationCategoryScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
@@ -140,6 +141,12 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         NotificationCategoryScreen(
             type = route.type,
             title = route.title,
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<ChatInvite> {
+        ChatInviteScreen(
             onBack = { navController.popBackStack() },
         )
     }

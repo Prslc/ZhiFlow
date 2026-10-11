@@ -58,6 +58,11 @@ object MessageTab
 @Serializable
 data class NotificationCategory(val type: String, val title: String)
 
+/** The page a conversation is started from: name someone, and the server hands back who it found. */
+@Immutable
+@Serializable
+object ChatInvite
+
 /**
  * One conversation, opened by the user hash of the person at the other end.
  *

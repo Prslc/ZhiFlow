@@ -2,9 +2,11 @@ package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.dto.HotQueryDto
+import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.mapper.toHotQueries
 import com.prslc.zhiflow.data.mapper.toItems
+import com.prslc.zhiflow.data.mapper.toPeople
 import com.prslc.zhiflow.data.remote.service.SearchService
 
 data class SearchResult(
@@ -12,6 +14,9 @@ data class SearchResult(
     val nextPageUrl: String?,
     val isEnd: Boolean,
 )
+
+/** The tab a search for people runs in. */
+private const val PEOPLE_TAB = "people"
 
 class SearchRepository(private val service: SearchService) {
 
@@ -37,6 +42,16 @@ class SearchRepository(private val service: SearchService) {
                 isEnd = response.paging.isEnd,
             )
         }
+
+    /**
+     * Searches for people, which is how the picker finds someone to write to.
+     *
+     * @param query The name, or part of one, to look for.
+     * @return A [Result] holding the people found.
+     */
+    suspend fun people(query: String): Result<List<PersonDto>> =
+        service.search(query, tab = PEOPLE_TAB)
+            .mapOffMain { it.toPeople() }
 
     /**
      * Asks for what the reader might mean, given what they have typed so far.

@@ -1,10 +1,13 @@
 package com.prslc.zhiflow.data.remote.service
 
 import com.prslc.zhiflow.core.network.ApiClient
+import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.apiUrl
 import com.prslc.zhiflow.core.network.safeApiCall
 import com.prslc.zhiflow.core.network.safeExecute
+import com.prslc.zhiflow.data.model.user.ZhihuFolloweesResponse
 import com.prslc.zhiflow.data.model.user.ZhihuUser
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
@@ -53,6 +56,39 @@ class UserService(private val api: ApiClient) {
                 .get()
                 .build()
         }
+
+    /**
+     * Retrieves the first page of the people an account follows.
+     *
+     * The client asks for the offset only; the page size is the server's own, and comes back in the
+     * cursor it answers with.
+     *
+     * @param userId The account's user hash, not its url token.
+     * @return A [Result] holding the page, or the failure that kept it away.
+     */
+    suspend fun followees(userId: String): Result<ZhihuFolloweesResponse> = api.safeApiCall {
+        val url = "${BASE_URL}/people/$userId/followees".toHttpUrl().newBuilder()
+            .addQueryParameter("offset", "0")
+            .build()
+
+        Request.Builder()
+            .url(url)
+            .get()
+            .build()
+    }
+
+    /**
+     * Retrieves a subsequent page of the people an account follows.
+     *
+     * @param nextUrl Absolute URL from the previous response's `paging.next`.
+     * @return A [Result] holding the page, or the failure that kept it away.
+     */
+    suspend fun followeesByUrl(nextUrl: String): Result<ZhihuFolloweesResponse> = api.safeApiCall {
+        Request.Builder()
+            .url(nextUrl.toHttpUrl())
+            .get()
+            .build()
+    }
 
     /**
      * Follows a user.

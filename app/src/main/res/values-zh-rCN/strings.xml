@@ -369,6 +369,10 @@
     <string name="notification_empty">暂无消息</string>
     <string name="chat_empty">还没有消息</string>
     <string name="chat_placeholder">写点什么…</string>
+    <string name="chat_invite_action">发起聊天</string>
+    <string name="chat_invite_placeholder">搜索用户</string>
+    <string name="chat_invite_empty">没有找到用户</string>
+    <string name="chat_invite_nobody_followed">还没有关注任何人</string>
     <string name="chat_send">发送</string>
     <string name="chat_forbidden">该账号不接受私信</string>
     <string name="time_today">今天</string>

@@ -115,6 +115,9 @@ class Navigator(
     fun navigateToNotificationCategory(type: String, title: String) =
         navController.navigate(NotificationCategory(type, title))
 
+    /** Opens the page a conversation is started from. */
+    fun navigateToChatInvite() = navController.navigate(ChatInvite)
+
     /**
      * Opens a conversation.
      *

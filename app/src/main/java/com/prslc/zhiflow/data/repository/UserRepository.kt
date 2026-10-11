@@ -1,13 +1,46 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.mapOffMain
+import com.prslc.zhiflow.data.dto.PersonDto
+import com.prslc.zhiflow.data.mapper.toPerson
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.remote.service.UserService
 import com.prslc.zhiflow.data.session.UserSession
+
+/** A page of the people the reader follows. */
+data class FolloweesResult(
+    val people: List<PersonDto>,
+    val nextPageUrl: String?,
+)
 
 class UserRepository(
     private val service: UserService,
     private val session: UserSession,
 ) {
+
+    /**
+     * Retrieves a page of the people the reader follows.
+     *
+     * @param nextUrl The page to ask for, from a previous result's cursor; null asks for the first
+     *   one, which is the reader's own list and so needs to know who they are.
+     * @return A [Result] holding the people and the cursor for the page after them when there is
+     *   one.
+     */
+    suspend fun followees(nextUrl: String? = null): Result<FolloweesResult> {
+        val response = if (nextUrl != null) {
+            service.followeesByUrl(nextUrl)
+        } else {
+            val userId = session.currentUserId().getOrElse { return Result.failure(it) }
+            service.followees(userId)
+        }
+
+        return response.mapOffMain { body ->
+            FolloweesResult(
+                people = body.data.map { it.toPerson() },
+                nextPageUrl = body.paging.next.takeIf { it.isNotBlank() },
+            )
+        }
+    }
 
     /**
      * Fetch current user profile details. The response also seeds [UserSession],

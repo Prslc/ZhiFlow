@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
+import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Favorite
@@ -153,6 +154,13 @@ fun MessageScreen(
                 Icon(
                     Icons.Filled.DoneAll,
                     stringResource(R.string.notification_mark_all_read),
+                )
+            }
+
+            IconButton(onClick = navigator::navigateToChatInvite) {
+                Icon(
+                    Icons.Filled.AddComment,
+                    stringResource(R.string.chat_invite_action),
                 )
             }
         }

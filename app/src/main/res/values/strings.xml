@@ -393,6 +393,10 @@
     <string name="notification_empty">Nothing here yet</string>
     <string name="chat_empty">No messages yet</string>
     <string name="chat_placeholder">Write a message</string>
+    <string name="chat_invite_action">New message</string>
+    <string name="chat_invite_placeholder">Search people</string>
+    <string name="chat_invite_empty">No one found</string>
+    <string name="chat_invite_nobody_followed">You do not follow anyone yet</string>
     <string name="chat_send">Send</string>
     <string name="chat_forbidden">This account does not take messages</string>
     <string name="time_today">Today</string>

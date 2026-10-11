@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.mapper
 
 import com.prslc.zhiflow.data.dto.HotQueryDto
+import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.model.search.ZhihuPresetWordsResponse
 import com.prslc.zhiflow.data.model.search.ZhihuSearchContent
@@ -11,6 +12,9 @@ import com.prslc.zhiflow.ui.component.common.ImageData
 
 /** What the `object` of a card says it holds, when the app knows how to draw it. */
 private val CONTENT_TYPES = setOf("article", "answer")
+
+/** The kind of card the picker reads: a person, rather than something to read. */
+private const val PERSON_TYPE = "people"
 
 /** The card kinds this app reads. The rest of the page is cards of other kinds, dropped. */
 private const val RESULT_TYPE = "search_result"
@@ -62,6 +66,26 @@ private fun ZhihuSearchContent.toItem(): SearchItemDto.Content = SearchItemDto.C
         .filter { it.url.isNotBlank() },
     voteCount = voteupCount,
     commentCount = commentCount,
+)
+
+/**
+ * The people a search for them found, which is what the picker lists.
+ *
+ * @return The people, in the order the server ranked them, with the markup read off their names.
+ */
+internal fun ZhihuSearchResponse.toPeople(): List<PersonDto> = data.mapNotNull { card ->
+    card.takeIf { it.type == RESULT_TYPE }
+        ?.content
+        ?.takeIf { it.type == PERSON_TYPE && it.id.isNotBlank() }
+        ?.toPerson()
+}
+
+private fun ZhihuSearchContent.toPerson(): PersonDto = PersonDto(
+    id = id,
+    urlToken = urlToken,
+    name = htmlToPlainText(name),
+    headline = htmlToPlainText(headline),
+    avatarUrl = avatarUrl.takeIf { it.isNotBlank() },
 )
 
 /**

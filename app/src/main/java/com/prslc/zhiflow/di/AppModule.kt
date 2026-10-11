@@ -55,6 +55,7 @@ import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
 import com.prslc.zhiflow.ui.page.login.LoginViewModel
+import com.prslc.zhiflow.ui.page.notification.ChatInviteViewModel
 import com.prslc.zhiflow.ui.page.notification.ChatViewModel
 import com.prslc.zhiflow.ui.page.notification.MessageViewModel
 import com.prslc.zhiflow.ui.page.notification.NotificationCategoryViewModel
@@ -166,6 +167,7 @@ val appModule = module {
     viewModelOf(::MessageViewModel)
     viewModelOf(::NotificationCategoryViewModel)
     viewModelOf(::ChatViewModel)
+    viewModelOf(::ChatInviteViewModel)
 
     // Moment
     singleOf(::MomentService)
