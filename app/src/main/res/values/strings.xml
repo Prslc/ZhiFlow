@@ -5,6 +5,7 @@
     <string name="general_close">close</string>
     <string name="general_back">back</string>
     <string name="general_more">more</string>
+    <string name="general_cancel">Cancel</string>
     <string name="end_of_list">— End of list —</string>
 
     <!-- error box -->
@@ -326,4 +327,26 @@
     <string name="http_log_duration">%1$d ms</string>
     <string name="http_log_status_error">ERR</string>
     <string name="http_log_truncated">(truncated)</string>
+
+    <!-- settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_image_cache_title">Image cache</string>
+    <string name="settings_image_cache_confirm_title">Clear the image cache?</string>
+    <string name="settings_image_cache_confirm_message">Images you have already seen will download again the next time you come across them.</string>
+    <string name="settings_image_cache_clear">Clear</string>
+    <string name="settings_about_title">About ZhiFlow</string>
+    <string name="settings_about_summary">Version, source code, and open source licenses</string>
+
+    <!-- about -->
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_view_source_title">View source code</string>
+    <string name="about_view_source_summary">github.com/Prslc/ZhiFlow</string>
+    <string name="about_licenses_title">Open source licenses</string>
+    <string name="about_licenses_summary">Libraries this app is built on</string>
+    <string name="licenses_title">Open Source Licenses</string>
+    <string name="licenses_visit">Visit home page</string>
+    <string name="licenses_no_text">No license text was bundled for this library.</string>
 </resources>

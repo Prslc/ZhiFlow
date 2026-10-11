@@ -2,6 +2,7 @@ package com.prslc.zhiflow.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import coil3.SingletonImageLoader
 import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.HttpClientProvider
@@ -50,6 +51,7 @@ import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
 import com.prslc.zhiflow.ui.page.people.moment.UpvotesViewModel
 import com.prslc.zhiflow.ui.page.pin.PinViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
+import com.prslc.zhiflow.ui.page.profile.SettingsViewModel
 import com.prslc.zhiflow.ui.page.question.QuestionViewModel
 import okhttp3.CookieJar
 import org.koin.android.ext.koin.androidContext
@@ -67,6 +69,9 @@ val appModule = module {
     single<CookieJar> { SessionCookieJar(get()) }
     singleOf(::HttpClientProvider)
     single { get<HttpClientProvider>().okHttpClient }
+    // The same loader `AsyncImage` reaches through SingletonImageLoader, registered so what needs
+    // the cache itself -- the settings page -- can be handed it instead of a Context.
+    single { SingletonImageLoader.get(androidContext()) }
     single { ApiClient(get()) { get() } }
     singleOf(::ImageLightboxController)
 
@@ -103,6 +108,7 @@ val appModule = module {
     singleOf(::UserSession)
     singleOf(::UserRepository)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::SettingsViewModel)
 
     // Content
     singleOf(::ContentService)

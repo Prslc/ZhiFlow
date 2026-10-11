@@ -6,6 +6,7 @@
     <string name="general_close">关闭</string>
     <string name="general_back">返回</string>
     <string name="general_more">更多</string>
+    <string name="general_cancel">取消</string>
     <string name="end_of_list">— 已到尽头 —</string>
 
     <!-- error box -->
@@ -306,4 +307,26 @@
     <string name="http_log_duration">%1$d 毫秒</string>
     <string name="http_log_status_error">错误</string>
     <string name="http_log_truncated">（已截断）</string>
+
+    <!-- settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_section_general">通用</string>
+    <string name="settings_section_about">关于</string>
+    <string name="settings_image_cache_title">图片缓存</string>
+    <string name="settings_image_cache_confirm_title">清除图片缓存？</string>
+    <string name="settings_image_cache_confirm_message">已看过的图片在下次遇到时会重新下载。</string>
+    <string name="settings_image_cache_clear">清除</string>
+    <string name="settings_about_title">关于 ZhiFlow</string>
+    <string name="settings_about_summary">版本、源代码与开源许可</string>
+
+    <!-- about -->
+    <string name="about_title">关于</string>
+    <string name="about_version">版本 %1$s</string>
+    <string name="about_view_source_title">查看源代码</string>
+    <string name="about_view_source_summary">github.com/Prslc/ZhiFlow</string>
+    <string name="about_licenses_title">开源许可</string>
+    <string name="about_licenses_summary">本应用使用的开源库</string>
+    <string name="licenses_title">开源许可</string>
+    <string name="licenses_visit">访问项目主页</string>
+    <string name="licenses_no_text">该库未附带许可全文。</string>
 </resources>

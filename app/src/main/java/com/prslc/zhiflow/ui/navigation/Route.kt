@@ -13,6 +13,14 @@ object Settings
 
 @Immutable
 @Serializable
+object About
+
+@Immutable
+@Serializable
+object OpenSourceLicense
+
+@Immutable
+@Serializable
 object Login
 
 @Immutable

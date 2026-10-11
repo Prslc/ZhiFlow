@@ -17,6 +17,8 @@ import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.login.LoginScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
+import com.prslc.zhiflow.ui.page.profile.AboutScreen
+import com.prslc.zhiflow.ui.page.profile.OpenSourceLicenseScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import org.koin.androidx.compose.koinViewModel
@@ -69,7 +71,21 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
     }
 
     composable<Settings> {
-        SettingsScreen()
+        SettingsScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<About> {
+        AboutScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<OpenSourceLicense> {
+        OpenSourceLicenseScreen(
+            onBack = { navController.popBackStack() },
+        )
     }
 
     composable<Login> {

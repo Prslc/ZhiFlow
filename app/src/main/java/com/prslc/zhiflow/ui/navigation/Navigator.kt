@@ -78,6 +78,10 @@ class Navigator(
 
     fun navigateToSettings() = navController.navigate(Settings)
 
+    fun navigateToAbout() = navController.navigate(About)
+
+    fun navigateToOpenSourceLicense() = navController.navigate(OpenSourceLicense)
+
     fun navigateToLogin() = navController.navigate(Login)
 
     fun navigateToReadHistory() = navController.navigate(ReadHistory)
