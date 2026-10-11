@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.core.network
 
 import android.util.Base64
+import kotlinx.coroutines.flow.StateFlow
 import java.security.SecureRandom
 
 /**
@@ -39,6 +40,15 @@ interface CredentialStore {
      *   expected to answer with a guest bootstrap, never by treating it as a state to stay in.
      */
     fun read(): Credentials
+
+    /**
+     * The stored session, emitting again whenever it changes.
+     *
+     * For what has to notice a session that changed somewhere else. Signing in and signing out
+     * both write here, and a screen that draws the signed-in user has no request of its own that
+     * would come back and tell it.
+     */
+    val session: StateFlow<Credentials>
 
     /**
      * Stores a session, replacing every session field.

@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -69,12 +68,6 @@ fun ProfileScreen(
     val uiState = viewModel.uiState
     val user = uiState.user
     val navigator = LocalNavigator.current
-
-    // Runs again because returning here is a fresh composition; nothing here reacts to the
-    // session, so a login screen drawn over this one would leave the tab anonymous.
-    LaunchedEffect(Unit) {
-        if (user == null) viewModel.loadProfile()
-    }
 
     Box(modifier = modifier.fillMaxSize()) {
         if (user != null) {

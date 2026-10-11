@@ -31,17 +31,45 @@ class ProfileViewModel(
     var uiState by mutableStateOf(UserUiState())
         private set
 
+    /** The session [UserUiState.user] was loaded under, so a different one can drop it. */
+    private var loadedToken: String? = null
+
+    init {
+        loadProfile()
+        viewModelScope.launch {
+            credentialStore.session.collect { session ->
+                if (session.accessToken != loadedToken) loadProfile()
+            }
+        }
+    }
+
+    /**
+     * Loads the signed-in user's profile, or settles on the anonymous state that has none.
+     *
+     * Runs at construction and again whenever the session changes. Signing in, signing out and
+     * dropping to a guest all write the store, and not one of them is a screen this one could
+     * have asked about it.
+     */
     fun loadProfile() {
+        val session = credentialStore.read()
+        loadedToken = session.accessToken
+
         // `people/self` is not answered for an anonymous session, so asking would only turn a
-        // known state into an error.
-        if (credentialStore.read().isGuest) {
+        // known state into an error. An empty store is that same state one request early: the
+        // funnel bootstraps a guest underneath, and until it lands there is nothing to ask for.
+        if (session.isGuest || !session.hasToken) {
             uiState = UserUiState(isGuest = true)
             return
         }
 
         uiState = uiState.copy(isLoading = true, isGuest = false)
         viewModelScope.launch {
-            repository.getMyDetail()
+            val outcome = repository.getMyDetail()
+            // A session that changed while this was in flight has already replaced the state;
+            // letting the answer land would put back the very profile it dropped.
+            if (session.accessToken != loadedToken) return@launch
+
+            outcome
                 .onSuccess { user ->
                     uiState = uiState.copy(user = user, isLoading = false)
                 }

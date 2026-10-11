@@ -5,12 +5,21 @@ import androidx.core.content.edit
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.Credentials
 import com.prslc.zhiflow.core.network.newDeviceId
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * [CredentialStore] over [SharedPreferences] — the same file the debug screen's other settings
  * live in, which is why [clear] removes named keys rather than the file.
  */
 class CredentialStoreImpl(private val sharedPreferences: SharedPreferences) : CredentialStore {
+
+    // Seeded from what is stored rather than from an empty session: a collector that arrives
+    // after the bootstrap has already landed would otherwise wait for a change that never comes.
+    private val _session = MutableStateFlow(read())
+
+    override val session: StateFlow<Credentials> = _session.asStateFlow()
 
     /**
      * @return The stored device id, or a freshly generated one, stored before it is returned.
@@ -49,6 +58,7 @@ class CredentialStoreImpl(private val sharedPreferences: SharedPreferences) : Cr
             putString(KEY_USER_TYPE, credentials.userType)
             putLong(KEY_NEXT_REFRESH_AT, credentials.nextRefreshAt)
         }
+        _session.value = credentials
     }
 
     /** Leaves `http_log_enabled` and the device id alone: both outlive the session. */
@@ -60,6 +70,7 @@ class CredentialStoreImpl(private val sharedPreferences: SharedPreferences) : Cr
             remove(KEY_USER_TYPE)
             remove(KEY_NEXT_REFRESH_AT)
         }
+        _session.value = read()
     }
 
     private companion object {
