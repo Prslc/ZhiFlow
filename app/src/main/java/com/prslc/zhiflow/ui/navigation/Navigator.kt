@@ -105,4 +105,13 @@ class Navigator(
      */
     fun navigateToSearch(tab: SearchTab = SearchTab.GENERAL) =
         navController.navigate(Search(tab.value))
+
+    /**
+     * Opens one list of notifications.
+     *
+     * @param type Which list, in the spelling the message page names it by.
+     * @param title What the server calls it, which the page is headed with.
+     */
+    fun navigateToNotificationCategory(type: String, title: String) =
+        navController.navigate(NotificationCategory(type, title))
 }

@@ -24,6 +24,7 @@
 
     <!-- navigation -->
     <string name="nav_home">首页</string>
+    <string name="nav_messages">消息</string>
     <string name="nav_profile">个人中心</string>
     <string name="error_unable_to_open_link">无法打开链接</string>
     <string name="error_unknown_nav_type">未知类型：%1$s</string>
@@ -356,4 +357,14 @@
     <string name="search_placeholder_collections">搜索我的收藏</string>
     <string name="search_empty">没有找到结果</string>
     <string name="search_action_clear">清空</string>
+
+    <!-- notification -->
+    <string name="message_guest_hint">登录后查看消息</string>
+    <string name="notification_mark_all_read">全部已读</string>
+    <string name="notification_day_count">%1$s · %2$d</string>
+    <string name="notification_action_body">%1$s：%2$s</string>
+    <string name="notification_deleted_content">该内容已被删除</string>
+    <string name="notification_empty">暂无消息</string>
+    <string name="time_today">今天</string>
+    <string name="time_yesterday">昨天</string>
 </resources>

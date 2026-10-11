@@ -24,7 +24,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -59,12 +62,15 @@ import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
 import com.prslc.zhiflow.core.utils.compose.BarCollapseDistance
 import com.prslc.zhiflow.core.utils.compose.rememberHideOnScroll
+import com.prslc.zhiflow.core.utils.formatCount
+import com.prslc.zhiflow.data.dto.UnreadSummaryDto
 import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.MainContainer
+import com.prslc.zhiflow.ui.navigation.MessageTab
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
 import com.prslc.zhiflow.ui.navigation.contentGraph
@@ -73,6 +79,8 @@ import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feed.NegativeFeedbackSheet
 import com.prslc.zhiflow.ui.page.feed.feedbackToastText
+import com.prslc.zhiflow.ui.page.notification.MessageScreen
+import com.prslc.zhiflow.ui.page.notification.MessageViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
@@ -192,13 +200,36 @@ class MainActivity : ComponentActivity(), KoinComponent {
 /** The bottom bar's height, and so how far it travels when it goes. */
 private val BottomBarHeight = 80.dp
 
+/**
+ * What the message tab is badged with.
+ *
+ * It draws the total of the four counts the server sends; the other three ride along in case that
+ * turns out to be the wrong one of them.
+ */
+@Composable
+private fun UnreadBadge(unread: UnreadSummaryDto?) {
+    val total = unread?.total ?: return
+    if (total.count <= 0) return
+
+    if (total.showCount) {
+        Badge { Text(formatCount(total.count)) }
+    } else {
+        Badge()
+    }
+}
+
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
     val feedViewModel: FeedViewModel = koinViewModel()
+    val messageViewModel: MessageViewModel = koinViewModel()
 
-    val tabs = listOf(HomeTab, ProfileTab)
+    // The tab's badge is drawn whether or not the page has ever been shown, so the count is fetched
+    // from here rather than from the page.
+    LaunchedEffect(Unit) { messageViewModel.loadIfEmpty() }
+
+    val tabs = listOf(HomeTab, MessageTab, ProfileTab)
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
@@ -228,6 +259,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     onNavigateToFollows = { },
                     onNavigateToSettings = navigator::navigateToSettings,
                 )
+
+                MessageTab -> MessageScreen(viewModel = messageViewModel)
             }
         }
 
@@ -253,18 +286,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         }
                     },
                     icon = {
-                        Icon(
-                            when (tab) {
-                                HomeTab -> Icons.Default.Home
-                                ProfileTab -> Icons.Default.Person
-                                else -> Icons.Default.Error
+                        val icon = when (tab) {
+                            HomeTab -> Icons.Default.Home
+                            MessageTab -> Icons.Default.Notifications
+                            ProfileTab -> Icons.Default.Person
+                            else -> Icons.Default.Error
+                        }
+
+                        BadgedBox(
+                            badge = {
+                                if (tab == MessageTab) UnreadBadge(messageViewModel.uiState.unread)
                             },
-                            null,
-                        )
+                        ) {
+                            Icon(icon, null)
+                        }
                     },
                     label = {
                         val labelText = when (tab) {
                             HomeTab -> stringResource(R.string.nav_home)
+                            MessageTab -> stringResource(R.string.nav_messages)
                             ProfileTab -> stringResource(R.string.nav_profile)
                             else -> "Unknown"
                         }

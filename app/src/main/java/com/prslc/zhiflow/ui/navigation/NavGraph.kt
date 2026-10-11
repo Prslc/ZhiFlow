@@ -17,6 +17,7 @@ import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.login.LoginScreen
+import com.prslc.zhiflow.ui.page.notification.NotificationCategoryScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
 import com.prslc.zhiflow.ui.page.profile.AboutScreen
@@ -129,6 +130,15 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: Search = backStackEntry.toRoute()
         SearchScreen(
             tab = SearchTab.from(route.tab),
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<NotificationCategory> { backStackEntry ->
+        val route: NotificationCategory = backStackEntry.toRoute()
+        NotificationCategoryScreen(
+            type = route.type,
+            title = route.title,
             onBack = { navController.popBackStack() },
         )
     }

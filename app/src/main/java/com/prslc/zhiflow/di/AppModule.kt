@@ -21,6 +21,7 @@ import com.prslc.zhiflow.data.remote.service.ContentService
 import com.prslc.zhiflow.data.remote.service.FeedService
 import com.prslc.zhiflow.data.remote.service.FeedbackService
 import com.prslc.zhiflow.data.remote.service.MomentService
+import com.prslc.zhiflow.data.remote.service.NotificationService
 import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
 import com.prslc.zhiflow.data.remote.service.SearchService
@@ -33,6 +34,7 @@ import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
 import com.prslc.zhiflow.data.repository.FeedbackRepository
 import com.prslc.zhiflow.data.repository.MomentRepository
+import com.prslc.zhiflow.data.repository.NotificationRepository
 import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.repository.ReadHistoryRepository
 import com.prslc.zhiflow.data.repository.SearchRepository
@@ -51,6 +53,8 @@ import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
 import com.prslc.zhiflow.ui.page.login.LoginViewModel
+import com.prslc.zhiflow.ui.page.notification.MessageViewModel
+import com.prslc.zhiflow.ui.page.notification.NotificationCategoryViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
 import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
@@ -150,6 +154,12 @@ val appModule = module {
     singleOf(::SearchService)
     singleOf(::SearchRepository)
     viewModelOf(::SearchViewModel)
+
+    // Notification
+    singleOf(::NotificationService)
+    singleOf(::NotificationRepository)
+    viewModelOf(::MessageViewModel)
+    viewModelOf(::NotificationCategoryViewModel)
 
     // Moment
     singleOf(::MomentService)

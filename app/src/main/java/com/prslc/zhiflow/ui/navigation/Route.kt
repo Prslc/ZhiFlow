@@ -48,6 +48,16 @@ data class PeopleDetail(val urlToken: String)
 @Serializable
 object HomeTab
 
+/** The bottom bar's middle tab: what the reader has been told, and what they have been sent. */
+@Immutable
+@Serializable
+object MessageTab
+
+/** One list of notifications. The title is the server's name for it, which is what heads the page. */
+@Immutable
+@Serializable
+data class NotificationCategory(val type: String, val title: String)
+
 @Immutable
 @Serializable
 object DebugTools
