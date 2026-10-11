@@ -1,7 +1,6 @@
 package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +30,7 @@ import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
 import com.prslc.zhiflow.ui.component.richtext.component.withFormulaLineHeight
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
  * Builds [InlineTextContent] entries for inline formulas.
@@ -103,7 +103,7 @@ fun ZRichText(
     onSegmentLikeClick: (String) -> Unit = {},
 ) {
     val navigator = LocalNavigator.current
-    val isDark = isSystemInDarkTheme()
+    val isDark = LocalIsDarkTheme.current
     val underlineColor = MaterialTheme.colorScheme.outline
 
     val inlineContent = inlineMetas.rememberInlineContent(maxFormulaWidthDp)

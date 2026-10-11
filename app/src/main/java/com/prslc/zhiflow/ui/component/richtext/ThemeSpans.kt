@@ -1,11 +1,11 @@
 package com.prslc.zhiflow.ui.component.richtext
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
@@ -41,7 +41,7 @@ fun AnnotatedString.Builder.applyThemeSpans(from: AnnotatedString, isDark: Boole
  */
 @Composable
 fun AnnotatedString.withThemeSpans(): AnnotatedString {
-    val isDark = isSystemInDarkTheme()
+    val isDark = LocalIsDarkTheme.current
     return remember(this, isDark) {
         buildAnnotatedString {
             append(this@withThemeSpans)

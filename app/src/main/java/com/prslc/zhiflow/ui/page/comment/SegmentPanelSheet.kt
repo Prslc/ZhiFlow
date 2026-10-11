@@ -2,7 +2,6 @@ package com.prslc.zhiflow.ui.page.comment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +46,7 @@ import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import com.prslc.zhiflow.ui.theme.SectionGapDark
 import com.prslc.zhiflow.ui.theme.SectionGapLight
 import kotlinx.coroutines.launch
@@ -149,7 +149,7 @@ fun SegmentPanelSheet(
 
                             HorizontalDivider(
                                 thickness = 6.dp,
-                                color = if (isSystemInDarkTheme()) SectionGapDark else SectionGapLight,
+                                color = if (LocalIsDarkTheme.current) SectionGapDark else SectionGapLight,
                             )
                         }
 

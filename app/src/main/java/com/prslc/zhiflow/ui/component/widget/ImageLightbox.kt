@@ -9,7 +9,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -65,6 +64,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.ImageHelper
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.ui.component.richtext.component.formulaColorFilter
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.coil3.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
@@ -134,7 +134,7 @@ fun ImageLightbox(
         val insetsController = remember(window) {
             window?.let { WindowCompat.getInsetsController(it, it.decorView) }
         }
-        val defaultDarkIcons = !isSystemInDarkTheme()
+        val defaultDarkIcons = !LocalIsDarkTheme.current
 
         val barsType =
             WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()

@@ -9,6 +9,8 @@ import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.HttpLogStore
 import com.prslc.zhiflow.core.network.SessionCookieJar
 import com.prslc.zhiflow.core.network.SessionGate
+import com.prslc.zhiflow.core.preference.SettingsStore
+import com.prslc.zhiflow.core.preference.SettingsStoreImpl
 import com.prslc.zhiflow.data.remote.service.ActionService
 import com.prslc.zhiflow.data.remote.service.AuthService
 import com.prslc.zhiflow.data.remote.service.CollectionService
@@ -74,6 +76,9 @@ val appModule = module {
     single { SingletonImageLoader.get(androidContext()) }
     single { ApiClient(get()) { get() } }
     singleOf(::ImageLightboxController)
+
+    // Settings
+    single<SettingsStore> { SettingsStoreImpl(get()) }
 
     // Session
     single<CredentialStore> { CredentialStoreImpl(get()) }

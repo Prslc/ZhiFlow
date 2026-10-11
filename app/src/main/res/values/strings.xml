@@ -330,6 +330,11 @@
 
     <!-- settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_system">Follow system</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
     <string name="settings_section_general">General</string>
     <string name="settings_section_about">About</string>
     <string name="settings_image_cache_title">Image cache</string>

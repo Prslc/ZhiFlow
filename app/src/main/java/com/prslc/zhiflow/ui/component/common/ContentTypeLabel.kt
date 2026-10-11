@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.ui.component.common
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -13,6 +12,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
  * The badge a card wears to say what it is.
@@ -75,7 +75,7 @@ fun contentTypeConfig(type: String?): ContentTypeConfig = when (type?.lowercase(
     "article" -> {
         val scheme = MaterialTheme.colorScheme
         val content = scheme.primary.shiftHue(120f)
-        val container = lerp(scheme.surface, content, if (isSystemInDarkTheme()) 0.25f else 0.12f)
+        val container = lerp(scheme.surface, content, if (LocalIsDarkTheme.current) 0.25f else 0.12f)
         ContentTypeConfig(
             labelResId = R.string.type_article,
             containerColor = container,
@@ -86,7 +86,7 @@ fun contentTypeConfig(type: String?): ContentTypeConfig = when (type?.lowercase(
     "pin" -> {
         val scheme = MaterialTheme.colorScheme
         val content = scheme.primary.shiftHue(240f)
-        val container = lerp(scheme.surface, content, if (isSystemInDarkTheme()) 0.25f else 0.12f)
+        val container = lerp(scheme.surface, content, if (LocalIsDarkTheme.current) 0.25f else 0.12f)
         ContentTypeConfig(
             labelResId = R.string.type_thought,
             containerColor = container,

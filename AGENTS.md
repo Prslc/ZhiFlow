@@ -61,6 +61,7 @@ ZhiFlow/
 │           │   ├── exception/                  # ApiException, ErrorHandler, Result extensions (onApiFailure / ignoreOutcome)
 │           │   ├── native/                     # JNI bridge to the native library
 │           │   ├── network/                    # OkHttp client and the funnel (ApiClient) over it; the request headers, the cookie jar, the credential store, the session gate, the HTTP log
+│           │   ├── preference/                 # The reader's own settings, which publish what changes
 │           │   └── utils/                      # Format and JSON helpers; compose/ holds lazy-list and text-layout extensions; platform/ clipboard and images
 │           ├── data/                           # Everything shaped by Zhihu's data
 │           │   ├── dto/                        # Flat, UI-ready data classes
@@ -73,7 +74,7 @@ ZhiFlow/
 │           │   └── session/                    # The current user's hash id, kept in memory; the credential store's implementation; the session manager
 │           ├── di/                             # The single Koin module
 │           └── ui/                             # Compose only
-│               ├── theme/                      # Colour, type, dynamic-colour fallback, and a syntax palette that follows neither
+│               ├── theme/                      # Colour, type, the dark-mode flag the tree reads, dynamic-colour fallback, and a syntax palette that follows neither
 │               ├── navigation/                 # Type-safe routes, the NavHost graph, the Navigator
 │               ├── component/                  # Reusable pieces no page owns
 │               │   ├── common/                 # Error and empty states, paging footer, author row

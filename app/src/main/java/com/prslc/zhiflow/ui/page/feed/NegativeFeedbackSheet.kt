@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +36,7 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 // The height the panel has while it loads, and about what the rows take so little moves when they
 // land. It cannot be zero: the entry slides from the content's height, and an empty sheet has none.
@@ -146,7 +146,7 @@ private fun FeedbackRow(
     authorName: String?,
     onClick: () -> Unit,
 ) {
-    val iconUrl = if (isSystemInDarkTheme()) {
+    val iconUrl = if (LocalIsDarkTheme.current) {
         action.nightIconUrl ?: action.iconUrl
     } else {
         action.iconUrl

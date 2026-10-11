@@ -2,7 +2,6 @@ package com.prslc.zhiflow.ui.component.common
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.statusBars
@@ -15,6 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.core.view.WindowCompat
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
  * Drives status bar icon appearance while this composable is in the
@@ -33,7 +33,7 @@ fun StatusBarIconEffect(
 ) {
     val view = LocalView.current
     val activityWindow = remember(view) { (view.context as? ComponentActivity)?.window }
-    val defaultDarkIcons = !isSystemInDarkTheme()
+    val defaultDarkIcons = !LocalIsDarkTheme.current
 
     DisposableEffect(activityWindow, darkIcons) {
         activityWindow?.let { window ->
@@ -74,5 +74,5 @@ fun CoverStatusBarIconEffect(
         derivedStateOf { scrollState.value >= clearance }
     }
 
-    StatusBarIconEffect(darkIcons = pastCover && !isSystemInDarkTheme())
+    StatusBarIconEffect(darkIcons = pastCover && !LocalIsDarkTheme.current)
 }

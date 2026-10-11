@@ -1,7 +1,6 @@
 package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +38,7 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.rememberInlineContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
  * Builds an inline formula placeholder sized by the server-provided dp dimensions.
@@ -215,7 +215,7 @@ private fun FormulaImage(
         contentDescription = formula.content,
         modifier = modifier,
         contentScale = ContentScale.FillBounds,
-        colorFilter = formulaColorFilter(isSystemInDarkTheme()),
+        colorFilter = formulaColorFilter(LocalIsDarkTheme.current),
     )
 }
 

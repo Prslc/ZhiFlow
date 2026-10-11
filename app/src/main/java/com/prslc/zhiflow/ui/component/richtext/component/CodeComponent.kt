@@ -1,7 +1,6 @@
 package com.prslc.zhiflow.ui.component.richtext.component
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.remote.parser.model.CodeToken
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import com.prslc.zhiflow.ui.theme.SyntaxColors
 
 /**
@@ -59,7 +59,7 @@ fun CodeBlock(
 ) {
     val copyText = rememberCopyTextToClipboard()
     val scrollState = rememberScrollState()
-    val isDark = isSystemInDarkTheme()
+    val isDark = LocalIsDarkTheme.current
 
     // Keyed on the mode: the block is parsed once and cached across both, so the colours are the
     // one part of it that has to be rebuilt when the reader switches.

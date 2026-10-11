@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -52,6 +51,7 @@ import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
@@ -92,7 +92,7 @@ fun PeopleScreen(
     // White status bar icons while the cover image is behind the status bar; once the opaque top
     // bar is underneath they follow the theme, that bar being the theme's own surface.
     StatusBarIconEffect(
-        darkIcons = scrollState.isTopBarOpaque && !isSystemInDarkTheme(),
+        darkIcons = scrollState.isTopBarOpaque && !LocalIsDarkTheme.current,
     )
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
