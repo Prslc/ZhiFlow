@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
@@ -188,10 +187,7 @@ fun CollectionDialog(
                         enabled = !state.isLoading && viewModel.hasChanges()
                     ) {
                         if (state.isLoading && state.collections.isNotEmpty()) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                            )
+                            LoadingIndicator(modifier = Modifier.size(24.dp))
                         } else {
                             Text(
                                 text = stringResource(android.R.string.ok),
