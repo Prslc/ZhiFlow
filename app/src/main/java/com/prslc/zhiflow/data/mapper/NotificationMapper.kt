@@ -11,6 +11,7 @@ import com.prslc.zhiflow.data.model.notification.ZhihuNotificationEmpty
 import com.prslc.zhiflow.data.model.notification.ZhihuNotificationTimeline
 import com.prslc.zhiflow.data.model.notification.ZhihuUnread
 import com.prslc.zhiflow.data.model.notification.ZhihuUnreadSummary
+import com.prslc.zhiflow.data.remote.parser.htmlToAnnotatedString
 import com.prslc.zhiflow.data.remote.parser.htmlToPlainText
 
 /** The lists the message page offers a way into, in the spelling `timeline/entry/{type}` takes. */
@@ -121,10 +122,13 @@ private fun ZhihuNotificationEmpty.toDay(): NotificationItemDto.Day? =
 private fun ZhihuNotificationCard.toEntry(): NotificationItemDto.Entry? {
     val title = htmlToPlainText(content.title)
     val subTitle = htmlToPlainText(content.subTitle)
-    // The body is the abstract where the server sent one, and the text otherwise.
-    val text = htmlToPlainText(content.abstractText).ifBlank { htmlToPlainText(content.text) }
+    // The body is the abstract where the server sent one, and the text otherwise. It is the one
+    // part of a card drawn as the markup it arrives in: the links in it are meant to be followed,
+    // and the emoji in it are pictures.
+    val body = content.abstractText.ifBlank { content.text }
+    val text = htmlToAnnotatedString(body)
     val targetText = htmlToPlainText(targetSource.text)
-    if (title.isBlank() && subTitle.isBlank() && text.isBlank() && targetText.isBlank()) return null
+    if (title.isBlank() && subTitle.isBlank() && body.isBlank() && targetText.isBlank()) return null
 
     return NotificationItemDto.Entry(
         id = id,

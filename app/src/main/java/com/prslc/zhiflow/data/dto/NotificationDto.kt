@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.dto
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.AnnotatedString
 
 /** One way into a list of notifications: what the entry says, and which list it opens. */
 @Immutable
@@ -49,7 +50,7 @@ sealed interface NotificationItemDto {
         val id: String,
         val title: String,
         val subTitle: String,
-        val text: String,
+        val text: AnnotatedString,
         val targetText: String,
         val isContentDeleted: Boolean,
         val label: String?,
