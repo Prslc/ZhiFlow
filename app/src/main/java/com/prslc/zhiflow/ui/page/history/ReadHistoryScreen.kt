@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -95,11 +94,6 @@ fun ReadHistoryScreen(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             stringResource(R.string.general_back),
                         )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO: Search Action */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
