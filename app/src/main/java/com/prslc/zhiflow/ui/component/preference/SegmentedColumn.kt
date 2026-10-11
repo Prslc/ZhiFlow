@@ -49,8 +49,8 @@ import kotlin.math.roundToInt
 private const val PADDING_HORIZONTAL = 16
 private const val PADDING_VERTICAL = 8
 
-private const val bouncyStiffness = 800f
-private const val bouncyDamping = 0.5f
+private const val BOUNCY_STIFFNESS = 800f
+private const val BOUNCY_DAMPING = 0.5f
 
 @DslMarker
 annotation class SegmentedColumnDsl
@@ -217,8 +217,8 @@ fun SegmentedColumn(
             )
         }
 
-        val floatSpring = spring<Float>(dampingRatio = bouncyDamping, stiffness = bouncyStiffness)
-        val dpSpring = spring<Dp>(dampingRatio = bouncyDamping, stiffness = bouncyStiffness)
+        val floatSpring = spring<Float>(dampingRatio = BOUNCY_DAMPING, stiffness = BOUNCY_STIFFNESS)
+        val dpSpring = spring<Dp>(dampingRatio = BOUNCY_DAMPING, stiffness = BOUNCY_STIFFNESS)
 
         val itemStyle = remember(cornerRadius, itemContainerColor) {
             SegmentedItemStyle(cornerRadius, itemContainerColor)
