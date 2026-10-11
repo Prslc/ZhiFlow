@@ -303,6 +303,9 @@
     <string name="login_method_password">Password</string>
     <string name="login_label_account">Phone or email</string>
     <string name="login_label_code">Code</string>
+    <string name="login_error_account_missing">Enter your phone number or email</string>
+    <string name="login_error_code_missing">Enter the code</string>
+    <string name="login_error_password_missing">Enter your password</string>
     <string name="login_label_password">Password</string>
     <string name="login_action_show_password">Show password</string>
     <string name="login_action_hide_password">Hide password</string>

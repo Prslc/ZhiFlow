@@ -88,10 +88,12 @@ fun LoginScreen(
         }
     }
 
-    val canSubmit = viewModel.account.isNotBlank() && when (viewModel.method) {
-        LoginViewModel.Method.CODE -> viewModel.code.isNotBlank()
-        LoginViewModel.Method.PASSWORD -> viewModel.password.isNotBlank()
+    val accountBlank = viewModel.account.isBlank()
+    val secretBlank = when (viewModel.method) {
+        LoginViewModel.Method.CODE -> viewModel.code.isBlank()
+        LoginViewModel.Method.PASSWORD -> viewModel.password.isBlank()
     }
+    var showMissing by remember { mutableStateOf(false) }
 
     val codeFocus = remember { FocusRequester() }
 
@@ -123,6 +125,7 @@ fun LoginScreen(
                     onValueChange = viewModel::onAccountChange,
                     label = { Text(stringResource(R.string.login_label_account)) },
                     singleLine = true,
+                    isError = showMissing && accountBlank,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Phone,
                         imeAction = ImeAction.Next,
@@ -157,6 +160,7 @@ fun LoginScreen(
                                     onValueChange = viewModel::onCodeChange,
                                     label = { Text(stringResource(R.string.login_label_code)) },
                                     singleLine = true,
+                                    isError = showMissing && secretBlank,
                                     keyboardOptions = KeyboardOptions(
                                         keyboardType = KeyboardType.Number,
                                         imeAction = ImeAction.Done,
@@ -167,10 +171,10 @@ fun LoginScreen(
                                         .focusRequester(codeFocus),
                                 )
                                 FilledTonalButton(
-                                    onClick = viewModel::sendCode,
-                                    enabled = !viewModel.isSendingCode &&
-                                        viewModel.resendIn == 0 &&
-                                        viewModel.account.isNotBlank(),
+                                    onClick = {
+                                        if (accountBlank) showMissing = true else viewModel.sendCode()
+                                    },
+                                    enabled = !viewModel.isSendingCode && viewModel.resendIn == 0,
                                     modifier = Modifier.height(FieldHeight),
                                 ) {
                                     Text(
@@ -202,6 +206,7 @@ fun LoginScreen(
                         LoginViewModel.Method.PASSWORD -> PasswordField(
                             value = viewModel.password,
                             onValueChange = viewModel::onPasswordChange,
+                            isError = showMissing && secretBlank,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(FieldHeight),
@@ -209,9 +214,29 @@ fun LoginScreen(
                     }
                 }
 
+                if (showMissing && (accountBlank || secretBlank)) {
+                    Text(
+                        text = stringResource(
+                            when {
+                                accountBlank -> R.string.login_error_account_missing
+                                viewModel.method == LoginViewModel.Method.CODE ->
+                                    R.string.login_error_code_missing
+                                else -> R.string.login_error_password_missing
+                            }
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
                 Button(
-                    onClick = viewModel::submit,
-                    enabled = canSubmit,
+                    onClick = {
+                        if (accountBlank || secretBlank) {
+                            showMissing = true
+                        } else {
+                            viewModel.submit()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -291,6 +316,7 @@ private val LoginViewModel.Method.labelRes: Int
 private fun PasswordField(
     value: String,
     onValueChange: (String) -> Unit,
+    isError: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var visible by rememberSaveable { mutableStateOf(false) }
@@ -300,6 +326,7 @@ private fun PasswordField(
         onValueChange = onValueChange,
         label = { Text(stringResource(R.string.login_label_password)) },
         singleLine = true,
+        isError = isError,
         visualTransformation = if (visible) {
             VisualTransformation.None
         } else {
