@@ -58,6 +58,12 @@ object MessageTab
 @Serializable
 data class NotificationCategory(val type: String, val title: String)
 
+/**
+ * How a conversation is said to have been opened when the reader named someone rather than opened
+ * one they already had: the value the client's own sends for a conversation started from a name.
+ */
+const val CHAT_SOURCE_SEED = "seed_chat"
+
 /** The page a conversation is started from: name someone, and the server hands back who it found. */
 @Immutable
 @Serializable

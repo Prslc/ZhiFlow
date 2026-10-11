@@ -48,6 +48,8 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.StatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.iconScrim
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
+import com.prslc.zhiflow.ui.navigation.CHAT_SOURCE_SEED
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
@@ -73,6 +75,7 @@ fun PeopleScreen(
     modifier: Modifier = Modifier,
     viewModel: PeopleViewModel = koinViewModel(),
 ) {
+    val navigator = LocalNavigator.current
     val uiState = viewModel.uiState
     val pagerState = rememberPagerState(pageCount = { TAB_COUNT })
     val coroutineScope = rememberCoroutineScope()
@@ -138,7 +141,13 @@ fun PeopleScreen(
                                         // left on screen.
                                         .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() },
                                 ) {
-                                    PeopleHeader(user = user, onFollowClick = viewModel::toggleFollow)
+                                    PeopleHeader(
+                                        user = user,
+                                        onFollowClick = viewModel::toggleFollow,
+                                        onMessageClick = {
+                                            navigator.navigateToChat(user.id, CHAT_SOURCE_SEED)
+                                        },
+                                    )
                                 }
 
                                 PeopleTabBar(

@@ -51,6 +51,7 @@ import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
+import com.prslc.zhiflow.ui.navigation.CHAT_SOURCE_SEED
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
@@ -154,7 +155,7 @@ fun ChatInviteScreen(
                     items(people, key = { it.id }) { person ->
                         PersonRow(
                             person = person,
-                            onClick = { navigator.navigateToChat(person.id, SEED_CHAT) },
+                            onClick = { navigator.navigateToChat(person.id, CHAT_SOURCE_SEED) },
                         )
                         HorizontalDivider(
                             modifier = Modifier.padding(start = 76.dp, end = 16.dp),
@@ -224,9 +225,3 @@ private fun PersonRow(
         }
     }
 }
-
-/**
- * How a page that starts a conversation says it was opened, which is what the client's own sends
- * and what tells the server this may be a conversation with no history.
- */
-private const val SEED_CHAT = "seed_chat"

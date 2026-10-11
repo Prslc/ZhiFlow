@@ -20,11 +20,19 @@ import com.prslc.zhiflow.ui.component.common.FollowButton
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeader
 import com.prslc.zhiflow.ui.component.common.ProfileStat
 
-/** The header of someone else's profile: a message button, then the follow toggle. */
+/**
+ * The header of someone else's profile: a message button, then the follow toggle.
+ *
+ * @param user Whose profile this is.
+ * @param onFollowClick Called when the follow toggle is pressed.
+ * @param onMessageClick Called when the message button is pressed.
+ * @param modifier Applied to the header, ahead of what it lays out itself.
+ */
 @Composable
 fun PeopleHeader(
     user: ZhihuUser,
     onFollowClick: () -> Unit,
+    onMessageClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ProfileCoverHeader(
@@ -37,7 +45,7 @@ fun PeopleHeader(
         modifier = modifier,
         actions = {
             OutlinedIconButton(
-                onClick = {},
+                onClick = onMessageClick,
                 // M3 derives this border from the content colour, so a bright glyph would
                 // otherwise drag a bright ring along with it.
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
