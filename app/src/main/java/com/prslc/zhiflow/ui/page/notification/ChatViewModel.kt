@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.notification
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,8 @@ class ChatViewModel(
 
     var uiState by mutableStateOf(ChatUiState())
         private set
+
+    val listState = LazyListState()
 
     /** What is in the box right now, whether or not it has been sent. */
     var draft by mutableStateOf("")
@@ -82,6 +85,9 @@ class ChatViewModel(
      * was typed where it is, and says so through [actionError] rather than costing the reader their
      * words.
      *
+     * The page is told the message is in, through [messageSent], and brings the reader to it: a
+     * message that arrives while they are at the newest one does not come into view on its own.
+     *
      * @param peerId The user hash of the person at the other end.
      * @param sourceType How the page was opened, as the card that opened it said.
      */
@@ -99,6 +105,7 @@ class ChatViewModel(
                         messages = listOf(message) + uiState.messages,
                         isSending = false,
                     )
+                    messageSent = true
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(isSending = false)
@@ -110,6 +117,15 @@ class ChatViewModel(
     /** The message the reader is holding down, whose actions the menu offers. */
     var menuMessage by mutableStateOf<ChatMessageDto?>(null)
         private set
+
+    /** Set once a message has gone out, for the page to bring the reader to it. */
+    var messageSent by mutableStateOf(false)
+        private set
+
+    /** Clears the send the page has brought the reader to. */
+    fun consumeSent() {
+        messageSent = false
+    }
 
     /** @param message The message whose actions the menu is to offer. */
     fun openMenu(message: ChatMessageDto) {

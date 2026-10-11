@@ -49,6 +49,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -108,6 +109,20 @@ fun ChatScreen(
         viewModel::consumeActionError,
     )
 
+    // The scroll is the page's to make, an animation needing the frame clock a view model's scope
+    // has not got, and it waits a frame so that the message is measured by the time it is worked out.
+    val messageSent = viewModel.messageSent
+    LaunchedEffect(messageSent) {
+        if (!messageSent) return@LaunchedEffect
+
+        withFrameNanos { }
+        viewModel.listState.animateScrollToItem(0)
+
+        // After the scroll: the flag is this effect's own key, and clearing it first would cancel
+        // the effect before it scrolled.
+        viewModel.consumeSent()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -156,6 +171,7 @@ fun ChatScreen(
                         // Laid out from the bottom, so the newest message is where the reader left
                         // off and a short conversation sits at the end of the screen rather than
                         // the top.
+                        state = viewModel.listState,
                         reverseLayout = true,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(vertical = 12.dp),
