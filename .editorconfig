@@ -33,6 +33,13 @@ ktlint_standard_class-signature = disabled
 ktlint_standard_no-empty-first-line-in-class-body = disabled
 # A word is never broken to fit the margin, which is the rule the block on it below describes.
 ktlint_standard_max-line-length = disabled
+# Three findings are left standing on purpose, and each is the rule's rather than the code's.
+# `Content.kt` holds `ZhihuContent` and `User.kt` holds `ZhihuUser`, so naming either file after its
+# declaration would put Zhihu in a file name -- which an app that is a Zhihu client gets nothing
+# from. The prefix is on eleven types in `data/model`, so taking it off two of them would leave the
+# other nine reading differently. `HeaderProvider.UA` is a two-letter acronym, and the style named
+# above keeps both letters of one capital -- `IOStream` is the shape it gives -- so the rule is
+# reporting the exception it does not carry, not a name that is wrong.
 # The margin is 100. A word is never broken to fit it: a word that does not fit moves down whole,
 # and one with nowhere to go is left where it is, taking its line past the margin. That is what the
 # over-long lines here are -- a one-line data class, a long `when` condition, a url.
