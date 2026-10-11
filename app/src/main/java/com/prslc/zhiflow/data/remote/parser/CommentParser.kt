@@ -6,6 +6,12 @@ import com.prslc.zhiflow.data.model.content.ZhihuImage
 
 @Immutable
 object CommentParser {
+
+    private val A_TAG_REGEX = """<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>""".toRegex()
+    private val HREF_REGEX = """href="([^"]+)"""".toRegex()
+    private val WIDTH_REGEX = """data-width="(\d+)"""".toRegex()
+    private val HEIGHT_REGEX = """data-height="(\d+)"""".toRegex()
+
     /**
      * Parse Zhihu comment HTML into a [CommentContent] with extracted images.
      *
@@ -15,20 +21,15 @@ object CommentParser {
     fun parse(html: String): CommentContent {
         val extractedImages = mutableListOf<ZhihuImage>()
 
-        val aTagRegex = """<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>""".toRegex()
-        val hrefRegex = """href="([^"]+)"""".toRegex()
-        val widthRegex = """data-width="(\d+)"""".toRegex()
-        val heightRegex = """data-height="(\d+)"""".toRegex()
-
         var processedHtml = html
-        aTagRegex.findAll(html).forEach { match ->
+        A_TAG_REGEX.findAll(html).forEach { match ->
             val fullTag = match.value
-            val url = hrefRegex.find(fullTag)?.groupValues?.get(1) ?: ""
+            val url = HREF_REGEX.find(fullTag)?.groupValues?.get(1) ?: ""
             val isImage = fullTag.contains("comment_img") || fullTag.contains("comment_gif")
 
             if (isImage && url.isNotEmpty()) {
-                val w = widthRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-                val h = heightRegex.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                val w = WIDTH_REGEX.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                val h = HEIGHT_REGEX.find(fullTag)?.groupValues?.get(1)?.toIntOrNull() ?: 0
                 val isGif = fullTag.contains("comment_gif") || url.lowercase().contains(".gif")
 
                 extractedImages.add(

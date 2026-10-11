@@ -12,9 +12,12 @@ import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.CommentDto
 import com.prslc.zhiflow.data.mapper.toDto
+import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.repository.CommentRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Immutable
 sealed interface CommentUiEvent {
@@ -104,7 +107,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         viewModelScope.launch {
             repository.getRootComments(answerId, contentType, uiState.offset)
                 .onSuccess { response ->
-                    val processed = response.data.map { CommentUiModel(it.toDto()) }
+                    val processed = response.data.toUiModels()
                     val nextOffset =
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
@@ -152,7 +155,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         viewModelScope.launch {
             repository.getSegmentComments(id, contentType, segmentId, segmentUiState.offset)
                 .onSuccess { response ->
-                    val processed = response.data.map { CommentUiModel(it.toDto()) }
+                    val processed = response.data.toUiModels()
                     val nextOffset =
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
 
@@ -190,7 +193,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
             val currentOffset = if (forceRefresh) "" else childUiState.offset
             repository.getChildComments(rootComment.id, currentOffset).onSuccess { response ->
-                    val processed = response.data.map { CommentUiModel(it.toDto()) }
+                    val processed = response.data.toUiModels()
                     val nextOffset =
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
                     val hasNext = response.paging?.isEnd == false
@@ -267,6 +270,15 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         lastSegmentId = null
         pendingReactions.clear()
     }
+
+    /**
+     * Parses each comment's HTML into what the list draws.
+     *
+     * Off the main thread: a row's body is HTML that has to be walked into an annotated string,
+     * and a page of rows is work nothing on screen is waiting for.
+     */
+    private suspend fun List<ZhihuComment>.toUiModels(): List<CommentUiModel> =
+        withContext(Dispatchers.Default) { map { CommentUiModel(it.toDto()) } }
 
     private fun updateLocalStatus(id: String, active: Boolean) {
         val mapper = { model: CommentUiModel ->
