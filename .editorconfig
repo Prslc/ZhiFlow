@@ -6,40 +6,22 @@ root = true
 
 [*.{kt,kts}]
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
-# Where an import goes: one block in plain order, with `java.` and `kotlin.` held to the end. This
-# is the layout the official preset above already resolves to, written out because it was a fallback
-# rather than a statement -- a reader had to infer it, and a change to the preset would have moved it
-# with nothing here saying so.
+# Where an import goes: one block in plain order, `java.`, `kotlin.` and aliases last. This is what
+# the preset above already resolves to, written out rather than left to be inferred.
 ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
-# ktlint reads this file as well, and judges by the style named here unless a rule below says
-# otherwise. Each rule turned off below is one this codebase answers differently and consistently;
-# the number after it is how many files were found holding that answer, so the list is measured
-# rather than a preference. Rules this codebase is merely uneven about are left on and left to be
-# fixed -- a trailing comma it forgets is a missing comma, not a different convention.
+# ktlint reads this file too, and judges by the style named here.
 ktlint_code_style = ktlint_official
-# A composable is named in capitals because that is what Compose asks of it, not by oversight.
 ktlint_function_naming_ignore_when_annotated_with = Composable
-# An expression that spans lines begins on the line it is assigned on: `= Foo(` rather than `=` and
-# then `Foo(`. 120 files.
+# The rules this codebase answers differently, and consistently so. The ones it is merely uneven
+# about are left on, so that what they report keeps reading as work to do.
 ktlint_standard_multiline-expression-wrapping = disabled
 ktlint_standard_function-signature = disabled
-# A call chain stays on one line for as long as it fits. 73 files.
 ktlint_standard_chain-method-continuation = disabled
-# A wrapped argument or parameter list holds one entry per line, however little room it would need
-# unwrapped. 35 and 42 files.
 ktlint_standard_argument-list-wrapping = disabled
 ktlint_standard_class-signature = disabled
-# A class body opens with a blank line. 58 files.
 ktlint_standard_no-empty-first-line-in-class-body = disabled
-# A word is never broken to fit the margin, which is the rule the block on it below describes.
 ktlint_standard_max-line-length = disabled
-# Three findings are left standing on purpose, and each is the rule's rather than the code's.
-# `Content.kt` holds `ZhihuContent` and `User.kt` holds `ZhihuUser`, so naming either file after its
-# declaration would put Zhihu in a file name -- which an app that is a Zhihu client gets nothing
-# from. The prefix is on eleven types in `data/model`, so taking it off two of them would leave the
-# other nine reading differently. `HeaderProvider.UA` is a two-letter acronym, and the style named
-# above keeps both letters of one capital -- `IOStream` is the shape it gives -- so the rule is
-# reporting the exception it does not carry, not a name that is wrong.
+# Content.kt, User.kt and HeaderProvider.UA are findings left standing on purpose.
 # The margin is 100. A word is never broken to fit it: a word that does not fit moves down whole,
 # and one with nowhere to go is left where it is, taking its line past the margin. That is what the
 # over-long lines here are -- a one-line data class, a long `when` condition, a url.
