@@ -1,7 +1,7 @@
 # Read by Android Studio, IntelliJ, and anything else that speaks EditorConfig -- including
 # linters. This is where the project's style is stated, so that it survives a machine and does not
-# depend on an IDE settings file. Everything below but the preset was measured off the sources,
-# not picked.
+# depend on an IDE settings file. Everything below but the two named presets was measured off the
+# sources, not picked.
 root = true
 
 [*.{kt,kts}]
@@ -11,13 +11,28 @@ ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 # rather than a statement -- a reader had to infer it, and a change to the preset would have moved it
 # with nothing here saying so.
 ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
-# ktlint reads this file as well, and its standard ruleset carries opinions this project has not
-# taken: with them on, `ktlint --format` rewrites multi-line expressions and function signatures
-# alongside the imports. Scoping it to the one rule stated above is what makes that command
-# something to reach for rather than something to be afraid of -- and is how the 21 files that did
-# not read the layout were settled.
-ktlint_standard = disabled
-ktlint_standard_import-ordering = enabled
+# ktlint reads this file as well, and judges by the style named here unless a rule below says
+# otherwise. Each rule turned off below is one this codebase answers differently and consistently;
+# the number after it is how many files were found holding that answer, so the list is measured
+# rather than a preference. Rules this codebase is merely uneven about are left on and left to be
+# fixed -- a trailing comma it forgets is a missing comma, not a different convention.
+ktlint_code_style = ktlint_official
+# A composable is named in capitals because that is what Compose asks of it, not by oversight.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# An expression that spans lines begins on the line it is assigned on: `= Foo(` rather than `=` and
+# then `Foo(`. 120 files.
+ktlint_standard_multiline-expression-wrapping = disabled
+ktlint_standard_function-signature = disabled
+# A call chain stays on one line for as long as it fits. 73 files.
+ktlint_standard_chain-method-continuation = disabled
+# A wrapped argument or parameter list holds one entry per line, however little room it would need
+# unwrapped. 35 and 42 files.
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_class-signature = disabled
+# A class body opens with a blank line. 58 files.
+ktlint_standard_no-empty-first-line-in-class-body = disabled
+# A word is never broken to fit the margin, which is the rule the block on it below describes.
+ktlint_standard_max-line-length = disabled
 # The margin is 100. A word is never broken to fit it: a word that does not fit moves down whole,
 # and one with nowhere to go is left where it is, taking its line past the margin. That is what the
 # over-long lines here are -- a one-line data class, a long `when` condition, a url.
