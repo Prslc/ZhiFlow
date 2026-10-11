@@ -6,7 +6,9 @@
 
 package com.prslc.zhiflow.ui.component.preference
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -31,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Interpolatable
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -174,15 +178,36 @@ fun BaseWidget(
         disabledSupportingContentColor = finalDescriptionColor
     )
 
+    /*
+     * The pressed corner is animated here rather than by ListItem's own shape morph: that one
+     * lerps corner sizes with the motion scheme's spring progress unfloored, and the expressive
+     * scheme's ~9.5% overshoot carries a corner the pressed shape rounds out from flat below zero,
+     * which the outline rejects. One shape for every state keeps that morph out of the picture;
+     * the row is clipped to the corner animated below instead.
+     */
+    val pressed by interactionSource.collectIsPressedAsState()
+    val pressProgress = animateFloatAsState(
+        targetValue = if (pressed) 1f else 0f,
+        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+        label = "PressMorph"
+    ).value.coerceAtLeast(0f)
+
+    val pressShape = Interpolatable.lerp(
+        baseShape,
+        RoundedCornerShape(itemStyle.cornerRadius),
+        pressProgress
+    ) as Shape
+
     val shapes = ListItemDefaults.shapes(
         shape = baseShape,
-        pressedShape = RoundedCornerShape(itemStyle.cornerRadius),
+        pressedShape = baseShape,
         selectedShape = baseShape,
         focusedShape = baseShape,
-        hoveredShape = baseShape
+        hoveredShape = baseShape,
+        draggedShape = baseShape
     )
 
-    val itemModifier = modifier.fillMaxWidth()
+    val itemModifier = modifier.fillMaxWidth().clip(pressShape)
 
     val leadingContent: (@Composable () -> Unit)? =
         if (icon != null || iconPlaceholder) {
