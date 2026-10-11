@@ -1,10 +1,16 @@
 # Read by Android Studio, IntelliJ, and anything else that speaks EditorConfig -- including
 # linters. This is where the project's style is stated, so that it survives a machine and does not
-# depend on an IDE settings file. Both values below were measured off the sources, not picked.
+# depend on an IDE settings file. Everything below but the preset was measured off the sources,
+# not picked.
 root = true
 
 [*.{kt,kts}]
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+# Where an import goes: one block in plain order, with `java.` and `kotlin.` held to the end. This
+# is the layout the official preset above already resolves to, written out because it was a fallback
+# rather than a statement -- a reader had to infer it, and a change to the preset would have moved it
+# with nothing here saying so. 21 of the 183 files that have imports do not read this way.
+ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
 # The margin is 100. A word is never broken to fit it: a word that does not fit moves down whole,
 # and one with nowhere to go is left where it is, taking its line past the margin. That is what the
 # over-long lines here are -- a one-line data class, a long `when` condition, a url.
