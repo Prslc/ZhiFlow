@@ -11,9 +11,9 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import com.prslc.zhiflow.core.network.HeaderProvider
+import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.di.appModule
-import okhttp3.OkHttpClient
 import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
@@ -22,7 +22,7 @@ import org.koin.core.context.GlobalContext.startKoin
 
 class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
 
-    private val okHttpClient: OkHttpClient by inject()
+    private val httpClientProvider: HttpClientProvider by inject()
     private val sessionManager: SessionManager by inject()
 
     override fun onCreate() {
@@ -44,7 +44,7 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .components {
-                add(OkHttpNetworkFetcherFactory(okHttpClient))
+                add(OkHttpNetworkFetcherFactory(httpClientProvider.imageClient))
                 add(AnimatedImageDecoder.Factory())
             }
             .memoryCache {
