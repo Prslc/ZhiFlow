@@ -1,14 +1,12 @@
 package com.prslc.zhiflow.ui.page.feed
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -63,12 +61,13 @@ fun FeedItem(
     ) {
         display.reason?.let { reason ->
             ReasonLine(reason)
-
-            Spacer(modifier = Modifier.height(8.dp))
         }
 
         if (hasTitle) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 ContentTypeLabel(
                     text = stringResource(typeConfig.labelResId),
                     containerColor = typeConfig.containerColor,
@@ -84,21 +83,18 @@ fun FeedItem(
                     modifier = Modifier.weight(1f),
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
         }
 
         AuthorRow(
             avatarUrl = display.authorAvatar,
             authorName = display.authorName,
+            modifier = Modifier.padding(bottom = 4.dp),
             avatarSize = 20.dp,
             nameStyle = MaterialTheme.typography.labelMedium,
             nameColor = MaterialTheme.colorScheme.primary,
         ) {
             display.authorNote?.let { RelationNote(authorNoteText(it)) }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
             text = display.excerpt,
@@ -109,22 +105,27 @@ fun FeedItem(
         )
 
         if (display.images.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            ThumbnailRow(images = display.images)
+            ThumbnailRow(
+                images = display.images,
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         ContentMeta(
             voteCount = display.voteCount,
             commentCount = display.commentCount,
+            modifier = Modifier.padding(top = 8.dp),
         )
     }
 }
 
 @Composable
 private fun ReasonLine(reason: FeedReason) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         AsyncImage(
             model = reason.iconUrl,
             contentDescription = null,
@@ -132,8 +133,6 @@ private fun ReasonLine(reason: FeedReason) {
             contentScale = ContentScale.Fit,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.outline),
         )
-
-        Spacer(modifier = Modifier.width(4.dp))
 
         Text(
             text = reason.text,

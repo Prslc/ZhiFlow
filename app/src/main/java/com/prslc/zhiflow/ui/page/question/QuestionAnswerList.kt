@@ -2,9 +2,7 @@ package com.prslc.zhiflow.ui.page.question
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -50,8 +48,10 @@ fun AnswerItem(
 
         // images
         if (display.images.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            ThumbnailRow(images = display.images)
+            ThumbnailRow(
+                images = display.images,
+                modifier = Modifier.padding(top = 8.dp),
+            )
         }
 
         // status

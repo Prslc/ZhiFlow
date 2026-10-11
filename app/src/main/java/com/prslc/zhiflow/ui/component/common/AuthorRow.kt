@@ -2,9 +2,8 @@ package com.prslc.zhiflow.ui.component.common
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -62,13 +61,12 @@ fun AuthorRow(
             contentScale = ContentScale.Crop,
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
-
         Text(
             text = authorName.ifEmpty { stringResource(R.string.anonymous_user) },
             style = nameStyle,
             color = nameColor,
             fontWeight = fontWeight,
+            modifier = Modifier.padding(start = 8.dp),
         )
 
         trailing()
