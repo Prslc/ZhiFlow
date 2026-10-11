@@ -50,13 +50,11 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeader
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeight
 import com.prslc.zhiflow.ui.component.common.ProfileStat
-import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
-import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
-import com.prslc.zhiflow.ui.component.preference.SegmentedColumnScope
+import com.prslc.zhiflow.ui.component.preference.SettingsGroup
+import com.prslc.zhiflow.ui.component.preference.SettingsGroupScope
+import com.prslc.zhiflow.ui.component.preference.SettingsNavRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
-
-private val GroupCornerRadius = 16.dp
 
 /** 1dp between items lets the page background through, which reads as the group's hairline. */
 private val GroupHairline = 1.dp
@@ -137,8 +135,8 @@ fun ProfileScreen(
                 ProfileGroup(
                     modifier = Modifier.padding(top = 16.dp),
                 ) {
-                    item {
-                        NavigationItemWidget(
+                    row {
+                        SettingsNavRow(
                             title = stringResource(R.string.profile_action_sign_out),
                             description = stringResource(R.string.profile_action_sign_out_summary),
                             icon = Icons.AutoMirrored.Filled.Logout,
@@ -264,8 +262,8 @@ private fun ProfileContentGroups(
         ProfileGroup(
             modifier = Modifier.padding(top = 16.dp),
         ) {
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.profile_nav_history),
                     description = stringResource(R.string.profile_nav_history_summary),
                     icon = Icons.Filled.History,
@@ -273,8 +271,8 @@ private fun ProfileContentGroups(
                     onClick = onNavigateToHistory,
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.profile_nav_collections),
                     description = stringResource(R.string.profile_nav_collections_summary),
                     icon = Icons.Filled.Bookmark,
@@ -288,8 +286,8 @@ private fun ProfileContentGroups(
             modifier = Modifier.padding(top = 4.dp),
             title = stringResource(R.string.profile_section_social),
         ) {
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.profile_nav_comments),
                     description = stringResource(R.string.profile_nav_comments_summary),
                     icon = Icons.AutoMirrored.Filled.Chat,
@@ -297,8 +295,8 @@ private fun ProfileContentGroups(
                     onClick = onNavigateToComments,
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.profile_nav_likes),
                     description = stringResource(R.string.profile_nav_likes_summary),
                     icon = Icons.Filled.ThumbUp,
@@ -306,8 +304,8 @@ private fun ProfileContentGroups(
                     onClick = onNavigateToLikes,
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.profile_nav_follows),
                     description = stringResource(R.string.profile_nav_follows_summary),
                     icon = Icons.Filled.PersonAdd,
@@ -319,19 +317,22 @@ private fun ProfileContentGroups(
     }
 }
 
+/**
+ * A group as this page draws it: rows joined flush, so the 1dp between them reads as a hairline
+ * rather than as separate cards.
+ */
 @Composable
 private fun ProfileGroup(
     modifier: Modifier = Modifier,
     title: String = "",
-    content: SegmentedColumnScope.() -> Unit,
+    content: SettingsGroupScope.() -> Unit,
 ) {
-    SegmentedColumn(
+    SettingsGroup(
         modifier = modifier,
         title = title,
-        cornerRadius = GroupCornerRadius,
         connectionRadius = 0.dp,
-        itemGap = GroupHairline,
-        itemContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        rowGap = GroupHairline,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         content = content,
     )
 }

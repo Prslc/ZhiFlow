@@ -31,9 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.ui.component.preference.BaseWidget
-import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
-import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
+import com.prslc.zhiflow.ui.component.preference.SettingsGroup
+import com.prslc.zhiflow.ui.component.preference.SettingsNavRow
+import com.prslc.zhiflow.ui.component.preference.SettingsRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
@@ -56,9 +56,9 @@ fun DebugScreen(
             .verticalScroll(rememberScrollState())
             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
     ) {
-        SegmentedColumn {
-            item {
-                NavigationItemWidget(
+        SettingsGroup {
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.debug_item_open_link_title),
                     description = stringResource(R.string.debug_item_open_link_subtitle),
                     icon = Icons.Filled.BugReport,
@@ -68,8 +68,8 @@ fun DebugScreen(
                     },
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.debug_item_device_id_title),
                     description = stringResource(R.string.debug_item_device_id_subtitle),
                     icon = Icons.Filled.BugReport,
@@ -79,8 +79,8 @@ fun DebugScreen(
                     },
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.debug_item_break_tokens_title),
                     description = stringResource(R.string.debug_item_break_tokens_subtitle),
                     icon = Icons.Filled.BugReport,
@@ -98,8 +98,8 @@ fun DebugScreen(
                     },
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.debug_item_force_refresh_title),
                     description = stringResource(R.string.debug_item_force_refresh_subtitle),
                     icon = Icons.Filled.BugReport,
@@ -117,29 +117,30 @@ fun DebugScreen(
                     },
                 )
             }
-            item {
-                BaseWidget(
+            row {
+                SettingsRow(
                     title = stringResource(R.string.debug_item_http_log_title),
                     description = stringResource(R.string.debug_item_http_log_subtitle),
                     icon = Icons.Filled.BugReport,
                     onClick = viewModel::toggleLogging,
-                ) {
-                    Switch(
-                        checked = viewModel.loggingEnabled,
-                        onCheckedChange = null,
-                    )
-                }
+                    trailingContent = {
+                        Switch(
+                            checked = viewModel.loggingEnabled,
+                            onCheckedChange = null,
+                        )
+                    },
+                )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.debug_item_http_log_view_title),
                     description = stringResource(R.string.debug_item_http_log_view_subtitle),
                     icon = Icons.Filled.BugReport,
                     onClick = { navigator.navigateToHttpLog() },
                 )
             }
-            item {
-                NavigationItemWidget(
+            row {
+                SettingsNavRow(
                     title = stringResource(R.string.lab_item_title),
                     description = stringResource(R.string.lab_item_subtitle),
                     icon = Icons.Filled.BugReport,
