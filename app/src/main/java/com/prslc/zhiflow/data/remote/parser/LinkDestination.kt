@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
 import com.prslc.zhiflow.ui.navigation.AnswerDetail
 import com.prslc.zhiflow.ui.navigation.ArticleDetail
+import com.prslc.zhiflow.ui.navigation.ColumnDetail
 import com.prslc.zhiflow.ui.navigation.PeopleDetail
 import com.prslc.zhiflow.ui.navigation.PinDetail
 import com.prslc.zhiflow.ui.navigation.QuestionDetail
@@ -23,12 +24,18 @@ sealed class LinkDestination {
 object LinkParser {
     private const val REDIRECT_HOST = "link.zhihu.com"
 
+    /** The app's own scheme, and the authority a column is carried under on it. */
+    private const val APP_SCHEME = "zhihu"
+    private const val COLUMN_AUTHORITY = "column"
+
     /**
      * Resolves [url]: outbound links arrive wrapped in a redirect whose parameter holds the target,
      * and Zhihu's own URLs map to a route while everything else stays [LinkDestination.External].
      */
     fun parse(url: String): LinkDestination {
         val finalUrl = unwrapRedirect(url)
+
+        columnTokenOf(finalUrl)?.let { return LinkDestination.Internal(ColumnDetail(it)) }
 
         val finalUri = finalUrl.toUri()
         val host = finalUri.host ?: ""
@@ -52,6 +59,21 @@ object LinkParser {
             LinkDestination.Internal(route)
         } else {
             LinkDestination.External(finalUrl)
+        }
+    }
+
+    /**
+     * The column a `zhihu://column/{token}` link names, or null when [url] is not one.
+     *
+     * A column's own links are written in the app's scheme rather than as an address, which is what
+     * the card at the end of a body published in one carries.
+     */
+    private fun columnTokenOf(url: String): String? {
+        val uri = url.toUri()
+        return if (uri.scheme == APP_SCHEME && uri.authority == COLUMN_AUTHORITY) {
+            uri.lastPathSegment?.takeIf { it.isNotBlank() }
+        } else {
+            null
         }
     }
 
@@ -80,6 +102,7 @@ object LinkParser {
         "article", "post" -> ArticleDetail(id)
         "question" -> QuestionDetail(id)
         "pin" -> PinDetail(id)
+        "column" -> ColumnDetail(id)
         else -> null
     }
 
@@ -92,6 +115,7 @@ object LinkParser {
         path.contains("/p/") || path.contains("zhuanlan.zhihu.com") -> "article"
         path.contains("/question/") -> "question"
         path.contains("/pin/") || path.contains("/pins/") -> "pin"
+        path.contains("/column/") -> "column"
         else -> null
     }
 
@@ -108,6 +132,9 @@ object LinkParser {
         }
 
         val last = segments.last()
+        // A column is named by a token rather than by a number (`c_1867989249418211328`).
+        if (segments.contains("column")) return last.takeIf { it.isNotBlank() }
+
         return if (last.all { it.isDigit() }) last else null
     }
 }

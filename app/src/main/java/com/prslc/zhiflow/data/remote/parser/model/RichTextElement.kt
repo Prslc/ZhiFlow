@@ -149,6 +149,19 @@ sealed interface RichTextElement {
         val commentCount: Int = 0,
     ) : RichTextElement
 
+    /** The card naming the column a body was published in. */
+    @Immutable
+    data class ColumnCard(
+        val columnToken: String,
+        val title: String,
+        val desc: String,
+        val cover: String?,
+        /** The server's own line over the card, e.g. `内容所属专栏 · … 更新`. */
+        val headerTips: String,
+        /** What the column last published, as the server words it; blank when it did not say. */
+        val latestText: String,
+    ) : RichTextElement
+
     /** Standard text paragraph with optional inline formulas. */
     @Stable
     data class ParsedText(

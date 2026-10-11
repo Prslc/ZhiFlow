@@ -79,6 +79,13 @@ class Navigator(
     }
 
     /**
+     * Opens a column.
+     *
+     * @param urlToken The column's token, as its links name it.
+     */
+    fun navigateToColumn(urlToken: String) = navController.navigate(ColumnDetail(urlToken))
+
+    /**
      * Opens one of an account's lists of people.
      *
      * @param userId Whose list it is: the account's hash id.

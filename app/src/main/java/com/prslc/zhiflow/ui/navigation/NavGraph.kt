@@ -10,6 +10,7 @@ import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
+import com.prslc.zhiflow.ui.page.column.ColumnScreen
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.debug.HttpLogScreen
@@ -66,6 +67,14 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: QuestionDetail = backStackEntry.toRoute()
         QuestionDetailScreen(
             id = route.id,
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<ColumnDetail> { backStackEntry ->
+        val route: ColumnDetail = backStackEntry.toRoute()
+        ColumnScreen(
+            urlToken = route.urlToken,
             onBack = { navController.popBackStack() },
         )
     }

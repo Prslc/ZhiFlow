@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.core.network
 
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -8,7 +7,6 @@ import okio.Buffer
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
 
-private val LOGGED_HOST = BASE_URL.toHttpUrl().host
 private const val MAX_REQUEST_BODY_BYTES = 4 * 1024L
 private const val MAX_RESPONSE_BODY_BYTES = 16 * 1024L
 
@@ -41,9 +39,9 @@ class HttpLogInterceptor(private val store: HttpLogStore) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        // Coil shares this client, so anything off the API host is filtered out before
-        // any body buffering happens.
-        if (request.url.host != LOGGED_HOST) return chain.proceed(request)
+        // Only Zhihu's own hosts are API traffic: images go through another client by now, and
+        // anything else on this one is filtered out before any body buffering happens.
+        if (request.url.host !in CREDENTIALED_HOSTS) return chain.proceed(request)
 
         val (requestBody, requestTruncated) = request.bodyText()
         val startedAt = System.nanoTime()

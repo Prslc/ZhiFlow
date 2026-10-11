@@ -41,6 +41,11 @@ data class PinDetail(val id: String)
 @Serializable
 data class QuestionDetail(val id: String)
 
+/** A column, which is addressed by its token (`c_1867989249418211328`) rather than by a number. */
+@Immutable
+@Serializable
+data class ColumnDetail(val urlToken: String)
+
 @Immutable
 @Serializable
 data class PeopleDetail(val urlToken: String)

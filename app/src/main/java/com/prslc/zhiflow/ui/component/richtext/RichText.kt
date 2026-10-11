@@ -11,6 +11,7 @@ import com.prslc.zhiflow.ui.component.richtext.component.BlockquoteComponent
 import com.prslc.zhiflow.ui.component.richtext.component.BulletItemRow
 import com.prslc.zhiflow.ui.component.richtext.component.CardComponent
 import com.prslc.zhiflow.ui.component.richtext.component.CodeBlock
+import com.prslc.zhiflow.ui.component.richtext.component.ColumnCardComponent
 import com.prslc.zhiflow.ui.component.richtext.component.Divider
 import com.prslc.zhiflow.ui.component.richtext.component.FormulaTextSection
 import com.prslc.zhiflow.ui.component.richtext.component.Heading
@@ -90,12 +91,14 @@ fun RichTextSingleElement(
             when (element.cardType) {
                 "reward_tail_truncate" -> { /* TODO: custom rendering */ }
 
-                "free_column_card" -> { /* TODO: custom rendering */ }
-
                 else -> {
                     CardComponent(element, modifier)
                 }
             }
+        }
+
+        is RichTextElement.ColumnCard -> {
+            ColumnCardComponent(element, modifier)
         }
 
         is RichTextElement.Table -> {

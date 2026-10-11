@@ -21,7 +21,10 @@ object ContentParser {
     /**
      * Page furniture rather than content: dropped here so the parsed body is the body everywhere.
      */
-    private val DROPPED_CARD_TYPES = setOf("reward_tail_truncate", "free_column_card")
+    private val DROPPED_CARD_TYPES = setOf("reward_tail_truncate")
+
+    /** The card naming the column the body was published in; see [parseColumnCard]. */
+    private const val COLUMN_CARD_TYPE = "free_column_card"
 
     /**
      * Transform raw API segments into renderable [RichTextElement] list.
@@ -236,6 +239,7 @@ object ContentParser {
     }
 
     private fun parseCard(card: Card?) = card?.let {
+        if (it.cardType == COLUMN_CARD_TYPE) return@let parseColumnCard(it)
         if (it.cardType in DROPPED_CARD_TYPES) return@let emptyList()
 
         val extra = JsonHelper.parseExtraInfo(it.extraInfo)
@@ -290,6 +294,37 @@ object ContentParser {
             )
         }
     } ?: emptyList()
+
+    /**
+     * The card a body ends with when it was published in a column.
+     *
+     * A card whose `extra_info` cannot be read, or that names no column, is dropped: there is
+     * nothing to draw and nowhere for a tap to go.
+     */
+    private fun parseColumnCard(card: Card): List<RichTextElement> {
+        val extra = JsonHelper.parseColumnCard(card.extraInfo) ?: return emptyList()
+        val module = extra.module ?: return emptyList()
+
+        val token = extra.columnToken.takeIf { it.isNotBlank() }
+            ?: module.actionUrl.substringAfterLast('/').takeIf { it.isNotBlank() }
+            ?: return emptyList()
+
+        val latest = module.latestContent
+
+        return listOf(
+            RichTextElement.ColumnCard(
+                columnToken = token,
+                title = module.columnTitle,
+                desc = module.columnDesc,
+                cover = module.columnCover.takeIf { it.isNotBlank() },
+                headerTips = module.headerTips,
+                latestText = listOfNotNull(
+                    latest?.titlePrefix?.takeIf { it.isNotBlank() },
+                    latest?.title?.takeIf { it.isNotBlank() },
+                ).joinToString(" "),
+            ),
+        )
+    }
 
     private class OrderedListCounter {
         private val counts = mutableMapOf<Int, Int>()

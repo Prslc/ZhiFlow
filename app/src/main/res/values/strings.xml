@@ -230,6 +230,12 @@
     <string name="people_list_following">Following</string>
     <string name="people_list_followers">Followers</string>
     <string name="people_list_empty">Nobody here</string>
+    <string name="column_stat_followers">Followers</string>
+    <string name="column_stat_articles">Articles</string>
+    <string name="column_stat_voteup">Likes</string>
+    <string name="column_empty">This column has published nothing yet</string>
+    <string name="column_action_subscribe">Subscribe</string>
+    <string name="column_action_subscribed">Subscribed</string>
 
     <!-- history -->
     <string name="history_title">Browsing History</string>

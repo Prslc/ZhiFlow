@@ -43,6 +43,9 @@ import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
  *   played.
  * @param modifier Applied to the animated content, so it survives the swap between the two states.
  * @param compact True to size the button down for a card's header row.
+ * @param followLabel What the button says while not yet followed. Defaults to the word for a
+ *   person; a column is subscribed to rather than followed.
+ * @param followingLabel What it says once it is.
  */
 @Composable
 fun FollowButton(
@@ -50,6 +53,8 @@ fun FollowButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     compact: Boolean = false,
+    followLabel: String = stringResource(R.string.people_action_follow),
+    followingLabel: String = stringResource(R.string.people_action_following),
 ) {
     val contentPadding = if (compact) {
         PaddingValues(horizontal = 12.dp, vertical = 4.dp)
@@ -89,7 +94,7 @@ fun FollowButton(
                     Spacer(Modifier.width(4.dp))
                 }
                 Text(
-                    stringResource(R.string.people_action_following),
+                    followingLabel,
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
@@ -103,7 +108,7 @@ fun FollowButton(
                 Icon(Icons.Default.Add, null, modifier = Modifier.size(iconSize))
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    stringResource(R.string.people_action_follow),
+                    followLabel,
                     style = MaterialTheme.typography.labelMedium,
                 )
             }

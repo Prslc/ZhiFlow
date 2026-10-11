@@ -10,11 +10,26 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
 const val BASE_URL = "https://api.zhihu.com"
+
+/**
+ * The site's own host, which serves a few things the API host does not — a column's articles among
+ * them, under an `/api/v4` prefix the API host's paths do not carry.
+ */
+const val WEB_URL = "https://www.zhihu.com"
+
+/**
+ * The hosts the session and the signature go to.
+ *
+ * The API host, and the site's — requests to both are signed the same way, and a request that
+ * arrives at either without a signature is rejected.
+ */
+internal val CREDENTIALED_HOSTS = setOf(BASE_URL.toHttpUrl().host, WEB_URL.toHttpUrl().host)
 
 /**
  * Extension properties and functions for OkHttp classes to streamline

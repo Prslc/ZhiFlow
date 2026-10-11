@@ -16,6 +16,7 @@ import com.prslc.zhiflow.core.preference.SettingsStoreImpl
 import com.prslc.zhiflow.data.remote.service.ActionService
 import com.prslc.zhiflow.data.remote.service.AuthService
 import com.prslc.zhiflow.data.remote.service.CollectionService
+import com.prslc.zhiflow.data.remote.service.ColumnService
 import com.prslc.zhiflow.data.remote.service.CommentService
 import com.prslc.zhiflow.data.remote.service.ContentService
 import com.prslc.zhiflow.data.remote.service.FeedService
@@ -30,6 +31,7 @@ import com.prslc.zhiflow.data.remote.service.UserService
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.AuthRepository
 import com.prslc.zhiflow.data.repository.CollectionRepository
+import com.prslc.zhiflow.data.repository.ColumnRepository
 import com.prslc.zhiflow.data.repository.CommentRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
@@ -46,6 +48,7 @@ import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.data.session.UserSession
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
+import com.prslc.zhiflow.ui.page.column.ColumnViewModel
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
@@ -135,6 +138,11 @@ val appModule = module {
     singleOf(::ContentRepository)
     viewModelOf(::ContentViewModel)
     viewModelOf(::PinViewModel)
+
+    // Column
+    singleOf(::ColumnService)
+    singleOf(::ColumnRepository)
+    viewModelOf(::ColumnViewModel)
 
     // Question
     singleOf(::QuestionService)

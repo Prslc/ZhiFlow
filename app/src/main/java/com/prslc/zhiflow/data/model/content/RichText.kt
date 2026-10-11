@@ -198,3 +198,37 @@ data class CardImageItem(
     @SerialName("original_width") val originalWidth: Int? = null,
     @SerialName("original_height") val originalHeight: Int? = null,
 )
+
+/**
+ * The `extra_info` of the card a body ends with when it was published in a column.
+ *
+ * It is a string of JSON in a shape of its own, and not the flat one [CardExtraInfo] reads: the
+ * things the card draws sit together under [module], and the token naming the column sits beside
+ * that. The column's own title is only here — the card carries no title of its own.
+ */
+@Immutable
+@Serializable
+data class ColumnCardExtra(
+    @SerialName("content_module") val module: ColumnCardModule? = null,
+    @SerialName("column_token") val columnToken: String = "",
+)
+
+@Immutable
+@Serializable
+data class ColumnCardModule(
+    @SerialName("header_tips") val headerTips: String = "",
+    @SerialName("column_title") val columnTitle: String = "",
+    @SerialName("column_desc") val columnDesc: String = "",
+    @SerialName("column_cover") val columnCover: String = "",
+    /** The column's own address in the app's scheme: `zhihu://column/{token}`. */
+    @SerialName("action_url") val actionUrl: String = "",
+    @SerialName("latest_content") val latestContent: ColumnCardLatest? = null,
+)
+
+/** What the column last published, which the card offers as the way in. */
+@Immutable
+@Serializable
+data class ColumnCardLatest(
+    val title: String = "",
+    @SerialName("title_prefix") val titlePrefix: String = "",
+)

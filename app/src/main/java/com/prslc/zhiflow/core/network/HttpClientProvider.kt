@@ -3,11 +3,8 @@ package com.prslc.zhiflow.core.network
 import com.prslc.zhiflow.core.network.HeaderProvider.zse96
 import kotlinx.serialization.json.Json
 import okhttp3.CookieJar
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
-
-private val API_HOST = BASE_URL.toHttpUrl().host
 
 /**
  * The clients the app makes requests through, and the headers each request goes out with.
@@ -38,9 +35,10 @@ class HttpClientProvider(
                 .header("x-app-version", HeaderProvider.APP_VERSION)
                 .header("x-app-za", HeaderProvider.xAppZa)
 
-            // The session and the signature belong to the API host. The only URLs that could arrive
-            // from elsewhere are ones the server named, and its paging links all name this host.
-            if (original.url.host == API_HOST) {
+            // The session and the signature belong to Zhihu's own hosts. What else could arrive
+            // here is what a server named: its paging links name those hosts, and so does the
+            // eight-digit id of an image, which is why the images take the other client.
+            if (original.url.host in CREDENTIALED_HOSTS) {
                 val urlPath = original.url.encodedPath +
                     original.url.encodedQuery?.let { "?$it" }.orEmpty()
 
