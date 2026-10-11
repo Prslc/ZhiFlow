@@ -9,6 +9,7 @@ import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
+import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.debug.HttpLogScreen
 import com.prslc.zhiflow.ui.page.debug.RenderLabScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
@@ -112,6 +113,12 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<RenderLab> {
         RenderLabScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<DebugTools> {
+        DebugScreen(
             onBack = { navController.popBackStack() },
         )
     }

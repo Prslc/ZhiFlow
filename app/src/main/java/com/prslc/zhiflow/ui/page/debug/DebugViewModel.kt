@@ -7,11 +7,20 @@ import androidx.lifecycle.ViewModel
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.HttpLogStore
 import com.prslc.zhiflow.core.network.newDeviceId
+import com.prslc.zhiflow.core.preference.SettingsStore
 
 class DebugViewModel(
     private val credentialStore: CredentialStore,
     private val httpLogStore: HttpLogStore,
+    private val settingsStore: SettingsStore,
 ) : ViewModel() {
+
+    /**
+     * Stores whether the developer tools are unlocked, which is how this page steps back out.
+     *
+     * @param unlocked False hides the tools, and with them the way back in.
+     */
+    fun setDeveloperUnlocked(unlocked: Boolean) = settingsStore.setDeveloperUnlocked(unlocked)
 
     var xUdid by mutableStateOf(credentialStore.udid())
         private set

@@ -58,7 +58,6 @@ import com.prslc.zhiflow.core.preference.ThemeMode
 import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
-import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.MainContainer
@@ -192,7 +191,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val feedViewModel: FeedViewModel = koinViewModel()
 
-    val tabs = listOf(HomeTab, DebugTab, ProfileTab)
+    val tabs = listOf(HomeTab, ProfileTab)
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
@@ -223,12 +222,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 HomeTab -> FeedScreen(
                     onItemClick = { id, type -> navigator.navigateToContent(id, type) },
                     onItemLongClick = feedViewModel::openFeedback,
-                )
-
-                DebugTab -> DebugScreen(
-                    onHandleUrl = { url ->
-                        navigator.handleUrl(url)
-                    },
                 )
 
                 ProfileTab -> ProfileScreen(
@@ -267,7 +260,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             Icon(
                                 when (tab) {
                                     HomeTab -> Icons.Default.Home
-                                    DebugTab -> Icons.Default.BugReport
                                     ProfileTab -> Icons.Default.Person
                                     else -> Icons.Default.Error
                                 },
@@ -277,7 +269,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         label = {
                             val labelText = when (tab) {
                                 HomeTab -> stringResource(R.string.nav_home)
-                                DebugTab -> stringResource(R.string.nav_debug)
                                 ProfileTab -> stringResource(R.string.nav_profile)
                                 else -> "Unknown"
                             }

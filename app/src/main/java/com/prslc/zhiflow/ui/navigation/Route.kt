@@ -49,7 +49,7 @@ object HomeTab
 
 @Immutable
 @Serializable
-object DebugTab
+object DebugTools
 
 @Immutable
 @Serializable

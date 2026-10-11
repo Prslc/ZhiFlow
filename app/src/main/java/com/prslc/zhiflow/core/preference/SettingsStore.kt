@@ -44,6 +44,14 @@ interface SettingsStore {
     fun setThemeMode(mode: ThemeMode)
 
     /**
+     * Whether the developer tools are unlocked.
+     *
+     * Off until the version number on the about page has been tapped enough times, which is how
+     * the platform hides its own developer options and so what a reader looks for.
+     */
+    val developerUnlocked: StateFlow<Boolean>
+
+    /**
      * Stores whether to save data by leaving images unloaded.
      *
      * @param enabled True leaves each illustration and thumbnail a placeholder of its own size,
@@ -51,4 +59,13 @@ interface SettingsStore {
      *   traffic for, and are unaffected.
      */
     fun setDataSaver(enabled: Boolean)
+
+    /**
+     * Stores whether the developer tools are unlocked, which is what the settings page offers
+     * them on.
+     *
+     * @param unlocked False hides them again, and with them the way back in until the version
+     *   number is tapped out once more.
+     */
+    fun setDeveloperUnlocked(unlocked: Boolean)
 }

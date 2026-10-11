@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,24 +20,39 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.BuildConfig
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.ui.component.preference.SettingsGroup
 import com.prslc.zhiflow.ui.component.preference.SettingsNavRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /** Where the app's source lives — what a tap on the row below opens. */
 private const val SOURCE_URL = "https://github.com/Prslc/ZhiFlow"
+
+/** Taps on the version number that unlock the developer tools, the count the platform asks for. */
+private const val DEVELOPER_TAPS = 7
 
 @Composable
 fun AboutScreen(
@@ -45,6 +61,21 @@ fun AboutScreen(
 ) {
     val navigator = LocalNavigator.current
     val uriHandler = LocalUriHandler.current
+    val settingsStore = koinInject<SettingsStore>()
+    val developerUnlocked by settingsStore.developerUnlocked.collectAsStateWithLifecycle()
+    var taps by remember { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Every line the tap below can say, read here because its handler is not a composable and
+    // could not read a string resource itself. The countdown is the one that depends on taps.
+    val hintOnNextTap = pluralStringResource(
+        R.plurals.about_developer_hint,
+        DEVELOPER_TAPS - taps - 1,
+        DEVELOPER_TAPS - taps - 1,
+    )
+    val unlockedText = stringResource(R.string.about_developer_unlocked)
+    val alreadyText = stringResource(R.string.about_developer_already)
 
     Scaffold(
         modifier = modifier,
@@ -61,6 +92,7 @@ fun AboutScreen(
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -98,6 +130,25 @@ fun AboutScreen(
                 text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable {
+                    val message = if (developerUnlocked) {
+                        alreadyText
+                    } else {
+                        taps++
+                        if (taps >= DEVELOPER_TAPS) {
+                            settingsStore.setDeveloperUnlocked(true)
+                            unlockedText
+                        } else {
+                            hintOnNextTap
+                        }
+                    }
+                    scope.launch {
+                        // A run of taps must not queue up behind one another: each one replaces
+                        // whatever is on screen.
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(message)
+                    }
+                },
             )
 
             Spacer(modifier = Modifier.height(24.dp))

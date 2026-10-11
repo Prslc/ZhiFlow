@@ -12,14 +12,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DebugScreen(
-    onHandleUrl: (String) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DebugViewModel = koinViewModel(),
 ) {
@@ -50,102 +56,138 @@ fun DebugScreen(
     var inputUrl by remember { mutableStateOf("") }
     var inputUdid by remember { mutableStateOf("") }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
-    ) {
-        SettingsGroup {
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.debug_item_open_link_title),
-                    description = stringResource(R.string.debug_item_open_link_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = {
-                        inputUrl = ""
-                        showDialog = true
-                    },
-                )
-            }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.debug_item_device_id_title),
-                    description = stringResource(R.string.debug_item_device_id_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = {
-                        inputUdid = viewModel.xUdid
-                        showDeviceIdDialog = true
-                    },
-                )
-            }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.debug_item_break_tokens_title),
-                    description = stringResource(R.string.debug_item_break_tokens_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = {
-                        val broken = viewModel.breakSessionTokens()
-                        Toast.makeText(
-                            context,
-                            if (broken) {
-                                R.string.debug_break_tokens_done
-                            } else {
-                                R.string.debug_refresh_unavailable
-                            },
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    },
-                )
-            }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.debug_item_force_refresh_title),
-                    description = stringResource(R.string.debug_item_force_refresh_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = {
-                        val armed = viewModel.makeRefreshDue()
-                        Toast.makeText(
-                            context,
-                            if (armed) {
-                                R.string.debug_refresh_armed
-                            } else {
-                                R.string.debug_refresh_unavailable
-                            },
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    },
-                )
-            }
-            row {
-                SettingsRow(
-                    title = stringResource(R.string.debug_item_http_log_title),
-                    description = stringResource(R.string.debug_item_http_log_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = viewModel::toggleLogging,
-                    trailingContent = {
-                        Switch(
-                            checked = viewModel.loggingEnabled,
-                            onCheckedChange = null,
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.debug_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            stringResource(R.string.general_back),
                         )
-                    },
-                )
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                // Only the bottom: the sides are the group's own content padding, the same as on
+                // the settings page, and a second layer here would read as a narrower page.
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 32.dp),
+        ) {
+            SettingsGroup {
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.debug_item_open_link_title),
+                        description = stringResource(R.string.debug_item_open_link_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = {
+                            inputUrl = ""
+                            showDialog = true
+                        },
+                    )
+                }
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.debug_item_device_id_title),
+                        description = stringResource(R.string.debug_item_device_id_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = {
+                            inputUdid = viewModel.xUdid
+                            showDeviceIdDialog = true
+                        },
+                    )
+                }
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.debug_item_break_tokens_title),
+                        description = stringResource(R.string.debug_item_break_tokens_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = {
+                            val broken = viewModel.breakSessionTokens()
+                            Toast.makeText(
+                                context,
+                                if (broken) {
+                                    R.string.debug_break_tokens_done
+                                } else {
+                                    R.string.debug_refresh_unavailable
+                                },
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        },
+                    )
+                }
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.debug_item_force_refresh_title),
+                        description = stringResource(R.string.debug_item_force_refresh_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = {
+                            val armed = viewModel.makeRefreshDue()
+                            Toast.makeText(
+                                context,
+                                if (armed) {
+                                    R.string.debug_refresh_armed
+                                } else {
+                                    R.string.debug_refresh_unavailable
+                                },
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        },
+                    )
+                }
+                row {
+                    SettingsRow(
+                        title = stringResource(R.string.debug_item_http_log_title),
+                        description = stringResource(R.string.debug_item_http_log_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = viewModel::toggleLogging,
+                        trailingContent = {
+                            Switch(
+                                checked = viewModel.loggingEnabled,
+                                onCheckedChange = null,
+                            )
+                        },
+                    )
+                }
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.debug_item_http_log_view_title),
+                        description = stringResource(R.string.debug_item_http_log_view_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = { navigator.navigateToHttpLog() },
+                    )
+                }
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.lab_item_title),
+                        description = stringResource(R.string.lab_item_subtitle),
+                        icon = Icons.Filled.BugReport,
+                        onClick = { navigator.navigateToRenderLab() },
+                    )
+                }
             }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.debug_item_http_log_view_title),
-                    description = stringResource(R.string.debug_item_http_log_view_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = { navigator.navigateToHttpLog() },
-                )
-            }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.lab_item_title),
-                    description = stringResource(R.string.lab_item_subtitle),
-                    icon = Icons.Filled.BugReport,
-                    onClick = { navigator.navigateToRenderLab() },
-                )
+
+            // Its own group: this is the one row that takes the page away rather than doing
+            // something on it.
+            SettingsGroup {
+                row {
+                    SettingsRow(
+                        title = stringResource(R.string.debug_action_lock_title),
+                        description = stringResource(R.string.debug_action_lock_summary),
+                        icon = Icons.Filled.Lock,
+                        onClick = {
+                            viewModel.setDeveloperUnlocked(false)
+                            onBack()
+                        },
+                    )
+                }
             }
         }
     }
@@ -224,7 +266,7 @@ fun DebugScreen(
                 Button(
                     onClick = {
                         if (inputUrl.isNotBlank()) {
-                            onHandleUrl(inputUrl.trim())
+                            navigator.handleUrl(inputUrl.trim())
                             showDialog = false
                         }
                     },

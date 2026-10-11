@@ -93,4 +93,6 @@ class Navigator(
     fun navigateToHttpLog() = navController.navigate(HttpLog)
 
     fun navigateToRenderLab() = navController.navigate(RenderLab)
+
+    fun navigateToDebugTools() = navController.navigate(DebugTools)
 }

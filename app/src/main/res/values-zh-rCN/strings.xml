@@ -24,7 +24,6 @@
 
     <!-- navigation -->
     <string name="nav_home">首页</string>
-    <string name="nav_debug">调试</string>
     <string name="nav_profile">个人中心</string>
     <string name="error_unable_to_open_link">无法打开链接</string>
     <string name="error_unknown_nav_type">未知类型：%1$s</string>
@@ -257,6 +256,7 @@
     <string name="lab_case_code">代码块</string>
     <string name="lab_case_divider">分割线</string>
     <string name="lab_case_reference">脚注</string>
+    <string name="debug_title">开发者选项</string>
     <string name="debug_item_open_link_title">打开链接</string>
     <string name="debug_item_open_link_subtitle">粘贴知乎 URL 以测试 LinkParser</string>
     <string name="debug_item_device_id_title">设备标识</string>
@@ -268,6 +268,8 @@
     <string name="debug_dialog_device_id_title">设备标识</string>
     <string name="debug_label_x_udid">x_udid</string>
     <string name="debug_action_save">保存</string>
+    <string name="debug_action_lock_title">关闭开发者选项</string>
+    <string name="debug_action_lock_summary">隐藏，直到再次连点版本号</string>
     <string name="debug_action_regenerate">重新生成</string>
     <string name="debug_item_break_tokens_title">弄坏会话令牌</string>
     <string name="debug_item_break_tokens_subtitle">让下一个请求和它触发的续期都被拒绝</string>
@@ -330,10 +332,17 @@
     <string name="settings_image_cache_clear">清除</string>
     <string name="settings_about_title">关于 ZhiFlow</string>
     <string name="settings_about_summary">版本、源代码与开源许可</string>
+    <string name="settings_section_developer">开发者</string>
+    <string name="settings_developer_summary">打开链接、会话令牌、HTTP 日志</string>
 
     <!-- about -->
     <string name="about_title">关于</string>
     <string name="about_version">版本 %1$s</string>
+    <plurals name="about_developer_hint">
+        <item quantity="other">现在只需再执行 %1$d 步操作，即可进入开发者模式。</item>
+    </plurals>
+    <string name="about_developer_unlocked">您现在处于开发者模式！</string>
+    <string name="about_developer_already">您已处于开发者模式，无需进行此操作。</string>
     <string name="about_view_source_title">查看源代码</string>
     <string name="about_view_source_summary">github.com/Prslc/ZhiFlow</string>
     <string name="about_licenses_title">开源许可</string>

@@ -47,6 +47,9 @@ class SettingsViewModel(
     /** Whether the reader asked to save data, emitting again whenever they change it. */
     val dataSaver: StateFlow<Boolean> = settingsStore.dataSaver
 
+    /** Whether the developer tools are unlocked, which the about page is what unlocks. */
+    val developerUnlocked: StateFlow<Boolean> = settingsStore.developerUnlocked
+
     /** Bytes the image disk cache holds, or 0 until the first read lands. */
     var cacheSize by mutableLongStateOf(0L)
         private set

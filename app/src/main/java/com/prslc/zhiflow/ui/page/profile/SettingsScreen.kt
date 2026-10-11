@@ -14,6 +14,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DataSaverOn
 import androidx.compose.material.icons.filled.Image
@@ -63,6 +64,7 @@ fun SettingsScreen(
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val language = viewModel.language
     val dataSaver by viewModel.dataSaver.collectAsStateWithLifecycle()
+    val developerUnlocked by viewModel.developerUnlocked.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
@@ -141,6 +143,19 @@ fun SettingsScreen(
                         icon = Icons.Filled.Info,
                         onClick = navigator::navigateToAbout,
                     )
+                }
+            }
+
+            if (developerUnlocked) {
+                SettingsGroup(title = stringResource(R.string.settings_section_developer)) {
+                    row {
+                        SettingsNavRow(
+                            title = stringResource(R.string.debug_title),
+                            description = stringResource(R.string.settings_developer_summary),
+                            icon = Icons.Filled.BugReport,
+                            onClick = navigator::navigateToDebugTools,
+                        )
+                    }
                 }
             }
         }

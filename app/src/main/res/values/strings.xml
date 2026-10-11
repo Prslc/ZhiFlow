@@ -23,7 +23,6 @@
 
     <!-- navigation -->
     <string name="nav_home">Home</string>
-    <string name="nav_debug">Debug</string>
     <string name="nav_profile">Profile</string>
     <string name="error_unable_to_open_link">Unable to open link.</string>
     <string name="error_unknown_nav_type">Unknown type: %1$s</string>
@@ -277,6 +276,7 @@
     <string name="lab_case_code">Code blocks</string>
     <string name="lab_case_divider">Divider</string>
     <string name="lab_case_reference">Footnotes</string>
+    <string name="debug_title">Developer options</string>
     <string name="debug_item_open_link_title">Open Link</string>
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>
     <string name="debug_item_device_id_title">Device ID</string>
@@ -288,6 +288,8 @@
     <string name="debug_dialog_device_id_title">Device ID</string>
     <string name="debug_label_x_udid">x_udid</string>
     <string name="debug_action_save">Save</string>
+    <string name="debug_action_lock_title">Turn off developer options</string>
+    <string name="debug_action_lock_summary">Hide them until the version number is tapped out again</string>
     <string name="debug_action_regenerate">Regenerate</string>
     <string name="debug_item_break_tokens_title">Break the Session Tokens</string>
     <string name="debug_item_break_tokens_subtitle">Make the next request, and its renewal, be refused</string>
@@ -353,10 +355,18 @@
     <string name="settings_image_cache_clear">Clear</string>
     <string name="settings_about_title">About ZhiFlow</string>
     <string name="settings_about_summary">Version, source code, and open source licenses</string>
+    <string name="settings_section_developer">Developer</string>
+    <string name="settings_developer_summary">Open links, session tokens, the HTTP log</string>
 
     <!-- about -->
     <string name="about_title">About</string>
     <string name="about_version">Version %1$s</string>
+    <plurals name="about_developer_hint">
+        <item quantity="one">You are now %1$d step away from being a developer.</item>
+        <item quantity="other">You are now %1$d steps away from being a developer.</item>
+    </plurals>
+    <string name="about_developer_unlocked">You are now a developer!</string>
+    <string name="about_developer_already">No need, you are already a developer.</string>
     <string name="about_view_source_title">View source code</string>
     <string name="about_view_source_summary">github.com/Prslc/ZhiFlow</string>
     <string name="about_licenses_title">Open source licenses</string>
