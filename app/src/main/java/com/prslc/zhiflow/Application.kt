@@ -1,6 +1,7 @@
 package com.prslc.zhiflow
 
 import android.app.Application
+import android.content.SharedPreferences
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -24,17 +25,19 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
 
     private val httpClientProvider: HttpClientProvider by inject()
     private val sessionManager: SessionManager by inject()
+    private val sharedPreferences: SharedPreferences by inject()
 
     override fun onCreate() {
         super.onCreate()
-
-        HeaderProvider.init(this)
 
         // koin
         startKoin {
             androidContext(this@Application)
             modules(appModule)
         }
+
+        // After Koin: the preferences the settled User-Agent is kept in are one of its singles.
+        HeaderProvider.init(this, sharedPreferences)
 
         // An anonymous session is the floor every request stands on, and fetching it here lets
         // it happen while the first screen composes instead of in front of that screen's request.
