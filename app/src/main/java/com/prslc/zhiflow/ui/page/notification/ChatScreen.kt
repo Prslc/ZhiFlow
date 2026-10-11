@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -116,6 +117,9 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                // The scaffold's padding is a plain padding and consumes nothing, so without this
+                // the keyboard is counted on top of the navigation bar it already covers.
+                .consumeWindowInsets(padding)
                 .imePadding(),
         ) {
             Box(modifier = Modifier.weight(1f)) {
