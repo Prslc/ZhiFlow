@@ -38,9 +38,8 @@ class HttpClientProvider(
                 .header("x-app-version", HeaderProvider.APP_VERSION)
                 .header("x-app-za", HeaderProvider.xAppZa)
 
-            // The session and the signature belong to the API host. Anything else reaching this
-            // client -- a redirect the server named, say -- goes out with the app's identity
-            // alone rather than with credentials it was never meant to carry.
+            // The session and the signature belong to the API host. The only URLs that could arrive
+            // from elsewhere are ones the server named, and its paging links all name this host.
             if (original.url.host == API_HOST) {
                 val urlPath = original.url.encodedPath +
                     original.url.encodedQuery?.let { "?$it" }.orEmpty()
