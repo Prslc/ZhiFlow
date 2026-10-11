@@ -58,10 +58,15 @@ object MessageTab
 @Serializable
 data class NotificationCategory(val type: String, val title: String)
 
-/** One conversation, opened by the user hash of the person at the other end. */
+/**
+ * One conversation, opened by the user hash of the person at the other end.
+ *
+ * [sourceType] rides along because writing into a conversation tells the server how the page was
+ * opened, and that is the address's to say rather than this app's to work out.
+ */
 @Immutable
 @Serializable
-data class Chat(val peerId: String)
+data class Chat(val peerId: String, val sourceType: String? = null)
 
 @Immutable
 @Serializable

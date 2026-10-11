@@ -38,6 +38,9 @@ private const val THREAD_TYPE = "message"
 /** The stretch of a conversation card's link that the other end's user hash follows. */
 private const val INBOX_SEGMENT = "/inbox"
 
+/** The parameter of a conversation card's link that says how the page was opened. */
+private const val SOURCE_PARAM = "source_type"
+
 /**
  * The ways into each list of notifications.
  *
@@ -73,6 +76,7 @@ internal fun ZhihuMessagePage.toThreads(): List<MessageThreadDto> = data.mapNotN
     MessageThreadDto(
         id = card.id,
         peerId = card.peerId(),
+        sourceType = card.sourceType(),
         title = title,
         text = text,
         avatarUrl = card.avatarUrl(),
@@ -171,6 +175,19 @@ private fun ZhihuNotificationCard.peerId(): String? {
     val id = path.substring(start + INBOX_SEGMENT.length + 1).substringBefore('/')
     return id.takeIf { it.isNotBlank() }
 }
+
+/**
+ * How a conversation card's address says the page is opened, which is the server's to be told again
+ * when the reader writes: the value is the link's, not one this app works out.
+ *
+ * @return The source the link names, or null for a card that names none.
+ */
+private fun ZhihuNotificationCard.sourceType(): String? =
+    link().substringAfter('?', "")
+        .takeIf { it.isNotEmpty() }
+        ?.split('&')
+        ?.firstOrNull { it.startsWith("$SOURCE_PARAM=") }
+        ?.substringAfter('=')
 
 /** The picture a card is drawn with: the one it carries, or the first of the list it carries. */
 private fun ZhihuNotificationCard.avatarUrl(): String? =

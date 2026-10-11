@@ -119,6 +119,8 @@ class Navigator(
      * Opens a conversation.
      *
      * @param peerId The user hash of the person at the other end.
+     * @param sourceType How the page was opened, when the card that opened it said.
      */
-    fun navigateToChat(peerId: String) = navController.navigate(Chat(peerId))
+    fun navigateToChat(peerId: String, sourceType: String? = null) =
+        navController.navigate(Chat(peerId, sourceType))
 }

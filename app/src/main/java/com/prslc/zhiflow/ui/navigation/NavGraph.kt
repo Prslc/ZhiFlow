@@ -148,6 +148,7 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         val route: Chat = backStackEntry.toRoute()
         ChatScreen(
             peerId = route.peerId,
+            sourceType = route.sourceType,
             onBack = { navController.popBackStack() },
         )
     }

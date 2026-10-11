@@ -15,12 +15,13 @@ data class NotificationCategoryDto(
  * One row of the message page: a conversation, or a message the server put beside the others.
  *
  * [peerId] is null for a card that opens something other than a conversation, which is then
- * [targetLink]'s to say.
+ * [targetLink]'s to say; [sourceType] is how that address says the page is opened.
  */
 @Immutable
 data class MessageThreadDto(
     val id: String,
     val peerId: String?,
+    val sourceType: String?,
     val title: String,
     val text: String,
     val avatarUrl: String?,

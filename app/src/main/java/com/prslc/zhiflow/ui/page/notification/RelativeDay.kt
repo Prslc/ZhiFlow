@@ -33,3 +33,29 @@ internal fun relativeDay(createdTime: Long): String {
         )
     }
 }
+
+/**
+ * When a message was sent, the way a conversation writes it: the time of day, the day before's with
+ * the day named in front of it, and the date as well once it is no longer this one.
+ *
+ * @param createdTime When it was sent, in seconds.
+ * @return What to draw above the message.
+ */
+@Composable
+@ReadOnlyComposable
+internal fun relativeStamp(createdTime: Long): String {
+    val moment = Instant.ofEpochSecond(createdTime).atZone(ZoneId.systemDefault())
+    val date = moment.toLocalDate()
+    val today = LocalDate.now()
+    val time = moment.format(DateTimeFormatter.ofPattern("HH:mm"))
+
+    return if (date == today) {
+        time
+    } else if (date == today.minusDays(1)) {
+        stringResource(R.string.time_stamp_yesterday, time)
+    } else if (date.year == today.year) {
+        "${date.format(DateTimeFormatter.ofPattern("MM-dd"))} $time"
+    } else {
+        "${date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))} $time"
+    }
+}

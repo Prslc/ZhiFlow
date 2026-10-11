@@ -390,6 +390,10 @@
     <string name="notification_deleted_content">This content was deleted</string>
     <string name="notification_empty">Nothing here yet</string>
     <string name="chat_empty">No messages yet</string>
+    <string name="chat_placeholder">Write a message</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_forbidden">This account does not take messages</string>
     <string name="time_today">Today</string>
     <string name="time_yesterday">Yesterday</string>
+    <string name="time_stamp_yesterday">Yesterday %1$s</string>
 </resources>

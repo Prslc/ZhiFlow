@@ -14,6 +14,10 @@ private object SealedBody
  * The mark travels with the seal on purpose: a sealed request must not be signed, and keeping
  * the two in one call is what stops a new sealed endpoint from being signed by accident — which
  * a path list in the interceptor would allow.
+ *
+ * The seal goes out as the bytes it is. It is standard base64, `+` and `/` and all, and those are
+ * exactly what an encoder run over it would spoil: a body that went through a form or url encoder
+ * a second time would arrive with a space where a `+` was, which is not a body any more.
  */
 internal fun Request.Builder.sealedBody(form: String): Request.Builder =
     post(Natives.sealBody(form).toByteArray(Charsets.UTF_8).toRequestBody(FORM_MEDIA_TYPE))
