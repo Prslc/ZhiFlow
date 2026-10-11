@@ -7,15 +7,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.data.model.user.ZhihuUser
+import com.prslc.zhiflow.data.repository.AuthRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val repository: UserRepository,
     private val credentialStore: CredentialStore,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     @Immutable
@@ -77,5 +80,17 @@ class ProfileViewModel(
                     uiState = uiState.copy(error = error, isLoading = false)
                 }
         }
+    }
+
+    /**
+     * Ends the session, here and on the server.
+     *
+     * Nothing comes back to the caller: clearing the store is what this tab draws from, so it
+     * settles into the anonymous state on its own. A server that could not be told is not worth
+     * reporting either — the session is gone from this device either way, and the guest
+     * bootstrap underneath replaces the cookie that would otherwise have outlived it.
+     */
+    fun signOut() {
+        viewModelScope.launch { authRepository.logout().ignoreOutcome() }
     }
 }

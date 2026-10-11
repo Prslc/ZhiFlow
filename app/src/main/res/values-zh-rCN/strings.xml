@@ -141,6 +141,11 @@
     <string name="content_desc_avatar">用户头像</string>
     <string name="profile_action_edit_profile">编辑资料</string>
     <string name="profile_section_social">社交互动</string>
+    <string name="profile_action_sign_out">退出登录</string>
+    <string name="profile_action_sign_out_summary">结束这台设备上的登录</string>
+    <string name="profile_sign_out_confirm_title">退出登录？</string>
+    <string name="profile_sign_out_confirm_message">退出后将以游客身份浏览，直到你重新登录。</string>
+    <string name="profile_sign_out_cancel">取消</string>
     <string name="profile_cover_desc">封面图片</string>
 
     <!-- buttomBar -->

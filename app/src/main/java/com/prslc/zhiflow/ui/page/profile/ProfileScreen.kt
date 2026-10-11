@@ -16,11 +16,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -30,7 +32,12 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -68,6 +75,7 @@ fun ProfileScreen(
     val uiState = viewModel.uiState
     val user = uiState.user
     val navigator = LocalNavigator.current
+    var showSignOutDialog by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
         if (user != null) {
@@ -166,6 +174,19 @@ fun ProfileScreen(
                     }
                 }
 
+                ProfileGroup(
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    item {
+                        NavigationItemWidget(
+                            title = stringResource(R.string.profile_action_sign_out),
+                            description = stringResource(R.string.profile_action_sign_out_summary),
+                            icon = Icons.AutoMirrored.Filled.Logout,
+                            onClick = { showSignOutDialog = true },
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
             }
         } else if (uiState.isGuest) {
@@ -191,6 +212,29 @@ fun ProfileScreen(
                 modifier = Modifier.align(Alignment.Center),
             )
         }
+    }
+
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text(stringResource(R.string.profile_sign_out_confirm_title)) },
+            text = { Text(stringResource(R.string.profile_sign_out_confirm_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSignOutDialog = false
+                        viewModel.signOut()
+                    }
+                ) {
+                    Text(stringResource(R.string.profile_action_sign_out))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutDialog = false }) {
+                    Text(stringResource(R.string.profile_sign_out_cancel))
+                }
+            },
+        )
     }
 }
 
