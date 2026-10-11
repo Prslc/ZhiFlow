@@ -41,13 +41,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -55,6 +57,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
+import com.prslc.zhiflow.core.utils.compose.BarCollapseDistance
 import com.prslc.zhiflow.core.utils.compose.rememberHideOnScroll
 import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.component.LocalDataSaver
@@ -186,6 +189,9 @@ class MainActivity : ComponentActivity(), KoinComponent {
     }
 }
 
+/** The bottom bar's height, and so how far it travels when it goes. */
+private val BottomBarHeight = 80.dp
+
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
@@ -196,7 +202,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
-    val bottomBar = rememberHideOnScroll()
+    val bottomBar = rememberHideOnScroll(BarCollapseDistance)
+    val bottomBarHeightPx = with(LocalDensity.current) { BottomBarHeight.toPx() }
 
     Box(modifier = modifier.fillMaxSize()) {
         HorizontalPager(
@@ -224,48 +231,47 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        AnimatedVisibility(
-            visible = bottomBar.visible,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = slideInVertically(initialOffsetY = { it }),
-            exit = slideOutVertically(targetOffsetY = { it }),
+        // Nothing here changes the layout: a bar at the bottom of the screen has no content under
+        // it to push around, so it only has to leave.
+        NavigationBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .graphicsLayer { translationY = bottomBarHeightPx * bottomBar.fraction },
         ) {
-            NavigationBar {
-                tabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            when {
-                                pagerState.currentPage != index -> {
-                                    scope.launch { pagerState.animateScrollToPage(index) }
-                                }
+            tabs.forEachIndexed { index, tab ->
+                NavigationBarItem(
+                    selected = pagerState.currentPage == index,
+                    onClick = {
+                        when {
+                            pagerState.currentPage != index -> {
+                                scope.launch { pagerState.animateScrollToPage(index) }
+                            }
 
-                                tab == HomeTab -> {
-                                    scope.launch { feedViewModel.listState.animateScrollToItem(0) }
-                                }
+                            tab == HomeTab -> {
+                                scope.launch { feedViewModel.listState.animateScrollToItem(0) }
                             }
-                        },
-                        icon = {
-                            Icon(
-                                when (tab) {
-                                    HomeTab -> Icons.Default.Home
-                                    ProfileTab -> Icons.Default.Person
-                                    else -> Icons.Default.Error
-                                },
-                                null,
-                            )
-                        },
-                        label = {
-                            val labelText = when (tab) {
-                                HomeTab -> stringResource(R.string.nav_home)
-                                ProfileTab -> stringResource(R.string.nav_profile)
-                                else -> "Unknown"
-                            }
-                            Text(labelText)
-                        },
-                        alwaysShowLabel = false,
-                    )
-                }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            when (tab) {
+                                HomeTab -> Icons.Default.Home
+                                ProfileTab -> Icons.Default.Person
+                                else -> Icons.Default.Error
+                            },
+                            null,
+                        )
+                    },
+                    label = {
+                        val labelText = when (tab) {
+                            HomeTab -> stringResource(R.string.nav_home)
+                            ProfileTab -> stringResource(R.string.nav_profile)
+                            else -> "Unknown"
+                        }
+                        Text(labelText)
+                    },
+                    alwaysShowLabel = false,
+                )
             }
         }
 
