@@ -21,18 +21,25 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class MessageService(private val api: ApiClient) {
 
     /**
-     * Retrieves the newest page of one conversation.
+     * Retrieves a page of one conversation, newest first.
      *
      * @param peerId The person the conversation is with, by their user hash. The parameter the
      *   server wants is named for the sender of the messages, but it is the other end of the
      *   conversation that it takes.
+     * @param nextUrl The page to ask for, from `paging.next` of a previous response. That url
+     *   already carries the conversation and the cursor, so nothing is added to it; null asks for a
+     *   first page, whose parameters are set here.
      * @return A [Result] holding the messages, newest first, or the failure that kept them away.
      */
-    suspend fun conversation(peerId: String): Result<ZhihuMessagesResponse> = api.safeApiCall {
-        val url = "${BASE_URL}/messages".toHttpUrl().newBuilder()
-            .addQueryParameter("sender_id", peerId)
-            .addQueryParameter("limit", PAGE_SIZE.toString())
-            .build()
+    suspend fun conversation(
+        peerId: String,
+        nextUrl: String? = null,
+    ): Result<ZhihuMessagesResponse> = api.safeApiCall {
+        val url = nextUrl?.toHttpUrl()
+            ?: "${BASE_URL}/messages".toHttpUrl().newBuilder()
+                .addQueryParameter("sender_id", peerId)
+                .addQueryParameter("limit", PAGE_SIZE.toString())
+                .build()
 
         Request.Builder()
             .url(url)

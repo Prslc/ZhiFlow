@@ -8,16 +8,35 @@ import com.prslc.zhiflow.data.mapper.toMessages
 import com.prslc.zhiflow.data.mapper.toPeer
 import com.prslc.zhiflow.data.remote.service.MessageService
 
+/** One page of a conversation, with the cursor for the page of older messages after it. */
+data class ConversationResult(
+    val messages: List<ChatMessageDto>,
+    val nextPageUrl: String?,
+    val isEnd: Boolean,
+)
+
 class MessageRepository(private val service: MessageService) {
 
     /**
-     * Retrieves one conversation.
+     * Retrieves one page of a conversation.
      *
      * @param peerId The person the conversation is with, by their user hash.
-     * @return A [Result] holding the newest page of messages in reading order.
+     * @param nextUrl The page to ask for, from a previous result's cursor; null asks for the
+     *   newest page.
+     * @return A [Result] holding the messages in reading order, oldest first, and the cursor for
+     *   the page before them when there is one.
      */
-    suspend fun conversation(peerId: String): Result<List<ChatMessageDto>> =
-        service.conversation(peerId).mapOffMain { it.toMessages(peerId) }
+    suspend fun conversation(
+        peerId: String,
+        nextUrl: String? = null,
+    ): Result<ConversationResult> = service.conversation(peerId, nextUrl)
+        .mapOffMain { body ->
+            ConversationResult(
+                messages = body.toMessages(peerId),
+                nextPageUrl = body.paging.next.takeIf { it.isNotBlank() },
+                isEnd = body.paging.isEnd,
+            )
+        }
 
     /**
      * Sends one message into a conversation.

@@ -27,14 +27,19 @@ class ChatViewModel(
         val isSending: Boolean = false,
         val isDeleting: Boolean = false,
         val isSelecting: Boolean = false,
+        val isNextLoading: Boolean = false,
+        val isEnd: Boolean = false,
         val selectedIds: Set<String> = emptySet(),
         val error: ApiException? = null,
+        val loadMoreError: ApiException? = null,
     )
 
     var uiState by mutableStateOf(ChatUiState())
         private set
 
     val listState = LazyListState()
+
+    private var nextPageUrl: String? = null
 
     /** What is in the box right now, whether or not it has been sent. */
     var draft by mutableStateOf("")
@@ -68,11 +73,46 @@ class ChatViewModel(
                 .ignoreOutcome()
 
             repository.conversation(peerId)
-                .onSuccess { messages ->
-                    uiState = ChatUiState(messages = messages, peer = peer)
+                .onSuccess { result ->
+                    nextPageUrl = result.nextPageUrl
+                    uiState = ChatUiState(
+                        messages = result.messages,
+                        peer = peer,
+                        isEnd = result.isEnd,
+                    )
                 }
                 .onApiFailure { error ->
                     uiState = ChatUiState(peer = peer, error = error)
+                }
+        }
+    }
+
+    /**
+     * Loads the page of older messages before the ones on screen.
+     *
+     * They go on the end of the list, which is the top of the page: the conversation is held
+     * newest first.
+     *
+     * @param peerId The user hash of the person at the other end.
+     */
+    fun loadMore(peerId: String) {
+        val url = nextPageUrl ?: return
+        if (uiState.isNextLoading || uiState.isLoading) return
+
+        viewModelScope.launch {
+            uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
+
+            repository.conversation(peerId, url)
+                .onSuccess { result ->
+                    nextPageUrl = result.nextPageUrl
+                    uiState = uiState.copy(
+                        messages = uiState.messages + result.messages,
+                        isNextLoading = false,
+                        isEnd = result.isEnd,
+                    )
+                }
+                .onApiFailure { error ->
+                    uiState = uiState.copy(loadMoreError = error, isNextLoading = false)
                 }
         }
     }

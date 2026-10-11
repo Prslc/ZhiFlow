@@ -48,6 +48,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -64,12 +65,14 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.dto.ChatMessageDto
 import com.prslc.zhiflow.data.dto.ChatPeerDto
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import org.koin.androidx.compose.koinViewModel
@@ -102,8 +105,16 @@ fun ChatScreen(
     val peer = uiState.peer
     val error = uiState.error
     val isSelecting = uiState.isSelecting
+    val endText = if (uiState.isEnd) stringResource(R.string.end_of_list) else null
 
     LaunchedEffect(peerId) { viewModel.load(peerId) }
+
+    // Older messages are the end of a list held newest first, so this is the reader reaching the
+    // top of the page rather than the bottom of it.
+    val shouldLoadMore by remember { viewModel.listState.shouldLoadMore() }
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) viewModel.loadMore(peerId)
+    }
 
     val snackbarHostState = rememberActionErrorHost(
         viewModel.actionError,
@@ -214,6 +225,15 @@ fun ChatScreen(
                                 TimeMark(relativeStamp(message.createdTime))
                             }
                         }
+
+                        // The end of the list is the top of the page, which is where the older
+                        // messages are asked for.
+                        pagingFooter(
+                            isLoading = uiState.isNextLoading,
+                            error = uiState.loadMoreError,
+                            onRetry = { viewModel.loadMore(peerId) },
+                            endText = endText,
+                        )
                     }
                 }
             }
