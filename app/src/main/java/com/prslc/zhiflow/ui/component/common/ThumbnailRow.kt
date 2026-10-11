@@ -75,9 +75,11 @@ fun ThumbnailRow(
         images.forEachIndexed { index, image ->
             key("${image.url}_$index") {
                 val aspectRatio = remember(image) {
-                    if (image.width > 0 && image.height > 0)
+                    if (image.width > 0 && image.height > 0) {
                         image.width.toFloat() / image.height.toFloat()
-                    else 1f
+                    } else {
+                        1f
+                    }
                 }
 
                 AsyncImage(

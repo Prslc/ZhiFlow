@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
             ZhiFlowTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     val context = LocalContext.current
                     val navController = rememberNavController()
@@ -159,7 +159,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
                                     targetOffsetX = { it },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
-                            }
+                            },
                         ) {
                             contentGraph(navController)
                         }
@@ -170,7 +170,6 @@ class MainActivity : ComponentActivity(), KoinComponent {
         }
     }
 }
-
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -187,8 +186,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (available.y < -5) isBottomBarVisible = false
-                else if (available.y > 5) isBottomBarVisible = true
+                if (available.y < -5) {
+                    isBottomBarVisible = false
+                } else if (available.y > 5) {
+                    isBottomBarVisible = true
+                }
                 return Offset.Zero
             }
         }
@@ -211,7 +213,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 DebugTab -> DebugScreen(
                     onHandleUrl = { url ->
                         navigator.handleUrl(url)
-                    }
+                    },
                 )
 
                 ProfileTab -> ProfileScreen(
@@ -237,11 +239,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         selected = pagerState.currentPage == index,
                         onClick = {
                             when {
-                                pagerState.currentPage != index ->
+                                pagerState.currentPage != index -> {
                                     scope.launch { pagerState.animateScrollToPage(index) }
+                                }
 
-                                tab == HomeTab ->
+                                tab == HomeTab -> {
                                     scope.launch { feedViewModel.listState.animateScrollToItem(0) }
+                                }
                             }
                         },
                         icon = {
@@ -252,7 +256,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                     ProfileTab -> Icons.Default.Person
                                     else -> Icons.Default.Error
                                 },
-                                null
+                                null,
                             )
                         },
                         label = {

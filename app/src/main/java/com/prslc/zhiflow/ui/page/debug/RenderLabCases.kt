@@ -201,7 +201,7 @@ private fun headingsCase(params: LabParams): LabCase {
                         text.indexOf(PLACEHOLDER),
                         SMALL_FORMULA,
                         params.formulaHeight,
-                    )
+                    ),
                 ),
             ),
         )
@@ -229,9 +229,9 @@ private fun paragraphCase(params: LabParams): LabCase {
                         text.indexOf(PLACEHOLDER),
                         WIDEISH_FORMULA,
                         params.formulaHeight,
-                    )
+                    ),
                 ),
-            )
+            ),
         ),
     )
 }
@@ -252,9 +252,9 @@ private fun blockFormulaCase(params: LabParams): LabCase = LabCase(
                         TALLER_FORMULA,
                         params.formulaHeight,
                     ),
-                )
+                ),
             ),
-        )
+        ),
     ),
 )
 
@@ -271,9 +271,9 @@ private fun wideFormulaCase(params: LabParams): LabCase = LabCase(
                     start = 0,
                     end = FORMULA_TEXT.length,
                     formula = formula(OVERWIDE_FORMULA, params.formulaHeight),
-                )
+                ),
             ),
-        )
+        ),
     ),
 )
 
@@ -295,10 +295,10 @@ private fun quoteCase(params: LabParams): LabCase {
                             text.indexOf(PLACEHOLDER),
                             TALL_FORMULA,
                             params.formulaHeight,
-                        )
+                        ),
                     ),
                 ),
-            )
+            ),
         ),
     )
 }
@@ -355,7 +355,7 @@ private fun tableCase(params: LabParams): LabCase {
                     rowCount = TABLE_ROWS,
                     hasHeadRow = true,
                 ),
-            )
+            ),
         ),
     )
 }
@@ -411,13 +411,13 @@ private fun referenceCase(params: LabParams): LabCase {
                                     text.indexOf(PLACEHOLDER),
                                     WIDEISH_FORMULA,
                                     params.formulaHeight,
-                                )
+                                ),
                             ),
                         ),
                         ReferenceItem(text = "The second footnote, without a formula."),
                     ),
                 ),
-            )
+            ),
         ),
     )
 }

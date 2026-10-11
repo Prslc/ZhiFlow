@@ -24,16 +24,14 @@ class FeedRepository(private val service: FeedService) {
      * @return A [Result] containing [FeedResult] with mapped display items, both page URLs, and
      *   whether the server has said the feed ends here.
      */
-    suspend fun getFeeds(isColdStart: Boolean, nextUrl: String?): Result<FeedResult> {
-        return service.getRecommendFeed(isColdStart, nextUrl)
-            .mapOffMain { response ->
-                val styles = response.styles.associateBy { it.id.orEmpty() }
-                FeedResult(
-                    items = response.data.mapNotNull { it.toDto(styles) },
-                    nextPageUrl = response.paging.next,
-                    previousPageUrl = response.paging.previous,
-                    isEnd = response.paging.isEnd,
-                )
-            }
-    }
+    suspend fun getFeeds(isColdStart: Boolean, nextUrl: String?): Result<FeedResult> = service.getRecommendFeed(isColdStart, nextUrl)
+        .mapOffMain { response ->
+            val styles = response.styles.associateBy { it.id.orEmpty() }
+            FeedResult(
+                items = response.data.mapNotNull { it.toDto(styles) },
+                nextPageUrl = response.paging.next,
+                previousPageUrl = response.paging.previous,
+                isEnd = response.paging.isEnd,
+            )
+        }
 }

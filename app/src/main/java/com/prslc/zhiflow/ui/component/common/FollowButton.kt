@@ -67,7 +67,7 @@ fun FollowButton(
                 .togetherWith(fadeOut(tween(90)) + scaleOut(targetScale = 0.92f, animationSpec = tween(90)))
                 .using(SizeTransform(clip = false))
         },
-        label = "FollowButton"
+        label = "FollowButton",
     ) { following ->
         val onToggle = {
             toggleHaptic(!following)
@@ -81,8 +81,8 @@ fun FollowButton(
                 contentPadding = contentPadding,
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
             ) {
                 if (!compact) {
                     Icon(Icons.Default.Check, null, modifier = Modifier.size(iconSize))
@@ -90,7 +90,7 @@ fun FollowButton(
                 }
                 Text(
                     stringResource(R.string.people_action_following),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
         } else {
@@ -98,13 +98,13 @@ fun FollowButton(
                 onClick = onToggle,
                 modifier = buttonModifier,
                 shape = CircleShape,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
             ) {
                 Icon(Icons.Default.Add, null, modifier = Modifier.size(iconSize))
                 Spacer(Modifier.width(4.dp))
                 Text(
                     stringResource(R.string.people_action_follow),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
         }

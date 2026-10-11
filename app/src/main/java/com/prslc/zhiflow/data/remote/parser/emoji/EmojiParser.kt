@@ -43,39 +43,37 @@ object EmojiParser {
         }
     }.toList()
 
-    fun parse(text: String): AnnotatedString {
-        return buildAnnotatedString {
-            var lastIndex = 0
+    fun parse(text: String): AnnotatedString = buildAnnotatedString {
+        var lastIndex = 0
 
-            emojiRegex.findAll(text).forEach { match ->
-                append(text.substring(lastIndex, match.range.first))
+        emojiRegex.findAll(text).forEach { match ->
+            append(text.substring(lastIndex, match.range.first))
 
-                val tag = match.value
-                val fileName = EmojiMap.tagToFileName[tag]
+            val tag = match.value
+            val fileName = EmojiMap.tagToFileName[tag]
 
-                if (fileName != null) {
-                    val currentPosition = length
-                    val inlineId = AnnotatedStringBuilder.emojiInlineId(currentPosition)
+            if (fileName != null) {
+                val currentPosition = length
+                val inlineId = AnnotatedStringBuilder.emojiInlineId(currentPosition)
 
-                    appendInlineContent(inlineId, tag)
-                    addStringAnnotation(
-                        tag = AnnotatedStringBuilder.EMOJI_ID_TAG,
-                        annotation = inlineId,
-                        start = currentPosition,
-                        end = length,
-                    )
-                    addStringAnnotation(
-                        tag = AnnotatedStringBuilder.EMOJI_PATH_TAG,
-                        annotation = EmojiMap.getFullUrl(fileName),
-                        start = currentPosition,
-                        end = length,
-                    )
-                } else {
-                    append(tag)
-                }
-                lastIndex = match.range.last + 1
+                appendInlineContent(inlineId, tag)
+                addStringAnnotation(
+                    tag = AnnotatedStringBuilder.EMOJI_ID_TAG,
+                    annotation = inlineId,
+                    start = currentPosition,
+                    end = length,
+                )
+                addStringAnnotation(
+                    tag = AnnotatedStringBuilder.EMOJI_PATH_TAG,
+                    annotation = EmojiMap.getFullUrl(fileName),
+                    start = currentPosition,
+                    end = length,
+                )
+            } else {
+                append(tag)
             }
-            append(text.substring(lastIndex))
+            lastIndex = match.range.last + 1
         }
+        append(text.substring(lastIndex))
     }
 }

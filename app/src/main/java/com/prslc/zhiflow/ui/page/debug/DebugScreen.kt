@@ -41,7 +41,7 @@ import org.koin.androidx.compose.koinViewModel
 fun DebugScreen(
     onHandleUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DebugViewModel = koinViewModel()
+    viewModel: DebugViewModel = koinViewModel(),
 ) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
@@ -54,7 +54,7 @@ fun DebugScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
     ) {
         SegmentedColumn {
             item {
@@ -65,7 +65,7 @@ fun DebugScreen(
                     onClick = {
                         inputUrl = ""
                         showDialog = true
-                    }
+                    },
                 )
             }
             item {
@@ -76,7 +76,7 @@ fun DebugScreen(
                     onClick = {
                         inputUdid = viewModel.xUdid
                         showDeviceIdDialog = true
-                    }
+                    },
                 )
             }
             item {
@@ -95,7 +95,7 @@ fun DebugScreen(
                             },
                             Toast.LENGTH_SHORT,
                         ).show()
-                    }
+                    },
                 )
             }
             item {
@@ -114,7 +114,7 @@ fun DebugScreen(
                             },
                             Toast.LENGTH_SHORT,
                         ).show()
-                    }
+                    },
                 )
             }
             item {
@@ -122,7 +122,7 @@ fun DebugScreen(
                     title = stringResource(R.string.debug_item_http_log_title),
                     description = stringResource(R.string.debug_item_http_log_subtitle),
                     icon = Icons.Filled.BugReport,
-                    onClick = viewModel::toggleLogging
+                    onClick = viewModel::toggleLogging,
                 ) {
                     Switch(
                         checked = viewModel.loggingEnabled,
@@ -135,7 +135,7 @@ fun DebugScreen(
                     title = stringResource(R.string.debug_item_http_log_view_title),
                     description = stringResource(R.string.debug_item_http_log_view_subtitle),
                     icon = Icons.Filled.BugReport,
-                    onClick = { navigator.navigateToHttpLog() }
+                    onClick = { navigator.navigateToHttpLog() },
                 )
             }
             item {
@@ -143,7 +143,7 @@ fun DebugScreen(
                     title = stringResource(R.string.lab_item_title),
                     description = stringResource(R.string.lab_item_subtitle),
                     icon = Icons.Filled.BugReport,
-                    onClick = { navigator.navigateToRenderLab() }
+                    onClick = { navigator.navigateToRenderLab() },
                 )
             }
         }
@@ -159,7 +159,7 @@ fun DebugScreen(
                         value = inputUdid,
                         onValueChange = { inputUdid = it },
                         label = { Text(stringResource(R.string.debug_label_x_udid)) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             },
@@ -167,17 +167,17 @@ fun DebugScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(
-                        onClick = { inputUdid = viewModel.regenerateUdid() }
+                        onClick = { inputUdid = viewModel.regenerateUdid() },
                     ) {
                         Text(stringResource(R.string.debug_action_regenerate))
                     }
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         TextButton(onClick = { showDeviceIdDialog = false }) {
                             Text(stringResource(R.string.debug_action_cancel))
@@ -186,14 +186,14 @@ fun DebugScreen(
                             onClick = {
                                 viewModel.saveUdid(inputUdid.trim())
                                 showDeviceIdDialog = false
-                            }
+                            },
                         ) {
                             Text(stringResource(R.string.debug_action_save))
                         }
                     }
                 }
             },
-            dismissButton = null
+            dismissButton = null,
         )
     }
 
@@ -215,7 +215,7 @@ fun DebugScreen(
                         placeholder = { Text(stringResource(R.string.debug_placeholder_url)) },
                         singleLine = false,
                         maxLines = 3,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             },
@@ -226,7 +226,7 @@ fun DebugScreen(
                             onHandleUrl(inputUrl.trim())
                             showDialog = false
                         }
-                    }
+                    },
                 ) {
                     Text(stringResource(R.string.debug_action_go))
                 }
@@ -235,7 +235,7 @@ fun DebugScreen(
                 TextButton(onClick = { showDialog = false }) {
                     Text(stringResource(R.string.debug_action_cancel))
                 }
-            }
+            },
         )
     }
 }

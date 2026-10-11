@@ -26,7 +26,7 @@ sealed interface HistoryListItem {
 }
 
 class ReadHistoryViewModel(
-    private val repository: ReadHistoryRepository
+    private val repository: ReadHistoryRepository,
 ) : ViewModel() {
 
     @Immutable
@@ -128,7 +128,7 @@ class ReadHistoryViewModel(
                             questionTitle = segment.first().questionTitle,
                             questionToken = key,
                             icon = segment.first().contentTypeIcon,
-                        )
+                        ),
                     )
                 }
                 segment.forEach { result.add(HistoryListItem.Entry(it, isInGroup = inGroup)) }

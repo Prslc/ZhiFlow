@@ -235,11 +235,26 @@ private fun AnnotatedString.Builder.applyMarkStyle(
     end: Int,
 ) {
     when (mark.type) {
-        "bold" -> addStyle(TextStyles.boldStyle, start, end)
-        "italic" -> addStyle(TextStyles.italicStyle, start, end)
-        "strikethrough" -> addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, end)
-        "code" -> addStringAnnotation(AnnotatedStringBuilder.CODE_TAG, "", start, end)
-        "reference" -> addStringAnnotation(AnnotatedStringBuilder.REFERENCE_TAG, "", start, end)
+        "bold" -> {
+            addStyle(TextStyles.boldStyle, start, end)
+        }
+
+        "italic" -> {
+            addStyle(TextStyles.italicStyle, start, end)
+        }
+
+        "strikethrough" -> {
+            addStyle(SpanStyle(textDecoration = TextDecoration.LineThrough), start, end)
+        }
+
+        "code" -> {
+            addStringAnnotation(AnnotatedStringBuilder.CODE_TAG, "", start, end)
+        }
+
+        "reference" -> {
+            addStringAnnotation(AnnotatedStringBuilder.REFERENCE_TAG, "", start, end)
+        }
+
         "link" -> {
             val url = mark.link?.href ?: mark.entityWord?.url
             if (!url.isNullOrEmpty()) {

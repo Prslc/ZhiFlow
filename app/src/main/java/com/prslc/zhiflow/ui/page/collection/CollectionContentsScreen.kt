@@ -107,7 +107,7 @@ fun CollectionContentsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             if (isEmpty && isRefreshing) {
                 LoadingView(modifier = Modifier.fillMaxSize())
@@ -130,7 +130,7 @@ fun CollectionContentsScreen(
                             isRefreshing = isRefreshing,
                             modifier = Modifier.align(Alignment.TopCenter),
                         )
-                    }
+                    },
                 ) {
                     LazyColumn(
                         state = viewModel.listState,

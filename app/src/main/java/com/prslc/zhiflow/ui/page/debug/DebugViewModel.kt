@@ -38,7 +38,7 @@ class DebugViewModel(
         val session = credentialStore.read()
         if (session.isGuest || !session.hasToken) return false
         credentialStore.save(
-            session.copy(accessToken = BROKEN_TOKEN, refreshToken = BROKEN_TOKEN)
+            session.copy(accessToken = BROKEN_TOKEN, refreshToken = BROKEN_TOKEN),
         )
         return true
     }

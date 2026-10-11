@@ -71,7 +71,6 @@ fun PinDetailScreen(
     // author's own text — a 152dp expanded bar costs a quarter of the screen for it.
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-
     LaunchedEffect(presentation.showComments) {
         if (presentation.showComments && commentState.comments.isEmpty()) {
             commentViewModel.loadComments(id, com.prslc.zhiflow.data.model.content.ContentType.PIN)
@@ -91,7 +90,7 @@ fun PinDetailScreen(
     val pinTitle = currentContent?.header?.text.orEmpty()
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -142,7 +141,7 @@ fun PinDetailScreen(
                             onCommentClick = onCommentClick,
                         )
                     }
-                }
+                },
             ) { padding ->
                 when {
                     currentContent == null && loadingState.error == null -> {
@@ -185,7 +184,7 @@ fun PinDetailScreen(
                     onResult = { isFavedNow ->
                         viewModel.setFaved(isFavedNow)
                         viewModel.dismissCollection()
-                    }
+                    },
                 )
             }
 
@@ -202,7 +201,6 @@ fun PinDetailScreen(
                         CommentUiEvent.DismissSheet -> commentViewModel.onSheetDismissed()
                         CommentUiEvent.BackToMain -> commentViewModel.backToMain()
                         CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
-
                         is CommentUiEvent.LoadRootComments -> commentViewModel.loadComments(event.id, event.contentType)
                         is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
                         is CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
@@ -210,7 +208,7 @@ fun PinDetailScreen(
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                     }
-                }
+                },
             )
         }
     }

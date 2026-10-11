@@ -89,7 +89,6 @@ fun PeopleScreen(
     val topBarHeightPx = with(density) { TOP_BAR_HEIGHT.toPx() }
     scrollState.totalTopHeightPx = statusBarHeightPx + topBarHeightPx
 
-
     // White status bar icons while the cover image is behind the status bar; once the opaque top
     // bar is underneath they follow the theme, that bar being the theme's own surface.
     StatusBarIconEffect(
@@ -113,7 +112,7 @@ fun PeopleScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding())
-                .nestedScroll(scrollState.nestedScrollConnection)
+                .nestedScroll(scrollState.nestedScrollConnection),
         ) {
             AnimatedContent(
                 targetState = uiState.user,
@@ -152,7 +151,7 @@ fun PeopleScreen(
 
                                 HorizontalPager(
                                     state = pagerState,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
                                 ) { page ->
                                     when (page) {
                                         0 -> PeoplePostsTab(urlToken = urlToken)
@@ -168,7 +167,7 @@ fun PeopleScreen(
                             val topBarSurface = MaterialTheme.colorScheme.surface
                             Surface(
                                 color = Color.Transparent,
-                                shadowElevation = if (scrollState.isTopBarOpaque && !scrollState.tabsPinned) 2.dp else 0.dp
+                                shadowElevation = if (scrollState.isTopBarOpaque && !scrollState.tabsPinned) 2.dp else 0.dp,
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -181,13 +180,13 @@ fun PeopleScreen(
                                         }
                                         .statusBarsPadding()
                                         .height(TOP_BAR_HEIGHT)
-                                        .padding(horizontal = TOP_BAR_SIDE_PADDING)
+                                        .padding(horizontal = TOP_BAR_SIDE_PADDING),
                                 ) {
                                     IconButton(
                                         onClick = onBack,
                                         modifier = Modifier
                                             .align(Alignment.CenterStart)
-                                            .iconScrim { 0.55f * (1f - scrollState.topBarAlpha) }
+                                            .iconScrim { 0.55f * (1f - scrollState.topBarAlpha) },
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -209,7 +208,7 @@ fun PeopleScreen(
                                         onClick = { /* More */ },
                                         modifier = Modifier
                                             .align(Alignment.CenterEnd)
-                                            .iconScrim { 0.55f * (1f - scrollState.topBarAlpha) }
+                                            .iconScrim { 0.55f * (1f - scrollState.topBarAlpha) },
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
@@ -232,7 +231,7 @@ fun PeopleScreen(
                                 onClick = onBack,
                                 modifier = Modifier
                                     .statusBarsPadding()
-                                    .padding(8.dp)
+                                    .padding(8.dp),
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -244,7 +243,9 @@ fun PeopleScreen(
                         // Empty, and it has to stay sized: this is also the copy that fades out
                         // under the loaded one, so it cannot collapse. Nothing is drawn while it
                         // loads.
-                        else -> Box(Modifier.fillMaxSize())
+                        else -> {
+                            Box(Modifier.fillMaxSize())
+                        }
                     }
                 }
             }

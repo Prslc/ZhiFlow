@@ -21,13 +21,13 @@ import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 fun AnswerItem(
     display: AnswerDto,
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(display.id) }
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
         AuthorRow(
             avatarUrl = display.authorAvatar,
@@ -40,7 +40,7 @@ fun AnswerItem(
             text = display.excerpt,
             style = MaterialTheme.typography.bodyMedium.copy(
                 lineHeight = 22.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
             ),
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,

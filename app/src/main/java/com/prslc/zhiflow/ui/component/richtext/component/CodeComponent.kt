@@ -55,7 +55,7 @@ fun CodeBlock(
     code: String,
     lang: String?,
     tokens: List<CodeToken>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val copyText = rememberCopyTextToClipboard()
     val scrollState = rememberScrollState()
@@ -79,10 +79,10 @@ fun CodeBlock(
     DisableSelection {
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             ),
             shape = RoundedCornerShape(8.dp),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth(),
         ) {
             Column {
                 Row(
@@ -90,18 +90,18 @@ fun CodeBlock(
                         .fillMaxWidth()
                         .padding(start = 12.dp, end = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = lang?.uppercase() ?: "CODE",
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                        )
+                        ),
                     )
 
                     IconButton(
-                        onClick = { copyText(code) }
+                        onClick = { copyText(code) },
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
@@ -123,7 +123,7 @@ fun CodeBlock(
                         modifier = Modifier.padding(12.dp),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontFamily = FontFamily.Monospace,
-                            lineHeight = 20.sp
+                            lineHeight = 20.sp,
                         ),
                         softWrap = false,
                     )

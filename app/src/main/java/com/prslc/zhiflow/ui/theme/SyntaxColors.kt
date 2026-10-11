@@ -28,14 +28,20 @@ object SyntaxColors {
      */
     fun of(kind: CodeTokenKind, isDark: Boolean): Color = when (kind) {
         CodeTokenKind.Keyword -> if (isDark) Color(0xFFC678DD) else Color(0xFFA626A4)
+
         CodeTokenKind.String -> if (isDark) Color(0xFF98C379) else Color(0xFF2B7230)
+
         CodeTokenKind.Literal -> if (isDark) Color(0xFFD19A66) else Color(0xFF8A5A00)
+
         CodeTokenKind.Annotation -> if (isDark) Color(0xFFE5C07B) else Color(0xFF8A6100)
+
         // One grey for both: a comment reads as a comment however it was opened.
         CodeTokenKind.Comment,
-        CodeTokenKind.MultilineComment -> if (isDark) Color(0xFF8B949E) else Color(0xFF5F646C)
+        CodeTokenKind.MultilineComment,
+        -> if (isDark) Color(0xFF8B949E) else Color(0xFF5F646C)
 
         CodeTokenKind.Mark,
-        CodeTokenKind.Punctuation -> Color.Unspecified
+        CodeTokenKind.Punctuation,
+        -> Color.Unspecified
     }
 }

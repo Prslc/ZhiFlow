@@ -37,15 +37,17 @@ object QuestionParser {
                 val w = it.groupValues[2].toIntOrNull() ?: 0
                 val h = it.groupValues[3].toIntOrNull() ?: 0
 
-                elements.add(DetailElement.Image(
-                    ZhihuImage(
-                        urls = listOf(url),
-                        width = w,
-                        height = h,
-                        description = caption,
-                        isGif = url.lowercase().contains(".gif"),
-                    )
-                ))
+                elements.add(
+                    DetailElement.Image(
+                        ZhihuImage(
+                            urls = listOf(url),
+                            width = w,
+                            height = h,
+                            description = caption,
+                            isGif = url.lowercase().contains(".gif"),
+                        ),
+                    ),
+                )
             }
             lastIndex = match.range.last + 1
         }

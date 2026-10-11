@@ -61,7 +61,7 @@ class ActionService(private val api: ApiClient) {
                     start = SegmentOffset(target.rawStart, target.paragraphId.orEmpty()),
                     end = SegmentOffset(target.rawEnd, target.paragraphId.orEmpty()),
                 ),
-            )
+            ),
         ).toRequestBody(jsonMediaType)
 
         Request.Builder()
@@ -103,7 +103,7 @@ class ActionService(private val api: ApiClient) {
         id: String,
         contentType: ContentType,
         action: String,
-        method: String = "POST"
+        method: String = "POST",
     ): Result<Unit> = api.safeExecute {
         val emptyBody = "".toRequestBody(null)
 

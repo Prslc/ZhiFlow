@@ -108,7 +108,7 @@ class SessionManager(
     private fun backOff() {
         val session = credentialStore.read()
         credentialStore.save(
-            session.copy(nextRefreshAt = System.currentTimeMillis() + REFRESH_RETRY_DELAY_MS)
+            session.copy(nextRefreshAt = System.currentTimeMillis() + REFRESH_RETRY_DELAY_MS),
         )
     }
 

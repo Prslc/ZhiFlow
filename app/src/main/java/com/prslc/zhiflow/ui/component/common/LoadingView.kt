@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoadingView(
     modifier: Modifier = Modifier,
-    message: String? = null
+    message: String? = null,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         LoadingIndicator(
             color = MaterialTheme.colorScheme.primary,

@@ -146,7 +146,7 @@ object ImageHelper {
     private fun saveFileToMediaStore(
         context: Context,
         sourceFile: File,
-        url: String
+        url: String,
     ): Result<Unit> {
         val extension = if (url.contains(".gif", ignoreCase = true)) "gif" else "jpg"
         val mimeType = if (extension == "gif") "image/gif" else "image/jpeg"
@@ -157,7 +157,7 @@ object ImageHelper {
             put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
             put(
                 MediaStore.MediaColumns.RELATIVE_PATH,
-                Environment.DIRECTORY_PICTURES + "/ZhiFlow"
+                Environment.DIRECTORY_PICTURES + "/ZhiFlow",
             )
             put(MediaStore.MediaColumns.IS_PENDING, 1)
         }

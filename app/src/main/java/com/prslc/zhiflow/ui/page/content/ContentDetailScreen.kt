@@ -70,7 +70,7 @@ fun ContentDetailScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ContentViewModel = koinViewModel(),
-    commentViewModel: CommentViewModel = koinViewModel()
+    commentViewModel: CommentViewModel = koinViewModel(),
 ) {
     val uiState = commentViewModel.uiState
     val childUiState = commentViewModel.childUiState
@@ -89,7 +89,6 @@ fun ContentDetailScreen(
     )
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
 
     LaunchedEffect(presentation.showComments) {
         if (presentation.showComments && commentState.comments.isEmpty()) {
@@ -141,7 +140,7 @@ fun ContentDetailScreen(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -176,7 +175,7 @@ fun ContentDetailScreen(
                             onCommentClick = onCommentClick,
                         )
                     }
-                }
+                },
             ) { padding ->
                 when {
                     currentContent == null && loadingState.error == null -> {
@@ -221,7 +220,7 @@ fun ContentDetailScreen(
                     onResult = { isFavedNow ->
                         viewModel.setFaved(isFavedNow)
                         viewModel.dismissCollection()
-                    }
+                    },
                 )
             }
 
@@ -233,13 +232,11 @@ fun ContentDetailScreen(
                 showComments = presentation.showComments,
                 // Hides the sheet only: the sheet clears the comment state itself once it is gone.
                 onDismissRequest = { viewModel.dismissComments() },
-
                 onEvent = { event ->
                     when (event) {
                         CommentUiEvent.DismissSheet -> commentViewModel.onSheetDismissed()
                         CommentUiEvent.BackToMain -> commentViewModel.backToMain()
                         CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
-
                         is CommentUiEvent.LoadRootComments -> commentViewModel.loadComments(event.id, event.contentType)
                         is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
                         is CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
@@ -247,7 +244,7 @@ fun ContentDetailScreen(
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                     }
-                }
+                },
             )
 
             SegmentPanelSheet(
@@ -279,15 +276,20 @@ fun ContentDetailScreen(
                 onEvent = { event ->
                     when (event) {
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
+
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
+
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(
                             event.rootComment,
-                            forceRefresh = true
+                            forceRefresh = true,
                         )
 
                         CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
+
                         CommentUiEvent.BackToMain -> commentViewModel.backToMain()
+
                         CommentUiEvent.ActionErrorShown -> commentViewModel.onActionErrorShown()
+
                         else -> Unit
                     }
                 },
@@ -321,7 +323,7 @@ private fun ContentDetailTopBar(
     showOutlineAction: Boolean,
     onOutlineClick: () -> Unit,
     onBack: () -> Unit,
-    navigator: Navigator
+    navigator: Navigator,
 ) {
     LargeTopAppBar(
         title = {
@@ -346,11 +348,13 @@ private fun ContentDetailTopBar(
                                     currentContent.question?.id?.let { qId ->
                                         navigator.navigateToContent(qId, "question")
                                     }
-                                }
+                                },
                             )
-                        } else Modifier
+                        } else {
+                            Modifier
+                        },
                     )
-                    .padding(end = 10.dp)
+                    .padding(end = 10.dp),
             ) {
                 Text(
                     text = titleText,
@@ -388,7 +392,7 @@ private fun ContentDetailTopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-        )
+        ),
     )
 }
 

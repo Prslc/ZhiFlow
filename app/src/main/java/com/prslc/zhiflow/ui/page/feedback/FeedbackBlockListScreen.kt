@@ -250,21 +250,28 @@ private fun SectionTitle(text: String) {
 @ReadOnlyComposable
 private fun keywordHint(state: FeedbackBlockListViewModel.BlockUiState): String =
     when (state.keywordIssue) {
-        KeywordIssue.TOO_SHORT ->
+        KeywordIssue.TOO_SHORT -> {
             pluralStringResource(R.plurals.feedback_block_keyword_too_short, state.minLength, state.minLength)
+        }
 
-        KeywordIssue.TOO_LONG ->
+        KeywordIssue.TOO_LONG -> {
             pluralStringResource(R.plurals.feedback_block_keyword_too_long, state.maxLength, state.maxLength)
+        }
 
-        KeywordIssue.MAX_COUNT ->
+        KeywordIssue.MAX_COUNT -> {
             pluralStringResource(R.plurals.feedback_block_keyword_max_count, state.maxCount, state.maxCount)
+        }
 
-        KeywordIssue.DUPLICATE -> stringResource(R.string.feedback_block_keyword_duplicate)
+        KeywordIssue.DUPLICATE -> {
+            stringResource(R.string.feedback_block_keyword_duplicate)
+        }
 
-        null -> stringResource(
-            R.string.feedback_block_keyword_rule,
-            state.minLength,
-            state.maxLength,
-            state.maxCount,
-        )
+        null -> {
+            stringResource(
+                R.string.feedback_block_keyword_rule,
+                state.minLength,
+                state.maxLength,
+                state.maxCount,
+            )
+        }
     }

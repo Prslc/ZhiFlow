@@ -247,8 +247,11 @@ private fun SegmentActionRow(
             } else {
                 stringResource(R.string.segment_action_like)
             },
-            tint = if (isLiked) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (isLiked) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
             onClick = onLike,
         )
         SegmentAction(

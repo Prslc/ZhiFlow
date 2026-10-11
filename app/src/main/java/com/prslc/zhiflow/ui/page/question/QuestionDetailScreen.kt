@@ -102,12 +102,12 @@ fun QuestionDetailScreen(
                 scrollBehavior = scrollBehavior,
                 onBack = onBack,
             )
-        }
+        },
     ) { padding ->
         Box(
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             when {
                 uiState.isLoading && uiState.question == null -> {
@@ -147,7 +147,7 @@ private fun QuestionContentList(
     isExpanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
     onEvent: (QuestionUiEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val navigator = LocalNavigator.current
     val lightbox = koinInject<ImageLightboxController>()
@@ -182,7 +182,7 @@ private fun QuestionContentList(
     LazyColumn(
         state = lazyListState,
         modifier = modifier,
-        contentPadding = PaddingValues(bottom = 32.dp)
+        contentPadding = PaddingValues(bottom = 32.dp),
     ) {
         item(key = "element_header") {
             state.elements.firstOrNull()?.let { first ->
@@ -194,7 +194,7 @@ private fun QuestionContentList(
                     onUrlClick = { url -> navigator.handleUrl(url) },
                     modifier = Modifier
                         .padding(horizontal = 20.dp, vertical = 8.dp)
-                        .animateContentSize()
+                        .animateContentSize(),
                 )
             }
         }
@@ -203,7 +203,7 @@ private fun QuestionContentList(
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
+                exit = shrinkVertically() + fadeOut(),
             ) {
                 Column {
                     for (index in 1 until state.elements.size) {
@@ -260,13 +260,13 @@ private fun QuestionContentList(
         // question list
         itemsIndexed(
             items = state.answers,
-            key = { _, item -> item.id }
+            key = { _, item -> item.id },
         ) { _, display ->
             AnswerItem(
                 display = display,
                 onClick = { answerId ->
                     navigator.navigateToContent(answerId, "answer")
-                }
+                },
             )
             AnswerDivider()
         }
@@ -287,7 +287,7 @@ private fun QuestionElement(
     onOverflow: (Boolean) -> Unit,
     onImageClick: (ZhihuImage) -> Unit,
     onUrlClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var localLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -314,18 +314,20 @@ private fun QuestionElement(
                                     element.content.getStringAnnotations(
                                         tag = AnnotatedStringBuilder.URL_TAG,
                                         start = position,
-                                        end = position
+                                        end = position,
                                     ).firstOrNull()?.let { annotation ->
                                         onUrlClick(annotation.item)
                                     }
                                 }
                             }
-                        }
+                        },
                     )
                 }
             }
 
-            is DetailElement.Image -> ImageComponent(element.image, onImageClick)
+            is DetailElement.Image -> {
+                ImageComponent(element.image, onImageClick)
+            }
         }
     }
 }
@@ -333,19 +335,19 @@ private fun QuestionElement(
 @Composable
 private fun TopicRow(
     topics: List<Topic>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         items(topics, key = { it.id }) { topic ->
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier.clickable { /* TODO: Topic Detail */ }
+                modifier = Modifier.clickable { /* TODO: Topic Detail */ },
             ) {
                 Text(
                     text = topic.name,
@@ -362,7 +364,7 @@ private fun TopicRow(
 private fun ExpandToggleButton(
     isExpanded: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -373,7 +375,7 @@ private fun ExpandToggleButton(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 4.dp),
-        contentAlignment = Alignment.CenterStart
+        contentAlignment = Alignment.CenterStart,
     ) {
         Row(
             modifier = Modifier
@@ -381,7 +383,7 @@ private fun ExpandToggleButton(
                 .clickable { onClick() }
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = if (isExpanded) {
@@ -400,7 +402,7 @@ private fun ExpandToggleButton(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(20.dp)
-                    .rotate(rotation)
+                    .rotate(rotation),
             )
         }
     }
@@ -411,7 +413,7 @@ private fun QuestionTopBar(
     state: QuestionViewModel.QuestionUiState,
     scrollBehavior: TopAppBarScrollBehavior,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LargeTopAppBar(
         modifier = modifier,
@@ -440,20 +442,20 @@ private fun QuestionTopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-        )
+        ),
     )
 }
 
 @Composable
 fun QuestionStatsSection(
     question: QuestionDetail,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
         Text(
             text = pluralStringResource(R.plurals.question_stats_answers, question.answerCount, question.answerCount),

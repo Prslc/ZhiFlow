@@ -108,8 +108,8 @@ fun CommentPaneTransition(
             delay(STALL_CHECK_MS)
             val fraction = detailState.fraction
             val stalled = fraction == lastFraction &&
-                    !isGesturing &&
-                    !detailState.isAt(detailIntent)
+                !isGesturing &&
+                !detailState.isAt(detailIntent)
             lastFraction = fraction
             if (!stalled) continue
             try {
@@ -153,7 +153,7 @@ fun CommentPaneTransition(
             // takes the full width while the one behind it drifts a fifth.
             if (targetState) {
                 slideInHorizontally(PANE_MOVE) { it } togetherWith
-                        slideOutHorizontally(PANE_MOVE) { -it / 5 }
+                    slideOutHorizontally(PANE_MOVE) { -it / 5 }
             } else {
                 // The arriving pane is the one that was behind, so the leaving one stays on top: at
                 // the default order the parent would be drawn over the pane it is revealing.
@@ -163,7 +163,7 @@ fun CommentPaneTransition(
                     targetContentZIndex = -1f,
                 )
             }
-        }
+        },
     ) { showDetail ->
         // Each pane paints the surface: the two are stacked in one box and neither fills itself, so
         // the pane behind would show through the one drawn on top of it.

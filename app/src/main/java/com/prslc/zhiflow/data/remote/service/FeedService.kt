@@ -28,7 +28,7 @@ class FeedService(private val api: ApiClient) {
      */
     suspend fun getRecommendFeed(
         isColdStart: Boolean = false,
-        nextUrl: String? = null
+        nextUrl: String? = null,
     ): Result<ZhihuResponse> = api.safeApiCall {
         val urlBuilder = (nextUrl ?: "${BASE_URL}/topstory/recommend").toHttpUrl().newBuilder()
 

@@ -21,7 +21,7 @@ class CommentRepository(private val service: CommentService) {
     suspend fun getRootComments(
         id: String,
         type: ContentType,
-        offset: String = ""
+        offset: String = "",
     ): Result<CommentResponse> = service.getRootComments(id, type, offset = offset)
 
     /**
@@ -35,7 +35,7 @@ class CommentRepository(private val service: CommentService) {
         id: String,
         type: ContentType,
         segmentId: String,
-        offset: String = ""
+        offset: String = "",
     ): Result<CommentResponse> = service.getSegmentComments(id, type, segmentId, offset)
 
     /**
@@ -47,7 +47,7 @@ class CommentRepository(private val service: CommentService) {
      */
     suspend fun getChildComments(
         rootCommentId: String,
-        offset: String = ""
+        offset: String = "",
     ): Result<CommentResponse> = service.getChildComments(rootCommentId, offset)
 
     /**

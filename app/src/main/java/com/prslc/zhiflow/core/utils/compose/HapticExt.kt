@@ -17,7 +17,7 @@ internal fun rememberToggleHaptic(): (active: Boolean) -> Unit {
     return remember(haptic) {
         { active ->
             haptic.performHapticFeedback(
-                if (active) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff
+                if (active) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff,
             )
         }
     }

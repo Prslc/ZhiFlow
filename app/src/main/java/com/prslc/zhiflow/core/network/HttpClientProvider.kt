@@ -87,7 +87,7 @@ class HttpClientProvider(
                     .header("User-Agent", HeaderProvider.UA)
                     .header("x-app-version", HeaderProvider.APP_VERSION)
                     .header("x-app-za", HeaderProvider.xAppZa)
-                    .build()
+                    .build(),
             )
         }
         .build()

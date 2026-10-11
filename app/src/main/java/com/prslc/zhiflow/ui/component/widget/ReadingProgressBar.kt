@@ -34,6 +34,6 @@ fun ReadingProgressBar(
                     color = color,
                     size = Size(size.width * progress().coerceIn(0f, 1f), size.height),
                 )
-            }
+            },
     )
 }

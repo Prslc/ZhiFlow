@@ -27,7 +27,7 @@ class ContentService(private val api: ApiClient) {
      */
     private suspend inline fun <reified T : ZhihuContent> fetchContent(
         path: String,
-        id: String
+        id: String,
     ): Result<T> = api.safeApiCall {
         Request.Builder()
             .apiUrl("/$path/v2/$id")

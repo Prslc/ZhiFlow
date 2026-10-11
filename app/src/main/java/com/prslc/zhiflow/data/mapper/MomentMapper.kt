@@ -73,26 +73,45 @@ internal fun MomentsFeedItem.toDto(): MomentDto {
     }
 
     val title = when (momentType) {
-        MomentContentType.USER -> target?.name
-        MomentContentType.ANSWER -> target?.question?.title
-            ?: bem?.parentContentData?.contentInfo?.detail?.title
-        MomentContentType.ARTICLE -> target?.title
-            ?: bem?.contentInfo?.detail?.title
-        MomentContentType.THOUGHT -> target?.excerptTitle
-            ?: bem?.contentInfo?.detail?.title
-        else -> target?.question?.title
-            ?: target?.excerptTitle
-            ?: target?.title
-            ?: target?.name
-            ?: bem?.parentContentData?.contentInfo?.detail?.title
-            ?: bem?.contentInfo?.detail?.title
+        MomentContentType.USER -> {
+            target?.name
+        }
+
+        MomentContentType.ANSWER -> {
+            target?.question?.title
+                ?: bem?.parentContentData?.contentInfo?.detail?.title
+        }
+
+        MomentContentType.ARTICLE -> {
+            target?.title
+                ?: bem?.contentInfo?.detail?.title
+        }
+
+        MomentContentType.THOUGHT -> {
+            target?.excerptTitle
+                ?: bem?.contentInfo?.detail?.title
+        }
+
+        else -> {
+            target?.question?.title
+                ?: target?.excerptTitle
+                ?: target?.title
+                ?: target?.name
+                ?: bem?.parentContentData?.contentInfo?.detail?.title
+                ?: bem?.contentInfo?.detail?.title
+        }
     } ?: ""
 
     val plainContent = when (momentType) {
-        MomentContentType.USER -> target?.headline
-        else -> target?.excerpt
-            ?: target?.content?.firstOrNull { it.type == "text" }?.ownText
-            ?: bem?.contentInfo?.detail?.plainContent
+        MomentContentType.USER -> {
+            target?.headline
+        }
+
+        else -> {
+            target?.excerpt
+                ?: target?.content?.firstOrNull { it.type == "text" }?.ownText
+                ?: bem?.contentInfo?.detail?.plainContent
+        }
     } ?: ""
 
     val authorName = source?.actor?.name
@@ -157,5 +176,3 @@ internal fun MomentsFeedItem.toDto(): MomentDto {
         isTopping = isTopping,
     )
 }
-
-

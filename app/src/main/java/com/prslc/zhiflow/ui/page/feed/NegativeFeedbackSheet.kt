@@ -115,7 +115,10 @@ fun NegativeFeedbackSheet(
                         authorName = state.authorName,
                         onClick = {
                             when (action) {
-                                is FeedbackAction.Request -> onSubmit(action)
+                                is FeedbackAction.Request -> {
+                                    onSubmit(action)
+                                }
+
                                 is FeedbackAction.OpenUrl -> {
                                     onDismissRequest()
                                     onOpenUrl(action.url)

@@ -15,7 +15,7 @@ fun ContentDetailBottomBar(
     upvoteCount: Int?,
     onVoteClick: (String) -> Unit,
     onStarClick: () -> Unit,
-    onCommentClick: () -> Unit
+    onCommentClick: () -> Unit,
 ) {
     AnimatedVisibility(
         visible = isVisible,

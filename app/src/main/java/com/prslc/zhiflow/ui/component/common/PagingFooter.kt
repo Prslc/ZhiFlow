@@ -28,7 +28,7 @@ internal fun LazyListScope.pagingFooter(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 LoadingView(modifier = Modifier.size(24.dp))
             }
@@ -48,7 +48,7 @@ internal fun LazyListScope.pagingFooter(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = endText,

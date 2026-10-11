@@ -4,9 +4,7 @@ object EmojiMap {
     private const val SCHEME = "file:///android_asset/"
     const val ASSET_PREFIX = "emoji/default/"
 
-    fun getFullUrl(fileName: String): String {
-        return "$SCHEME$ASSET_PREFIX$fileName"
-    }
+    fun getFullUrl(fileName: String): String = "$SCHEME$ASSET_PREFIX$fileName"
 
     val tagToFileName = mapOf(
         "[谢邀]" to "emoji_1.webp",
@@ -66,6 +64,6 @@ object EmojiMap {
         "[匿了]" to "emoji_55.webp",
         "[感谢]" to "emoji_56.webp",
         "[哇]" to "emoji_57.webp",
-        "[打招呼]" to "emoji_58.webp"
+        "[打招呼]" to "emoji_58.webp",
     )
 }

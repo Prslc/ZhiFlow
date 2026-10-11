@@ -176,7 +176,9 @@ private fun agePlurals(unit: ContentAgeUnit): Int = when (unit) {
 @ReadOnlyComposable
 private fun stampText(stamp: ContentStamp): String = when (stamp) {
     is ContentStamp.At -> formatDateTime(stamp.value)
+
     is ContentStamp.JustNow -> stringResource(R.string.content_age_just_now)
+
     is ContentStamp.Ago -> pluralStringResource(
         agePlurals(stamp.unit),
         stamp.count,
@@ -254,14 +256,14 @@ fun ContentBodyList(
             modifier = Modifier
                 .fillMaxSize()
                 .topPadding(topPadding),
-            contentPadding = PaddingValues(bottom = 80.dp)
+            contentPadding = PaddingValues(bottom = 80.dp),
         ) {
             item {
                 DisableSelection {
                     AuthorSection(
                         author = content.author,
                         navigator = navigator,
-                        onFollowClick = onFollowClick
+                        onFollowClick = onFollowClick,
                     )
                     if (showAuthorDivider) {
                         HorizontalDivider(
@@ -282,10 +284,10 @@ fun ContentBodyList(
                         else -> "content_${element::class.simpleName}_$index"
                     }
                 },
-                contentType = { _, element -> element::class.simpleName }
+                contentType = { _, element -> element::class.simpleName },
             ) { _, element ->
                 Box(
-                    modifier = Modifier.padding(bodyElementPadding(element))
+                    modifier = Modifier.padding(bodyElementPadding(element)),
                 ) {
                     RichTextSingleElement(
                         element = element,
@@ -307,14 +309,24 @@ fun ContentBodyList(
                         val updated = contentEnd.updated
                         val created = contentEnd.created
                         val timeDisplay = when {
-                            updated != null ->
+                            updated != null -> {
                                 stringResource(R.string.content_edited_on, stampText(updated))
-                            created != null -> stampText(created)
-                            !contentEnd.updateTime.isNullOrBlank() -> stringResource(
-                                R.string.content_edited_on,
-                                contentEnd.updateTime,
-                            )
-                            else -> contentEnd.createTime?.takeIf { it.isNotBlank() }
+                            }
+
+                            created != null -> {
+                                stampText(created)
+                            }
+
+                            !contentEnd.updateTime.isNullOrBlank() -> {
+                                stringResource(
+                                    R.string.content_edited_on,
+                                    contentEnd.updateTime,
+                                )
+                            }
+
+                            else -> {
+                                contentEnd.createTime?.takeIf { it.isNotBlank() }
+                            }
                         }
 
                         if (!timeDisplay.isNullOrBlank()) {
@@ -323,12 +335,12 @@ fun ContentBodyList(
                                     stringResource(
                                         R.string.content_published_with_ip,
                                         contentEnd.ipInfo,
-                                        timeDisplay
+                                        timeDisplay,
                                     )
                                 } else {
                                     stringResource(
                                         R.string.content_published_no_ip,
-                                        timeDisplay
+                                        timeDisplay,
                                     )
                                 }
 
@@ -401,7 +413,7 @@ private fun AuthorSection(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .padding(20.dp)
+            .padding(20.dp),
     ) {
         AsyncImage(
             model = author.avatar?.avatarImage?.day,
@@ -409,7 +421,7 @@ private fun AuthorSection(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .clickable { navigator.navigateToPeople(author.urlToken) }
+                .clickable { navigator.navigateToPeople(author.urlToken) },
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
@@ -432,7 +444,7 @@ private fun AuthorSection(
         FollowButton(
             isFollowing = author.followStatus == "following",
             onClick = onFollowClick,
-            compact = true
+            compact = true,
         )
     }
 }

@@ -64,11 +64,14 @@ data class ContentTypeConfig(
 @Composable
 @ReadOnlyComposable
 fun contentTypeConfig(type: String?): ContentTypeConfig = when (type?.lowercase()) {
-    "answer" -> ContentTypeConfig(
-        labelResId = R.string.type_answer,
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.primary,
-    )
+    "answer" -> {
+        ContentTypeConfig(
+            labelResId = R.string.type_answer,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.primary,
+        )
+    }
+
     "article" -> {
         val scheme = MaterialTheme.colorScheme
         val content = scheme.primary.shiftHue(120f)
@@ -79,6 +82,7 @@ fun contentTypeConfig(type: String?): ContentTypeConfig = when (type?.lowercase(
             contentColor = content,
         )
     }
+
     "pin" -> {
         val scheme = MaterialTheme.colorScheme
         val content = scheme.primary.shiftHue(240f)
@@ -89,11 +93,14 @@ fun contentTypeConfig(type: String?): ContentTypeConfig = when (type?.lowercase(
             contentColor = content,
         )
     }
-    else -> ContentTypeConfig(
-        labelResId = R.string.type_unknown,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+
+    else -> {
+        ContentTypeConfig(
+            labelResId = R.string.type_unknown,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 private fun Color.shiftHue(degrees: Float): Color {

@@ -12,7 +12,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 @Stable
 class PeopleTabBarState(
     private val onOffsetChanged: (Float) -> Unit,
-    private val getOffset: () -> Float
+    private val getOffset: () -> Float,
 ) {
     var headerHeightPx by mutableFloatStateOf(0f)
     var totalTopHeightPx by mutableFloatStateOf(0f)
@@ -70,7 +70,7 @@ class PeopleTabBarState(
         override fun onPostScroll(
             consumed: Offset,
             available: Offset,
-            source: NestedScrollSource
+            source: NestedScrollSource,
         ): Offset {
             val delta = available.y
             val currentOffset = getOffset()

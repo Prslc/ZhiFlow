@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 class PinViewModel(
     private val repository: ContentRepository,
     private val actionRepository: ActionRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     companion object {
@@ -83,7 +83,6 @@ class PinViewModel(
     /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
     var isBodyComplete by mutableStateOf(false)
         private set
-
 
     private var loadJob: Job? = null
     private var parseJob: Job? = null
@@ -158,7 +157,7 @@ class PinViewModel(
                 id = contentId,
                 type = ContentType.PIN,
                 action = targetAction,
-                isRevoke = isActive
+                isRevoke = isActive,
             ).onApiFailure { error ->
                 interactionState = was
                 actionError = error
@@ -205,7 +204,7 @@ class PinViewModel(
         viewModelScope.launch {
             withContext(NonCancellable) {
                 actionRepository.syncHistory(
-                    ReadHistoryRequest(contentToken, ContentType.PIN.type, percent)
+                    ReadHistoryRequest(contentToken, ContentType.PIN.type, percent),
                 ).ignoreOutcome()
             }
         }
@@ -233,8 +232,8 @@ class PinViewModel(
                                     height = pinImage.height,
                                     description = "",
                                     isGif = false,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
                 }
@@ -285,8 +284,11 @@ class PinViewModel(
         loadingState = loadingState.copy(content = content.copy(author = author.copy(followStatus = target)))
 
         followJob = viewModelScope.launch {
-            val result = if (following) userRepository.unfollowUser(author.id)
-            else userRepository.followUser(author.id)
+            val result = if (following) {
+                userRepository.unfollowUser(author.id)
+            } else {
+                userRepository.followUser(author.id)
+            }
             result.onApiFailure { error ->
                 rollback(following)
                 actionError = error

@@ -60,7 +60,7 @@ fun Divider(modifier: Modifier = Modifier) {
 @Composable
 fun Heading(
     element: RichTextElement.Heading,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ZRichText(
         content = element.content,
@@ -93,13 +93,13 @@ fun BlockquoteComponent(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .height(IntrinsicSize.Min)
+            .height(IntrinsicSize.Min),
     ) {
         Canvas(
             modifier = Modifier
                 .width(4.dp)
                 .fillMaxHeight()
-                .padding(vertical = 2.dp)
+                .padding(vertical = 2.dp),
         ) {
             drawRoundRect(
                 color = Color.LightGray.copy(alpha = 0.6f),
@@ -112,7 +112,7 @@ fun BlockquoteComponent(
             inlineMetas = element.inlineMetas,
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                lineHeight = 24.sp
+                lineHeight = 24.sp,
             ),
             modifier = Modifier.padding(start = 12.dp),
             segmentLikes = segmentLikes,
@@ -143,7 +143,7 @@ private val MIN_TABLE_CELL_WIDTH = 76.dp
 @Composable
 fun TableComponent(
     element: RichTextElement.Table,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
     val cellPadding = 8.dp
@@ -151,7 +151,7 @@ fun TableComponent(
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // The dividers stand between the columns, so their width comes out of what the columns
         // share.
@@ -181,7 +181,7 @@ fun TableComponent(
                 border = BorderStroke(
                     0.5.dp,
                     MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                )
+                ),
             ) {
                 Box(modifier = Modifier.horizontalScroll(scrollState)) {
                     Column(modifier = Modifier.width(IntrinsicSize.Max)) {
@@ -196,10 +196,10 @@ fun TableComponent(
                                                 .copy(alpha = 0.4f)
                                         } else {
                                             Color.Transparent
-                                        }
+                                        },
                                     )
                                     .height(IntrinsicSize.Min),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 for (colIndex in 0 until element.cols) {
                                     val cell = element.cells.getOrNull(rowIndex * element.cols + colIndex)
@@ -209,7 +209,7 @@ fun TableComponent(
                                             .width(cellWidth)
                                             .fillMaxHeight()
                                             .padding(cellPadding),
-                                        contentAlignment = Alignment.CenterStart
+                                        contentAlignment = Alignment.CenterStart,
                                     ) {
                                         cell?.let { nonNullCell ->
                                             ZRichText(
@@ -218,7 +218,7 @@ fun TableComponent(
                                                 maxFormulaWidthDp = cellContentWidthDp,
                                                 style = MaterialTheme.typography.bodySmall.copy(
                                                     fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
-                                                )
+                                                ),
                                             )
                                         }
                                     }

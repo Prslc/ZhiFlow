@@ -126,7 +126,7 @@ internal fun TextStyle.withFormulaLineHeight(
     val effectiveMaxWidth = if (maxWidthDp > 0f) maxWidthDp else rememberFormulaMaxWidth()
     val tallestDp = inlineMetas.maxOf {
         constrainedSize(
-            it.formula.width.toFloat(), it.formula.height.toFloat(), effectiveMaxWidth
+            it.formula.width.toFloat(), it.formula.height.toFloat(), effectiveMaxWidth,
         ).second
     }
     val needed = with(LocalDensity.current) { (tallestDp + FORMULA_CLEARANCE_DP).dp.toSp() }
@@ -157,7 +157,7 @@ fun LatexComponent(
     val effectiveMaxWidth = if (maxWidthDp > 0f) maxWidthDp else rememberFormulaMaxWidth()
     if (isInline) {
         val (widthDp, heightDp) = constrainedSize(
-            formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth
+            formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth,
         )
         FormulaImage(
             formula = formula,
@@ -167,7 +167,7 @@ fun LatexComponent(
         )
     } else {
         val (widthDp, heightDp) = constrainedSize(
-            formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth
+            formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth,
         )
         Box(
             contentAlignment = Alignment.Center,
@@ -191,7 +191,7 @@ private val INVERT_MATRIX = ColorMatrix(
         0f, -1f, 0f, 0f, 255f,
         0f, 0f, -1f, 0f, 255f,
         0f, 0f, 0f, 1f, 0f,
-    )
+    ),
 )
 
 /**
@@ -284,7 +284,7 @@ fun FormulaTextSection(
                         // the underlined text instead.
                         element.content
                             .getStringAnnotations(
-                                AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset
+                                AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset,
                             )
                             .firstOrNull()?.let { onSegmentLikeClick(it.item) }
                     }

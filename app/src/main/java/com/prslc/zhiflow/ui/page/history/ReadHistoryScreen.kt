@@ -84,14 +84,14 @@ fun ReadHistoryScreen(
                     Text(
                         text = stringResource(R.string.history_title),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            stringResource(R.string.general_back)
+                            stringResource(R.string.general_back),
                         )
                     }
                 },
@@ -110,7 +110,7 @@ fun ReadHistoryScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             if (isEmpty && isRefreshing) {
                 LoadingView(modifier = Modifier.fillMaxSize())
@@ -162,7 +162,7 @@ fun ReadHistoryScreen(
                                     HorizontalDivider(
                                         modifier = Modifier.padding(start = 36.dp, end = 16.dp),
                                         thickness = 0.5.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
                                     )
                                 }
 
@@ -173,9 +173,9 @@ fun ReadHistoryScreen(
                                             .height(8.dp)
                                             .background(
                                                 MaterialTheme.colorScheme.surfaceContainerLow.copy(
-                                                    alpha = 0.5f
-                                                )
-                                            )
+                                                    alpha = 0.5f,
+                                                ),
+                                            ),
                                     )
                                 }
 
@@ -183,7 +183,7 @@ fun ReadHistoryScreen(
                                     HorizontalDivider(
                                         modifier = Modifier.padding(horizontal = 16.dp),
                                         thickness = 0.5.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
                                     )
                                 }
                             }
@@ -251,12 +251,12 @@ private fun HistoryItem(
             .height(IntrinsicSize.Min)
             .clickable(onClick = onClick)
             .padding(start = startPadding, end = 16.dp, top = 12.dp, bottom = 12.dp),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.Top,
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxHeight()
+                .fillMaxHeight(),
         ) {
             // title
             if (!isInGroup && item.questionTitle.isNotEmpty()) {
@@ -293,8 +293,8 @@ private fun HistoryItem(
                         withStyle(
                             SpanStyle(
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                                fontWeight = FontWeight.SemiBold,
+                            ),
                         ) {
                             append("$author：")
                         }
@@ -321,20 +321,20 @@ private fun HistoryItem(
             // metadata
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 val metaText = when (item.contentType) {
                     "question" -> stringResource(
                         R.string.history_question_meta,
                         item.answerCount,
-                        item.followerCount
+                        item.followerCount,
                     )
 
                     "profile" -> pluralStringResource(
                         R.plurals.history_user_meta,
                         item.followerCount,
                         item.voteCount,
-                        item.followerCount
+                        item.followerCount,
                     )
 
                     else -> pluralStringResource(R.plurals.history_meta, item.commentCount, item.voteCount, item.commentCount)
@@ -352,7 +352,7 @@ private fun HistoryItem(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
                             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
                     ) {
                         Text(
                             text = stringResource(R.string.history_read_progress, item.readProgress),

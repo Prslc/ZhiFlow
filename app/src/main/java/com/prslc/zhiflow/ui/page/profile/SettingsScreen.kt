@@ -16,7 +16,7 @@ fun SettingsScreen(
         LazyColumn(
             modifier = modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             item {
                 Text(

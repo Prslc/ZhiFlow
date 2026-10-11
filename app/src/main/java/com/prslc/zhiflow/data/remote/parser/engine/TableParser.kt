@@ -9,16 +9,14 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 object TableParser {
     fun parse(
         table: Table,
-        contentParser: (String) -> ProcessedText
-    ): RichTextElement.Table {
-        return RichTextElement.Table(
-            rows = table.rowCount,
-            cols = table.columnCount,
-            cells = table.cells.map { cellText ->
-                val processed = contentParser(cellText)
-                RichTextElement.TableCell(processed.content, processed.inlineMetas)
-            },
-            hasHeader = table.hasHeadRow,
-        )
-    }
+        contentParser: (String) -> ProcessedText,
+    ): RichTextElement.Table = RichTextElement.Table(
+        rows = table.rowCount,
+        cols = table.columnCount,
+        cells = table.cells.map { cellText ->
+            val processed = contentParser(cellText)
+            RichTextElement.TableCell(processed.content, processed.inlineMetas)
+        },
+        hasHeader = table.hasHeadRow,
+    )
 }

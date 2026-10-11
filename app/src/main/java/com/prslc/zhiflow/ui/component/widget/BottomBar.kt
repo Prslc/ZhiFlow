@@ -72,16 +72,22 @@ fun BottomBar(
     onVoteClick: (String) -> Unit,
     onStarClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onCommentClick: () -> Unit
+    onCommentClick: () -> Unit,
 ) {
     val upvoteBgColor by animateColorAsState(
-        targetValue = if (isUpvoted) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        targetValue = if (isUpvoted) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        },
         label = "upvoteBg",
     )
     val upvoteContentColor by animateColorAsState(
-        targetValue = if (isUpvoted) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onSurfaceVariant,
+        targetValue = if (isUpvoted) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
         label = "upvoteContent",
     )
 
@@ -90,14 +96,14 @@ fun BottomBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         tonalElevation = 2.dp,
-        shadowElevation = 12.dp
+        shadowElevation = 12.dp,
     ) {
         Row(
             modifier = Modifier
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(horizontal = 16.dp, vertical = 10.dp)
                 .height(46.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
                 modifier = Modifier
@@ -105,7 +111,7 @@ fun BottomBar(
                     .fillMaxHeight()
                     .clip(CircleShape)
                     .background(upvoteBgColor),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Upvote
                 Box(
@@ -116,7 +122,7 @@ fun BottomBar(
                             toggleHaptic(!isUpvoted)
                             onVoteClick("up")
                         },
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -129,7 +135,7 @@ fun BottomBar(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(
-                                    R.string.bottom_upvote, formatCount(upvoteCount)
+                                    R.string.bottom_upvote, formatCount(upvoteCount),
                                 ),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.ExtraBold,
@@ -154,7 +160,7 @@ fun BottomBar(
                             toggleHaptic(!isDownvoted)
                             onVoteClick("down")
                         },
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowDownward,
@@ -171,7 +177,7 @@ fun BottomBar(
             Row(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 BottomActionItem(
                     icon = if (isFavorite) Icons.Filled.Star else Icons.Default.Star,
@@ -195,7 +201,7 @@ private fun BottomActionItem(
     label: String,
     modifier: Modifier = Modifier,
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     // fillMaxHeight keeps the icon at a fixed offset whether or not the label is
     // rendered, so a count arriving never nudges the icon.
@@ -205,10 +211,10 @@ private fun BottomActionItem(
             .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center
+            modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = icon,

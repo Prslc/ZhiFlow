@@ -40,7 +40,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 fun BaseMomentCard(
     state: MomentDto,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val navigator = LocalNavigator.current
 
@@ -49,10 +49,10 @@ fun BaseMomentCard(
             .fillMaxWidth()
             .clickable {
                 state.routerUrl?.let { navigator.handleUrl(it) }
-            }
+            },
     ) {
         Column(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp)
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp),
         ) {
             MomentHeader(state = state)
             content()
@@ -62,7 +62,7 @@ fun BaseMomentCard(
         HorizontalDivider(
             thickness = 0.5.dp,
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp),
         )
     }
 }
@@ -70,11 +70,11 @@ fun BaseMomentCard(
 @Composable
 private fun MomentHeader(
     state: MomentDto,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.Top,
     ) {
         AsyncImage(
             model = state.authorAvatarUrl,
@@ -88,7 +88,7 @@ private fun MomentHeader(
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
                     text = state.authorName,
@@ -118,7 +118,7 @@ private fun MomentHeader(
 @Composable
 fun UserMomentCard(
     state: MomentDto,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     BaseMomentCard(state = state, modifier = modifier) {
         Spacer(modifier = Modifier.height(10.dp))
@@ -128,10 +128,10 @@ fun UserMomentCard(
                 .border(
                     width = 0.5.dp,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
                 )
                 .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
                 model = state.videoThumbnail,
@@ -171,7 +171,7 @@ fun UserMomentCard(
 @Composable
 fun StandardMomentCard(
     state: MomentDto,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     BaseMomentCard(state = state, modifier = modifier) {
         if (state.title.isNotEmpty()) {

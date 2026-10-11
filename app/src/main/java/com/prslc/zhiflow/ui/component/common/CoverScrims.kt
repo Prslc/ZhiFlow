@@ -41,8 +41,8 @@ fun StatusBarScrim(modifier: Modifier = Modifier) {
                     0f to Color.Black.copy(alpha = 0.50f),
                     0.6f to Color.Black.copy(alpha = 0.42f),
                     1f to Color.Transparent,
-                )
-            )
+                ),
+            ),
     )
 }
 

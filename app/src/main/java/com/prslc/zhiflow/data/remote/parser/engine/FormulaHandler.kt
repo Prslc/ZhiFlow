@@ -20,7 +20,7 @@ object FormulaHandler {
      */
     fun prepareInlineMeta(
         formula: Formula,
-        placeholderPos: Int
+        placeholderPos: Int,
     ): InlineFormulaMeta? {
         if (formula.content.isEmpty()) return null
 

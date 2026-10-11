@@ -31,65 +31,68 @@ object ContentParser {
      */
     fun transform(
         segments: List<Segment>,
-    ): List<RichTextElement> {
-        return segments.flatMap { segment ->
-            when (segment.type) {
-                "paragraph" -> processParagraph(segment.paragraph)
+    ): List<RichTextElement> = segments.flatMap { segment ->
+        when (segment.type) {
+            "paragraph" -> processParagraph(segment.paragraph)
 
-                "heading" -> segment.heading?.let {
-                    val p = parseContent(it.text, it.marks)
-                    listOf(RichTextElement.Heading(p.content, p.inlineMetas, it.level))
-                } ?: emptyList()
+            "heading" -> segment.heading?.let {
+                val p = parseContent(it.text, it.marks)
+                listOf(RichTextElement.Heading(p.content, p.inlineMetas, it.level))
+            } ?: emptyList()
 
-                "list_node" -> segment.listNode?.let { listNode ->
-                    // One counter per list, not per call: a new list_node means the list was
-                    // interrupted, and the API gives no signal that the numbering carries on.
-                    // Sharing one across a parsing chunk instead made the result depend on where
-                    // the chunk boundary fell.
-                    val counter = OrderedListCounter()
-                    listNode.items.map { item ->
-                        val p = parseContent(item.text, item.marks)
-                        RichTextElement.BulletItem(
-                            p.content, p.inlineMetas, item.indentLevel,
-                            listNode.type == "ordered", counter.next(item.indentLevel)
-                        )
-                    }
-                } ?: emptyList()
-
-                "blockquote" -> segment.blockquote?.let {
-                    val p = parseContent(it.text, it.marks, it.pid, segLikeHost = true)
-                    listOf(RichTextElement.Blockquote(p.content, p.inlineMetas, p.segmentLikes))
-                } ?: emptyList()
-
-                "table" -> segment.table?.let {
-                    listOf(TableParser.parse(it) { text ->
-                        parseContent(text, emptyList())
-                    })
-                } ?: emptyList()
-
-                "card" -> parseCard(segment.card)
-                "image" -> segment.image?.let { listOf(RichTextElement.Image(it)) } ?: emptyList()
-                "code_block" -> segment.codeBlock?.let {
-                    listOf(
-                        RichTextElement.Code(
-                            it.content,
-                            it.language,
-                            CodeHighlighter.highlight(it.content, it.language),
-                        )
+            "list_node" -> segment.listNode?.let { listNode ->
+                // One counter per list, not per call: a new list_node means the list was
+                // interrupted, and the API gives no signal that the numbering carries on.
+                // Sharing one across a parsing chunk instead made the result depend on where
+                // the chunk boundary fell.
+                val counter = OrderedListCounter()
+                listNode.items.map { item ->
+                    val p = parseContent(item.text, item.marks)
+                    RichTextElement.BulletItem(
+                        p.content, p.inlineMetas, item.indentLevel,
+                        listNode.type == "ordered", counter.next(item.indentLevel),
                     )
-                } ?: emptyList()
+                }
+            } ?: emptyList()
 
-                "reference_block" -> segment.referenceBlock?.let { block ->
-                    val items = block.items.map {
-                        val p = parseContent(it.text, it.marks)
-                        RichTextElement.ParsedText(p.content, p.inlineMetas)
-                    }
-                    listOf(RichTextElement.Reference(items))
-                } ?: emptyList()
+            "blockquote" -> segment.blockquote?.let {
+                val p = parseContent(it.text, it.marks, it.pid, segLikeHost = true)
+                listOf(RichTextElement.Blockquote(p.content, p.inlineMetas, p.segmentLikes))
+            } ?: emptyList()
 
-                "hr" -> listOf(RichTextElement.Divider)
-                else -> emptyList()
-            }
+            "table" -> segment.table?.let {
+                listOf(
+                    TableParser.parse(it) { text ->
+                        parseContent(text, emptyList())
+                    },
+                )
+            } ?: emptyList()
+
+            "card" -> parseCard(segment.card)
+
+            "image" -> segment.image?.let { listOf(RichTextElement.Image(it)) } ?: emptyList()
+
+            "code_block" -> segment.codeBlock?.let {
+                listOf(
+                    RichTextElement.Code(
+                        it.content,
+                        it.language,
+                        CodeHighlighter.highlight(it.content, it.language),
+                    ),
+                )
+            } ?: emptyList()
+
+            "reference_block" -> segment.referenceBlock?.let { block ->
+                val items = block.items.map {
+                    val p = parseContent(it.text, it.marks)
+                    RichTextElement.ParsedText(p.content, p.inlineMetas)
+                }
+                listOf(RichTextElement.Reference(items))
+            } ?: emptyList()
+
+            "hr" -> listOf(RichTextElement.Divider)
+
+            else -> emptyList()
         }
     }
 
@@ -108,19 +111,20 @@ object ContentParser {
         marks: List<Mark>,
         paragraphId: String? = null,
         segLikeHost: Boolean = false,
-    ): ProcessedText {
-        return AnnotatedStringBuilder.build(
-            rawText = rawText,
-            marks = marks,
-            segmentLikes = if (segLikeHost) segmentLikeTargets(rawText, marks, paragraphId)
-            else emptyList(),
-            onFormulaFound = { mark, pos ->
-                mark.formula?.let {
-                    FormulaHandler.prepareInlineMeta(it, pos)
-                }
+    ): ProcessedText = AnnotatedStringBuilder.build(
+        rawText = rawText,
+        marks = marks,
+        segmentLikes = if (segLikeHost) {
+            segmentLikeTargets(rawText, marks, paragraphId)
+        } else {
+            emptyList()
+        },
+        onFormulaFound = { mark, pos ->
+            mark.formula?.let {
+                FormulaHandler.prepareInlineMeta(it, pos)
             }
-        )
-    }
+        },
+    )
 
     /**
      * Collapse the `seg_like` marks of one paragraph into one target per range.
@@ -134,7 +138,7 @@ object ContentParser {
     private fun segmentLikeTargets(
         rawText: String,
         marks: List<Mark>,
-        paragraphId: String?
+        paragraphId: String?,
     ): List<SegmentLikeTarget> = marks
         .filter { it.type == "seg_like" }
         .groupBy { it.start to it.end }
@@ -183,7 +187,7 @@ object ContentParser {
                     processed.content,
                     processed.inlineMetas,
                     processed.segmentLikes,
-                )
+                ),
             )
         }
 
@@ -197,14 +201,14 @@ object ContentParser {
                     val subMarks = marks.filter { it.start >= lastIndex && it.end <= mark.start }
                         .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
                     val processed = parseContent(
-                        subText, subMarks, paragraph.pid, segLikeHost = true
+                        subText, subMarks, paragraph.pid, segLikeHost = true,
                     )
                     elements.add(
                         RichTextElement.ParsedText(
                             processed.content,
                             processed.inlineMetas,
                             processed.segmentLikes,
-                        )
+                        ),
                     )
                 }
             }
@@ -223,7 +227,7 @@ object ContentParser {
                         processed.content,
                         processed.inlineMetas,
                         processed.segmentLikes,
-                    )
+                    ),
                 )
             }
         }
@@ -239,16 +243,19 @@ object ContentParser {
         if (it.cardType == "matrix-image-card") {
             extra?.imageList?.images?.mapNotNull { img ->
                 val url = img.originalUrl ?: img.url
-                if (url.isBlank()) null
-                else RichTextElement.Image(
-                    ZhihuImage(
-                        urls = listOf(url),
-                        width = img.originalWidth ?: img.width,
-                        height = img.originalHeight ?: img.height,
-                        description = "",
-                        isGif = img.suffix == "gif",
+                if (url.isBlank()) {
+                    null
+                } else {
+                    RichTextElement.Image(
+                        ZhihuImage(
+                            urls = listOf(url),
+                            width = img.originalWidth ?: img.width,
+                            height = img.originalHeight ?: img.height,
+                            description = "",
+                            isGif = img.suffix == "gif",
+                        ),
                     )
-                )
+                }
             } ?: emptyList()
         } else {
             val stats = voteStatsOf(extra?.desc)
@@ -260,7 +267,9 @@ object ContentParser {
                     addresses = listOf(extra.desc, it.url, extra.url),
                     prose = listOf(it.title, extra.title),
                 )
-            } else null
+            } else {
+                null
+            }
             listOf(
                 RichTextElement.Card(
                     cardType = it.cardType,
@@ -277,12 +286,14 @@ object ContentParser {
                     externalLink = address,
                     voteCount = stats?.voteCount ?: 0,
                     commentCount = stats?.commentCount ?: 0,
-                ))
+                ),
+            )
         }
     } ?: emptyList()
 
     private class OrderedListCounter {
         private val counts = mutableMapOf<Int, Int>()
+
         fun next(level: Int): Int {
             val nextIdx = (counts[level] ?: 0) + 1
             counts[level] = nextIdx

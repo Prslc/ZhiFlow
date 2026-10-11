@@ -31,7 +31,7 @@ class CommentService(private val api: ApiClient) {
         contentType: ContentType,
         offset: String = "",
         orderBy: String = "score",
-        limit: Int = 20
+        limit: Int = 20,
     ): Result<CommentResponse> = api.safeApiCall {
         val url = "${BASE_URL}/comment_v5/${contentType.apiPath}/$id/root_comment"
             .toHttpUrl()
@@ -59,7 +59,7 @@ class CommentService(private val api: ApiClient) {
         segmentId: String,
         offset: String = "",
         orderBy: String = "score",
-        limit: Int = 20
+        limit: Int = 20,
     ): Result<CommentResponse> = api.safeApiCall {
         val url = "${BASE_URL}/comment_v5/${contentType.apiPath}/$id/segment/root_comment"
             .toHttpUrl()
@@ -79,7 +79,7 @@ class CommentService(private val api: ApiClient) {
     suspend fun getChildComments(
         rootCommentId: String,
         offset: String = "",
-        limit: Int = 20
+        limit: Int = 20,
     ): Result<CommentResponse> = api.safeApiCall {
         val url = "${BASE_URL}/comment_v5/comment/$rootCommentId/child_comment"
             .toHttpUrl()

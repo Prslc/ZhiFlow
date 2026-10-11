@@ -88,7 +88,7 @@ class CollectionService(private val api: ApiClient) {
         id: String,
         contentType: ContentType,
         addIds: List<Long>,
-        removeIds: List<Long>
+        removeIds: List<Long>,
     ): Result<Unit> = api.safeExecute {
         val formBuilder = FormBody.Builder()
 

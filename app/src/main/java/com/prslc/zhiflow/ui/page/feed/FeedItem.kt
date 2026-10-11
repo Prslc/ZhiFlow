@@ -57,7 +57,7 @@ fun FeedItem(
                 onClick = stableClick,
                 onLongClick = stableLongClick,
             )
-            .padding(20.dp)
+            .padding(20.dp),
     ) {
         display.reason?.let { reason ->
             ReasonLine(reason)
@@ -157,13 +157,27 @@ private fun ReasonLine(reason: FeedReason) {
 @Composable
 @ReadOnlyComposable
 private fun authorNoteText(note: FeedAuthorNote): String = when (note.kind) {
-    "following" -> stringResource(R.string.feed_note_following)
-    "FollowingMemberFollowing" -> stringResource(R.string.feed_note_following_member)
-    "RelationEndorseTypeUnfollowPeopleUpvote" -> stringResource(R.string.feed_note_upvoted)
-    "FollowerNum" -> note.count
-        ?.let { pluralStringResource(R.plurals.feed_note_followers, it, it) }
-        ?: note.text
-    else -> note.text
+    "following" -> {
+        stringResource(R.string.feed_note_following)
+    }
+
+    "FollowingMemberFollowing" -> {
+        stringResource(R.string.feed_note_following_member)
+    }
+
+    "RelationEndorseTypeUnfollowPeopleUpvote" -> {
+        stringResource(R.string.feed_note_upvoted)
+    }
+
+    "FollowerNum" -> {
+        note.count
+            ?.let { pluralStringResource(R.plurals.feed_note_followers, it, it) }
+            ?: note.text
+    }
+
+    else -> {
+        note.text
+    }
 }
 
 @Composable

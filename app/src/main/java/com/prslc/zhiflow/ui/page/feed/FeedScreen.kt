@@ -70,12 +70,12 @@ fun FeedScreen(
                     isRefreshing = isRefreshing && !isEmpty,
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
-            }
+            },
         ) {
             LazyColumn(
                 state = viewModel.listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 16.dp)
+                contentPadding = PaddingValues(bottom = 16.dp),
             ) {
                 itemsIndexed(
                     items = items,

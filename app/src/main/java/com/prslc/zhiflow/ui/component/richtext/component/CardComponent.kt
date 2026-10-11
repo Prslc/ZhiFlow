@@ -52,7 +52,7 @@ import com.prslc.zhiflow.ui.theme.TextStyles
 @Composable
 fun CardComponent(
     element: RichTextElement.Card,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val navigator = LocalNavigator.current
     val hasImage = !element.cover.isNullOrBlank()
@@ -68,14 +68,14 @@ fun CardComponent(
                 },
             shape = RoundedCornerShape(8.dp),
             color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
-            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         ) {
             Row(
                 modifier = Modifier
                     .padding(12.dp)
                     .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Image
                 if (hasImage) {
@@ -83,7 +83,7 @@ fun CardComponent(
                         modifier = Modifier
                             .size(60.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                     ) {
                         AsyncImage(
                             model = element.cover,
@@ -97,13 +97,13 @@ fun CardComponent(
                 // Text
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
                         text = element.title,
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = TextStyles.cardTitleBold,
-                            lineHeight = TextStyles.cardTitleLineHeight
+                            lineHeight = TextStyles.cardTitleLineHeight,
                         ),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -123,11 +123,11 @@ fun CardComponent(
 @Composable
 private fun CardMetaLine(
     element: RichTextElement.Card,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val style = MaterialTheme.typography.bodySmall.copy(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        fontSize = TextStyles.cardDescSize
+        fontSize = TextStyles.cardDescSize,
     )
 
     val link = element.externalLink

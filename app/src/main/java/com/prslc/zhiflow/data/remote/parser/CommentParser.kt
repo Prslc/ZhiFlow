@@ -39,7 +39,7 @@ object CommentParser {
                         height = h,
                         isGif = isGif,
                         description = "",
-                    )
+                    ),
                 )
                 processedHtml = processedHtml.replace(fullTag, "")
             }

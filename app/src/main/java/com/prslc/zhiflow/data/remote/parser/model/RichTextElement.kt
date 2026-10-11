@@ -50,6 +50,7 @@ sealed class DetailElement {
     /** Plain text segment extracted from question HTML. */
     @Stable
     data class Text(val content: AnnotatedString) : DetailElement()
+
     /** Image extracted from a `<figure>` tag. */
     @Stable
     data class Image(val image: ZhihuImage) : DetailElement()
@@ -66,12 +67,15 @@ sealed interface RichTextElement {
     /** Section heading with level (h1-h6). */
     @Stable
     data class Heading(val content: AnnotatedString, val inlineMetas: List<InlineFormulaMeta> = emptyList(), val level: Int = 2) : RichTextElement
+
     /** Inline or block image. */
     @Stable
     data class Image(val data: ZhihuImage) : RichTextElement
+
     /** Standalone block-level LaTeX formula. */
     @Immutable
     data class FormulaBlock(val data: Formula) : RichTextElement
+
     /**
      * Code block with optional language identifier.
      *
@@ -84,9 +88,11 @@ sealed interface RichTextElement {
         val lang: String?,
         val tokens: List<CodeToken>,
     ) : RichTextElement
+
     /** Collection of reference items (footnotes). */
     @Stable
     data class Reference(val items: List<ParsedText>) : RichTextElement
+
     /** Horizontal rule / divider. */
     @Immutable
     data object Divider : RichTextElement
@@ -106,7 +112,7 @@ sealed interface RichTextElement {
         val inlineMetas: List<InlineFormulaMeta>,
         val level: Int,
         val isOrdered: Boolean,
-        val index: Int = 0
+        val index: Int = 0,
     ) : RichTextElement
 
     /** A single cell within a table. */
@@ -122,7 +128,7 @@ sealed interface RichTextElement {
         val rows: Int,
         val cols: Int,
         val cells: List<TableCell>,
-        val hasHeader: Boolean
+        val hasHeader: Boolean,
     ) : RichTextElement
 
     /** Link card with cover image, content type metadata, and the counts it reports. */

@@ -20,10 +20,8 @@ class FeedbackRepository(private val service: FeedbackService) {
      * @param contentType Lowercase as the feed spells it (`answer`, `article`, …).
      * @return A [Result] containing the rows to render, in the order the backend sent them.
      */
-    suspend fun getPanel(contentId: String, contentType: String): Result<List<FeedbackAction>> {
-        return service.getPanel(contentId, contentType)
-            .map { panel -> panel.data.items.mapNotNull { it.toDto() } }
-    }
+    suspend fun getPanel(contentId: String, contentType: String): Result<List<FeedbackAction>> = service.getPanel(contentId, contentType)
+        .map { panel -> panel.data.items.mapNotNull { it.toDto() } }
 
     /**
      * Runs a panel row whose action is a request.
@@ -76,6 +74,6 @@ class FeedbackRepository(private val service: FeedbackService) {
             contentTags = tags.filter { it.isSelected }
                 .map { AggFeedbackTag(id = it.id, value = it.label, isSelected = true) },
             keywords = keywords,
-        )
+        ),
     )
 }

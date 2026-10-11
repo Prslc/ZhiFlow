@@ -78,7 +78,7 @@ fun CustomBottomSheet(
     modifier: Modifier = Modifier,
     animateResize: Boolean = true,
     heightFraction: Float = MAX_HEIGHT_FRACTION,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val transitionState = remember { MutableTransitionState(false) }
 
@@ -146,7 +146,7 @@ fun CustomBottomSheet(
         visibleState = transitionState,
         enter = EnterTransition.None,
         exit = ExitTransition.None,
-        modifier = modifier.zIndex(100f)
+        modifier = modifier.zIndex(100f),
     ) {
         Box(
             modifier = Modifier
@@ -155,26 +155,26 @@ fun CustomBottomSheet(
                 // under the sheet. Only horizontal drags nobody else claimed are taken.
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures { change, _ -> change.consume() }
-                }
+                },
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .animateEnterExit(
                         enter = fadeIn(animationSpec = tween(SCRIM_FADE_IN_MS)),
-                        exit = fadeOut(animationSpec = tween(EXIT_DURATION_MS))
+                        exit = fadeOut(animationSpec = tween(EXIT_DURATION_MS)),
                     )
                     .graphicsLayer { alpha = 1f - backProgress.value }
                     .background(Color.Black.copy(alpha = 0.4f))
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = { transitionState.targetState = false })
-                    }
+                    },
             )
 
             BoxWithConstraints(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             ) {
                 Box(
                     modifier = Modifier
@@ -183,19 +183,19 @@ fun CustomBottomSheet(
                         .animateEnterExit(
                             enter = slideInVertically(
                                 initialOffsetY = { it },
-                                animationSpec = tween(ENTER_DURATION_MS, easing = LinearOutSlowInEasing)
+                                animationSpec = tween(ENTER_DURATION_MS, easing = LinearOutSlowInEasing),
                             ),
                             exit = slideOutVertically(
                                 targetOffsetY = { it },
-                                animationSpec = tween(EXIT_DURATION_MS, easing = FastOutLinearInEasing)
-                            )
+                                animationSpec = tween(EXIT_DURATION_MS, easing = FastOutLinearInEasing),
+                            ),
                         )
                         // The sheet's own height, not the container's (short sheets would
                         // overshoot), read in the layer block so a moving finger only re-places.
                         .graphicsLayer { translationY = backProgress.value * size.height }
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                         .background(MaterialTheme.colorScheme.surface)
-                        .then(if (animateResize) Modifier.animateContentSize() else Modifier)
+                        .then(if (animateResize) Modifier.animateContentSize() else Modifier),
                 ) {
                     content()
                 }

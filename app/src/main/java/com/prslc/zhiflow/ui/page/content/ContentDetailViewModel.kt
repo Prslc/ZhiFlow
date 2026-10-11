@@ -37,7 +37,7 @@ import kotlinx.coroutines.withContext
 class ContentViewModel(
     private val repository: ContentRepository,
     private val actionRepository: ActionRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     companion object {
@@ -102,7 +102,6 @@ class ContentViewModel(
     /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
     var isBodyComplete by mutableStateOf(false)
         private set
-
 
     private var contentType: ContentType? = null
     private val pendingSegmentLikes = mutableSetOf<String>()
@@ -196,7 +195,7 @@ class ContentViewModel(
                 id = contentId,
                 type = contentType,
                 action = targetAction,
-                isRevoke = isActive
+                isRevoke = isActive,
             ).onApiFailure { error ->
                 interactionState = was
                 actionError = error
@@ -317,7 +316,7 @@ class ContentViewModel(
         viewModelScope.launch {
             withContext(NonCancellable) {
                 actionRepository.syncHistory(
-                    ReadHistoryRequest(contentToken, contentType.type, percent)
+                    ReadHistoryRequest(contentToken, contentType.type, percent),
                 ).ignoreOutcome()
             }
         }
@@ -345,8 +344,8 @@ class ContentViewModel(
                                     height = pinImage.height,
                                     description = "",
                                     isGif = false,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
                 }
@@ -399,8 +398,11 @@ class ContentViewModel(
         updateAuthor { it.copy(followStatus = target) }
 
         followJob = viewModelScope.launch {
-            val result = if (following) userRepository.unfollowUser(author.id)
-            else userRepository.followUser(author.id)
+            val result = if (following) {
+                userRepository.unfollowUser(author.id)
+            } else {
+                userRepository.followUser(author.id)
+            }
             result.onApiFailure { error ->
                 updateAuthor { it.copy(followStatus = if (following) FOLLOWING else UNFOLLOWED) }
                 actionError = error

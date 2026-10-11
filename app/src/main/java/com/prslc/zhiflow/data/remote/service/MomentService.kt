@@ -24,7 +24,7 @@ class MomentService(private val api: ApiClient) {
      */
     suspend fun getUserPosts(
         urlToken: String,
-        nextUrl: String? = null
+        nextUrl: String? = null,
     ): Result<MomentsResponse> = api.safeApiCall {
         Request.Builder()
             .urlOrApiUrl(nextUrl, "/moments/$urlToken/origin")
@@ -44,7 +44,7 @@ class MomentService(private val api: ApiClient) {
      */
     suspend fun getUserActivities(
         urlToken: String,
-        nextUrl: String? = null
+        nextUrl: String? = null,
     ): Result<MomentsFeedResponse> = api.safeApiCall {
         Request.Builder()
             .urlOrApiUrl(nextUrl, "/moments/$urlToken/activities")
@@ -61,7 +61,7 @@ class MomentService(private val api: ApiClient) {
      */
     suspend fun getUserVote(
         urlToken: String,
-        nextUrl: String? = null
+        nextUrl: String? = null,
     ): Result<MomentsFeedResponse> = api.safeApiCall {
         Request.Builder()
             .urlOrApiUrl(nextUrl, "/moments/$urlToken/vote")

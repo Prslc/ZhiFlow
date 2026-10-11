@@ -74,7 +74,9 @@ data class MomentsTarget(
     @SerialName("is_favorited") val isFavorited: Boolean = false,
     val voting: Int = 0,
     val author: MomentsUser? = null,
-    val id: @Serializable(with = StringOrLongSerializer::class) String? = null,
+    val id:
+        @Serializable(with = StringOrLongSerializer::class)
+        String? = null,
     val url: String? = null,
     val excerpt: String? = null,
     val thumbnail: String? = null,

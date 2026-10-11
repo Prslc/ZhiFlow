@@ -44,25 +44,23 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
         sessionManager.prefetchGuestSession()
     }
 
-    override fun newImageLoader(context: PlatformContext): ImageLoader {
-        return ImageLoader.Builder(context)
-            .components {
-                add(OkHttpNetworkFetcherFactory(httpClientProvider.imageClient))
-                add(AnimatedImageDecoder.Factory())
-            }
-            .memoryCache {
-                MemoryCache.Builder()
-                    .maxSizePercent(context, 0.25)
-                    .build()
-            }
-            .diskCache {
-                DiskCache.Builder()
-                    .directory(context.cacheDir.resolve("image_cache").absolutePath.toPath())
-                    .maxSizeBytes(64 * 1024 * 1024)
-                    .build()
-            }
-            .crossfade(true)
-            .allowHardware(true)
-            .build()
-    }
+    override fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader.Builder(context)
+        .components {
+            add(OkHttpNetworkFetcherFactory(httpClientProvider.imageClient))
+            add(AnimatedImageDecoder.Factory())
+        }
+        .memoryCache {
+            MemoryCache.Builder()
+                .maxSizePercent(context, 0.25)
+                .build()
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .directory(context.cacheDir.resolve("image_cache").absolutePath.toPath())
+                .maxSizeBytes(64 * 1024 * 1024)
+                .build()
+        }
+        .crossfade(true)
+        .allowHardware(true)
+        .build()
 }

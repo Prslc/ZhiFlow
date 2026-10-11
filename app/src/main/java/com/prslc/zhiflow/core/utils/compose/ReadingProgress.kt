@@ -35,14 +35,19 @@ internal fun LazyListLayoutInfo.readingPosition(bodyEnd: Int): ReadingPosition {
 
     val passedFirst = if (first.size > 0) -first.offset.toFloat() / first.size else 0f
     val scrolledItems = first.index + passedFirst
-    val passed = if (last.index >= bodyEnd) 1f
-    else (scrolledItems / bodyEnd).coerceIn(0f, 1f)
+    val passed = if (last.index >= bodyEnd) {
+        1f
+    } else {
+        (scrolledItems / bodyEnd).coerceIn(0f, 1f)
+    }
 
     // Both edges are read through the item they fall inside; as whole items they would step, and a
     // divisor that steps moves the ratio against the scroll.
     val seenLast = if (last.size > 0) {
         ((viewportEndOffset - last.offset).toFloat() / last.size).coerceIn(0f, 1f)
-    } else 1f
+    } else {
+        1f
+    }
     val belowFold = (totalItemsCount - 1 - last.index) + (1f - seenLast)
 
     val scrollable = scrolledItems + belowFold

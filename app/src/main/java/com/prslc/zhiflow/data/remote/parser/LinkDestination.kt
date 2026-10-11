@@ -13,6 +13,7 @@ import com.prslc.zhiflow.ui.navigation.QuestionDetail
 sealed class LinkDestination {
     // Internal route object (e.g. PeopleDetail)
     data class Internal(val route: Any) : LinkDestination()
+
     // Fallback external URL
     @Immutable
     data class External(val url: String) : LinkDestination()
@@ -43,7 +44,9 @@ object LinkParser {
 
         val route = if (id != null && type != null) {
             mapToRoute(id, type)
-        } else null
+        } else {
+            null
+        }
 
         return if (route != null) {
             LinkDestination.Internal(route)

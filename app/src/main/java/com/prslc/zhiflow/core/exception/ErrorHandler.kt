@@ -26,9 +26,18 @@ internal fun Throwable.toApiException(): ApiException {
             response.toApiException(apiErrorCode, apiErrorMessage)
                 ?: ApiException.UnknownException()
         }
-        is IOException -> ApiException.NetworkException()
-        is ApiException -> this
-        else -> ApiException.UnknownException()
+
+        is IOException -> {
+            ApiException.NetworkException()
+        }
+
+        is ApiException -> {
+            this
+        }
+
+        else -> {
+            ApiException.UnknownException()
+        }
     }
 }
 
@@ -46,9 +55,15 @@ private fun Response.toApiException(apiErrorCode: Int?, apiErrorMessage: String?
 
     return when (code) {
         401, 403 -> ApiException.UnAuthorizedException()
+
         404 -> ApiException.NotFoundException()
-        in 400..499 -> ApiException.ServerException(code, apiErrorMessage) // Client-side but API error
-        in 500..599 -> ApiException.ServerException(code, apiErrorMessage) // Server-side error
+
+        in 400..499 -> ApiException.ServerException(code, apiErrorMessage)
+
+        // Client-side but API error
+        in 500..599 -> ApiException.ServerException(code, apiErrorMessage)
+
+        // Server-side error
         else -> ApiException.UnknownException()
     }
 }

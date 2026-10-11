@@ -39,15 +39,15 @@ import com.prslc.zhiflow.R
 fun ErrorView(
     message: String,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
                 imageVector = Icons.Rounded.ErrorOutline,
@@ -70,7 +70,7 @@ fun ErrorView(
             onClick = onRetry,
             modifier = Modifier.height(44.dp),
             shape = MaterialTheme.shapes.extraLarge,
-            contentPadding = PaddingValues(horizontal = 32.dp)
+            contentPadding = PaddingValues(horizontal = 32.dp),
         ) {
             Icon(
                 imageVector = Icons.Rounded.Refresh,

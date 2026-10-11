@@ -7,12 +7,10 @@ import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
 
-internal fun formatCount(count: Int): String {
-    return if (count >= 10000) {
-        "%.1fw".format(count / 10000f)
-    } else {
-        count.toString()
-    }
+internal fun formatCount(count: Int): String = if (count >= 10000) {
+    "%.1fw".format(count / 10000f)
+} else {
+    count.toString()
 }
 
 internal fun formatToDate(createdTime: Long): String {
@@ -25,5 +23,5 @@ internal fun formatToDate(createdTime: Long): String {
 internal fun formatDateTime(value: LocalDateTime): String =
     value.format(
         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
-            .withLocale(Locale.getDefault())
+            .withLocale(Locale.getDefault()),
     )

@@ -45,15 +45,17 @@ fun ImageComponent(
     val displayUrl = image.displayUrl ?: return
 
     val aspectRatio = remember(image) {
-        if (image.width > 0 && image.height > 0) image.width.toFloat() / image.height.toFloat()
-        else 1.77f    // 16:9
+        if (image.width > 0 && image.height > 0) {
+            image.width.toFloat() / image.height.toFloat()
+        } else {
+            1.77f // 16:9
+        }
     }
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,7 +64,7 @@ fun ImageComponent(
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-            )
+            ),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -84,7 +86,7 @@ fun ImageComponent(
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         fontSize = TextStyles.imageCaptionSize,
-                        lineHeight = 18.sp
+                        lineHeight = 18.sp,
                     ),
                     textAlign = TextAlign.Center,
                 )

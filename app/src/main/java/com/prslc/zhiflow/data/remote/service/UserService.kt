@@ -27,8 +27,11 @@ class UserService(private val api: ApiClient) {
         api.safeApiCall {
             Request.Builder()
                 .apiUrl(
-                    if (urlToken == SELF_TOKEN) "/people/$urlToken"
-                    else "/people/$urlToken/profile?profile_new_version=1"
+                    if (urlToken == SELF_TOKEN) {
+                        "/people/$urlToken"
+                    } else {
+                        "/people/$urlToken/profile?profile_new_version=1"
+                    },
                 )
                 .get()
                 .build()

@@ -43,11 +43,9 @@ internal fun Request.Builder.urlOrApiUrl(nextUrl: String?, fallbackPath: String)
  * @param T The expected data model type.
  * @return The deserialized object of type [T].
  */
-internal inline fun <reified T> Response.body(): T {
-    return use { res ->
-        if (!res.isSuccessful) throw res.httpStatusException()
-        HttpClientProvider.jsonInstance.decodeFromString<T>(res.body.string())
-    }
+internal inline fun <reified T> Response.body(): T = use { res ->
+    if (!res.isSuccessful) throw res.httpStatusException()
+    HttpClientProvider.jsonInstance.decodeFromString<T>(res.body.string())
 }
 
 /**
@@ -83,7 +81,7 @@ private const val ERROR_BODY_LIMIT = 4 * 1024L
  * to [ApiException] via [toApiException].
  */
 internal suspend inline fun <reified T> ApiClient.safeApiCall(
-    crossinline requestBuilder: () -> Request
+    crossinline requestBuilder: () -> Request,
 ): Result<T> = withContext(Dispatchers.IO) {
     val request = requestBuilder()
     if (!request.establishesSession()) gate.awaitReady()
@@ -114,7 +112,7 @@ internal suspend inline fun <reified T> ApiClient.safeApiCall(
  * [android.os.NetworkOnMainThreadException] during cleanup.
  */
 internal suspend fun ApiClient.safeExecute(
-    requestBuilder: () -> Request
+    requestBuilder: () -> Request,
 ): Result<Unit> = withContext(Dispatchers.IO) {
     val request = requestBuilder()
     if (!request.establishesSession()) gate.awaitReady()

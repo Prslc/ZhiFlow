@@ -19,7 +19,7 @@ class ActionRepository(private val service: ActionService) {
         id: String,
         type: ContentType,
         action: String,
-        isRevoke: Boolean = false
+        isRevoke: Boolean = false,
     ): Result<Unit> {
         val method = if (isRevoke) "DELETE" else "POST"
         return service.voteAction(id, type, action, method)

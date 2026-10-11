@@ -17,7 +17,6 @@ import com.prslc.zhiflow.R
 sealed class ApiException(
     val resId: Int,
     val code: Int? = null,
-
     /**
      * The server's own wording for this failure, when it sent one. Preferred over [resId]:
      * it names what actually went wrong, where [resId] can only name the status code.
@@ -25,8 +24,11 @@ sealed class ApiException(
     val serverMessage: String? = null,
 ) : Exception() {
     class NetworkException : ApiException(R.string.error_network)
+
     class UnAuthorizedException : ApiException(R.string.error_unauthorized)
+
     class NotFoundException : ApiException(R.string.error_not_found)
+
     class ServerException(code: Int, serverMessage: String? = null) :
         ApiException(R.string.error_server, code, serverMessage)
 

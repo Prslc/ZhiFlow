@@ -51,7 +51,7 @@ fun CommentItem(
     onEvent: (CommentUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     isChild: Boolean = false,
-    showReplyButton: Boolean = true
+    showReplyButton: Boolean = true,
 ) {
     val comment = model.comment
     val toggleHaptic = rememberToggleHaptic()
@@ -72,9 +72,9 @@ fun CommentItem(
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
-                vertical = 12.dp
+                vertical = 12.dp,
             ),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // avatar
         AsyncImage(
@@ -90,7 +90,7 @@ fun CommentItem(
         // name
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -104,7 +104,7 @@ fun CommentItem(
                         text = " ▸ ",
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.outline
+                            color = MaterialTheme.colorScheme.outline,
                         ),
                         modifier = Modifier.padding(horizontal = 4.dp),
                     )
@@ -112,7 +112,7 @@ fun CommentItem(
                         text = replyTo.name,
                         style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         ),
                         modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(replyTo.id)) },
                     )
@@ -143,7 +143,7 @@ fun CommentItem(
                                     }
                                 }
                             }
-                        }
+                        },
                 )
             }
 
@@ -152,7 +152,7 @@ fun CommentItem(
             if (commentImages.isNotEmpty()) {
                 Column(
                     modifier = Modifier.padding(vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     commentImages.forEach { image ->
                         ImageComponent(
@@ -169,14 +169,14 @@ fun CommentItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier.padding(top = 2.dp),
             ) {
                 comment.ipInfo?.let { ip ->
                     Text(
                         text = stringResource(
                             R.string.comment_published_with_ip,
                             formatToDate(comment.createdTime),
-                            ip
+                            ip,
                         ),
                         style = metaStyle,
                         color = MaterialTheme.colorScheme.outline,
@@ -193,11 +193,11 @@ fun CommentItem(
                         text = pluralStringResource(
                             R.plurals.comment_reply_count_with_arrow,
                             comment.childCount,
-                            comment.childCount
+                            comment.childCount,
                         ),
                         style = metaStyle.copy(
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         ),
                         modifier = Modifier
                             .clickable { onEvent(CommentUiEvent.LoadChildComments(comment)) }
@@ -215,7 +215,7 @@ fun CommentItem(
                 .clickable {
                     toggleHaptic(!comment.liked)
                     onEvent(CommentUiEvent.ToggleLike(comment.id))
-                }
+                },
         ) {
             Icon(
                 imageVector = if (comment.liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
@@ -229,7 +229,7 @@ fun CommentItem(
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontSize = TextStyles.commentLikeSize,
                         color = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                    )
+                    ),
                 )
             }
         }

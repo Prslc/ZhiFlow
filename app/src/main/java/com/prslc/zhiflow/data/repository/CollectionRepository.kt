@@ -80,13 +80,11 @@ class CollectionRepository(
         id: String,
         type: ContentType,
         add: List<Long>,
-        remove: List<Long>
-    ): Result<Unit> {
-        return service.updateContentCollections(
-            id = id,
-            contentType = type,
-            addIds = add,
-            removeIds = remove,
-        )
-    }
+        remove: List<Long>,
+    ): Result<Unit> = service.updateContentCollections(
+        id = id,
+        contentType = type,
+        addIds = add,
+        removeIds = remove,
+    )
 }

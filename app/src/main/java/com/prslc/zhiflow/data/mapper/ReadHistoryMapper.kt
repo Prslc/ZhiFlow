@@ -42,6 +42,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 readTime = extra?.readTime ?: 0,
             )
         }
+
         "profile" -> {
             val match = PROFILE_STAT_REGEX.find(statText)
             ReadHistoryDto(
@@ -61,6 +62,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 readTime = extra?.readTime ?: 0,
             )
         }
+
         else -> {
             val stats = voteStatsOf(statText)
             val progressText = matrix.getOrNull(1)?.data?.text.orEmpty()

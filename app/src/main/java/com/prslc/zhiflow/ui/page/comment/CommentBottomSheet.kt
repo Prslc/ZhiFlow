@@ -46,7 +46,7 @@ fun CommentBottomSheet(
     showComments: Boolean,
     onEvent: (CommentUiEvent) -> Unit,
     modifier: Modifier = Modifier,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     val navigator = LocalNavigator.current
     val rootListState = rememberLazyListState()
@@ -68,7 +68,7 @@ fun CommentBottomSheet(
             onDismissRequest = {
                 onDismissRequest()
                 onEvent(CommentUiEvent.DismissSheet)
-            }
+            },
         ) {
             CommentPaneTransition(
                 isDetail = childUiState.isDetailMode,
@@ -78,7 +78,7 @@ fun CommentBottomSheet(
                     Column(modifier = Modifier.fillMaxSize()) {
                         CommentHeader(
                             title = stringResource(R.string.comment_count, uiState.totalCount),
-                            onClose = onDismissRequest
+                            onClose = onDismissRequest,
                         )
                         val onLoadMoreRoot = remember(id, contentType) {
                             { onEvent(CommentUiEvent.LoadRootComments(id, contentType)) }
@@ -146,19 +146,19 @@ fun CommentHeader(
     title: String,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
-    isBackStyle: Boolean = false
+    isBackStyle: Boolean = false,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
     ) {
         if (isBackStyle) {
             IconButton(
                 onClick = onClose,
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.padding(start = 4.dp),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -182,7 +182,7 @@ fun CommentHeader(
             )
             IconButton(
                 onClick = onClose,
-                modifier = Modifier.padding(end = 4.dp)
+                modifier = Modifier.padding(end = 4.dp),
             ) {
                 Icon(
                     Icons.Default.Close,

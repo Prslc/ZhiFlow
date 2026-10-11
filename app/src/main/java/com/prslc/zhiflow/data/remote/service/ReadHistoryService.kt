@@ -18,7 +18,7 @@ class ReadHistoryService(private val api: ApiClient) {
      */
     suspend fun getReadHistory(
         offset: Int = 0,
-        limit: Int = 10
+        limit: Int = 10,
     ): Result<ReadHistoryResponse> = api.safeApiCall {
         val url = "${BASE_URL}/unify-consumption/read_history"
             .toHttpUrl()

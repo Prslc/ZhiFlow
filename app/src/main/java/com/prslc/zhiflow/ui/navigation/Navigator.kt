@@ -18,7 +18,7 @@ val LocalNavigator = staticCompositionLocalOf<Navigator> {
 class Navigator(
     private val navController: NavHostController,
     private val context: Context,
-    private val uriHandler: UriHandler
+    private val uriHandler: UriHandler,
 ) {
 
     /**
@@ -40,7 +40,7 @@ class Navigator(
                     Toast.makeText(
                         context,
                         context.getString(R.string.error_unable_to_open_link),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
                 }
             }
@@ -55,14 +55,19 @@ class Navigator(
     fun navigateToContent(id: String, type: String) {
         when (type.lowercase()) {
             "answer" -> navController.navigate(AnswerDetail(id))
+
             "article" -> navController.navigate(ArticleDetail(id))
+
             "pin" -> navController.navigate(PinDetail(id))
+
             "question" -> navController.navigate(QuestionDetail(id))
+
             "people", "profile" -> navController.navigate(PeopleDetail(id))
+
             else -> Toast.makeText(
                 context,
                 context.getString(R.string.error_unknown_nav_type, type),
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT,
             ).show()
         }
     }

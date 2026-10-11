@@ -14,7 +14,6 @@ data class ZhihuUser(
     @SerialName("description") val userDescription: String? = null,
     @SerialName("avatar_url") val avatar: String? = null,
     @SerialName("cover_url") val coverUrl: String? = null, // bg
-
     // Statistical data
     @SerialName("follower_count") val followerCount: Int = 0,
     @SerialName("following_count") val followingCount: Int = 0,
@@ -22,7 +21,6 @@ data class ZhihuUser(
     @SerialName("favorite_count") val favoriteCount: Int = 0,
     @SerialName("pins_count") val pinsCount: Int = 0,
     @SerialName("answer_count") val answerCount: Int = 0,
-
     // Follow state (null = unknown / not logged in)
     @SerialName("is_following") val isFollowing: Boolean? = null,
     @SerialName("is_followed") val isFollowed: Boolean? = null,

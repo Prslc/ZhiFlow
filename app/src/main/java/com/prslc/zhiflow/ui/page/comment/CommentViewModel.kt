@@ -21,13 +21,21 @@ import kotlinx.coroutines.launch
 @Immutable
 sealed interface CommentUiEvent {
     data object DismissSheet : CommentUiEvent
+
     data object BackToMain : CommentUiEvent
+
     data object LoadMoreReplies : CommentUiEvent
+
     data object ActionErrorShown : CommentUiEvent
+
     data class LoadRootComments(val id: String, val contentType: ContentType) : CommentUiEvent
+
     data class NavigatedToUser(val userId: String) : CommentUiEvent
+
     data class ToggleLike(val commentId: String) : CommentUiEvent
+
     data class ShowAuthor(val urlToken: String) : CommentUiEvent
+
     data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
 }
 
@@ -159,8 +167,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
 
                     segmentUiState = segmentUiState.copy(
-                        comments = if (isNewOrRefresh) processed
-                        else segmentUiState.comments + processed,
+                        comments = if (isNewOrRefresh) {
+                            processed
+                        } else {
+                            segmentUiState.comments + processed
+                        },
                         totalCount = response.counts.total,
                         offset = nextOffset,
                         hasMore = response.paging?.isEnd == false,
@@ -192,20 +203,20 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
             val currentOffset = if (forceRefresh) "" else childUiState.offset
             repository.getChildComments(rootComment.id, currentOffset).onSuccess { response ->
-                    val processed = response.data.toUiModels()
-                    val nextOffset =
-                        response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
-                    val hasNext = response.paging?.isEnd == false
+                val processed = response.data.toUiModels()
+                val nextOffset =
+                    response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
+                val hasNext = response.paging?.isEnd == false
 
-                    childUiState = childUiState.copy(
-                        comments = if (forceRefresh) processed else childUiState.comments + processed,
-                        offset = nextOffset,
-                        hasMore = hasNext,
-                        isLoading = false,
-                    )
-                }.onApiFailure { error ->
-                    childUiState = childUiState.copy(isLoading = false, error = error)
-                }
+                childUiState = childUiState.copy(
+                    comments = if (forceRefresh) processed else childUiState.comments + processed,
+                    offset = nextOffset,
+                    hasMore = hasNext,
+                    isLoading = false,
+                )
+            }.onApiFailure { error ->
+                childUiState = childUiState.copy(isLoading = false, error = error)
+            }
         }
     }
 
@@ -283,11 +294,17 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val mapper = { model: CommentUiModel ->
             if (model.comment.id == id) {
                 val updatedComment = model.comment.copy(
-                    liked = active, likeCount = if (active) model.comment.likeCount + 1
-                    else (model.comment.likeCount - 1).coerceAtLeast(0)
+                    liked = active,
+                    likeCount = if (active) {
+                        model.comment.likeCount + 1
+                    } else {
+                        (model.comment.likeCount - 1).coerceAtLeast(0)
+                    },
                 )
                 model.copy(comment = updatedComment)
-            } else model
+            } else {
+                model
+            }
         }
 
         uiState = uiState.copy(comments = uiState.comments.map(mapper))

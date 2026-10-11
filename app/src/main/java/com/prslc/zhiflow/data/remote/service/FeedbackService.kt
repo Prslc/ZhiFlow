@@ -34,7 +34,7 @@ class FeedbackService(private val api: ApiClient) {
      */
     suspend fun getPanel(
         contentId: String,
-        contentType: String
+        contentType: String,
     ): Result<NegativeFeedbackPanel> = api.safeApiCall {
         val url = "$BASE_URL/negative-feedback/panel".toHttpUrl().newBuilder()
             .addQueryParameter("feed_deliver_type", DELIVER_NORMAL)
@@ -62,7 +62,7 @@ class FeedbackService(private val api: ApiClient) {
     suspend fun getContentTags(
         contentToken: String,
         contentType: String,
-        feedbackType: String
+        feedbackType: String,
     ): Result<ContentTagList> = api.safeApiCall {
         Request.Builder()
             .url(blockUrl("/zrec-feedback/content-tags", contentToken, contentType, feedbackType))
@@ -80,7 +80,7 @@ class FeedbackService(private val api: ApiClient) {
     suspend fun getBlockKeywords(
         contentToken: String,
         contentType: String,
-        feedbackType: String
+        feedbackType: String,
     ): Result<FeedRootBlock> = api.safeApiCall {
         Request.Builder()
             .url(blockUrl("/feed-root/block", contentToken, contentType, feedbackType))
@@ -126,7 +126,7 @@ class FeedbackService(private val api: ApiClient) {
         path: String,
         contentToken: String,
         contentType: String,
-        feedbackType: String
+        feedbackType: String,
     ): HttpUrl = "$BASE_URL$path".toHttpUrl().newBuilder()
         .addQueryParameter("content_type", contentType)
         .addQueryParameter("content_token", contentToken)

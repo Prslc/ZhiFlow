@@ -29,12 +29,12 @@ import androidx.compose.ui.unit.dp
 fun EmptyView(
     message: String,
     modifier: Modifier = Modifier,
-    icon: ImageVector = Icons.Rounded.ChatBubbleOutline
+    icon: ImageVector = Icons.Rounded.ChatBubbleOutline,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = icon,

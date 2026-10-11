@@ -43,12 +43,15 @@ fun CommentList(
     rootComment: CommentViewModel.CommentUiModel? = null,
     isChild: Boolean = false,
     error: ApiException? = null,
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit = {},
 ) {
     val errorMessage = error?.uiMessage
     val loadMoreError = if (comments.isNotEmpty()) error else null
-    val endText = if (hasMore) null
-    else stringResource(if (isChild) R.string.comment_end_child else R.string.comment_end_root)
+    val endText = if (hasMore) {
+        null
+    } else {
+        stringResource(if (isChild) R.string.comment_end_child else R.string.comment_end_root)
+    }
     val stateTarget = when {
         isLoading && comments.isEmpty() -> "LOADING"
         errorMessage != null && comments.isEmpty() -> "ERROR"
@@ -70,13 +73,13 @@ fun CommentList(
             transitionSpec = {
                 fadeIn().togetherWith(fadeOut())
             },
-            label = "CommentListStatusTransition"
+            label = "CommentListStatusTransition",
         ) { target ->
             when (target) {
                 "CONTENT" -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        state = state
+                        state = state,
                     ) {
                         // Pin
                         if (rootComment != null) {
@@ -98,7 +101,7 @@ fun CommentList(
 
                         itemsIndexed(
                             items = comments,
-                            key = { _, item -> item.comment.id }
+                            key = { _, item -> item.comment.id },
                         ) { _, model ->
                             CommentItem(
                                 model = model,
@@ -136,9 +139,13 @@ fun CommentList(
 
                 "EMPTY" -> {
                     EmptyView(
-                        message = if (isChild) stringResource(R.string.comment_empty_child) else stringResource(
-                            R.string.comment_empty_root
-                        ),
+                        message = if (isChild) {
+                            stringResource(R.string.comment_empty_child)
+                        } else {
+                            stringResource(
+                                R.string.comment_empty_root,
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp),

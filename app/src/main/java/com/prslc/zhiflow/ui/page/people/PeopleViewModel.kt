@@ -74,7 +74,7 @@ class PeopleViewModel(
                     contentToken = userId,
                     contentType = PROFILE_CONTENT_TYPE,
                     readProgress = 0,
-                )
+                ),
             ).ignoreOutcome()
         }
     }
@@ -109,4 +109,3 @@ class PeopleViewModel(
         }
     }
 }
-

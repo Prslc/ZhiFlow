@@ -66,7 +66,7 @@ fun CollectionDialog(
     onDismissRequest: () -> Unit,
     onResult: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CollectionViewModel = koinViewModel()
+    viewModel: CollectionViewModel = koinViewModel(),
 ) {
     val haptic = LocalHapticFeedback.current
 
@@ -80,7 +80,7 @@ fun CollectionDialog(
             tonalElevation = 6.dp,
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp)
+                .padding(vertical = 24.dp),
         ) {
             val state = viewModel.uiState
 
@@ -98,7 +98,7 @@ fun CollectionDialog(
                 // List Area
                 Box(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     when {
                         state.isLoading && state.collections.isEmpty() -> {
@@ -124,7 +124,7 @@ fun CollectionDialog(
                             LazyColumn {
                                 items(
                                     items = state.collections,
-                                    key = { it.id }
+                                    key = { it.id },
                                 ) { collection ->
                                     CollectionItem(
                                         title = collection.title,
@@ -136,7 +136,7 @@ fun CollectionDialog(
                                             if (!state.isLoading) {
                                                 viewModel.toggleSelection(collection.id)
                                             }
-                                        }
+                                        },
                                     )
                                 }
                             }
@@ -168,7 +168,7 @@ fun CollectionDialog(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(onClick = onDismissRequest) {
                         Text(stringResource(android.R.string.cancel))
@@ -184,7 +184,7 @@ fun CollectionDialog(
                                 onDismissRequest()
                             }
                         },
-                        enabled = !state.isLoading && viewModel.hasChanges()
+                        enabled = !state.isLoading && viewModel.hasChanges(),
                     ) {
                         if (state.isLoading && state.collections.isNotEmpty()) {
                             LoadingIndicator(modifier = Modifier.size(24.dp))
@@ -220,14 +220,14 @@ fun CollectionItem(
     isDefault: Boolean,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onToggle() }
             .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -242,7 +242,7 @@ fun CollectionItem(
                     Spacer(Modifier.width(6.dp))
                     Surface(
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = MaterialTheme.shapes.extraSmall
+                        shape = MaterialTheme.shapes.extraSmall,
                     ) {
                         Text(
                             text = stringResource(R.string.collection_default_label),

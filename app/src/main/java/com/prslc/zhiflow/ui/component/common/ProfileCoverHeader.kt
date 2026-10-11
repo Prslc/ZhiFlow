@@ -170,7 +170,7 @@ fun ProfileCoverHeader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = HeaderGutter)
+                .padding(horizontal = HeaderGutter),
         ) {
             Text(
                 text = user.name?.takeIf { it.isNotBlank() }

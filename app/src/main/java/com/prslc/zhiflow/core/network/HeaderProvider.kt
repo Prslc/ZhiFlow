@@ -121,7 +121,7 @@ object HeaderProvider {
             "Height" to "${dm.heightPixels}",
             "Installer" to "Market",
             "DeviceType" to "AndroidPhone",
-            "Brand" to Build.BRAND
+            "Brand" to Build.BRAND,
         )
 
         params.entries.joinToString("&") { "${it.key}=${it.value}" }

@@ -15,7 +15,7 @@ import org.koin.androidx.compose.koinViewModel
 fun PeopleTabContent(
     urlToken: String,
     viewModel: MomentViewModel<*>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state = viewModel.uiState
 
@@ -32,7 +32,7 @@ fun PeopleTabContent(
 
     LazyColumn(
         state = viewModel.listState,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
     ) {
         momentsContent(
             urlToken = urlToken,

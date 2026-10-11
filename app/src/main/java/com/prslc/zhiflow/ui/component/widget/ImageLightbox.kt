@@ -106,7 +106,7 @@ fun ImageLightbox(
         ),
     ) {
         val pagerState = rememberPagerState(
-            initialPage = initialIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0))
+            initialPage = initialIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0)),
         ) { items.size }
         var isCurrentPageZoomed by remember { mutableStateOf(false) }
         var isMenuExpanded by remember { mutableStateOf(false) }
@@ -163,13 +163,13 @@ fun ImageLightbox(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(Color.Black),
         ) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
                 pageSpacing = 16.dp,
-                userScrollEnabled = !isCurrentPageZoomed
+                userScrollEnabled = !isCurrentPageZoomed,
             ) { pageIndex ->
                 val item = items[pageIndex]
                 val url = item.imageUrl ?: return@HorizontalPager
@@ -187,7 +187,7 @@ fun ImageLightbox(
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     ZoomableAsyncImage(
                         model = ImageRequest.Builder(context).data(url)
@@ -226,7 +226,7 @@ fun ImageLightbox(
                 visible = !isCurrentPageZoomed,
                 enter = fadeIn(),
                 exit = fadeOut(),
-                modifier = Modifier.align(Alignment.TopCenter)
+                modifier = Modifier.align(Alignment.TopCenter),
             ) {
                 Row(
                     modifier = Modifier
@@ -234,20 +234,20 @@ fun ImageLightbox(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.6f), Color.Transparent
-                                )
-                            )
+                                    Color.Black.copy(alpha = 0.6f), Color.Transparent,
+                                ),
+                            ),
                         )
                         .statusBarsPadding()
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = backText,
-                            tint = Color.White
+                            tint = Color.White,
                         )
                     }
 
@@ -259,13 +259,13 @@ fun ImageLightbox(
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = moreText,
-                                tint = Color.White
+                                tint = Color.White,
                             )
                         }
 
                         DropdownMenu(
                             expanded = isMenuExpanded,
-                            onDismissRequest = { isMenuExpanded = false }
+                            onDismissRequest = { isMenuExpanded = false },
                         ) {
                             val current = items.getOrNull(pagerState.currentPage)
 
@@ -274,7 +274,7 @@ fun ImageLightbox(
                                 DropdownMenuItem(text = { Text(copyFormulaText) }, leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Functions,
-                                        contentDescription = null
+                                        contentDescription = null,
                                     )
                                 }, onClick = {
                                     isMenuExpanded = false
@@ -284,7 +284,7 @@ fun ImageLightbox(
 
                             DropdownMenuItem(text = { Text(shareText) }, leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Default.Share, contentDescription = null
+                                    imageVector = Icons.Default.Share, contentDescription = null,
                                 )
                             }, onClick = {
                                 isMenuExpanded = false
@@ -295,7 +295,7 @@ fun ImageLightbox(
                                     ) {
                                         haptic.performHapticFeedback(HapticFeedbackType.Reject)
                                         Toast.makeText(
-                                            appContext, failedText, Toast.LENGTH_SHORT
+                                            appContext, failedText, Toast.LENGTH_SHORT,
                                         ).show()
                                     }
                                 }
@@ -303,7 +303,7 @@ fun ImageLightbox(
 
                             DropdownMenuItem(text = { Text(saveActionText) }, leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Default.Save, contentDescription = null
+                                    imageVector = Icons.Default.Save, contentDescription = null,
                                 )
                             }, onClick = {
                                 isMenuExpanded = false
@@ -311,11 +311,14 @@ fun ImageLightbox(
                                     val currentUrl = items[pagerState.currentPage].imageUrl
                                     val saved = currentUrl != null &&
                                         ImageHelper.saveImageToGallery(
-                                            appContext, currentUrl
+                                            appContext, currentUrl,
                                         ).isSuccess
                                     haptic.performHapticFeedback(
-                                        if (saved) HapticFeedbackType.Confirm
-                                        else HapticFeedbackType.Reject
+                                        if (saved) {
+                                            HapticFeedbackType.Confirm
+                                        } else {
+                                            HapticFeedbackType.Reject
+                                        },
                                     )
                                     val message =
                                         if (saved) successText else failedText

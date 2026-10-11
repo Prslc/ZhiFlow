@@ -112,7 +112,7 @@ class HttpLogInterceptor(private val store: HttpLogStore) : Interceptor {
                     responseBody = responseBody,
                     error = error,
                     truncated = truncated,
-                )
+                ),
             )
         }
     }

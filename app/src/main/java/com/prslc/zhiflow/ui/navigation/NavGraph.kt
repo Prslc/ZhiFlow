@@ -31,7 +31,8 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         ContentDetailScreen(
             id = route.id,
             contentType = ContentType.ANSWER,
-            onBack = { navController.popBackStack() })
+            onBack = { navController.popBackStack() },
+        )
     }
 
     composable<ArticleDetail> { backStackEntry ->
@@ -39,14 +40,16 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         ContentDetailScreen(
             id = route.id,
             contentType = ContentType.ARTICLE,
-            onBack = { navController.popBackStack() })
+            onBack = { navController.popBackStack() },
+        )
     }
 
     composable<PinDetail> { backStackEntry ->
         val route: PinDetail = backStackEntry.toRoute()
         PinDetailScreen(
             id = route.id,
-            onBack = { navController.popBackStack() })
+            onBack = { navController.popBackStack() },
+        )
     }
 
     composable<QuestionDetail> { backStackEntry ->

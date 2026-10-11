@@ -98,8 +98,8 @@ data class AtmosphereEmoji(
 @Immutable
 @Serializable
 data class CommentTag(
-    val type: String,   // ip
-    val text: String    // ip address,
+    val type: String, // ip
+    val text: String, // ip address,
 )
 
 @Immutable

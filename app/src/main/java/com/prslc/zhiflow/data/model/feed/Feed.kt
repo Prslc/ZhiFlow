@@ -24,8 +24,8 @@ data class CardStyle(
 @Serializable
 data class PagingData(
     @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String? = null,    // next page
-    val previous: String? = null // previous page
+    val next: String? = null, // next page
+    val previous: String? = null, // previous page
 )
 
 @Immutable

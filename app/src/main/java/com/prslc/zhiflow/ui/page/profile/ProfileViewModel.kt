@@ -26,7 +26,6 @@ class ProfileViewModel(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,
         val error: ApiException? = null,
-
         /** True with only an anonymous session behind it, where there is no profile to fetch. */
         val isGuest: Boolean = false,
     )

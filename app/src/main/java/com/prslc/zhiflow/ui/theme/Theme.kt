@@ -26,7 +26,7 @@ private val LightColorScheme = lightColorScheme(
 fun ZhiFlowTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor -> {
@@ -34,8 +34,13 @@ fun ZhiFlowTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> {
+            DarkColorScheme
+        }
+
+        else -> {
+            LightColorScheme
+        }
     }
 
     MaterialExpressiveTheme(

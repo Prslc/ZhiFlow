@@ -52,7 +52,7 @@ data class ReferenceItem(
 @Immutable
 @Serializable
 data class Heading(
-    val text: String,   // title style
+    val text: String, // title style
     val level: Int,
     val marks: List<Mark> = emptyList(),
 )

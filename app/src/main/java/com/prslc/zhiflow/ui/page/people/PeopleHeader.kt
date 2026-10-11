@@ -25,7 +25,7 @@ import com.prslc.zhiflow.ui.component.common.ProfileStat
 fun PeopleHeader(
     user: ZhihuUser,
     onFollowClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ProfileCoverHeader(
         user = user,

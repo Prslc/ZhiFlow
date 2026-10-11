@@ -25,14 +25,22 @@ import com.prslc.zhiflow.data.dto.FeedbackAction
 @ReadOnlyComposable
 fun feedbackRowLabel(action: FeedbackAction, authorName: String?): String = when (action.moduleId) {
     "ignore_reduce_similar" -> stringResource(R.string.feedback_row_not_interested)
+
     "ignore_author" -> authorName?.let { stringResource(R.string.feedback_row_author, it) }
         ?: action.label
+
     "ignore_story" -> stringResource(R.string.feedback_row_story)
+
     "ignore_keyword" -> stringResource(R.string.feedback_row_keywords)
+
     "ignore_outdated" -> stringResource(R.string.feedback_row_repetitive)
+
     "ignore_unfriendly" -> stringResource(R.string.feedback_row_extreme)
+
     "ignore_vulgar" -> stringResource(R.string.feedback_row_vulgar)
+
     "ignore_poor_content" -> stringResource(R.string.feedback_row_poor)
+
     else -> action.label
 }
 

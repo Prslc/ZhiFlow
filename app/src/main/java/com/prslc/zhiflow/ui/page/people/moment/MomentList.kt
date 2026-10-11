@@ -25,13 +25,13 @@ enum class MomentContentType {
     ARTICLE,
     THOUGHT,
     USER,
-    UNKNOWN
+    UNKNOWN,
 }
 
 fun LazyListScope.momentsContent(
     urlToken: String,
     state: MomentViewModel.MomentUiState,
-    viewModel: MomentViewModel<*>
+    viewModel: MomentViewModel<*>,
 ) {
     val prefix = viewModel.tabKeyPrefix
 
@@ -43,7 +43,7 @@ fun LazyListScope.momentsContent(
                         .fillMaxWidth()
                         .fillParentMaxHeight()
                         .padding(32.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     LoadingView()
                 }
@@ -56,7 +56,7 @@ fun LazyListScope.momentsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillParentMaxHeight(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     ErrorView(
                         message = state.error.uiMessage,
@@ -73,7 +73,7 @@ fun LazyListScope.momentsContent(
                         .fillMaxWidth()
                         .fillParentMaxHeight()
                         .padding(32.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = stringResource(R.string.people_works_empty),
@@ -88,7 +88,7 @@ fun LazyListScope.momentsContent(
             items(
                 items = state.moments,
                 key = { item: MomentDto -> "${prefix}_${item.id}" },
-                contentType = { item: MomentDto -> item.type }
+                contentType = { item: MomentDto -> item.type },
             ) { item: MomentDto ->
                 when (item.type) {
                     MomentContentType.USER -> UserMomentCard(state = item)
@@ -105,4 +105,3 @@ fun LazyListScope.momentsContent(
         }
     }
 }
-

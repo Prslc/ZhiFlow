@@ -59,7 +59,7 @@ class AuthService(private val api: ApiClient) {
                         AuthForm.GRANT_DIGITS,
                         "username" to phoneNumber,
                         "digits" to code,
-                    )
+                    ),
                 )
                 .build()
         }
@@ -79,7 +79,7 @@ class AuthService(private val api: ApiClient) {
                         AuthForm.GRANT_PASSWORD,
                         "username" to account,
                         "password" to password,
-                    )
+                    ),
                 )
                 .build()
         }
@@ -97,7 +97,7 @@ class AuthService(private val api: ApiClient) {
                     AuthForm.signIn(
                         AuthForm.GRANT_REFRESH_TOKEN,
                         "refresh_token" to refreshToken,
-                    )
+                    ),
                 )
                 .build()
         }
@@ -125,7 +125,7 @@ class AuthService(private val api: ApiClient) {
                     AuthForm.of(
                         "token" to accessToken,
                         "use_refresh_direct_sign" to "0",
-                    )
+                    ),
                 )
                 .build()
         }

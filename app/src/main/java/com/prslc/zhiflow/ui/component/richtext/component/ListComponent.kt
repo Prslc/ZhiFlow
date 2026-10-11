@@ -40,7 +40,7 @@ import com.prslc.zhiflow.ui.component.richtext.ZRichText
 @Composable
 fun BulletItemRow(
     element: RichTextElement.BulletItem,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val indentation = (maxOf(0, element.level - 1) * 12).dp
     val markerWidth = 24.dp
@@ -97,14 +97,14 @@ fun BulletItemRow(
 @Composable
 fun ReferenceSection(
     items: List<RichTextElement.ParsedText>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(vertical = 8.dp)) {
         Text(
             text = stringResource(R.string.richtext_references),
             style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
             ),
             modifier = Modifier.padding(bottom = 4.dp),
         )
@@ -130,7 +130,7 @@ fun ReferenceSection(
                 inlineMetas = item.inlineMetas,
                 style = MaterialTheme.typography.bodySmall.copy(
                     lineHeight = 20.sp,
-                    color = Color.Gray
+                    color = Color.Gray,
                 ),
                 modifier = Modifier.padding(vertical = 2.dp),
             )

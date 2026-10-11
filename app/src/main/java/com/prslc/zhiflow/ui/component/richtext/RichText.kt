@@ -52,28 +52,62 @@ fun RichTextSingleElement(
                 onSegmentLikeClick = onSegmentLikeClick,
             )
         }
-        is RichTextElement.Heading -> Heading(element, modifier)
-        is RichTextElement.FormulaBlock -> LatexComponent(
-            formula = element.data,
-            modifier = modifier.clickable { onFormulaClick(element.data) },
-            isInline = false,
-        )
-        is RichTextElement.Image -> ImageComponent(element.data, onImageClick, modifier)
-        is RichTextElement.Code -> CodeBlock(element.code, element.lang, element.tokens, modifier)
-        is RichTextElement.BulletItem -> BulletItemRow(element, modifier)
-        is RichTextElement.Blockquote -> BlockquoteComponent(
-            element = element,
-            modifier = modifier,
-            segmentLikes = segmentLikes,
-            onSegmentLikeClick = onSegmentLikeClick,
-        )
-        is RichTextElement.Card -> when (element.cardType) {
-            "reward_tail_truncate" -> { /* TODO: custom rendering */ }
-            "free_column_card" -> { /* TODO: custom rendering */ }
-            else -> CardComponent(element, modifier)
+
+        is RichTextElement.Heading -> {
+            Heading(element, modifier)
         }
-        is RichTextElement.Table -> TableComponent(element, modifier)
-        is RichTextElement.Reference -> ReferenceSection(element.items, modifier)
-        is RichTextElement.Divider -> Divider(modifier)
+
+        is RichTextElement.FormulaBlock -> {
+            LatexComponent(
+                formula = element.data,
+                modifier = modifier.clickable { onFormulaClick(element.data) },
+                isInline = false,
+            )
+        }
+
+        is RichTextElement.Image -> {
+            ImageComponent(element.data, onImageClick, modifier)
+        }
+
+        is RichTextElement.Code -> {
+            CodeBlock(element.code, element.lang, element.tokens, modifier)
+        }
+
+        is RichTextElement.BulletItem -> {
+            BulletItemRow(element, modifier)
+        }
+
+        is RichTextElement.Blockquote -> {
+            BlockquoteComponent(
+                element = element,
+                modifier = modifier,
+                segmentLikes = segmentLikes,
+                onSegmentLikeClick = onSegmentLikeClick,
+            )
+        }
+
+        is RichTextElement.Card -> {
+            when (element.cardType) {
+                "reward_tail_truncate" -> { /* TODO: custom rendering */ }
+
+                "free_column_card" -> { /* TODO: custom rendering */ }
+
+                else -> {
+                    CardComponent(element, modifier)
+                }
+            }
+        }
+
+        is RichTextElement.Table -> {
+            TableComponent(element, modifier)
+        }
+
+        is RichTextElement.Reference -> {
+            ReferenceSection(element.items, modifier)
+        }
+
+        is RichTextElement.Divider -> {
+            Divider(modifier)
+        }
     }
 }

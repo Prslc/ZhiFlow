@@ -74,7 +74,7 @@ fun ProfileScreen(
     onNavigateToFollows: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = koinViewModel()
+    viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val uiState = viewModel.uiState
     val user = uiState.user
@@ -95,7 +95,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset(y = -statusBarHeight)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
             ) {
                 ProfileCoverHeader(
                     user = user,
@@ -234,7 +234,7 @@ fun ProfileScreen(
                     onClick = {
                         showSignOutDialog = false
                         viewModel.signOut()
-                    }
+                    },
                 ) {
                     Text(stringResource(R.string.profile_action_sign_out))
                 }
@@ -335,4 +335,3 @@ private fun ProfileGroup(
         content = content,
     )
 }
-

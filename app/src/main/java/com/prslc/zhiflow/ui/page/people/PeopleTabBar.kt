@@ -26,13 +26,13 @@ private val INDICATOR_HEIGHT = 3.dp
 fun PeopleTabBar(
     pagerState: PagerState,
     onTabSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val tabResIds = remember {
         listOf(
             R.string.people_tab_post,
             R.string.people_tab_activity,
-            R.string.people_tab_upvoted
+            R.string.people_tab_upvoted,
         )
     }
 
@@ -72,7 +72,7 @@ fun PeopleTabBar(
                             constraints.copy(
                                 minWidth = desiredWidthPx,
                                 maxWidth = desiredWidthPx,
-                            )
+                            ),
                         )
 
                         layout(constraints.maxWidth, placeable.height) {
@@ -82,7 +82,7 @@ fun PeopleTabBar(
                     color = MaterialTheme.colorScheme.primary,
                     height = INDICATOR_HEIGHT,
                 )
-            }
+            },
         ) {
             tabResIds.forEachIndexed { index, resId ->
                 val isSelected = pagerState.currentPage == index
@@ -103,9 +103,9 @@ fun PeopleTabBar(
                                 val scale = if (isSelected) 1.05f else 1.0f
                                 scaleX = scale
                                 scaleY = scale
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         }

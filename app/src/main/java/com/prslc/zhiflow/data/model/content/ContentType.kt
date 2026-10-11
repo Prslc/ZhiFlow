@@ -5,18 +5,17 @@ import androidx.compose.runtime.Immutable
 @Immutable
 enum class ContentType(
     val type: String,
-    val apiPath: String
+    val apiPath: String,
 ) {
     ARTICLE("article", "articles"),
     ANSWER("answer", "answers"),
-    PIN("pin", "pins");
+    PIN("pin", "pins"),
+    ;
 
     companion object {
-        fun from(value: String?): ContentType {
-            return entries.find {
-                it.type.equals(value, ignoreCase = true) ||
-                        it.apiPath.equals(value, ignoreCase = true)
-            } ?: ANSWER
-        }
+        fun from(value: String?): ContentType = entries.find {
+            it.type.equals(value, ignoreCase = true) ||
+                it.apiPath.equals(value, ignoreCase = true)
+        } ?: ANSWER
     }
 }

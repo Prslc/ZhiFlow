@@ -44,7 +44,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
  */
 @Composable
 fun List<InlineFormulaMeta>.rememberInlineContent(
-    maxWidthDp: Float = -1f
+    maxWidthDp: Float = -1f,
 ): Map<String, InlineTextContent> {
     val density = LocalDensity.current
     val effectiveMaxWidth = if (maxWidthDp > 0f) maxWidthDp else rememberFormulaMaxWidth()
@@ -52,7 +52,7 @@ fun List<InlineFormulaMeta>.rememberInlineContent(
         this@rememberInlineContent.associate { meta ->
             val formula = meta.formula
             val (widthDp, heightDp) = constrainedSize(
-                formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth
+                formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth,
             )
 
             meta.inlineId to InlineTextContent(formulaPlaceholder(density, widthDp, heightDp)) {
@@ -128,17 +128,17 @@ fun ZRichText(
                             linkInteractionListener = { clickable ->
                                 val clickedUrl = (clickable as LinkAnnotation.Clickable).tag
                                 navigator.handleUrl(clickedUrl)
-                            }
+                            },
                         ),
                         start = annotation.start,
-                        end = annotation.end
+                        end = annotation.end,
                     )
                 } else {
                     addStringAnnotation(
                         annotation.tag,
                         annotation.item,
                         annotation.start,
-                        annotation.end
+                        annotation.end,
                     )
                 }
             }
@@ -164,7 +164,7 @@ fun ZRichText(
                 layoutResult.value?.let { layout ->
                     val offset = layout.getOffsetForPosition(pos)
                     interceptedContent.getStringAnnotations(
-                        AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset
+                        AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset,
                     ).firstOrNull()?.let { onSegmentLikeClick(it.item) }
                 }
             }
@@ -199,4 +199,3 @@ fun ZRichText(
             .then(segmentGesture),
     )
 }
-

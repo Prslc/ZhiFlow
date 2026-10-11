@@ -220,11 +220,18 @@ fun LoginScreen(
                     Text(
                         text = stringResource(
                             when {
-                                accountBlank -> R.string.login_error_account_missing
-                                viewModel.method == LoginViewModel.Method.CODE ->
+                                accountBlank -> {
+                                    R.string.login_error_account_missing
+                                }
+
+                                viewModel.method == LoginViewModel.Method.CODE -> {
                                     R.string.login_error_code_missing
-                                else -> R.string.login_error_password_missing
-                            }
+                                }
+
+                                else -> {
+                                    R.string.login_error_password_missing
+                                }
+                            },
                         ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
@@ -347,7 +354,7 @@ private fun PasswordField(
                             R.string.login_action_hide_password
                         } else {
                             R.string.login_action_show_password
-                        }
+                        },
                     ),
                 )
             }

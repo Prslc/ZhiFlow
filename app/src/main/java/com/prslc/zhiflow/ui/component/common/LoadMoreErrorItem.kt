@@ -28,7 +28,7 @@ import com.prslc.zhiflow.R
 fun LoadMoreErrorItem(
     message: String,
     modifier: Modifier = Modifier,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -36,7 +36,7 @@ fun LoadMoreErrorItem(
             .clickable { onRetry() }
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = message,

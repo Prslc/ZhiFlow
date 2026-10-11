@@ -13,20 +13,15 @@ data class ZhihuPin(
     @SerialName("is_mine") val isMine: Boolean = false,
     @SerialName("can_copy") val canCopy: Boolean = true,
     @SerialName("is_topping") val isTopping: Boolean = false,
-
     @SerialName("header") val header: PinHeader? = null,
-
     override val author: AnswerAuthor,
     override val reaction: Reaction,
     @SerialName("content_end_info") override val contentEnd: ContentEndInfo? = null,
     @SerialName("structured_content") override val structuredContent: StructuredContent? = null,
-
     @SerialName("video_info") val videoInfo: String? = null,
     @SerialName("image_list") val imageList: PinImageList? = null,
-
     @SerialName("comment_config") val commentConfig: PinCommentConfig? = null,
-
-    @SerialName("relationship_tips") val relationshipTips: RelationshipTips? = null
+    @SerialName("relationship_tips") val relationshipTips: RelationshipTips? = null,
 ) : ZhihuContent {
     override val displayTitle: String
         get() = header?.text
