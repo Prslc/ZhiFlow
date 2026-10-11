@@ -131,7 +131,6 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 - `singleOf(::ClassName)` for services and repositories
 - `viewModelOf(::ViewModelName)` for ViewModels
 - `single { get<HttpClientProvider>().okHttpClient }` for the OkHttpClient instance
-- Coil's `ImageLoader` is a `single` as well, so a ViewModel that needs the image cache can be handed it rather than a `Context` to reach it with
 - `SharedPreferences` is provided as a `single` pointing to the `"temp_auth_prefs"` file
 - `ApiClient` is what every service takes, because the funnel (`safeApiCall`/`safeExecute`) is an inline extension: anything it needs on every call has to hang off its receiver. Its `SessionGate` is resolved lazily — the gate needs a client of its own to talk to the server with, so the two cannot be built in either order
 - `SessionManager` is bound under both its own type and `SessionGate`. Koin matches keys exactly, so an interface binding does not answer a request for the concrete type; the startup path asks for the manager and the funnel asks for the gate
@@ -181,7 +180,6 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
   - The dp→sp conversion divides by `fontScale` (`formulaPlaceholder`), so rendered pixels stay constant regardless of the user's system font size.
 - A row is only as tall as its style asks for: Compose re-imposes an explicit `lineHeight` on a row a tall placeholder has grown, so a formula taller than the line would be drawn across its neighbours. Every host of an inline formula — `FormulaTextSection` for a paragraph, `ZRichText` for a heading, quote, list item, reference or table cell — takes its line height from `withFormulaLineHeight`, which raises it to the tallest formula plus 8dp of clearance.
 - Dark mode inverts the white-background bitmap via a `ColorMatrix`, not a tint.
-- Why images instead of `latex-renderer`: the library measured + laid out each formula synchronously on the main thread inside `LatexDocument`'s `remember`, causing ~23% janky frames and up to 1s p99 while scrolling formula-heavy pages. Image rendering uses the API's pre-rendered bitmaps with zero measurement; Coil loads/decodes off the main thread. The cost is extra network traffic for the formula images.
 
 #### Code colour (tokenizer-based)
 
@@ -189,9 +187,8 @@ The API sends a code block as `{content, language}` and nothing more — the ser
 - `CodeHighlighter` (in `parser/CodeHighlighter.kt`, over `dev.snipme:highlights`) runs inside `ContentParser.transform`, on the same `Dispatchers.Default` as the rest of the body. It builds a fresh tokenizer per block, against the library's own advice to keep one around: the instance holds the analysed code in mutable state, so a shared one would answer with a block another page parsed a moment earlier.
 - The tokenizer answers with **eight sets of ranges that overlap** — only comments and strings are kept out of the keyword search, so the `.` in `// foo.bar` is punctuation and comment at once. They are laid down in the library's own order — the later set wins — and then cut into runs that never overlap, so a renderer adds them in the order it is handed them and the gaps keep the block's own colour. Language names go through an alias table, because a fence is written by hand: `c++`, `js` and `bash` are not the spellings the tokenizer knows.
 - `RichTextElement.Code` carries those runs and no colour. Which colour a kind gets is the renderer's, which is what lets one parsed body be cached and drawn in either mode.
-- `SyntaxColors` (in `ui/theme/SyntaxColors.kt`) holds the palette, one arm per mode. It is its own and not the scheme's: eight kinds do not fit the scheme's few accents, and code colour is a convention the reader arrives with from every other editor. Every colour clears 4.5:1 on the card it is drawn on, the dark arm measured against that card's own `#1A1F24`. Brackets, commas and the like are left unspecified, so they keep the text's colour rather than making the block busier.
+- `SyntaxColors` (in `ui/theme/SyntaxColors.kt`) holds the palette, one arm per mode, and is its own rather than the scheme's. Every colour clears 4.5:1 on the card it is drawn on, the dark arm measured against that card's own `#1A1F24`. Brackets, commas and the like are left unspecified, so they keep the text's colour rather than making the block busier.
 - A fence naming a language the tokenizer does not carry — `text`, and SQL, JSON, HTML and the rest — yields no runs, and the block draws in one colour exactly as it did before there was a tokenizer.
-- Why not the library's own themes: a theme is consumed only by `getHighlights()`, which resolves the colours into its result. That result is mode-dependent, and the parse is deliberately mode-free (step 2 above) — so a palette resolved while parsing would force a body to be parsed twice, or its cache keyed by mode. The presets are also tuned for an IDE's background rather than for this app's card.
 
 ### Error Handling
 
