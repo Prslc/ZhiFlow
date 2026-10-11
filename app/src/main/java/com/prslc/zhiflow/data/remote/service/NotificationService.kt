@@ -19,12 +19,16 @@ class NotificationService(private val api: ApiClient) {
     /**
      * Retrieves the message page: the way into each list, the cards under them, and the unread.
      *
+     * @param nextUrl The page of cards to ask for, from `paging.next` of a previous response. That
+     *   url already carries both cursors the page takes, so nothing is added to it; null asks for a
+     *   first page, whose parameters are set here.
      * @return A [Result] holding the page, or the failure that kept it away.
      */
-    suspend fun messagePage(): Result<ZhihuMessagePage> = api.safeApiCall {
-        val url = "${BASE_URL}/notifications/v3/message/v3".toHttpUrl().newBuilder()
-            .addQueryParameter("limit", MESSAGE_PAGE_SIZE.toString())
-            .build()
+    suspend fun messagePage(nextUrl: String? = null): Result<ZhihuMessagePage> = api.safeApiCall {
+        val url = nextUrl?.toHttpUrl()
+            ?: "${BASE_URL}/notifications/v3/message/v3".toHttpUrl().newBuilder()
+                .addQueryParameter("limit", MESSAGE_PAGE_SIZE.toString())
+                .build()
 
         Request.Builder()
             .url(url)

@@ -114,4 +114,11 @@ class Navigator(
      */
     fun navigateToNotificationCategory(type: String, title: String) =
         navController.navigate(NotificationCategory(type, title))
+
+    /**
+     * Opens a conversation.
+     *
+     * @param peerId The user hash of the person at the other end.
+     */
+    fun navigateToChat(peerId: String) = navController.navigate(Chat(peerId))
 }

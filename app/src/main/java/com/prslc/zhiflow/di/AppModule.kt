@@ -20,6 +20,7 @@ import com.prslc.zhiflow.data.remote.service.CommentService
 import com.prslc.zhiflow.data.remote.service.ContentService
 import com.prslc.zhiflow.data.remote.service.FeedService
 import com.prslc.zhiflow.data.remote.service.FeedbackService
+import com.prslc.zhiflow.data.remote.service.MessageService
 import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.NotificationService
 import com.prslc.zhiflow.data.remote.service.QuestionService
@@ -33,6 +34,7 @@ import com.prslc.zhiflow.data.repository.CommentRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.FeedRepository
 import com.prslc.zhiflow.data.repository.FeedbackRepository
+import com.prslc.zhiflow.data.repository.MessageRepository
 import com.prslc.zhiflow.data.repository.MomentRepository
 import com.prslc.zhiflow.data.repository.NotificationRepository
 import com.prslc.zhiflow.data.repository.QuestionRepository
@@ -53,6 +55,7 @@ import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
 import com.prslc.zhiflow.ui.page.login.LoginViewModel
+import com.prslc.zhiflow.ui.page.notification.ChatViewModel
 import com.prslc.zhiflow.ui.page.notification.MessageViewModel
 import com.prslc.zhiflow.ui.page.notification.NotificationCategoryViewModel
 import com.prslc.zhiflow.ui.page.people.PeopleViewModel
@@ -158,8 +161,11 @@ val appModule = module {
     // Notification
     singleOf(::NotificationService)
     singleOf(::NotificationRepository)
+    singleOf(::MessageService)
+    singleOf(::MessageRepository)
     viewModelOf(::MessageViewModel)
     viewModelOf(::NotificationCategoryViewModel)
+    viewModelOf(::ChatViewModel)
 
     // Moment
     singleOf(::MomentService)

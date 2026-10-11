@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.mapper
 
+import com.prslc.zhiflow.data.dto.MessageThreadDto
 import com.prslc.zhiflow.data.dto.NotificationCategoryDto
 import com.prslc.zhiflow.data.dto.NotificationItemDto
 import com.prslc.zhiflow.data.dto.UnreadCountDto
@@ -31,6 +32,12 @@ private const val EMPTY_TYPE = "empty"
 private const val ENTRY_TYPE = "entry"
 private const val AGGREGATE_TYPE = "aggregate_notification"
 
+/** The kind of card that carries a conversation rather than a notification. */
+private const val THREAD_TYPE = "message"
+
+/** The stretch of a conversation card's link that the other end's user hash follows. */
+private const val INBOX_SEGMENT = "/inbox"
+
 /**
  * The ways into each list of notifications.
  *
@@ -49,6 +56,31 @@ internal fun ZhihuMessagePage.toCategories(): List<NotificationCategoryDto> =
             unreadCount = card.unreadCount,
         )
     }
+
+/**
+ * The conversations the message page lists.
+ *
+ * The page mixes them with cards of other kinds, and every one of them is drawn the same way; what
+ * separates a conversation is that it names the person it is with.
+ *
+ * @return The rows, in the order the server put them.
+ */
+internal fun ZhihuMessagePage.toThreads(): List<MessageThreadDto> = data.mapNotNull { card ->
+    val title = htmlToPlainText(card.content.title)
+    val text = htmlToPlainText(card.content.text)
+    if (title.isBlank() && text.isBlank()) return@mapNotNull null
+
+    MessageThreadDto(
+        id = card.id,
+        peerId = card.peerId(),
+        title = title,
+        text = text,
+        avatarUrl = card.avatarUrl(),
+        unreadCount = card.unreadCount,
+        createdTime = card.created,
+        targetLink = card.link(),
+    )
+}
 
 /**
  * The cards of one list of notifications, with the day separators left where the server put them.
@@ -121,6 +153,23 @@ private fun ZhihuNotificationCard.categoryType(): String? {
     if (fromContent in CATEGORY_TYPES) return fromContent
 
     return linkTail(head.targetLink).takeIf { it in CATEGORY_TYPES }
+}
+
+/**
+ * The person a conversation is with, which the address the card opens names: it is
+ * `.../inbox/{user hash}`, with the title and the source after it.
+ *
+ * @return The hash id, or null for a card that is not a conversation this app can open.
+ */
+private fun ZhihuNotificationCard.peerId(): String? {
+    if (notiType != THREAD_TYPE) return null
+
+    val path = link().substringBefore('?')
+    val start = path.indexOf("$INBOX_SEGMENT/")
+    if (start < 0) return null
+
+    val id = path.substring(start + INBOX_SEGMENT.length + 1).substringBefore('/')
+    return id.takeIf { it.isNotBlank() }
 }
 
 /** The picture a card is drawn with: the one it carries, or the first of the list it carries. */

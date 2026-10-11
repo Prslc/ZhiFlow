@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.data.dto.MessageThreadDto
 import com.prslc.zhiflow.data.dto.NotificationCategoryDto
 import com.prslc.zhiflow.data.dto.UnreadSummaryDto
 import com.prslc.zhiflow.data.repository.NotificationRepository
@@ -22,15 +23,20 @@ class MessageViewModel(
     @Immutable
     data class MessageUiState(
         val categories: List<NotificationCategoryDto> = emptyList(),
+        val threads: List<MessageThreadDto> = emptyList(),
         val unread: UnreadSummaryDto? = null,
         val isRefreshing: Boolean = false,
+        val isNextLoading: Boolean = false,
         val globalError: ApiException? = null,
+        val loadMoreError: ApiException? = null,
     )
 
     var uiState by mutableStateOf(MessageUiState())
         private set
 
     val listState = LazyListState()
+
+    private var nextPageUrl: String? = null
 
     /**
      * Loads the page when nothing has been loaded yet.
@@ -51,6 +57,28 @@ class MessageViewModel(
      */
     fun refresh() = fetch(reportVisit = true)
 
+    /** Loads the next page of conversations. No-op at the end, mid-load, or with none. */
+    fun loadMore() {
+        val url = nextPageUrl ?: return
+        if (uiState.isNextLoading || uiState.isRefreshing) return
+
+        viewModelScope.launch {
+            uiState = uiState.copy(isNextLoading = true, loadMoreError = null)
+
+            repository.messagePage(url)
+                .onSuccess { result ->
+                    nextPageUrl = result.nextPageUrl
+                    uiState = uiState.copy(
+                        threads = uiState.threads + result.threads,
+                        isNextLoading = false,
+                    )
+                }
+                .onApiFailure { error ->
+                    uiState = uiState.copy(loadMoreError = error, isNextLoading = false)
+                }
+        }
+    }
+
     private fun fetch(reportVisit: Boolean) {
         if (uiState.isRefreshing) return
 
@@ -61,10 +89,13 @@ class MessageViewModel(
 
             repository.messagePage()
                 .onSuccess { result ->
+                    nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
                         categories = result.categories,
+                        threads = result.threads,
                         unread = result.unread,
                         isRefreshing = false,
+                        loadMoreError = null,
                     )
                 }
                 .onApiFailure { error ->

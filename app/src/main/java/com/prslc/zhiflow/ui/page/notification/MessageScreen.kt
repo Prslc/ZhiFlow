@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,29 +38,36 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.core.utils.formatCount
+import com.prslc.zhiflow.data.dto.MessageThreadDto
 import com.prslc.zhiflow.data.dto.NotificationCategoryDto
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
 /** How many entries fit on a line before the next one starts. */
 private const val CATEGORIES_PER_ROW = 4
 
 /**
- * The message tab: the way into each list of notifications.
+ * The message tab: the way into each list of notifications, and the conversations under them.
  *
  * The page refreshes on the way in rather than only when it is empty: what is on screen was fetched
  * when the app started, or when the tab was last open, and either way it is older than the tab.
@@ -76,10 +85,16 @@ fun MessageScreen(
     val navigator = LocalNavigator.current
     val uiState = viewModel.uiState
     val categories = uiState.categories
+    val threads = uiState.threads
     val globalError = uiState.globalError
-    val isEmpty = categories.isEmpty()
+    val isEmpty = categories.isEmpty() && threads.isEmpty()
 
     LaunchedEffect(Unit) { viewModel.refresh() }
+
+    val shouldLoadMore by remember { viewModel.listState.shouldLoadMore() }
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) viewModel.loadMore()
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         Text(
@@ -125,22 +140,59 @@ fun MessageScreen(
                         state = viewModel.listState,
                         modifier = Modifier.fillMaxSize(),
                     ) {
-                        item(key = "categories") {
-                            CategoryRow(
-                                categories = categories,
-                                onClick = { category ->
-                                    navigator.navigateToNotificationCategory(
-                                        category.type,
-                                        category.title,
-                                    )
+                        if (categories.isNotEmpty()) {
+                            item(key = "categories") {
+                                CategoryRow(
+                                    categories = categories,
+                                    onClick = { category ->
+                                        navigator.navigateToNotificationCategory(
+                                            category.type,
+                                            category.title,
+                                        )
+                                    },
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                        .copy(alpha = 0.3f),
+                                )
+                            }
+                        }
+
+                        itemsIndexed(
+                            items = threads,
+                            key = { index, _ -> index },
+                        ) { index, thread ->
+                            val peerId = thread.peerId
+                            ThreadRow(
+                                thread = thread,
+                                onClick = {
+                                    // A card that names no conversation still points somewhere,
+                                    // and that somewhere is the browser's to open.
+                                    if (peerId != null) {
+                                        navigator.navigateToChat(peerId)
+                                    } else if (thread.targetLink.isNotBlank()) {
+                                        navigator.handleUrl(thread.targetLink)
+                                    }
                                 },
                             )
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                thickness = 0.5.dp,
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-                            )
+
+                            if (index < threads.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(start = 76.dp, end = 16.dp),
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                        .copy(alpha = 0.3f),
+                                )
+                            }
                         }
+
+                        pagingFooter(
+                            isLoading = uiState.isNextLoading,
+                            error = uiState.loadMoreError,
+                            onRetry = viewModel::loadMore,
+                        )
                     }
                 }
             }
@@ -221,6 +273,74 @@ private fun CategoryEntry(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+/** One conversation: who it is with, the last thing said, when, and whether it is still unread. */
+@Composable
+private fun ThreadRow(
+    thread: MessageThreadDto,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            model = thread.avatarUrl,
+            contentDescription = null,
+            modifier = Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+            contentScale = ContentScale.Crop,
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = thread.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = thread.text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = relativeDay(thread.createdTime),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline,
+            )
+
+            if (thread.unreadCount > 0) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+            }
+        }
     }
 }
 

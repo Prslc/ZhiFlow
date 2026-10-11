@@ -12,6 +12,24 @@ data class NotificationCategoryDto(
 )
 
 /**
+ * One row of the message page: a conversation, or a message the server put beside the others.
+ *
+ * [peerId] is null for a card that opens something other than a conversation, which is then
+ * [targetLink]'s to say.
+ */
+@Immutable
+data class MessageThreadDto(
+    val id: String,
+    val peerId: String?,
+    val title: String,
+    val text: String,
+    val avatarUrl: String?,
+    val unreadCount: Int,
+    val createdTime: Long,
+    val targetLink: String,
+)
+
+/**
  * One row of a list of notifications: a card, or the separator naming the day it belongs to.
  *
  * A card is drawn in layers, each of which the server may leave empty: who it is about

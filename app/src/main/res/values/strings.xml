@@ -389,6 +389,7 @@
     <string name="notification_action_body">%1$s: %2$s</string>
     <string name="notification_deleted_content">This content was deleted</string>
     <string name="notification_empty">Nothing here yet</string>
+    <string name="chat_empty">No messages yet</string>
     <string name="time_today">Today</string>
     <string name="time_yesterday">Yesterday</string>
 </resources>

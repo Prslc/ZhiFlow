@@ -1,18 +1,22 @@
 package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.core.exception.mapOffMain
+import com.prslc.zhiflow.data.dto.MessageThreadDto
 import com.prslc.zhiflow.data.dto.NotificationCategoryDto
 import com.prslc.zhiflow.data.dto.NotificationItemDto
 import com.prslc.zhiflow.data.dto.UnreadSummaryDto
 import com.prslc.zhiflow.data.mapper.toCategories
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.mapper.toItems
+import com.prslc.zhiflow.data.mapper.toThreads
 import com.prslc.zhiflow.data.remote.service.NotificationService
 
 /** The message page: what it offers a way into, and how much of it is unread. */
 data class MessagePageResult(
     val categories: List<NotificationCategoryDto>,
+    val threads: List<MessageThreadDto>,
     val unread: UnreadSummaryDto,
+    val nextPageUrl: String?,
 )
 
 /** One page of a list of notifications. */
@@ -24,17 +28,25 @@ data class NotificationListResult(
 class NotificationRepository(private val service: NotificationService) {
 
     /**
-     * Retrieves the message page.
+     * Retrieves the message page, or the next page of its conversations.
      *
-     * @return A [Result] holding the entries into each list and the unread counts.
+     * The unread counts and the entries arrive with every page; it is the conversations that are
+     * paged.
+     *
+     * @param nextUrl The page to ask for, from a previous result's cursor; null asks for the first.
+     * @return A [Result] holding the entries into each list, the conversations, the unread counts,
+     *   and the cursor for the page after them when there is one.
      */
-    suspend fun messagePage(): Result<MessagePageResult> = service.messagePage()
-        .mapOffMain { page ->
-            MessagePageResult(
-                categories = page.toCategories(),
-                unread = page.unread.toDto(),
-            )
-        }
+    suspend fun messagePage(nextUrl: String? = null): Result<MessagePageResult> =
+        service.messagePage(nextUrl)
+            .mapOffMain { page ->
+                MessagePageResult(
+                    categories = page.toCategories(),
+                    threads = page.toThreads(),
+                    unread = page.unread.toDto(),
+                    nextPageUrl = page.paging.next.takeIf { it.isNotBlank() },
+                )
+            }
 
     /**
      * Retrieves a page of one kind of notification.

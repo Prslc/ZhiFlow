@@ -58,6 +58,11 @@ object MessageTab
 @Serializable
 data class NotificationCategory(val type: String, val title: String)
 
+/** One conversation, opened by the user hash of the person at the other end. */
+@Immutable
+@Serializable
+data class Chat(val peerId: String)
+
 @Immutable
 @Serializable
 object DebugTools

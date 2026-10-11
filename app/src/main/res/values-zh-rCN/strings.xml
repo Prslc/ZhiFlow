@@ -365,6 +365,7 @@
     <string name="notification_action_body">%1$s：%2$s</string>
     <string name="notification_deleted_content">该内容已被删除</string>
     <string name="notification_empty">暂无消息</string>
+    <string name="chat_empty">还没有消息</string>
     <string name="time_today">今天</string>
     <string name="time_yesterday">昨天</string>
 </resources>
