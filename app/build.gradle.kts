@@ -79,9 +79,6 @@ android {
                 "proguard-rules.pro"
             )
 
-            packaging {
-                resources { excludes += "**" }
-            }
         }
 
         debug {
@@ -102,6 +99,13 @@ android {
 
     android.sourceSets.named("main") {
         jniLibs.directories += "libs"
+    }
+}
+
+// Not `packaging { }` inside `release`: that binds to the extension outside, hitting every variant.
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.packaging.resources.excludes.add("**")
     }
 }
 
