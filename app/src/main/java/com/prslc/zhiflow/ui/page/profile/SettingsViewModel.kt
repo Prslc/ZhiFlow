@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import coil3.disk.DiskCache
+import com.prslc.zhiflow.core.preference.AppLanguage
+import com.prslc.zhiflow.core.preference.LanguageStore
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * The settings page's own state: the theme in force, what the image cache holds, and emptying it.
+ * The settings page's own state: the appearance in force, what the image cache holds, and
+ * emptying it.
  *
  * The cache size is read back from the disk cache Coil was built with rather than by walking the
  * directory, so the figure the row shows and what a clear removes are the same thing.
@@ -25,14 +28,21 @@ import kotlinx.coroutines.withContext
  *   page is handed rather than a Context to reach one with, so nothing here holds a Context.
  * @param settingsStore Where the theme is kept. It publishes, which is how the Activity that
  *   draws the theme hears about a change made here.
+ * @param languageStore Where the language is kept, which is the platform's own record rather than
+ *   ours. Nothing has to hear about a change: the platform recreates the Activity for it.
  */
 class SettingsViewModel(
     private val imageLoader: ImageLoader,
     private val settingsStore: SettingsStore,
+    private val languageStore: LanguageStore,
 ) : ViewModel() {
 
     /** The theme in force, emitting again whenever the reader picks another. */
     val themeMode: StateFlow<ThemeMode> = settingsStore.themeMode
+
+    /** The language in force. Read straight through, since a change rebuilds this page. */
+    val language: AppLanguage
+        get() = languageStore.language
 
     /** Bytes the image disk cache holds, or 0 until the first read lands. */
     var cacheSize by mutableLongStateOf(0L)
@@ -48,6 +58,13 @@ class SettingsViewModel(
      * @param mode The theme the reader picked.
      */
     fun setThemeMode(mode: ThemeMode) = settingsStore.setThemeMode(mode)
+
+    /**
+     * Stores the language to write in. The platform recreates the Activity to apply it.
+     *
+     * @param language The language the reader picked.
+     */
+    fun setLanguage(language: AppLanguage) = languageStore.setLanguage(language)
 
     /**
      * Reads the disk cache's current size, off the main thread — Coil answers it by walking its

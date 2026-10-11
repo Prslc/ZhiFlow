@@ -9,6 +9,8 @@ import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.HttpLogStore
 import com.prslc.zhiflow.core.network.SessionCookieJar
 import com.prslc.zhiflow.core.network.SessionGate
+import com.prslc.zhiflow.core.preference.LanguageStore
+import com.prslc.zhiflow.core.preference.LanguageStoreImpl
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.SettingsStoreImpl
 import com.prslc.zhiflow.data.remote.service.ActionService
@@ -79,6 +81,7 @@ val appModule = module {
 
     // Settings
     single<SettingsStore> { SettingsStoreImpl(get()) }
+    single<LanguageStore> { LanguageStoreImpl(androidContext()) }
 
     // Session
     single<CredentialStore> { CredentialStoreImpl(get()) }

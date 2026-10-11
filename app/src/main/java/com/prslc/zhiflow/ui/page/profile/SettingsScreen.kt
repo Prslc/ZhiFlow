@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +42,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.preference.AppLanguage
 import com.prslc.zhiflow.core.preference.ThemeMode
 import com.prslc.zhiflow.ui.component.preference.SettingsGroup
 import com.prslc.zhiflow.ui.component.preference.SettingsNavRow
@@ -57,7 +59,9 @@ fun SettingsScreen(
     val navigator = LocalNavigator.current
     val context = LocalContext.current
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val language = viewModel.language
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewModel.loadCacheSize() }
@@ -93,6 +97,14 @@ fun SettingsScreen(
                         onClick = { showThemeDialog = true },
                     )
                 }
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.settings_language_title),
+                        description = language.label(),
+                        icon = Icons.Filled.Translate,
+                        onClick = { showLanguageDialog = true },
+                    )
+                }
             }
 
             SettingsGroup(title = stringResource(R.string.settings_section_general)) {
@@ -121,41 +133,30 @@ fun SettingsScreen(
     }
 
     if (showThemeDialog) {
-        AlertDialog(
-            onDismissRequest = { showThemeDialog = false },
-            title = { Text(stringResource(R.string.settings_theme_title)) },
-            text = {
-                Column(modifier = Modifier.selectableGroup()) {
-                    ThemeMode.entries.forEach { mode ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = mode == themeMode,
-                                    role = Role.RadioButton,
-                                    onClick = {
-                                        viewModel.setThemeMode(mode)
-                                        showThemeDialog = false
-                                    },
-                                )
-                                .padding(vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = mode == themeMode, onClick = null)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = mode.label(),
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                        }
-                    }
-                }
+        ChoiceDialog(
+            title = stringResource(R.string.settings_theme_title),
+            options = ThemeMode.entries,
+            selected = themeMode,
+            label = { it.label() },
+            onSelect = {
+                viewModel.setThemeMode(it)
+                showThemeDialog = false
             },
-            confirmButton = {
-                TextButton(onClick = { showThemeDialog = false }) {
-                    Text(stringResource(R.string.general_close))
-                }
+            onDismiss = { showThemeDialog = false },
+        )
+    }
+
+    if (showLanguageDialog) {
+        ChoiceDialog(
+            title = stringResource(R.string.settings_language_title),
+            options = AppLanguage.entries,
+            selected = language,
+            label = { it.label() },
+            onSelect = {
+                viewModel.setLanguage(it)
+                showLanguageDialog = false
             },
+            onDismiss = { showLanguageDialog = false },
         )
     }
 
@@ -183,7 +184,61 @@ fun SettingsScreen(
     }
 }
 
-/** @return How the reader's language writes this mode, on the settings row and in its dialog. */
+/**
+ * A dialog of choices, one of which is already taken.
+ *
+ * @param title What the choices are for.
+ * @param options The choices, in the order they are drawn.
+ * @param selected The one in force.
+ * @param label How one choice is written in the reader's language.
+ * @param onSelect Called with the choice that was tapped.
+ * @param onDismiss Called when the dialog is dismissed without a choice.
+ */
+@Composable
+private fun <T> ChoiceDialog(
+    title: String,
+    options: List<T>,
+    selected: T,
+    label: @Composable (T) -> String,
+    onSelect: (T) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(modifier = Modifier.selectableGroup()) {
+                options.forEach { option ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = option == selected,
+                                role = Role.RadioButton,
+                                onClick = { onSelect(option) },
+                            )
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = option == selected, onClick = null)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = label(option),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.general_close))
+            }
+        },
+    )
+}
+
+/** @return How the reader's language writes this theme. */
 @Composable
 @ReadOnlyComposable
 private fun ThemeMode.label(): String = stringResource(
@@ -191,5 +246,16 @@ private fun ThemeMode.label(): String = stringResource(
         ThemeMode.System -> R.string.settings_theme_system
         ThemeMode.Light -> R.string.settings_theme_light
         ThemeMode.Dark -> R.string.settings_theme_dark
+    },
+)
+
+/** @return The language's own name, which is how it is written in every language. */
+@Composable
+@ReadOnlyComposable
+private fun AppLanguage.label(): String = stringResource(
+    when (this) {
+        AppLanguage.System -> R.string.settings_language_system
+        AppLanguage.Chinese -> R.string.settings_language_chinese
+        AppLanguage.English -> R.string.settings_language_english
     },
 )
