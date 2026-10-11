@@ -1,7 +1,6 @@
 package com.prslc.zhiflow.ui.page.people.moment
 
 import androidx.compose.foundation.layout.Box
-import com.prslc.zhiflow.data.dto.MomentDto
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
@@ -15,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter

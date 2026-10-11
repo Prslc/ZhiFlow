@@ -37,8 +37,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val MAX_HEIGHT_FRACTION = 0.95f
 

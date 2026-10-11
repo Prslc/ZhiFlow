@@ -1,7 +1,6 @@
 package com.prslc.zhiflow.data.model.user
-import com.prslc.zhiflow.data.model.content.AnswerAuthor
-
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

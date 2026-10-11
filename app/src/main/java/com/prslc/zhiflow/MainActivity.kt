@@ -49,13 +49,13 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
 import com.prslc.zhiflow.ui.navigation.DebugTab
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
@@ -64,13 +64,13 @@ import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feed.NegativeFeedbackSheet
-import com.prslc.zhiflow.R
-import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.page.feed.feedbackToastText
 import com.prslc.zhiflow.ui.page.profile.ProfileScreen
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class MainActivity : ComponentActivity(), KoinComponent {
 

@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.CoverStatusBarIconEffect
@@ -54,6 +53,7 @@ import com.prslc.zhiflow.ui.component.common.ProfileStat
 import com.prslc.zhiflow.ui.component.preference.NavigationItemWidget
 import com.prslc.zhiflow.ui.component.preference.SegmentedColumn
 import com.prslc.zhiflow.ui.component.preference.SegmentedColumnScope
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
 private val GroupCornerRadius = 16.dp

@@ -9,8 +9,15 @@ ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 # Where an import goes: one block in plain order, with `java.` and `kotlin.` held to the end. This
 # is the layout the official preset above already resolves to, written out because it was a fallback
 # rather than a statement -- a reader had to infer it, and a change to the preset would have moved it
-# with nothing here saying so. 21 of the 183 files that have imports do not read this way.
+# with nothing here saying so.
 ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
+# ktlint reads this file as well, and its standard ruleset carries opinions this project has not
+# taken: with them on, `ktlint --format` rewrites multi-line expressions and function signatures
+# alongside the imports. Scoping it to the one rule stated above is what makes that command
+# something to reach for rather than something to be afraid of -- and is how the 21 files that did
+# not read the layout were settled.
+ktlint_standard = disabled
+ktlint_standard_import-ordering = enabled
 # The margin is 100. A word is never broken to fit it: a word that does not fit moves down whole,
 # and one with nowhere to go is left where it is, taking its line past the margin. That is what the
 # over-long lines here are -- a one-line data class, a long `when` condition, a url.

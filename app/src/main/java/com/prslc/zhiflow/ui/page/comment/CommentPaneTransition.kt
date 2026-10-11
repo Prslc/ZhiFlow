@@ -30,10 +30,10 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * How long a pane's move takes, and the pace the pull-back settles at. Both of the pair's moves run

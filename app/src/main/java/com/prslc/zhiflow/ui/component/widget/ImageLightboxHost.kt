@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.prslc.zhiflow.data.model.content.Formula as ZhihuFormula
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import org.koin.compose.koinInject
+import com.prslc.zhiflow.data.model.content.Formula as ZhihuFormula
 
 /**
  * One picture the lightbox can show: an image, or a block formula. An inline formula is neither --

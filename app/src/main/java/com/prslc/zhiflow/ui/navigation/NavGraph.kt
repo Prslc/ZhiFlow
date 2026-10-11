@@ -7,18 +7,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
-import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
-import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListScreen
-import com.prslc.zhiflow.ui.page.feed.FeedViewModel
-import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
-import com.prslc.zhiflow.ui.page.people.PeopleScreen
-import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
+import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.debug.HttpLogScreen
 import com.prslc.zhiflow.ui.page.debug.RenderLabScreen
+import com.prslc.zhiflow.ui.page.feed.FeedViewModel
+import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.login.LoginScreen
+import com.prslc.zhiflow.ui.page.people.PeopleScreen
+import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
+import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.contentGraph(navController: NavHostController) {

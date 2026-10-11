@@ -52,9 +52,9 @@ import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.roundToInt
 
 private const val TAB_COUNT = 3
 private val TOP_BAR_HEIGHT = 48.dp
