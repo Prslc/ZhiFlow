@@ -57,11 +57,12 @@ class ProfileViewModel(
         val session = credentialStore.read()
         loadedToken = session.accessToken
 
-        // `people/self` is not answered for an anonymous session, so asking would only turn a
-        // known state into an error. An empty store is that same state one request early: the
-        // funnel bootstraps a guest underneath, and until it lands there is nothing to ask for.
+        // `people/self` is not answered for an anonymous session; `/guest/self` is. An empty
+        // store is that same state one request early — the funnel bootstraps a guest underneath
+        // — so both settle here.
         if (session.isGuest || !session.hasToken) {
             uiState = UserUiState(isGuest = true)
+            loadGuest(session.accessToken)
             return
         }
 
@@ -79,6 +80,23 @@ class ProfileViewModel(
                 .onApiFailure { error ->
                     uiState = uiState.copy(error = error, isLoading = false)
                 }
+        }
+    }
+
+    /**
+     * Fetches the anonymous session's own profile, which is where its default avatar comes from.
+     *
+     * Nothing is reported when this fails. What is behind it is the same page without a picture,
+     * and a picture is not worth turning the page into an error.
+     */
+    private fun loadGuest(token: String) {
+        viewModelScope.launch {
+            val outcome = repository.getGuestDetail()
+            if (token != loadedToken) return@launch
+
+            outcome.onSuccess { guest ->
+                uiState = UserUiState(isGuest = true, user = guest)
+            }
         }
     }
 

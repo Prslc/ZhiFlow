@@ -18,6 +18,13 @@ class UserRepository(
     suspend fun getMyDetail(): Result<ZhihuUser> = service.getUserDetail("self")
 
     /**
+     * Fetch the anonymous session's own profile, for the default avatar it carries.
+     *
+     * @return A [Result] containing [ZhihuUser] on success
+     */
+    suspend fun getGuestDetail(): Result<ZhihuUser> = service.getGuestSelf()
+
+    /**
      * Fetch the public profile details of a specific user.
      *
      * @param urlToken The unique identifier (slug) of the user (e.g., "excited-vczh").

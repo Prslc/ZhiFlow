@@ -35,6 +35,23 @@ class UserService(private val api: ApiClient) {
         }
 
     /**
+     * Fetches the anonymous session's own profile.
+     *
+     * `people/self` is not answered for an anonymous session; this is the route that is. What
+     * comes back is empty but for an id and an avatar, and that avatar is the server's own
+     * default — the only official picture of an anonymous reader there is.
+     *
+     * @return A [Result] containing [ZhihuUser] on success.
+     */
+    suspend fun getGuestSelf(): Result<ZhihuUser> =
+        api.safeApiCall {
+            Request.Builder()
+                .apiUrl("/guest/self")
+                .get()
+                .build()
+        }
+
+    /**
      * Follows a user.
      *
      * @param userId The user hash ID (ZhihuUser.id, not url_token).

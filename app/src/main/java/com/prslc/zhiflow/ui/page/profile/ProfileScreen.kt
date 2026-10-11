@@ -82,7 +82,7 @@ fun ProfileScreen(
     var showSignOutDialog by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (user != null) {
+        if (!uiState.isGuest && user != null) {
             val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
             val scrollState = rememberScrollState()
 
