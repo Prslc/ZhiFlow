@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.navigation
 
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.search.SearchTab
 import kotlinx.serialization.Serializable
 
 @Immutable
@@ -51,9 +52,17 @@ object HomeTab
 @Serializable
 object DebugTools
 
+/**
+ * The search page. The tab rides along so the page can be opened scoped to the reader's own saved
+ * content, which is the only way into the collections one.
+ *
+ * It is carried as the identifier `/search_v3` takes rather than as a [SearchTab]: navigation
+ * resolves a type of its own by looking the class up under its own name, which minification does
+ * not leave alone.
+ */
 @Immutable
 @Serializable
-object Search
+data class Search(val tab: String)
 
 @Immutable
 @Serializable

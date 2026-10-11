@@ -377,6 +377,7 @@
 
     <!-- search -->
     <string name="search_placeholder">Search Zhihu</string>
+    <string name="search_placeholder_collections">Search my collections</string>
     <string name="search_empty">Nothing found</string>
     <string name="search_action_clear">Clear</string>
 </resources>

@@ -12,6 +12,7 @@ import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
+import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.repository.SearchRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -89,8 +90,10 @@ class SearchViewModel(
      *
      * @param text The phrase to search for. Blank is a no-op, so an empty submit cannot wipe the
      *   results the reader is looking at.
+     * @param tab The tab to search in. It rides on the first page only; the pages after it carry
+     *   their own.
      */
-    fun submit(text: String) {
+    fun submit(text: String, tab: SearchTab) {
         val phrase = text.trim()
         if (phrase.isEmpty()) return
 
@@ -102,7 +105,7 @@ class SearchViewModel(
         viewModelScope.launch {
             uiState = SearchUiState(isSearching = true)
 
-            repository.search(phrase)
+            repository.search(phrase, tab.value)
                 .onSuccess { result ->
                     uiState = SearchUiState(items = result.items, isEnd = result.isEnd)
                     nextPageUrl = result.nextPageUrl
@@ -140,9 +143,13 @@ class SearchViewModel(
      * Fetches the phrases to show before anything has been typed.
      *
      * Called once when the page appears. A failure leaves the box empty of suggestions, which is
-     * a state it can be in anyway.
+     * a state it can be in anyway. Only the whole-site tab has them: a page scoped to what the
+     * reader has saved would be offering them searches for things they have not.
+     *
+     * @param tab The tab the page searches in.
      */
-    fun loadHotQueries() {
+    fun loadHotQueries(tab: SearchTab) {
+        if (tab != SearchTab.GENERAL) return
         if (hotQueries.isNotEmpty()) return
 
         viewModelScope.launch {

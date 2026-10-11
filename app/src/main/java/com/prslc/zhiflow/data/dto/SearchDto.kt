@@ -15,8 +15,9 @@ sealed interface SearchItemDto {
 
     /** A result the reader can open. */
     @Immutable
-    data class Article(
+    data class Content(
         val id: String,
+        val type: String,
         val title: AnnotatedString,
         val excerpt: AnnotatedString,
         val authorName: String,

@@ -353,6 +353,7 @@
 
     <!-- search -->
     <string name="search_placeholder">搜索知乎</string>
+    <string name="search_placeholder_collections">搜索我的收藏</string>
     <string name="search_empty">没有找到结果</string>
     <string name="search_action_clear">清空</string>
 </resources>

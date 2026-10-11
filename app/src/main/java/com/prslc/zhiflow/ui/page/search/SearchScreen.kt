@@ -46,6 +46,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.data.dto.SearchItemDto
+import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
@@ -55,6 +56,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SearchScreen(
+    tab: SearchTab,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel(),
@@ -63,7 +65,7 @@ fun SearchScreen(
     val focusManager = LocalFocusManager.current
     val listState = viewModel.listState
 
-    LaunchedEffect(Unit) { viewModel.loadHotQueries() }
+    LaunchedEffect(tab) { viewModel.loadHotQueries(tab) }
 
     val shouldLoadMore by remember { listState.shouldLoadMore() }
     LaunchedEffect(shouldLoadMore) {
@@ -74,9 +76,9 @@ fun SearchScreen(
 
     val uiState = viewModel.uiState
     val endText = if (uiState.isEnd) stringResource(R.string.end_of_list) else null
-    val search = remember(viewModel, focusManager) {
+    val search = remember(viewModel, focusManager, tab) {
         {
-            viewModel.submit(viewModel.query)
+            viewModel.submit(viewModel.query, tab)
             focusManager.clearFocus()
         }
     }
@@ -97,7 +99,7 @@ fun SearchScreen(
                     TextField(
                         value = viewModel.query,
                         onValueChange = viewModel::onQueryChange,
-                        placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                        placeholder = { Text(stringResource(tab.placeholderRes)) },
                         singleLine = true,
                         // Without this the field is only as wide as what is typed into it, and
                         // the clear button rides along with the last character.
@@ -141,15 +143,15 @@ fun SearchScreen(
                     listState = listState,
                     endText = endText,
                     onItemClick = navigator::navigateToContent,
-                    onPhraseClick = { viewModel.submit(it) },
-                    onRetry = { viewModel.submit(viewModel.submittedQuery) },
+                    onPhraseClick = { viewModel.submit(it, tab) },
+                    onRetry = { viewModel.submit(viewModel.submittedQuery, tab) },
                     onLoadMore = viewModel::loadMore,
                 )
 
                 viewModel.suggestions.isNotEmpty() -> PhraseList(
                     phrases = viewModel.suggestions,
                     hotPhrases = emptySet(),
-                    onClick = { viewModel.submit(it) },
+                    onClick = { viewModel.submit(it, tab) },
                 )
 
                 else -> PhraseList(
@@ -157,7 +159,7 @@ fun SearchScreen(
                     hotPhrases = viewModel.hotQueries.filter { it.isHot }
                         .map { it.query }
                         .toSet(),
-                    onClick = { viewModel.submit(it) },
+                    onClick = { viewModel.submit(it, tab) },
                 )
             }
         }
@@ -194,7 +196,7 @@ private fun Results(
         ) {
             items(uiState.items) { item ->
                 when (item) {
-                    is SearchItemDto.Article -> SearchArticleCard(item, onItemClick)
+                    is SearchItemDto.Content -> SearchResultCard(item, onItemClick)
                     is SearchItemDto.RelatedQueries -> RelatedQueriesRow(item, onPhraseClick)
                 }
                 HorizontalDivider()
@@ -209,6 +211,13 @@ private fun Results(
         }
     }
 }
+
+/** The box's placeholder: one names the whole site, the other what the page is scoped to. */
+private val SearchTab.placeholderRes: Int
+    get() = when (this) {
+        SearchTab.GENERAL -> R.string.search_placeholder
+        SearchTab.FAVLIST -> R.string.search_placeholder_collections
+    }
 
 /** The phrases to search for next: the suggestions while typing, the hot ones before that. */
 @Composable

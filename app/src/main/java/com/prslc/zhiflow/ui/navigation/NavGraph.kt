@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsScreen
 import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
@@ -124,8 +125,10 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
         )
     }
 
-    composable<Search> {
+    composable<Search> { backStackEntry ->
+        val route: Search = backStackEntry.toRoute()
         SearchScreen(
+            tab = SearchTab.from(route.tab),
             onBack = { navController.popBackStack() },
         )
     }

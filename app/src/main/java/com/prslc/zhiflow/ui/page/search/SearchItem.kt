@@ -21,29 +21,26 @@ import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 
-/** What a result row hands to the navigator: search only ever returns articles today. */
-private const val ARTICLE_TYPE = "article"
-
 /**
- * One article in a page of results.
+ * One result in a page of results.
  *
  * Both the title and the excerpt arrive with the words the query matched already marked, which is
  * why they are drawn as they come rather than being wrapped in anything.
  *
  * @param item The result to draw.
- * @param onClick Called with the article's id and content type when the row is tapped.
+ * @param onClick Called with the content's id and type when the row is tapped.
  * @param modifier Applied to the column.
  */
 @Composable
-internal fun SearchArticleCard(
-    item: SearchItemDto.Article,
+internal fun SearchResultCard(
+    item: SearchItemDto.Content,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick(item.id, ARTICLE_TYPE) }
+            .clickable { onClick(item.id, item.type) }
             .padding(20.dp),
     ) {
         Text(

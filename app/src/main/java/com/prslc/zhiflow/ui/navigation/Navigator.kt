@@ -7,6 +7,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.UriHandler
 import androidx.navigation.NavHostController
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.remote.parser.LinkDestination
 import com.prslc.zhiflow.data.remote.parser.LinkParser
 
@@ -96,5 +97,12 @@ class Navigator(
 
     fun navigateToDebugTools() = navController.navigate(DebugTools)
 
-    fun navigateToSearch() = navController.navigate(Search)
+    /**
+     * Opens the search page.
+     *
+     * @param tab The tab it opens in. The default searches the whole site; the collections page
+     *   opens the one scoped to what the reader has saved.
+     */
+    fun navigateToSearch(tab: SearchTab = SearchTab.GENERAL) =
+        navController.navigate(Search(tab.value))
 }

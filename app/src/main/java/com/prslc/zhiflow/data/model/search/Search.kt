@@ -14,18 +14,18 @@ data class ZhihuSearchResponse(
 /**
  * One card of a result page.
  *
- * `data[]` is not a list of one thing, and its `object` has a shape of its own per kind. It is
- * decoded as [ZhihuSearchArticle] anyway, which is safe rather than right: every field has a
- * default, so an object of another kind lands here as one this app can recognise as not an
- * article — by its [ZhihuSearchArticle.type] — instead of failing the page. A `relevant_query`
- * card has no `object` at all, carrying its words in [queryList].
+ * `data[]` is not a list of one thing, and its `object` has a shape of its own per kind.
+ * Every kind is decoded into [ZhihuSearchContent] anyway, which is safe rather than right:
+ * every field has a default, so a kind this app does not draw arrives anyway, told apart from
+ * the ones it does by [ZhihuSearchContent.type]. A `relevant_query` card has no `object` at all,
+ * carrying its words in [queryList].
  */
 @Serializable
 data class ZhihuSearchCard(
     val type: String = "",
     val id: String = "",
     val index: Int = 0,
-    @SerialName("object") val content: ZhihuSearchArticle? = null,
+    @SerialName("object") val content: ZhihuSearchContent? = null,
     @SerialName("query_list") val queryList: List<ZhihuRelevantQuery> = emptyList(),
     @SerialName("is_single_column") val isSingleColumn: Boolean = false,
 )
@@ -42,9 +42,14 @@ data class ZhihuSearchActionInfo(
     @SerialName("lc_idx") val lcIndex: Int = 0,
 )
 
-/** The `object` of a `search_result` card, when what it holds is an article. */
+/**
+ * The `object` of a `search_result` card.
+ *
+ * An article and an answer both land here: the fields a result row is drawn from are the ones the
+ * two kinds share, and [type] is what tells them apart.
+ */
 @Serializable
-data class ZhihuSearchArticle(
+data class ZhihuSearchContent(
     val id: String = "",
     val type: String = "",
     val title: String = "",

@@ -3,14 +3,14 @@ package com.prslc.zhiflow.data.mapper
 import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.model.search.ZhihuPresetWordsResponse
-import com.prslc.zhiflow.data.model.search.ZhihuSearchArticle
+import com.prslc.zhiflow.data.model.search.ZhihuSearchContent
 import com.prslc.zhiflow.data.model.search.ZhihuSearchResponse
 import com.prslc.zhiflow.data.remote.parser.htmlToPlainText
 import com.prslc.zhiflow.data.remote.parser.searchTextToAnnotatedString
 import com.prslc.zhiflow.ui.component.common.ImageData
 
 /** What the `object` of a card says it holds, when the app knows how to draw it. */
-private const val ARTICLE_TYPE = "article"
+private val CONTENT_TYPES = setOf("article", "answer")
 
 /** The card kinds this app reads. The rest of the page is cards of other kinds, dropped. */
 private const val RESULT_TYPE = "search_result"
@@ -33,8 +33,8 @@ internal fun ZhihuSearchResponse.toItems(): List<SearchItemDto> {
     val results = data.mapNotNull { card ->
         card.takeIf { it.type == RESULT_TYPE }
             ?.content
-            ?.takeIf { it.type == ARTICLE_TYPE && it.id.isNotBlank() }
-            ?.toArticle()
+            ?.takeIf { it.type in CONTENT_TYPES && it.id.isNotBlank() }
+            ?.toItem()
     }
 
     val related = data
@@ -49,9 +49,10 @@ internal fun ZhihuSearchResponse.toItems(): List<SearchItemDto> {
     return results + listOfNotNull(related)
 }
 
-/** @return The article as a result row, with the words the query matched left marked in its title. */
-private fun ZhihuSearchArticle.toArticle(): SearchItemDto.Article = SearchItemDto.Article(
+/** @return The result as a row, with the words the query matched left marked in its title. */
+private fun ZhihuSearchContent.toItem(): SearchItemDto.Content = SearchItemDto.Content(
     id = id,
+    type = type,
     title = searchTextToAnnotatedString(title),
     excerpt = searchTextToAnnotatedString(excerpt),
     authorName = htmlToPlainText(author.name),

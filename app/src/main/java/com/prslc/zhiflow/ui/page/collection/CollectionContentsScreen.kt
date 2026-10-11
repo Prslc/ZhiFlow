@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,6 +51,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.data.dto.CollectionItemDto
+import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
@@ -97,6 +99,14 @@ fun CollectionContentsScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             stringResource(R.string.general_back),
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navigator.navigateToSearch(SearchTab.FAVLIST) }) {
+                        Icon(
+                            Icons.Filled.Search,
+                            stringResource(R.string.search_placeholder_collections),
                         )
                     }
                 },
