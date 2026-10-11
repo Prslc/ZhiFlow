@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.CoverStatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeader
@@ -59,6 +60,9 @@ private val GroupCornerRadius = 16.dp
 
 /** 1dp between items lets the page background through, which reads as the group's hairline. */
 private val GroupHairline = 1.dp
+
+/** The profile an anonymous page draws: no cover, no avatar, and the header's own defaults. */
+private val GuestUser = ZhihuUser()
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -121,58 +125,14 @@ fun ProfileScreen(
                     },
                 )
 
-                // The first group carries no heading: its rows say what they are, and the gap
-                // after the stats is break enough.
-                ProfileGroup(
-                    modifier = Modifier.padding(top = 16.dp),
-                ) {
-                    item {
-                        NavigationItemWidget(
-                            title = stringResource(R.string.profile_nav_history),
-                            description = stringResource(R.string.profile_nav_history_summary),
-                            icon = Icons.Filled.History,
-                            onClick = onNavigateToHistory,
-                        )
-                    }
-                    item {
-                        NavigationItemWidget(
-                            title = stringResource(R.string.profile_nav_collections),
-                            description = stringResource(R.string.profile_nav_collections_summary),
-                            icon = Icons.Filled.Bookmark,
-                            onClick = onNavigateToCollections,
-                        )
-                    }
-                }
-
-                ProfileGroup(
-                    modifier = Modifier.padding(top = 4.dp),
-                    title = stringResource(R.string.profile_section_social),
-                ) {
-                    item {
-                        NavigationItemWidget(
-                            title = stringResource(R.string.profile_nav_comments),
-                            description = stringResource(R.string.profile_nav_comments_summary),
-                            icon = Icons.AutoMirrored.Filled.Chat,
-                            onClick = onNavigateToComments,
-                        )
-                    }
-                    item {
-                        NavigationItemWidget(
-                            title = stringResource(R.string.profile_nav_likes),
-                            description = stringResource(R.string.profile_nav_likes_summary),
-                            icon = Icons.Filled.ThumbUp,
-                            onClick = onNavigateToLikes,
-                        )
-                    }
-                    item {
-                        NavigationItemWidget(
-                            title = stringResource(R.string.profile_nav_follows),
-                            description = stringResource(R.string.profile_nav_follows_summary),
-                            icon = Icons.Filled.PersonAdd,
-                            onClick = onNavigateToFollows,
-                        )
-                    }
-                }
+                ProfileContentGroups(
+                    enabled = true,
+                    onNavigateToHistory = onNavigateToHistory,
+                    onNavigateToCollections = onNavigateToCollections,
+                    onNavigateToComments = onNavigateToComments,
+                    onNavigateToLikes = onNavigateToLikes,
+                    onNavigateToFollows = onNavigateToFollows,
+                )
 
                 ProfileGroup(
                     modifier = Modifier.padding(top = 16.dp),
@@ -190,18 +150,68 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         } else if (uiState.isGuest) {
+            // The page above with its content locked, not a page of its own: what signing in
+            // opens should be visible from here.
+            // The guest's own profile when the server has answered with it, and a bare one
+            // until then — the header reads what it is given and fills the rest itself.
+            val guest = user ?: GuestUser
+            val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            val scrollState = rememberScrollState()
+
+            CoverStatusBarIconEffect(
+                scrollState = scrollState,
+                coverHeight = ProfileCoverHeight,
+            )
+
             Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = -statusBarHeight)
+                    .verticalScroll(scrollState),
             ) {
+                ProfileCoverHeader(
+                    user = guest,
+                    stats = listOf(
+                        ProfileStat(
+                            stringResource(R.string.profile_stat_following),
+                            guest.followingCount,
+                        ),
+                        ProfileStat(
+                            stringResource(R.string.profile_stat_followers),
+                            guest.followerCount,
+                        ),
+                    ),
+                    coverContentDescription = stringResource(R.string.profile_cover_desc),
+                    topEndAction = {
+                        IconButton(onClick = onNavigateToSettings) {
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = stringResource(R.string.profile_nav_settings),
+                            )
+                        }
+                    },
+                    actions = {
+                        Button(onClick = navigator::navigateToLogin) {
+                            Text(stringResource(R.string.login_action_submit))
+                        }
+                    },
+                )
+
                 Text(
                     text = stringResource(R.string.profile_guest_hint),
                     style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 20.dp, top = 16.dp),
                 )
-                Button(onClick = navigator::navigateToLogin) {
-                    Text(stringResource(R.string.login_action_submit))
-                }
+
+                ProfileContentGroups(
+                    modifier = Modifier.padding(bottom = 32.dp),
+                    enabled = false,
+                    onNavigateToHistory = {},
+                    onNavigateToCollections = {},
+                    onNavigateToComments = {},
+                    onNavigateToLikes = {},
+                    onNavigateToFollows = {},
+                )
             }
         } else if (uiState.isLoading) {
             LoadingIndicator(modifier = Modifier.align(Alignment.Center))
@@ -235,6 +245,77 @@ fun ProfileScreen(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun ProfileContentGroups(
+    enabled: Boolean,
+    onNavigateToHistory: () -> Unit,
+    onNavigateToCollections: () -> Unit,
+    onNavigateToComments: () -> Unit,
+    onNavigateToLikes: () -> Unit,
+    onNavigateToFollows: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        // The first group carries no heading: its rows say what they are, and the gap above is
+        // break enough.
+        ProfileGroup(
+            modifier = Modifier.padding(top = 16.dp),
+        ) {
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.profile_nav_history),
+                    description = stringResource(R.string.profile_nav_history_summary),
+                    icon = Icons.Filled.History,
+                    enabled = enabled,
+                    onClick = onNavigateToHistory,
+                )
+            }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.profile_nav_collections),
+                    description = stringResource(R.string.profile_nav_collections_summary),
+                    icon = Icons.Filled.Bookmark,
+                    enabled = enabled,
+                    onClick = onNavigateToCollections,
+                )
+            }
+        }
+
+        ProfileGroup(
+            modifier = Modifier.padding(top = 4.dp),
+            title = stringResource(R.string.profile_section_social),
+        ) {
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.profile_nav_comments),
+                    description = stringResource(R.string.profile_nav_comments_summary),
+                    icon = Icons.AutoMirrored.Filled.Chat,
+                    enabled = enabled,
+                    onClick = onNavigateToComments,
+                )
+            }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.profile_nav_likes),
+                    description = stringResource(R.string.profile_nav_likes_summary),
+                    icon = Icons.Filled.ThumbUp,
+                    enabled = enabled,
+                    onClick = onNavigateToLikes,
+                )
+            }
+            item {
+                NavigationItemWidget(
+                    title = stringResource(R.string.profile_nav_follows),
+                    description = stringResource(R.string.profile_nav_follows_summary),
+                    icon = Icons.Filled.PersonAdd,
+                    enabled = enabled,
+                    onClick = onNavigateToFollows,
+                )
+            }
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.component.common
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -96,15 +97,26 @@ fun ProfileCoverHeader(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = user.coverUrl,
-                contentDescription = coverContentDescription,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(ProfileCoverHeight)
-                    .clickable(onClick = openCover),
-                contentScale = ContentScale.Crop,
-            )
+            if (user.coverUrl.isNullOrBlank()) {
+                // Nothing on the server to fall back to, and a cover block that is not there at
+                // all reads as a broken one: the theme's own surface says "a cover goes here".
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ProfileCoverHeight)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                )
+            } else {
+                AsyncImage(
+                    model = user.coverUrl,
+                    contentDescription = coverContentDescription,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ProfileCoverHeight)
+                        .clickable(onClick = openCover),
+                    contentScale = ContentScale.Crop,
+                )
+            }
 
             StatusBarScrim()
 
@@ -161,7 +173,8 @@ fun ProfileCoverHeader(
                 .padding(horizontal = HeaderGutter)
         ) {
             Text(
-                text = user.name ?: stringResource(R.string.profile_default_username),
+                text = user.name?.takeIf { it.isNotBlank() }
+                    ?: stringResource(R.string.profile_default_username),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -169,7 +182,8 @@ fun ProfileCoverHeader(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = user.headline ?: stringResource(R.string.profile_default_headline),
+                text = user.headline?.takeIf { it.isNotBlank() }
+                    ?: stringResource(R.string.profile_default_headline),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
