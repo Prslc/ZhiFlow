@@ -44,11 +44,6 @@ fun CommentList(
     isChild: Boolean = false,
     error: ApiException? = null,
     onRetry: () -> Unit = {},
-    /**
-     * Whether a row offers the way into its replies. False where the surface has no box to write a
-     * reply in — the way in would lead somewhere nothing can be done.
-     */
-    showReplyButton: Boolean = true,
 ) {
     val errorMessage = error?.uiMessage
     val loadMoreError = if (comments.isNotEmpty()) error else null
@@ -112,7 +107,6 @@ fun CommentList(
                                 model = model,
                                 onEvent = onEvent,
                                 isChild = isChild,
-                                showReplyButton = showReplyButton,
                             )
                             HorizontalDivider(
                                 thickness = 0.5.dp,

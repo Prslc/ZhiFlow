@@ -9,9 +9,9 @@ import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.data.model.comment.CommentResponse
 import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
@@ -127,6 +127,56 @@ class CommentService(private val api: ApiClient) {
     }
 
     /**
+     * Posts a comment on one passage of a content item.
+     *
+     * The same request as [postComment], one path further in, with the passage the words are about
+     * where an ordinary comment carries none.
+     *
+     * @param id The content's id.
+     * @param contentType What the content is.
+     * @param content What to post.
+     * @param anchor The passage being commented on: its words, where they are, and the range the
+     *   server already files comments on it under.
+     * @param replyToId The comment being answered, or null to leave a new one on the passage.
+     * @return A [Result] holding the comment as the server stored it, which is what the list draws.
+     */
+    suspend fun postSegmentComment(
+        id: String,
+        contentType: ContentType,
+        content: String,
+        anchor: SegmentLikeTarget,
+        replyToId: String? = null,
+    ): Result<ZhihuComment> = api.safeApiCall {
+        val body = HttpClientProvider.jsonInstance
+            .encodeToString(
+                CommentRequest(
+                    content = content,
+                    replyCommentId = replyToId.orEmpty(),
+                    segment = SegmentCommentAnchor(
+                        content = anchor.text,
+                        position = SegmentCommentAnchor.Position(
+                            start = SegmentCommentAnchor.Offset(
+                                anchor.rawStart,
+                                anchor.paragraphId.orEmpty(),
+                            ),
+                            end = SegmentCommentAnchor.Offset(
+                                anchor.rawEnd,
+                                anchor.paragraphId.orEmpty(),
+                            ),
+                        ),
+                        segmentId = anchor.segId,
+                    ),
+                ),
+            )
+            .toRequestBody(jsonMediaType)
+
+        Request.Builder()
+            .apiUrl("/comment_v5/${contentType.apiPath}/$id/segment/comment")
+            .post(body)
+            .build()
+    }
+
+    /**
      * Performs a reaction (like/unlike) on a comment.
      *
      * @param method Standard HTTP method string (e.g., "POST", "DELETE").
@@ -160,7 +210,7 @@ private data class CommentRequest(
     val content: String,
     @SerialName("comment_id") val commentId: String = NEW_COMMENT,
     @SerialName("reply_comment_id") val replyCommentId: String = NEW_COMMENT,
-    val segment: JsonElement? = null,
+    val segment: SegmentCommentAnchor? = null,
     @SerialName("has_img") val hasImg: Boolean = false,
     @SerialName("sticker_type") val stickerType: String? = null,
     @SerialName("selected_settings") val selectedSettings: List<String> = emptyList(),
@@ -168,3 +218,32 @@ private data class CommentRequest(
     val score: Int = 0,
     @SerialName("unfriendly_check") val unfriendlyCheck: String = "strict",
 )
+
+/**
+ * The passage a comment is filed under.
+ *
+ * The range is named as the one the reader is reading: their comment joins the ones the server
+ * already holds on it. A range named here that the server does not know would be one the comment
+ * disappeared into — the list is read back by the range's own id.
+ *
+ * The position is a shape of its own rather than a shared one: the like a passage carries sends
+ * the same idea as its own class, and the two are free to drift apart.
+ */
+@Serializable
+private data class SegmentCommentAnchor(
+    val content: String,
+    val position: Position,
+    @SerialName("segment_id") val segmentId: String = NEW_COMMENT,
+) {
+    @Serializable
+    data class Position(
+        val start: Offset,
+        val end: Offset,
+    )
+
+    @Serializable
+    data class Offset(
+        val offset: Int,
+        @SerialName("paragraph_id") val paragraphId: String,
+    )
+}

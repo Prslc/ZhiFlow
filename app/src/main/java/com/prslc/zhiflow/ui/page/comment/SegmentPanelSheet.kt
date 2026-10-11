@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
+import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
@@ -74,12 +76,19 @@ private const val PANEL_HEIGHT_FRACTION = 0.77f
  * @param navigateToUser A url token the reader asked for, which the panel cannot open itself.
  * @param actionError Failures of either the passage like or a comment like; the sheet carries the
  *   only host that is visible while it is up.
+ * @param draft What is in the box, which the content's own sheet shares: one surface is up at a
+ *   time, and the words survive a switch between them.
+ * @param isSubmitting Whether a comment is on its way.
  */
 @Composable
 fun SegmentPanelSheet(
+    id: String,
+    contentType: ContentType,
     target: SegmentLikeTarget?,
     comments: CommentViewModel.SegmentUiState,
     childComments: CommentViewModel.ChildCommentUiState,
+    draft: String,
+    isSubmitting: Boolean,
     onToggleLike: (String) -> Unit,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
@@ -122,7 +131,11 @@ fun SegmentPanelSheet(
                 backEnabled = target != null,
                 onBackToMain = { onEvent(CommentUiEvent.BackToMain) },
                 main = {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .imePadding(),
+                    ) {
                         held?.let { range ->
                             Text(
                                 text = range.passageText,
@@ -163,14 +176,36 @@ fun SegmentPanelSheet(
                             state = listState,
                             error = comments.error,
                             onRetry = onRetry,
-                            // A passage's comments are read here; writing one goes through an
-                            // endpoint of its own, which this panel has no box for.
-                            showReplyButton = false,
                         )
+
+                        // The reader has just commented on the passage: what they wrote went to the
+                        // top of this list, and a list left where it was would not show it.
+                        LaunchedEffect(comments.lastPostedId) {
+                            if (comments.lastPostedId != null) listState.animateScrollToItem(0)
+                        }
+
+                        // The passage is what the comment is filed under, so there is no box until
+                        // the panel has one — which is every time it is up.
+                        held?.let { range ->
+                            CommentComposer(
+                                draft = draft,
+                                isSubmitting = isSubmitting,
+                                onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
+                                onSend = {
+                                    onEvent(
+                                        CommentUiEvent.SubmitSegmentComment(id, contentType, range),
+                                    )
+                                },
+                            )
+                        }
                     }
                 },
                 detail = {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .imePadding(),
+                    ) {
                         val currentRootId = childComments.rootComment?.comment?.id
                         val onLoadMoreReplies = remember {
                             { onEvent(CommentUiEvent.LoadMoreReplies) }
@@ -200,6 +235,36 @@ fun SegmentPanelSheet(
                             error = childComments.error,
                             onRetry = onLoadMoreReplies,
                         )
+
+                        // The reply goes on the end of this list; see the content's own sheet.
+                        LaunchedEffect(childComments.lastPostedId) {
+                            if (childComments.lastPostedId != null) {
+                                childListState.animateScrollToItem(childComments.comments.size)
+                            }
+                        }
+
+                        // A reply is filed under the same passage as the comment it answers, so the
+                        // box wants the range this panel is holding.
+                        val rootComment = childComments.rootComment
+                        held?.let { range ->
+                            if (rootComment != null && rootComment.comment.canReply) {
+                                CommentComposer(
+                                    draft = draft,
+                                    isSubmitting = isSubmitting,
+                                    replyToName = rootComment.comment.author.name,
+                                    onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
+                                    onSend = {
+                                        onEvent(
+                                            CommentUiEvent.SubmitSegmentComment(
+                                                id,
+                                                contentType,
+                                                range,
+                                            ),
+                                        )
+                                    },
+                                )
+                            }
+                        }
                     }
                 },
             )

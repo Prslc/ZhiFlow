@@ -15,6 +15,7 @@ import com.prslc.zhiflow.data.dto.CommentDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.repository.CommentRepository
 import kotlinx.coroutines.launch
 
@@ -43,6 +44,16 @@ sealed interface CommentUiEvent {
 
     /** Sends what is in the box: a comment on the content, or a reply while replies are open. */
     data class SubmitComment(val id: String, val contentType: ContentType) : CommentUiEvent
+
+    /**
+     * Sends what is in a passage's box. The anchor is the passage the panel is about, which is
+     * what the comment is filed under.
+     */
+    data class SubmitSegmentComment(
+        val id: String,
+        val contentType: ContentType,
+        val anchor: SegmentLikeTarget,
+    ) : CommentUiEvent
 }
 
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
@@ -90,6 +101,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val offset: String = "",
         val hasMore: Boolean = true,
         val error: ApiException? = null,
+        /** The comment just posted; see [CommentUiState.lastPostedId]. */
+        val lastPostedId: String? = null,
     )
 
     var uiState by mutableStateOf(CommentUiState())
@@ -279,6 +292,22 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
      * @param contentType What that content is.
      */
     fun submitComment(id: String, contentType: ContentType) {
+        post(id, contentType, anchor = null)
+    }
+
+    /**
+     * Posts what is in a passage's box, which is the same act on a comment filed under that
+     * passage rather than under the content.
+     *
+     * @param id The content the passage belongs to.
+     * @param contentType What that content is.
+     * @param anchor The passage the panel is about.
+     */
+    fun submitSegmentComment(id: String, contentType: ContentType, anchor: SegmentLikeTarget) {
+        post(id, contentType, anchor)
+    }
+
+    private fun post(id: String, contentType: ContentType, anchor: SegmentLikeTarget?) {
         val text = uiState.draft.trim()
         if (text.isEmpty() || uiState.isSubmitting) return
 
@@ -286,8 +315,13 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         uiState = uiState.copy(isSubmitting = true)
 
         viewModelScope.launch {
-            repository.postComment(id, contentType, text, replyTo?.id)
-                .onSuccess { posted -> onPosted(posted, replyTo) }
+            val posted = if (anchor == null) {
+                repository.postComment(id, contentType, text, replyTo?.id)
+            } else {
+                repository.postSegmentComment(id, contentType, text, anchor, replyTo?.id)
+            }
+
+            posted.onSuccess { comment -> onPosted(comment, replyTo, anchor) }
                 .onApiFailure { error ->
                     uiState = uiState.copy(isSubmitting = false, actionError = error)
                 }
@@ -296,28 +330,36 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
 
     /**
      * Puts the posted comment where it belongs: a reply joins the end of the list it answered, and
-     * a comment goes to the top of the content's, which is where the reader is looking. The count
-     * of the comment that was answered goes up with it, wherever that comment is drawn.
+     * a comment goes to the top of the list it was written in, which is where the reader is
+     * looking. The count of the comment that was answered goes up with it, wherever it is drawn.
      */
-    private fun onPosted(posted: CommentDto, replyTo: CommentDto?) {
+    private fun onPosted(posted: CommentDto, replyTo: CommentDto?, anchor: SegmentLikeTarget?) {
         val model = CommentUiModel(posted)
 
         if (replyTo == null) {
-            uiState = uiState.copy(
-                comments = listOf(model) + uiState.comments,
-                totalCount = uiState.totalCount + 1,
-                draft = "",
-                isSubmitting = false,
-                lastPostedId = posted.id,
-            )
+            uiState = uiState.copy(draft = "", isSubmitting = false)
+
+            if (anchor == null) {
+                uiState = uiState.copy(
+                    comments = listOf(model) + uiState.comments,
+                    totalCount = uiState.totalCount + 1,
+                    lastPostedId = posted.id,
+                )
+            } else {
+                segmentUiState = segmentUiState.copy(
+                    comments = listOf(model) + segmentUiState.comments,
+                    totalCount = segmentUiState.totalCount + 1,
+                    lastPostedId = posted.id,
+                )
+            }
             return
         }
 
-        val answered: (CommentUiModel) -> CommentUiModel = { model ->
-            if (model.comment.id == replyTo.id) {
-                model.copy(comment = model.comment.copy(childCount = model.comment.childCount + 1))
+        val answered: (CommentUiModel) -> CommentUiModel = { entry ->
+            if (entry.comment.id == replyTo.id) {
+                entry.copy(comment = entry.comment.copy(childCount = entry.comment.childCount + 1))
             } else {
-                model
+                entry
             }
         }
 

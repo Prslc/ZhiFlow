@@ -5,6 +5,7 @@ import com.prslc.zhiflow.data.dto.CommentDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.comment.CommentResponse
 import com.prslc.zhiflow.data.model.content.ContentType
+import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.service.CommentService
 
 /**
@@ -68,6 +69,25 @@ class CommentRepository(private val service: CommentService) {
         content: String,
         replyToId: String? = null,
     ): Result<CommentDto> = service.postComment(id, type, content, replyToId)
+        .mapOffMain { it.toDto() }
+
+    /**
+     * Post a comment on one passage of a content item, or a reply to one of those.
+     *
+     * @param id Content ID.
+     * @param type Content type.
+     * @param content What to post.
+     * @param anchor The passage the comment is filed under.
+     * @param replyToId The comment being answered; null leaves a new one on the passage.
+     * @return [Result] wrapping the comment as the server stored it.
+     */
+    suspend fun postSegmentComment(
+        id: String,
+        type: ContentType,
+        content: String,
+        anchor: SegmentLikeTarget,
+        replyToId: String? = null,
+    ): Result<CommentDto> = service.postSegmentComment(id, type, content, anchor, replyToId)
         .mapOffMain { it.toDto() }
 
     /**

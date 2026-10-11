@@ -245,14 +245,19 @@ fun ContentDetailScreen(
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                         is CommentUiEvent.DraftChanged -> commentViewModel.onDraftChange(event.text)
                         is CommentUiEvent.SubmitComment -> commentViewModel.submitComment(event.id, event.contentType)
+                        is CommentUiEvent.SubmitSegmentComment -> commentViewModel.submitSegmentComment(event.id, event.contentType, event.anchor)
                     }
                 },
             )
 
             SegmentPanelSheet(
+                id = id,
+                contentType = contentType,
                 target = segmentTarget,
                 comments = commentViewModel.segmentUiState,
                 childComments = commentViewModel.childUiState,
+                draft = commentViewModel.uiState.draft,
+                isSubmitting = commentViewModel.uiState.isSubmitting,
                 navigateToUser = commentViewModel.uiState.navigateToUser,
                 onNavigated = commentViewModel::onNavigated,
                 actionError = viewModel.actionError ?: commentViewModel.uiState.actionError,
@@ -284,6 +289,14 @@ fun ContentDetailScreen(
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(
                             event.rootComment,
                             forceRefresh = true,
+                        )
+
+                        is CommentUiEvent.DraftChanged -> commentViewModel.onDraftChange(event.text)
+
+                        is CommentUiEvent.SubmitSegmentComment -> commentViewModel.submitSegmentComment(
+                            event.id,
+                            event.contentType,
+                            event.anchor,
                         )
 
                         CommentUiEvent.LoadMoreReplies -> commentViewModel.loadMoreReplies()
