@@ -148,4 +148,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation(libs.telephoto.zoomable.image.coil)
     implementation(libs.highlights)
+
+    // Debug
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }
