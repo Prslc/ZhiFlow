@@ -376,7 +376,9 @@
     <string name="chat_send">发送</string>
     <string name="chat_message_copy">复制</string>
     <string name="chat_message_select">多选</string>
-    <string name="chat_selection_count">已选 %1$d 条</string>
+    <plurals name="chat_selection_count">
+        <item quantity="other">已选 %1$d 条</item>
+    </plurals>
     <string name="chat_message_delete">删除</string>
     <string name="chat_forbidden">该账号不接受私信</string>
     <string name="time_today">今天</string>

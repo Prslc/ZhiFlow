@@ -400,7 +400,10 @@
     <string name="chat_send">Send</string>
     <string name="chat_message_copy">Copy</string>
     <string name="chat_message_select">Select</string>
-    <string name="chat_selection_count">%1$d selected</string>
+    <plurals name="chat_selection_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
     <string name="chat_message_delete">Delete</string>
     <string name="chat_forbidden">This account does not take messages</string>
     <string name="time_today">Today</string>
