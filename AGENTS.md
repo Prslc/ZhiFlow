@@ -13,6 +13,7 @@ A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Comp
 | Image Loading | Coil 3 (OkHttp network fetcher, GIF support, disk + memory cache) |
 | Zoom | Telephoto (`zoomable-image-coil3`) |
 | LaTeX | Rendered as pre-rasterized images served by the Zhihu API (`img_url` + dp `width`/`height`), loaded via Coil |
+| Licences | AboutLibraries — a Gradle plugin generates the list from the resolved dependencies, and `aboutlibraries-compose-m3` draws it |
 | Arch | MVVM — ViewModels expose `mutableStateOf` UI state, one per screen |
 | Min SDK | 33 (Android 13) |
 | Target/Compile SDK | compileSdk 37, targetSdk 36 |
@@ -83,7 +84,8 @@ ZhiFlow/
 │                   ├── feed/  content/  question/  comment/
 │                   ├── pin/                    # The thought page, with a screen of its own instead of the one answers and articles share
 │                   ├── people/                 # Profile page; moment/ is its second tab
-│                   └── profile/  history/  collection/  login/  debug/
+│                   ├── profile/                # Profile page, plus the settings, about and licence screens
+│                   └── history/  collection/  login/  debug/
 ```
 
 ## Architecture Patterns
@@ -129,6 +131,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 - `singleOf(::ClassName)` for services and repositories
 - `viewModelOf(::ViewModelName)` for ViewModels
 - `single { get<HttpClientProvider>().okHttpClient }` for the OkHttpClient instance
+- Coil's `ImageLoader` is a `single` as well, so a ViewModel that needs the image cache can be handed it rather than a `Context` to reach it with
 - `SharedPreferences` is provided as a `single` pointing to the `"temp_auth_prefs"` file
 - `ApiClient` is what every service takes, because the funnel (`safeApiCall`/`safeExecute`) is an inline extension: anything it needs on every call has to hang off its receiver. Its `SessionGate` is resolved lazily — the gate needs a client of its own to talk to the server with, so the two cannot be built in either order
 - `SessionManager` is bound under both its own type and `SessionGate`. Koin matches keys exactly, so an interface binding does not answer a request for the concrete type; the startup path asks for the manager and the funnel asks for the gate
@@ -139,7 +142,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 
 - **Type-safe routes**: `@Serializable` data classes/objects in `Route.kt`. Uses `navigation-compose` 2.9 type-safe API (`composable<RouteType>`, `toRoute()`).
 - **`MainContainer`** is the start destination — it contains three tabs (Home, Debug, Profile) in a `HorizontalPager` with a `NavigationBar`.
-- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadHistory`, `CollectionContents`, `HttpLog`) are separate composable destinations pushed onto the NavHost stack. `PinDetail` uses a dedicated `PinDetailScreen` (thought page); `AnswerDetail`/`ArticleDetail` share `ContentDetailScreen`.
+- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `About`, `OpenSourceLicense`, `ReadHistory`, `CollectionContents`, `HttpLog`) are separate composable destinations pushed onto the NavHost stack. `PinDetail` uses a dedicated `PinDetailScreen` (thought page); `AnswerDetail`/`ArticleDetail` share `ContentDetailScreen`.
 - **`Navigator`** — Wraps `NavHostController` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`.
 - **`LinkParser`** — Parses Zhihu URLs, resolves `link.zhihu.com` redirects, extracts content type + ID from path patterns, returns `LinkDestination.Internal(route)` or `LinkDestination.External(url)`.
 - Transition animations: horizontal slide (detail push = full right→left, pop = reversed with 1/5 parallax).
