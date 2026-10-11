@@ -53,6 +53,10 @@ object DebugTools
 
 @Immutable
 @Serializable
+object Search
+
+@Immutable
+@Serializable
 object ProfileTab
 
 @Immutable

@@ -350,4 +350,9 @@
     <string name="licenses_title">开源许可</string>
     <string name="licenses_visit">访问项目主页</string>
     <string name="licenses_no_text">该库未附带许可全文。</string>
+
+    <!-- search -->
+    <string name="search_placeholder">搜索知乎</string>
+    <string name="search_empty">没有找到结果</string>
+    <string name="search_action_clear">清空</string>
 </resources>

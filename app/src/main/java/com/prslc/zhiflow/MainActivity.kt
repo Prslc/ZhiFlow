@@ -55,6 +55,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
+import com.prslc.zhiflow.core.utils.compose.rememberHideOnScroll
 import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
@@ -195,20 +196,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val scope = rememberCoroutineScope()
 
-    var isBottomBarVisible by remember { mutableStateOf(true) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (available.y < -5) {
-                    isBottomBarVisible = false
-                } else if (available.y > 5) {
-                    isBottomBarVisible = true
-                }
-                return Offset.Zero
-            }
-        }
-    }
+    val bottomBar = rememberHideOnScroll()
 
     Box(modifier = modifier.fillMaxSize()) {
         HorizontalPager(
@@ -216,12 +204,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
-                .nestedScroll(nestedScrollConnection),
+                .nestedScroll(bottomBar.connection),
         ) { pageIndex ->
             when (tabs[pageIndex]) {
                 HomeTab -> FeedScreen(
                     onItemClick = { id, type -> navigator.navigateToContent(id, type) },
                     onItemLongClick = feedViewModel::openFeedback,
+                    onSearch = navigator::navigateToSearch,
                 )
 
                 ProfileTab -> ProfileScreen(
@@ -236,7 +225,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
 
         AnimatedVisibility(
-            visible = isBottomBarVisible,
+            visible = bottomBar.visible,
             modifier = Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(initialOffsetY = { it }),
             exit = slideOutVertically(targetOffsetY = { it }),

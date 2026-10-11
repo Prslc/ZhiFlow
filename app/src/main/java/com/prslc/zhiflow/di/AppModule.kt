@@ -23,6 +23,7 @@ import com.prslc.zhiflow.data.remote.service.FeedbackService
 import com.prslc.zhiflow.data.remote.service.MomentService
 import com.prslc.zhiflow.data.remote.service.QuestionService
 import com.prslc.zhiflow.data.remote.service.ReadHistoryService
+import com.prslc.zhiflow.data.remote.service.SearchService
 import com.prslc.zhiflow.data.remote.service.UserService
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.AuthRepository
@@ -34,6 +35,7 @@ import com.prslc.zhiflow.data.repository.FeedbackRepository
 import com.prslc.zhiflow.data.repository.MomentRepository
 import com.prslc.zhiflow.data.repository.QuestionRepository
 import com.prslc.zhiflow.data.repository.ReadHistoryRepository
+import com.prslc.zhiflow.data.repository.SearchRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import com.prslc.zhiflow.data.session.CredentialStoreImpl
 import com.prslc.zhiflow.data.session.SessionManager
@@ -57,6 +59,7 @@ import com.prslc.zhiflow.ui.page.pin.PinViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import com.prslc.zhiflow.ui.page.profile.SettingsViewModel
 import com.prslc.zhiflow.ui.page.question.QuestionViewModel
+import com.prslc.zhiflow.ui.page.search.SearchViewModel
 import okhttp3.CookieJar
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -142,6 +145,11 @@ val appModule = module {
     singleOf(::ReadHistoryService)
     singleOf(::ReadHistoryRepository)
     viewModelOf(::ReadHistoryViewModel)
+
+    // Search
+    singleOf(::SearchService)
+    singleOf(::SearchRepository)
+    viewModelOf(::SearchViewModel)
 
     // Moment
     singleOf(::MomentService)

@@ -1,14 +1,34 @@
 package com.prslc.zhiflow.ui.page.feed
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -18,10 +38,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.compose.rememberHideOnScroll
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
@@ -33,6 +57,7 @@ import org.koin.androidx.compose.koinViewModel
 fun FeedScreen(
     onItemClick: (String, String) -> Unit,
     onItemLongClick: (String, String) -> Unit,
+    onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel(),
 ) {
@@ -57,65 +82,112 @@ fun FeedScreen(
     val isEmpty = items.isEmpty()
     val endText = if (viewModel.uiState.isEnd) stringResource(R.string.end_of_list) else null
 
-    Box(modifier = modifier.fillMaxSize()) {
-        val pullRefreshState = rememberPullToRefreshState()
-        PullToRefreshBox(
-            state = pullRefreshState,
-            isRefreshing = isRefreshing && !isEmpty,
-            onRefresh = { viewModel.refresh() },
-            modifier = Modifier.fillMaxSize(),
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    state = pullRefreshState,
-                    isRefreshing = isRefreshing && !isEmpty,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-            },
-        ) {
-            LazyColumn(
-                state = viewModel.listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 16.dp),
-            ) {
-                itemsIndexed(
-                    items = items,
-                    key = { _, item -> item.id },
-                ) { index, item ->
-                    FeedItem(
-                        display = item,
-                        onClick = stableOnItemClick,
-                        onLongClick = stableOnItemLongClick,
-                    )
+    val searchBar = rememberHideOnScroll()
+    // The motion scheme's own spec finishes this in about a tenth of a second, which reads as a
+    // jump rather than as the bar leaving.
+    val barSize = tween<IntSize>(250, easing = FastOutSlowInEasing)
+    val barAlpha = tween<Float>(250, easing = FastOutSlowInEasing)
 
-                    if (index < items.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+    Column(modifier = modifier.fillMaxSize()) {
+        AnimatedVisibility(
+            visible = searchBar.visible,
+            enter = expandVertically(barSize, expandFrom = Alignment.Top) + fadeIn(barAlpha),
+            exit = shrinkVertically(barSize, shrinkTowards = Alignment.Top) + fadeOut(barAlpha),
+        ) {
+            SearchEntry(onClick = onSearch)
+        }
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .nestedScroll(searchBar.connection),
+        ) {
+            val pullRefreshState = rememberPullToRefreshState()
+            PullToRefreshBox(
+                state = pullRefreshState,
+                isRefreshing = isRefreshing && !isEmpty,
+                onRefresh = { viewModel.refresh() },
+                modifier = Modifier.fillMaxSize(),
+                indicator = {
+                    PullToRefreshDefaults.LoadingIndicator(
+                        state = pullRefreshState,
+                        isRefreshing = isRefreshing && !isEmpty,
+                        modifier = Modifier.align(Alignment.TopCenter),
+                    )
+                },
+            ) {
+                LazyColumn(
+                    state = viewModel.listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp),
+                ) {
+                    itemsIndexed(
+                        items = items,
+                        key = { _, item -> item.id },
+                    ) { index, item ->
+                        FeedItem(
+                            display = item,
+                            onClick = stableOnItemClick,
+                            onLongClick = stableOnItemLongClick,
+                        )
+
+                        if (index < items.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            )
+                        }
+                    }
+                    if (!isEmpty) {
+                        pagingFooter(
+                            isLoading = viewModel.uiState.isNextLoading,
+                            error = loadMoreError,
+                            onRetry = { viewModel.loadMore() },
+                            endText = endText,
                         )
                     }
                 }
-                if (!isEmpty) {
-                    pagingFooter(
-                        isLoading = viewModel.uiState.isNextLoading,
-                        error = loadMoreError,
-                        onRetry = { viewModel.loadMore() },
-                        endText = endText,
-                    )
-                }
+            }
+
+            if (isEmpty && isRefreshing) {
+                LoadingView(modifier = Modifier.fillMaxSize())
+            }
+
+            if (isEmpty && globalError != null && !isRefreshing) {
+                ErrorView(
+                    message = globalError.uiMessage,
+                    onRetry = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
+    }
+}
 
-        if (isEmpty && isRefreshing) {
-            LoadingView(modifier = Modifier.fillMaxSize())
-        }
-
-        if (isEmpty && globalError != null && !isRefreshing) {
-            ErrorView(
-                message = globalError.uiMessage,
-                onRetry = { viewModel.refresh() },
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+@Composable
+private fun SearchEntry(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Search,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = stringResource(R.string.search_placeholder),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }

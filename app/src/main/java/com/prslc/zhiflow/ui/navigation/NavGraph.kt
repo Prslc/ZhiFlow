@@ -22,6 +22,7 @@ import com.prslc.zhiflow.ui.page.profile.AboutScreen
 import com.prslc.zhiflow.ui.page.profile.OpenSourceLicenseScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
+import com.prslc.zhiflow.ui.page.search.SearchScreen
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.contentGraph(navController: NavHostController) {
@@ -119,6 +120,12 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<DebugTools> {
         DebugScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<Search> {
+        SearchScreen(
             onBack = { navController.popBackStack() },
         )
     }

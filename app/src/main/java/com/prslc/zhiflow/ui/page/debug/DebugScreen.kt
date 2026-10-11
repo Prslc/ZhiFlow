@@ -174,8 +174,6 @@ fun DebugScreen(
                 }
             }
 
-            // Its own group: this is the one row that takes the page away rather than doing
-            // something on it.
             SettingsGroup {
                 row {
                     SettingsRow(

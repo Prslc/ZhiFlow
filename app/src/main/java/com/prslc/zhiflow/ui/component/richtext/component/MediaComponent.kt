@@ -68,8 +68,6 @@ fun ImageComponent(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             ),
         ) {
-            // The card holds its aspect ratio either way, so what is left behind is a placeholder
-            // the size the image would have taken.
             if (!LocalDataSaver.current) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)

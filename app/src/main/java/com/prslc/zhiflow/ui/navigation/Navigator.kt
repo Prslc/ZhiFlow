@@ -95,4 +95,6 @@ class Navigator(
     fun navigateToRenderLab() = navController.navigate(RenderLab)
 
     fun navigateToDebugTools() = navController.navigate(DebugTools)
+
+    fun navigateToSearch() = navController.navigate(Search)
 }

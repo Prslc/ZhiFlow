@@ -374,4 +374,9 @@
     <string name="licenses_title">Open Source Licenses</string>
     <string name="licenses_visit">Visit home page</string>
     <string name="licenses_no_text">No license text was bundled for this library.</string>
+
+    <!-- search -->
+    <string name="search_placeholder">Search Zhihu</string>
+    <string name="search_empty">Nothing found</string>
+    <string name="search_action_clear">Clear</string>
 </resources>
