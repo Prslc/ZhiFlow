@@ -67,6 +67,13 @@ class NotificationRepository(private val service: NotificationService) {
         }
 
     /**
+     * Marks everything unread as read.
+     *
+     * @return A [Result] carrying the failure when the server refused.
+     */
+    suspend fun markAllMessagesRead(): Result<Unit> = service.markAllMessagesRead()
+
+    /**
      * Marks every notification of one kind as read.
      *
      * @param type Which list, as [notifications] takes it.

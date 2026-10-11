@@ -63,6 +63,22 @@ class NotificationService(private val api: ApiClient) {
     }
 
     /**
+     * Marks everything unread as read, in one call.
+     *
+     * This is the message page's own action, and it is not the per-kind one below run several
+     * times: the kind's list and the page are told apart by the endpoint they are read from, and
+     * each has its own way of being marked read.
+     *
+     * @return A [Result] carrying the failure when the server refused.
+     */
+    suspend fun markAllMessagesRead(): Result<Unit> = api.safeExecute {
+        Request.Builder()
+            .url("${BASE_URL}/notifications/v3/message/readall")
+            .post(EMPTY_BODY)
+            .build()
+    }
+
+    /**
      * Marks every notification of one kind as read.
      *
      * The server answers with no body, so only the outcome is read.

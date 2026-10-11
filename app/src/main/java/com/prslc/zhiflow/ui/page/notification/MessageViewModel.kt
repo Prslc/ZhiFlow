@@ -27,6 +27,7 @@ class MessageViewModel(
         val unread: UnreadSummaryDto? = null,
         val isRefreshing: Boolean = false,
         val isNextLoading: Boolean = false,
+        val isMarkingRead: Boolean = false,
         val globalError: ApiException? = null,
         val loadMoreError: ApiException? = null,
     )
@@ -35,6 +36,14 @@ class MessageViewModel(
         private set
 
     val listState = LazyListState()
+
+    /** Set once a mark-all-read has been accepted, for the page to say so and clear it. */
+    var markedAllRead by mutableStateOf(false)
+        private set
+
+    /** A mark-all-read the server refused, for the page to say out loud. */
+    var actionError by mutableStateOf<ApiException?>(null)
+        private set
 
     private var nextPageUrl: String? = null
 
@@ -77,6 +86,41 @@ class MessageViewModel(
                     uiState = uiState.copy(loadMoreError = error, isNextLoading = false)
                 }
         }
+    }
+
+    /**
+     * Marks everything unread as read, which is what the page's own action asks of the server.
+     *
+     * The page is fetched again once it has been taken: the counts move, the rows stop reading as
+     * unread, and the tab's badge is drawn from the same counts.
+     */
+    fun markAllRead() {
+        if (uiState.isMarkingRead) return
+
+        viewModelScope.launch {
+            uiState = uiState.copy(isMarkingRead = true)
+
+            repository.markAllMessagesRead()
+                .onSuccess {
+                    uiState = uiState.copy(isMarkingRead = false)
+                    markedAllRead = true
+                    fetch(reportVisit = false)
+                }
+                .onApiFailure { error ->
+                    uiState = uiState.copy(isMarkingRead = false)
+                    actionError = error
+                }
+        }
+    }
+
+    /** Clears the acceptance the page has said out loud. */
+    fun consumeMarkedAllRead() {
+        markedAllRead = false
+    }
+
+    /** Clears the failure the page has said out loud. */
+    fun consumeActionError() {
+        actionError = null
     }
 
     private fun fetch(reportVisit: Boolean) {

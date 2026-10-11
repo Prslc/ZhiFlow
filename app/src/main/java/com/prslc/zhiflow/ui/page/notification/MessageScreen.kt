@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.notification
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PersonAdd
@@ -31,6 +33,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -45,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -96,13 +100,62 @@ fun MessageScreen(
         if (shouldLoadMore) viewModel.loadMore()
     }
 
+    val context = LocalContext.current
+    val unreadMessages = uiState.unread?.message?.count ?: 0
+
+    // The action answers in a toast, as the client's own does: it is the one thing here without a
+    // host to show it, and what it has to say is one short line either way.
+    LaunchedEffect(viewModel.markedAllRead) {
+        if (viewModel.markedAllRead) {
+            Toast.makeText(context, R.string.notification_all_read, Toast.LENGTH_SHORT).show()
+            viewModel.consumeMarkedAllRead()
+        }
+    }
+
+    val actionError = viewModel.actionError?.uiMessage
+    LaunchedEffect(actionError) {
+        if (actionError != null) {
+            Toast.makeText(context, actionError, Toast.LENGTH_SHORT).show()
+            viewModel.consumeActionError()
+        }
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = stringResource(R.string.nav_messages),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 20.dp, top = 16.dp, bottom = 12.dp),
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 4.dp, top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.nav_messages),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+            )
+
+            IconButton(
+                onClick = {
+                    // Nothing unread is its own answer, and asking the server to mark nothing read
+                    // is a request the reader does not need to wait for.
+                    if (unreadMessages > 0) {
+                        viewModel.markAllRead()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            R.string.notification_nothing_unread,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
+                },
+                enabled = !uiState.isMarkingRead,
+            ) {
+                Icon(
+                    Icons.Filled.DoneAll,
+                    stringResource(R.string.notification_mark_all_read),
+                )
+            }
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             if (isEmpty && uiState.isRefreshing) {

@@ -203,16 +203,16 @@ private val BottomBarHeight = 80.dp
 /**
  * What the message tab is badged with.
  *
- * It draws the total of the four counts the server sends; the other three ride along in case that
- * turns out to be the wrong one of them.
+ * It draws the message count, which is the one the page's own mark-all-read clears: a badge drawn
+ * from a count no action on that page can move would be a badge that never goes away.
  */
 @Composable
 private fun UnreadBadge(unread: UnreadSummaryDto?) {
-    val total = unread?.total ?: return
-    if (total.count <= 0) return
+    val messages = unread?.message ?: return
+    if (messages.count <= 0) return
 
-    if (total.showCount) {
-        Badge { Text(formatCount(total.count)) }
+    if (messages.showCount) {
+        Badge { Text(formatCount(messages.count)) }
     } else {
         Badge()
     }
