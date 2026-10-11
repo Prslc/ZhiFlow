@@ -9,15 +9,14 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.offMain
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.CommentDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.repository.CommentRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Immutable
 sealed interface CommentUiEvent {
@@ -274,11 +273,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     /**
      * Parses each comment's HTML into what the list draws.
      *
-     * Off the main thread: a row's body is HTML that has to be walked into an annotated string,
-     * and a page of rows is work nothing on screen is waiting for.
+     * Through [offMain] because it is a page's worth of HTML to walk, and it lands while the sheet
+     * is still animating in -- the sheet's own effect is what asks for the page.
      */
     private suspend fun List<ZhihuComment>.toUiModels(): List<CommentUiModel> =
-        withContext(Dispatchers.Default) { map { CommentUiModel(it.toDto()) } }
+        offMain { map { CommentUiModel(it.toDto()) } }
 
     private fun updateLocalStatus(id: String, active: Boolean) {
         val mapper = { model: CommentUiModel ->

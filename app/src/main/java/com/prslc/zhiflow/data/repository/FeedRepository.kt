@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.remote.service.FeedService
@@ -25,7 +26,7 @@ class FeedRepository(private val service: FeedService) {
      */
     suspend fun getFeeds(isColdStart: Boolean, nextUrl: String?): Result<FeedResult> {
         return service.getRecommendFeed(isColdStart, nextUrl)
-            .map { response ->
+            .mapOffMain { response ->
                 val styles = response.styles.associateBy { it.id.orEmpty() }
                 FeedResult(
                     items = response.data.mapNotNull { it.toDto(styles) },

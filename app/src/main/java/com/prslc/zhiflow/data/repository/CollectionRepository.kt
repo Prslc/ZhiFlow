@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.model.user.CollectionResponse
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.remote.service.CollectionService
@@ -46,7 +47,7 @@ class CollectionRepository(
         }
 
         return response
-            .map { body ->
+            .mapOffMain { body ->
                 val items = body.data
                     .map { it.toDto() }
                     .groupBy { it.id }
