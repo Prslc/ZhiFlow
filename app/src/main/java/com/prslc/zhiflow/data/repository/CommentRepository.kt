@@ -1,5 +1,8 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.mapOffMain
+import com.prslc.zhiflow.data.dto.CommentDto
+import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.comment.CommentResponse
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.remote.service.CommentService
@@ -49,6 +52,23 @@ class CommentRepository(private val service: CommentService) {
         rootCommentId: String,
         offset: String = "",
     ): Result<CommentResponse> = service.getChildComments(rootCommentId, offset)
+
+    /**
+     * Post a comment, or a reply to one.
+     *
+     * @param id Content ID.
+     * @param type Content type. The same word the lists are read under.
+     * @param content What to post.
+     * @param replyToId The comment being answered; null comments on the content itself.
+     * @return [Result] wrapping the comment as the server stored it.
+     */
+    suspend fun postComment(
+        id: String,
+        type: ContentType,
+        content: String,
+        replyToId: String? = null,
+    ): Result<CommentDto> = service.postComment(id, type, content, replyToId)
+        .mapOffMain { it.toDto() }
 
     /**
      * Toggle the like status of a comment.

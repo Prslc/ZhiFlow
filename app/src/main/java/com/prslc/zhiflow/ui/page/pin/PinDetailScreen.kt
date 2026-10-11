@@ -207,6 +207,8 @@ fun PinDetailScreen(
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
+                        is CommentUiEvent.DraftChanged -> commentViewModel.onDraftChange(event.text)
+                        is CommentUiEvent.SubmitComment -> commentViewModel.submitComment(event.id, event.contentType)
                     }
                 },
             )

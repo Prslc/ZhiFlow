@@ -37,6 +37,12 @@ sealed interface CommentUiEvent {
     data class ShowAuthor(val urlToken: String) : CommentUiEvent
 
     data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
+
+    /** What the reader has typed into the box. */
+    data class DraftChanged(val text: String) : CommentUiEvent
+
+    /** Sends what is in the box: a comment on the content, or a reply while replies are open. */
+    data class SubmitComment(val id: String, val contentType: ContentType) : CommentUiEvent
 }
 
 class CommentViewModel(private val repository: CommentRepository) : ViewModel() {
@@ -51,6 +57,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val error: ApiException? = null,
         val actionError: ApiException? = null,
         val navigateToUser: String? = null,
+        /** What is in the box, which the two panes share. */
+        val draft: String = "",
+        val isSubmitting: Boolean = false,
+        /** The comment just posted, so the list can bring it into view; null until one is. */
+        val lastPostedId: String? = null,
     )
 
     @Stable
@@ -62,6 +73,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val hasMore: Boolean = true,
         val error: ApiException? = null,
         val isDetailMode: Boolean = false,
+        /** The reply just posted; see [CommentUiState.lastPostedId]. */
+        val lastPostedId: String? = null,
     )
 
     @Stable
@@ -246,6 +259,78 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             }
             pendingReactions.remove(commentId)
         }
+    }
+
+    /**
+     * Keeps what the reader is typing. The box is theirs until it is sent or the sheet closes.
+     */
+    fun onDraftChange(text: String) {
+        uiState = uiState.copy(draft = text)
+    }
+
+    /**
+     * Posts what is in the box.
+     *
+     * While one comment's replies are open the words answer that comment; with the root list up
+     * they are a comment on the content itself. No-op on an empty box, or while one is in flight —
+     * a failure leaves the words where they are and says so through the sheet's own notice.
+     *
+     * @param id The content the comments belong to.
+     * @param contentType What that content is.
+     */
+    fun submitComment(id: String, contentType: ContentType) {
+        val text = uiState.draft.trim()
+        if (text.isEmpty() || uiState.isSubmitting) return
+
+        val replyTo = childUiState.takeIf { it.isDetailMode }?.rootComment?.comment
+        uiState = uiState.copy(isSubmitting = true)
+
+        viewModelScope.launch {
+            repository.postComment(id, contentType, text, replyTo?.id)
+                .onSuccess { posted -> onPosted(posted, replyTo) }
+                .onApiFailure { error ->
+                    uiState = uiState.copy(isSubmitting = false, actionError = error)
+                }
+        }
+    }
+
+    /**
+     * Puts the posted comment where it belongs: a reply joins the end of the list it answered, and
+     * a comment goes to the top of the content's, which is where the reader is looking. The count
+     * of the comment that was answered goes up with it, wherever that comment is drawn.
+     */
+    private fun onPosted(posted: CommentDto, replyTo: CommentDto?) {
+        val model = CommentUiModel(posted)
+
+        if (replyTo == null) {
+            uiState = uiState.copy(
+                comments = listOf(model) + uiState.comments,
+                totalCount = uiState.totalCount + 1,
+                draft = "",
+                isSubmitting = false,
+                lastPostedId = posted.id,
+            )
+            return
+        }
+
+        val answered: (CommentUiModel) -> CommentUiModel = { model ->
+            if (model.comment.id == replyTo.id) {
+                model.copy(comment = model.comment.copy(childCount = model.comment.childCount + 1))
+            } else {
+                model
+            }
+        }
+
+        childUiState = childUiState.copy(
+            comments = childUiState.comments + model,
+            rootComment = childUiState.rootComment?.let(answered),
+            lastPostedId = posted.id,
+        )
+        uiState = uiState.copy(
+            comments = uiState.comments.map(answered),
+            draft = "",
+            isSubmitting = false,
+        )
     }
 
     /**

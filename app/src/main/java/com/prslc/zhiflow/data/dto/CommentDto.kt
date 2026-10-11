@@ -16,4 +16,6 @@ data class CommentDto(
     val childCount: Int,
     val ipInfo: String?,
     val parsedContent: CommentContent,
+    /** Whether a reply can be left on this comment; false hides the way in. */
+    val canReply: Boolean,
 )

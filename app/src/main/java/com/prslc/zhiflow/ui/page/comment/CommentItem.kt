@@ -188,21 +188,33 @@ fun CommentItem(
                 )
 
                 // Sub-comment
-                if (!isChild && comment.childCount > 0 && showReplyButton) {
-                    Text(
-                        text = pluralStringResource(
+                // The way into a comment's replies, and — where there are none yet — the only way
+                // to answer it: the box a reply is written in sits under that pane's list.
+                if (!isChild && showReplyButton) {
+                    val repliesLabel = when {
+                        comment.childCount > 0 -> pluralStringResource(
                             R.plurals.comment_reply_count_with_arrow,
                             comment.childCount,
                             comment.childCount,
-                        ),
-                        style = metaStyle.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                        ),
-                        modifier = Modifier
-                            .clickable { onEvent(CommentUiEvent.LoadChildComments(comment)) }
-                            .padding(vertical = 4.dp),
-                    )
+                        )
+
+                        comment.canReply -> stringResource(R.string.comment_action_reply)
+
+                        else -> null
+                    }
+
+                    if (repliesLabel != null) {
+                        Text(
+                            text = repliesLabel,
+                            style = metaStyle.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            ),
+                            modifier = Modifier
+                                .clickable { onEvent(CommentUiEvent.LoadChildComments(comment)) }
+                                .padding(vertical = 4.dp),
+                        )
+                    }
                 }
             }
         }

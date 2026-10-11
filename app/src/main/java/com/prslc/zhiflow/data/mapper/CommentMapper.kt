@@ -17,5 +17,6 @@ internal fun ZhihuComment.toDto(): CommentDto {
         childCount = childCount,
         ipInfo = ipInfo,
         parsedContent = parsedContent,
+        canReply = canReply,
     )
 }

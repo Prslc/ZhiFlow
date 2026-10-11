@@ -163,6 +163,9 @@ fun SegmentPanelSheet(
                             state = listState,
                             error = comments.error,
                             onRetry = onRetry,
+                            // A passage's comments are read here; writing one goes through an
+                            // endpoint of its own, which this panel has no box for.
+                            showReplyButton = false,
                         )
                     }
                 },
