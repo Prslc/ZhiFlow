@@ -35,6 +35,14 @@ class MessageRepository(private val service: MessageService) {
         .mapOffMain { it.toDto(peerId) }
 
     /**
+     * Deletes one message from this side of a conversation.
+     *
+     * @param messageId The message's own id.
+     * @return A [Result] carrying the failure when the server refused.
+     */
+    suspend fun deleteMessage(messageId: String): Result<Unit> = service.deleteMessage(messageId)
+
+    /**
      * Retrieves who a conversation is with.
      *
      * @param peerId The same hash [conversation] takes.

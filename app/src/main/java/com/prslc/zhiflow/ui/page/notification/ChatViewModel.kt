@@ -24,6 +24,9 @@ class ChatViewModel(
         val peer: ChatPeerDto? = null,
         val isLoading: Boolean = false,
         val isSending: Boolean = false,
+        val isDeleting: Boolean = false,
+        val isSelecting: Boolean = false,
+        val selectedIds: Set<String> = emptySet(),
         val error: ApiException? = null,
     )
 
@@ -34,8 +37,8 @@ class ChatViewModel(
     var draft by mutableStateOf("")
         private set
 
-    /** A send of the reader's that failed, which the page shows over the conversation. */
-    var sendError by mutableStateOf<ApiException?>(null)
+    /** A write of the reader's that failed, which the page shows over the conversation. */
+    var actionError by mutableStateOf<ApiException?>(null)
         private set
 
     /** @param value The box's new contents. */
@@ -76,7 +79,7 @@ class ChatViewModel(
      * the end of the page.
      *
      * The box is emptied only once the server has taken the message: a send that fails leaves what
-     * was typed where it is, and says so through [sendError] rather than costing the reader their
+     * was typed where it is, and says so through [actionError] rather than costing the reader their
      * words.
      *
      * @param peerId The user hash of the person at the other end.
@@ -99,13 +102,116 @@ class ChatViewModel(
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(isSending = false)
-                    sendError = error
+                    actionError = error
                 }
         }
     }
 
-    /** Clears the send failure the page has shown. */
-    fun consumeSendError() {
-        sendError = null
+    /** The message the reader is holding down, whose actions the menu offers. */
+    var menuMessage by mutableStateOf<ChatMessageDto?>(null)
+        private set
+
+    /** @param message The message whose actions the menu is to offer. */
+    fun openMenu(message: ChatMessageDto) {
+        menuMessage = message
+    }
+
+    /** Closes the menu. */
+    fun closeMenu() {
+        menuMessage = null
+    }
+
+    /**
+     * Deletes the message the menu is offering, and takes it off the page.
+     *
+     * The server keeps nothing in its place, so neither does the page: the row is dropped rather
+     * than drawn as something that was once there. The menu closes either way, so that what went
+     * wrong is not said behind it.
+     */
+    fun deleteMenuMessage() {
+        val message = menuMessage ?: return
+        if (uiState.isDeleting) return
+
+        viewModelScope.launch {
+            uiState = uiState.copy(isDeleting = true)
+
+            repository.deleteMessage(message.id)
+                .onSuccess {
+                    menuMessage = null
+                    uiState = uiState.copy(
+                        messages = uiState.messages.filterNot { it.id == message.id },
+                        isDeleting = false,
+                    )
+                }
+                .onApiFailure { error ->
+                    menuMessage = null
+                    uiState = uiState.copy(isDeleting = false)
+                    actionError = error
+                }
+        }
+    }
+
+    /** Clears the failure the page has shown. */
+    fun consumeActionError() {
+        actionError = null
+    }
+
+    /** Reads the page as a list of messages to pick from, which is the menu's own last entry. */
+    fun startSelecting() {
+        menuMessage = null
+        uiState = uiState.copy(isSelecting = true, selectedIds = emptySet())
+    }
+
+    /** Leaves that reading, picking nothing. */
+    fun cancelSelecting() {
+        uiState = uiState.copy(isSelecting = false, selectedIds = emptySet())
+    }
+
+    /**
+     * Adds one message to the picking, or takes it out again.
+     *
+     * @param messageId The message the reader tapped.
+     */
+    fun toggleSelected(messageId: String) {
+        uiState = uiState.copy(
+            selectedIds = if (messageId in uiState.selectedIds) {
+                uiState.selectedIds - messageId
+            } else {
+                uiState.selectedIds + messageId
+            },
+        )
+    }
+
+    /**
+     * Deletes every message picked out, and takes them off the page.
+     *
+     * They go one at a time, since the server deletes one at a time; a refusal is reported like any
+     * other write and does not hold up the rest. The picking ends either way, so that the reader is
+     * not left standing in it with nothing to do next.
+     */
+    fun deleteSelected() {
+        val ids = uiState.selectedIds
+        if (ids.isEmpty() || uiState.isDeleting) return
+
+        viewModelScope.launch {
+            uiState = uiState.copy(isDeleting = true)
+
+            var failure: ApiException? = null
+            val deleted = mutableSetOf<String>()
+
+            ids.forEach { id ->
+                repository.deleteMessage(id)
+                    .onSuccess { deleted += id }
+                    .onApiFailure { error -> if (failure == null) failure = error }
+            }
+
+            uiState = uiState.copy(
+                messages = uiState.messages.filterNot { it.id in deleted },
+                isSelecting = false,
+                selectedIds = emptySet(),
+                isDeleting = false,
+            )
+            actionError = failure
+        }
     }
 }

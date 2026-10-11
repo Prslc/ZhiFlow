@@ -1,6 +1,8 @@
 package com.prslc.zhiflow.ui.page.notification
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +24,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
@@ -36,6 +48,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.dto.ChatMessageDto
 import com.prslc.zhiflow.data.dto.ChatPeerDto
 import com.prslc.zhiflow.ui.component.common.EmptyView
@@ -85,12 +99,13 @@ fun ChatScreen(
     val messages = uiState.messages
     val peer = uiState.peer
     val error = uiState.error
+    val isSelecting = uiState.isSelecting
 
     LaunchedEffect(peerId) { viewModel.load(peerId) }
 
     val snackbarHostState = rememberActionErrorHost(
-        viewModel.sendError,
-        viewModel::consumeSendError,
+        viewModel.actionError,
+        viewModel::consumeActionError,
     )
 
     Scaffold(
@@ -149,7 +164,30 @@ fun ChatScreen(
                             // The page is drawn from the bottom, and a reversed list stacks an
                             // item's own children from the bottom too: the bubble is written first
                             // so that the stamp above it comes out above it.
-                            MessageBubble(message)
+                            MessageBubble(
+                                message = message,
+                                isSelecting = isSelecting,
+                                isSelected = message.id in uiState.selectedIds,
+                                onLongClick = {
+                                    if (isSelecting) {
+                                        viewModel.toggleSelected(message.id)
+                                    } else {
+                                        viewModel.openMenu(message)
+                                    }
+                                },
+                                onClick = {
+                                    if (isSelecting) viewModel.toggleSelected(message.id)
+                                },
+                                actions = {
+                                    MessageActionsMenu(
+                                        message = message,
+                                        expanded = viewModel.menuMessage?.id == message.id,
+                                        onDismissRequest = viewModel::closeMenu,
+                                        onDelete = viewModel::deleteMenuMessage,
+                                        onSelect = viewModel::startSelecting,
+                                    )
+                                },
+                            )
 
                             // The message sent before this one is the next in the list, and the
                             // newest always carries a stamp, being the one whose time the reader
@@ -163,9 +201,18 @@ fun ChatScreen(
                 }
             }
 
-            // An account that takes no messages is told so where the box would be, rather than
-            // being offered one that cannot send.
-            if (peer?.isForbidden == true) {
+            // Picking messages replaces the box while it lasts: the page is not being written to,
+            // and what the reader can do with what they picked is what belongs down here.
+            if (isSelecting) {
+                SelectionBar(
+                    count = uiState.selectedIds.size,
+                    isDeleting = uiState.isDeleting,
+                    onDelete = viewModel::deleteSelected,
+                    onCancel = viewModel::cancelSelecting,
+                )
+            } else if (peer?.isForbidden == true) {
+                // An account that takes no messages is told so where the box would be, rather than
+                // being offered one that cannot send.
                 Text(
                     text = stringResource(R.string.chat_forbidden),
                     style = MaterialTheme.typography.bodySmall,
@@ -184,6 +231,112 @@ fun ChatScreen(
                 )
             }
         }
+    }
+}
+
+/** What stands in for the box while the page is being read as a list of messages to pick from. */
+@Composable
+private fun SelectionBar(
+    count: Int,
+    isDeleting: Boolean,
+    onDelete: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onCancel) {
+            Icon(
+                Icons.Filled.Close,
+                stringResource(android.R.string.cancel),
+            )
+        }
+
+        Text(
+            text = stringResource(R.string.chat_selection_count, count),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+
+        FilledTonalButton(
+            onClick = onDelete,
+            enabled = count > 0 && !isDeleting,
+        ) {
+            Text(stringResource(R.string.chat_message_delete))
+        }
+    }
+}
+
+/**
+ * What can be done with one message, in a panel that hangs off the message itself.
+ *
+ * A conversation asks for something that stays out of the way of the one being answered: the
+ * entries are few, so they go beside the message rather than over the page, and the panel leaving
+ * is the reader's tap anywhere else rather than an entry of its own.
+ *
+ * @param message The message the reader is holding.
+ * @param expanded Whether the panel is showing.
+ * @param onDismissRequest Called when the reader taps away from it.
+ * @param onDelete Called when they delete the message, which is a delete from this side only.
+ * @param onSelect Called when they ask for the page to be read as a list of things to pick from.
+ */
+@Composable
+private fun MessageActionsMenu(
+    message: ChatMessageDto,
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    onDelete: () -> Unit,
+    onSelect: () -> Unit,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+    ) {
+        val copy = rememberCopyTextToClipboard()
+        val menuColors = MenuDefaults.itemColors()
+
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.chat_message_copy)) },
+            leadingIcon = { Icon(Icons.Outlined.ContentCopy, contentDescription = null) },
+            colors = menuColors,
+            onClick = {
+                copy(message.text.text)
+                onDismissRequest()
+            },
+        )
+
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.chat_message_select)) },
+            leadingIcon = { Icon(Icons.Outlined.Checklist, contentDescription = null) },
+            colors = menuColors,
+            onClick = onSelect,
+        )
+
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = stringResource(R.string.chat_message_delete),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            },
+            colors = MenuDefaults.itemColors(
+                leadingIconColor = MaterialTheme.colorScheme.error,
+                textColor = MaterialTheme.colorScheme.error,
+            ),
+            onClick = onDelete,
+        )
     }
 }
 
@@ -278,9 +431,27 @@ private fun PeerTitle(peer: ChatPeerDto?, modifier: Modifier = Modifier) {
     }
 }
 
-/** One message, on the side it came from, with the corner nearest that side squared off. */
+/**
+ * One message, on the side it came from, with the corner nearest that side squared off.
+ *
+ * @param message The message to draw.
+ * @param isSelecting Whether the page is being read as a list of messages to pick from.
+ * @param isSelected Whether this one has been picked.
+ * @param onLongClick Called when the reader holds the bubble down.
+ * @param onClick Called when they tap it while picking.
+ * @param modifier Applied to the row.
+ * @param actions The panel of things that can be done with this message, hung off the bubble.
+ */
 @Composable
-private fun MessageBubble(message: ChatMessageDto, modifier: Modifier = Modifier) {
+private fun MessageBubble(
+    message: ChatMessageDto,
+    isSelecting: Boolean,
+    isSelected: Boolean,
+    onLongClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    actions: @Composable () -> Unit = {},
+) {
     val mine = message.isMine
 
     Row(
@@ -288,32 +459,78 @@ private fun MessageBubble(message: ChatMessageDto, modifier: Modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(
-            color = if (mine) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-            contentColor = if (mine) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-            shape = if (mine) {
-                RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
-            } else {
-                RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)
-            },
-            modifier = Modifier.widthIn(max = 280.dp),
-        ) {
-            // The server writes a message as html, links and all; the links it carries are the
-            // point of most of them, so they are drawn tappable rather than as text.
-            ZRichText(
-                content = message.text,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            )
+        // The mark goes on the side the bubble is not, so that being picked does not move it.
+        if (mine) {
+            SelectionMark(isSelecting = isSelecting, isSelected = isSelected)
+        }
+
+        Box {
+            Surface(
+                color = if (mine) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+                contentColor = if (mine) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                shape = if (mine) {
+                    RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
+                } else {
+                    RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)
+                },
+                modifier = Modifier
+                    .widthIn(max = 280.dp)
+                    // No ripple: a bubble has nothing to open, and one on every tap would say it
+                    // did. Picking is the one thing a tap means, and it shows in the mark.
+                    .combinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    ),
+            ) {
+                // The server writes a message as html, links and all; the links it carries are the
+                // point of most of them, so they are drawn tappable rather than as text.
+                ZRichText(
+                    content = message.text,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                )
+            }
+
+            actions()
+        }
+
+        if (!mine) {
+            SelectionMark(isSelecting = isSelecting, isSelected = isSelected)
         }
     }
+}
+
+/** The circle one message is picked out by, when the page is being read as a list. */
+@Composable
+private fun SelectionMark(
+    isSelecting: Boolean,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    if (!isSelecting) return
+
+    Icon(
+        imageVector = if (isSelected) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
+        contentDescription = null,
+        modifier = modifier
+            .padding(horizontal = 8.dp)
+            .size(22.dp),
+        tint = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outline
+        },
+    )
 }

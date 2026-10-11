@@ -374,6 +374,10 @@
     <string name="chat_invite_empty">没有找到用户</string>
     <string name="chat_invite_nobody_followed">还没有关注任何人</string>
     <string name="chat_send">发送</string>
+    <string name="chat_message_copy">复制</string>
+    <string name="chat_message_select">多选</string>
+    <string name="chat_selection_count">已选 %1$d 条</string>
+    <string name="chat_message_delete">删除</string>
     <string name="chat_forbidden">该账号不接受私信</string>
     <string name="time_today">今天</string>
     <string name="time_yesterday">昨天</string>

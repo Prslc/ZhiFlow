@@ -398,6 +398,10 @@
     <string name="chat_invite_empty">No one found</string>
     <string name="chat_invite_nobody_followed">You do not follow anyone yet</string>
     <string name="chat_send">Send</string>
+    <string name="chat_message_copy">Copy</string>
+    <string name="chat_message_select">Select</string>
+    <string name="chat_selection_count">%1$d selected</string>
+    <string name="chat_message_delete">Delete</string>
     <string name="chat_forbidden">This account does not take messages</string>
     <string name="time_today">Today</string>
     <string name="time_yesterday">Yesterday</string>

@@ -4,12 +4,14 @@ import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.BASE_URL
 import com.prslc.zhiflow.core.network.formOf
 import com.prslc.zhiflow.core.network.safeApiCall
+import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.core.network.sealedBody
 import com.prslc.zhiflow.data.model.notification.ZhihuMessage
 import com.prslc.zhiflow.data.model.notification.ZhihuMessageUser
 import com.prslc.zhiflow.data.model.notification.ZhihuMessagesResponse
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Service handling private conversations.
@@ -78,6 +80,22 @@ class MessageService(private val api: ApiClient) {
         Request.Builder()
             .url("${BASE_URL}/messages")
             .sealedBody(form)
+            .build()
+    }
+
+    /**
+     * Deletes one message from this side of a conversation.
+     *
+     * The server keeps no tombstone for it: the message is gone from the list rather than marked,
+     * which is why nothing comes back to draw.
+     *
+     * @param messageId The message's own id, as the conversation page received it.
+     * @return A [Result] carrying the failure when the server refused.
+     */
+    suspend fun deleteMessage(messageId: String): Result<Unit> = api.safeExecute {
+        Request.Builder()
+            .url("${BASE_URL}/messages/$messageId")
+            .delete(ByteArray(0).toRequestBody())
             .build()
     }
 
