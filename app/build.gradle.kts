@@ -151,4 +151,9 @@ dependencies {
 
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Composition tracing. The Compose compiler emits the trace events either way; these are the
+    // runtime that turns them on, and a native blob too large to ship.
+    debugImplementation(libs.androidx.compose.runtime.tracing)
+    debugImplementation(libs.androidx.tracing.perfetto)
+    debugImplementation(libs.androidx.tracing.perfetto.binary)
 }
