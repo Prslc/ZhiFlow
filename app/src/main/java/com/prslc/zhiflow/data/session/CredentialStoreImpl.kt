@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.Credentials
-import com.prslc.zhiflow.core.network.newDeviceId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,23 +20,18 @@ class CredentialStoreImpl(private val sharedPreferences: SharedPreferences) : Cr
 
     override val session: StateFlow<Credentials> = _session.asStateFlow()
 
-    /**
-     * @return The stored device id, or a freshly generated one, stored before it is returned.
-     *   Synchronized because generate-and-store is a read-modify-write: two threads racing on a
-     *   fresh install would otherwise leave one of them holding an id that was never kept.
-     */
-    @Synchronized
-    override fun udid(): String {
-        sharedPreferences.getString(KEY_UDID, null)?.takeIf { it.isNotBlank() }?.let { return it }
-        val generated = newDeviceId()
-        sharedPreferences.edit { putString(KEY_UDID, generated) }
-        return generated
-    }
+    /** @return The stored device id, or null while the bootstrap has not run. */
+    override fun udid(): String? =
+        sharedPreferences.getString(KEY_UDID, null)?.takeIf { it.isNotBlank() }
 
     /** @param value Ignored when blank, so a bad paste cannot blank the id for later requests. */
     override fun replaceUdid(value: String) {
         if (value.isBlank()) return
         sharedPreferences.edit { putString(KEY_UDID, value) }
+    }
+
+    override fun clearUdid() {
+        sharedPreferences.edit { remove(KEY_UDID) }
     }
 
     /** @return The stored session; all-empty on a fresh install. */

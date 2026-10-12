@@ -1,8 +1,6 @@
 package com.prslc.zhiflow.core.network
 
-import android.util.Base64
 import kotlinx.coroutines.flow.StateFlow
-import java.security.SecureRandom
 
 /**
  * Where the session and the device id are kept.
@@ -20,18 +18,25 @@ interface CredentialStore {
     /**
      * The device id sent as `x-udid`.
      *
-     * Generated and stored on first use, so the id is stable across restarts.
+     * The server's to issue, not this app's to invent: an id made up locally is one the server
+     * has never seen, and a request carrying it is answered with a 500 that names nothing —
+     * including the very request that would have issued a real one.
      *
-     * @return The device id; never blank.
+     * @return The device id, or null while none has been issued. A request made in that state
+     *   goes without the header, which is what the client does on a fresh install.
      */
-    fun udid(): String
+    fun udid(): String?
 
     /**
      * Replaces the device id.
      *
-     * @param value Stored as-is; blank is ignored.
+     * @param value Stored as-is; blank is ignored, a blank paste being a slip rather than an
+     *   instruction. [clearUdid] is the deliberate way back to having none.
      */
     fun replaceUdid(value: String)
+
+    /** Forgets the device id, so that the next bootstrap takes a fresh one. */
+    fun clearUdid()
 
     /**
      * Reads the stored session.
@@ -61,12 +66,3 @@ interface CredentialStore {
     /** Drops the session, leaving the device id — that one is the device's, not the session's. */
     fun clear()
 }
-
-/**
- * Generates a device id of the shape the client sends: base64 of 32 random bytes.
- *
- * Random, not read off the device: this client only needs an id that is stable for this
- * install, and has no business claiming to be a particular piece of hardware.
- */
-internal fun newDeviceId(): String =
-    Base64.encodeToString(ByteArray(32).also(SecureRandom()::nextBytes), Base64.NO_WRAP)

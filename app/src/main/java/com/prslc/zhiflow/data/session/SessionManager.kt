@@ -19,8 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Keeps a session in hand for every request, and renews it before it expires.
  *
- * An anonymous session is fetched when a request finds none stored, and a session is refreshed
- * by the response that finds it past the point marked on it.
+ * An anonymous session is fetched when a request finds none stored — behind the device id it
+ * needs, which the server issues once per install — and a session is refreshed by the response
+ * that finds it past the point marked on it.
  */
 class SessionManager(
     private val credentialStore: CredentialStore,
@@ -65,6 +66,7 @@ class SessionManager(
         bootstrapMutex.withLock {
             if (credentialStore.read().hasToken) return@withLock
             if (System.currentTimeMillis() < nextBootstrapAttemptAt) return@withLock
+            if (!ensureDeviceId()) return@withLock
 
             authRepository.startGuestSession().onApiFailure {
                 // Nothing to tell anyone: the request goes out without credentials and its own
@@ -73,6 +75,22 @@ class SessionManager(
                 nextBootstrapAttemptAt = System.currentTimeMillis() + BOOTSTRAP_RETRY_DELAY_MS
             }
         }
+    }
+
+    /**
+     * Takes a device id if this install has none.
+     *
+     * A guest session cannot be had without one, and the id is the server's to give, so this is
+     * a request of its own that has to land first. One round trip, once per install.
+     *
+     * @return Whether there is an id to go on with. A failure backs off like the session's, so
+     *   a server that is down is not asked again by every request in flight.
+     */
+    private suspend fun ensureDeviceId(): Boolean {
+        if (credentialStore.udid() != null) return true
+        return authRepository.bootstrapDevice().onApiFailure {
+            nextBootstrapAttemptAt = System.currentTimeMillis() + BOOTSTRAP_RETRY_DELAY_MS
+        }.isSuccess
     }
 
     override fun onExchange(status: Int) {

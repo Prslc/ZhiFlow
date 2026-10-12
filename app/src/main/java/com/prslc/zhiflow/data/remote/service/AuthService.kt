@@ -9,8 +9,10 @@ import com.prslc.zhiflow.core.network.safeExecute
 import com.prslc.zhiflow.core.network.sealedBody
 import com.prslc.zhiflow.data.model.account.AuthToken
 import com.prslc.zhiflow.data.model.account.Captcha
+import com.prslc.zhiflow.data.model.account.GuestDevice
 import com.prslc.zhiflow.data.model.account.GuestToken
 import com.prslc.zhiflow.data.remote.AuthForm
+import okhttp3.FormBody
 import okhttp3.Request
 
 /** Service for obtaining and dropping a session. */
@@ -102,6 +104,26 @@ class AuthService(private val api: ApiClient) {
                 .build()
         }
 
+    /**
+     * Takes the device id this install is known by.
+     *
+     * The one request that can be made with no device id, and so the one that must not carry
+     * one: the interceptor leaves `x-udid` off while the store holds none, and an id invented
+     * here is answered with a 500 instead of an id.
+     *
+     * A session comes back alongside it and is left alone — the guest bootstrap that follows
+     * takes one of its own, which is cheaper than keeping two ways to start a session in step.
+     *
+     * @return A [Result] carrying the issued device id.
+     */
+    suspend fun bootstrapDevice(): Result<GuestDevice> =
+        api.safeApiCall {
+            Request.Builder().authRequest(PATH_DEVICE)
+                .post(EMPTY_FORM)
+                .establishesSession()
+                .build()
+        }
+
     /** Takes an anonymous session — what every request needs before anyone has logged in. */
     suspend fun guestToken(): Result<GuestToken> =
         api.safeApiCall {
@@ -136,9 +158,15 @@ class AuthService(private val api: ApiClient) {
         apiUrl(path).header("x-api-version", HeaderProvider.API_VERSION)
 
     private companion object {
+        // Empty, and deliberately: the endpoint answers the same for a full device report and
+        // for nothing at all, and half a report is a worse thing to send than none. The client
+        // fills this in; what it puts there is not something this app can answer honestly.
+        val EMPTY_FORM = FormBody.Builder().build()
+
         const val PATH_CAPTCHA = "/captcha"
         const val PATH_AUTH_DIGITS = "/api/account/prod/auth/digits"
         const val PATH_SIGN_IN = "/api/account/prod/sign_in"
+        const val PATH_DEVICE = "/api/account/prod/init/udid_guest"
         const val PATH_GUESTS_TOKEN = "/api/account/prod/guests/token"
         const val PATH_CLIENT_LOGOUT = "/api/account/prod/client_logout"
     }

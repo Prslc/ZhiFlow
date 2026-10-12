@@ -46,7 +46,13 @@ class HttpClientProvider(
                 val auth = if (accessToken.isBlank()) "" else "Bearer $accessToken"
                 val xUdid = credentialStore.udid()
 
-                builder.header("x-udid", xUdid)
+                // Left off while there is none, rather than sent empty or made up: the request
+                // that asks for this install's first device id is refused outright if it already
+                // carries an id the server does not know, so a blank one would be worse than
+                // useless. The client sends none on a fresh install for the same reason.
+                if (xUdid != null) {
+                    builder.header("x-udid", xUdid)
+                }
 
                 // Omitted rather than sent empty while there is no session: a bare `Authorization:`
                 // is a header the gateway has to parse and cannot, and the client never sends one.
@@ -56,7 +62,7 @@ class HttpClientProvider(
 
                 // A sealed body goes unsigned.
                 if (!original.hasSealedBody()) {
-                    builder.header("x-zse-96", zse96(urlPath, auth, xUdid))
+                    builder.header("x-zse-96", zse96(urlPath, auth, xUdid.orEmpty()))
                 }
 
                 builder.header("x-zse-93", HeaderProvider.ZSE_93)
@@ -71,9 +77,9 @@ class HttpClientProvider(
      * What images are fetched through: the app's own identification and nothing of the session.
      *
      * Its own connection pool and dispatcher rather than the API client's, so a feed's worth of
-     * covers cannot queue behind API calls. The device id is left off too, though it is only a
-     * read: it is taken under the store's own lock, which is the serialization this client is
-     * here to avoid.
+     * covers cannot queue behind API calls. The device id is left off for the same reason the
+     * session is: it identifies this install to Zhihu's API, and a picture host has no business
+     * with it.
      */
     val imageClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)

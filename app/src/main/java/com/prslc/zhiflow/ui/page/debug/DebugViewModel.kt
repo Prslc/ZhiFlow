@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.HttpLogStore
-import com.prslc.zhiflow.core.network.newDeviceId
 import com.prslc.zhiflow.core.preference.SettingsStore
 
 class DebugViewModel(
@@ -22,7 +21,9 @@ class DebugViewModel(
      */
     fun setDeveloperUnlocked(unlocked: Boolean) = settingsStore.setDeveloperUnlocked(unlocked)
 
-    var xUdid by mutableStateOf(credentialStore.udid())
+    // Empty until the server has issued one: this field is for reading and pasting, and a blank
+    // one says the bootstrap has not run yet rather than standing in for an id.
+    var xUdid by mutableStateOf(credentialStore.udid().orEmpty())
         private set
 
     var loggingEnabled by mutableStateOf(httpLogStore.isEnabled)
@@ -71,17 +72,22 @@ class DebugViewModel(
     /** @param value Stored as-is, except that a blank one is refused by the store. */
     fun saveUdid(value: String) {
         credentialStore.replaceUdid(value)
-        xUdid = credentialStore.udid()
+        xUdid = credentialStore.udid().orEmpty()
     }
 
     /**
-     * Replaces the device id with a fresh one, for when the stored one is in question.
+     * Forgets the device id, so that the next bootstrap takes a fresh one from the server.
      *
-     * @return The new id, so the caller can show it without a second read.
+     * The session goes with it: it belongs to the device being forgotten, and while one is
+     * stored the bootstrap that would issue a new id is never reached.
+     *
+     * @return The device id as it now reads — empty until that bootstrap has run, so the caller
+     *   can show it without a second read.
      */
     fun regenerateUdid(): String {
-        credentialStore.replaceUdid(newDeviceId())
-        xUdid = credentialStore.udid()
+        credentialStore.clear()
+        credentialStore.clearUdid()
+        xUdid = credentialStore.udid().orEmpty()
         return xUdid
     }
 

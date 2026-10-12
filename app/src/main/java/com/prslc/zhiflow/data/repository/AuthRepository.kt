@@ -16,6 +16,21 @@ class AuthRepository(
 ) {
 
     /**
+     * Takes the device id this install is known by, and keeps it.
+     *
+     * Runs ahead of the first anonymous session, which cannot be had without one: the id is the
+     * server's to issue, and it answers a device it has never seen with a 500 rather than with
+     * a session.
+     *
+     * @return A [Result] carrying the issued device id.
+     */
+    suspend fun bootstrapDevice(): Result<String> =
+        authService.bootstrapDevice().mapOffMain { device ->
+            credentialStore.replaceUdid(device.udid)
+            device.udid
+        }
+
+    /**
      * Takes an anonymous session — what lets the app be used before anyone has logged in.
      *
      * @return A [Result] carrying the stored session.
