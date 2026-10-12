@@ -100,6 +100,15 @@ android {
         buildConfig = true
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric reads the app's own resources, and the unit test variant hands it none
+            // unless this is on. Only the tests that need the framework are slower for it: the rest
+            // run as plain JVM tests.
+            isIncludeAndroidResources = true
+        }
+    }
+
     android.sourceSets.named("main") {
         jniLibs.directories += "libs"
     }
@@ -167,4 +176,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.runtime.tracing)
     debugImplementation(libs.androidx.tracing.perfetto)
     debugImplementation(libs.androidx.tracing.perfetto.binary)
+
+    // Test
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
 }

@@ -17,6 +17,8 @@ compose-lint = "1.6.1"
 material3 = "1.5.0-beta01"
 highlights = "1.1.0"
 tracingPerfetto = "1.0.1"
+junit = "4.13.2"
+robolectric = "4.17"
 
 [plugins]
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
@@ -66,3 +68,7 @@ aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3",
 
 # lint
 compose-lint = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "compose-lint"}
+
+# test
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
