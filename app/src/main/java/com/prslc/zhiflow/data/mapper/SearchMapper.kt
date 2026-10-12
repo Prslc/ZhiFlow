@@ -86,6 +86,7 @@ private fun ZhihuSearchContent.toPerson(): PersonDto = PersonDto(
     name = htmlToPlainText(name),
     headline = htmlToPlainText(headline),
     avatarUrl = avatarUrl.takeIf { it.isNotBlank() },
+    isFollowing = isFollowing,
 )
 
 /**

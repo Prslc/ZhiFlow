@@ -66,6 +66,7 @@ data class ZhihuSearchContent(
     val author: ZhihuSearchAuthor = ZhihuSearchAuthor(),
     @SerialName("thumbnail_info") val thumbnailInfo: ZhihuSearchThumbnails =
         ZhihuSearchThumbnails(),
+    @SerialName("is_following") val isFollowing: Boolean = false,
 )
 
 @Serializable

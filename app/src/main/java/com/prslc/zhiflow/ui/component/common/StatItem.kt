@@ -20,8 +20,8 @@ import com.prslc.zhiflow.core.utils.formatCount
  * which three inline pairs overflow once the counts reach six figures.
  *
  * @param label The name of the count, drawn after it.
- * @param count The count, drawn bold before the label. Past 10000 it is abbreviated to one decimal
- *   and a `w`; the feed's own vote line does not abbreviate.
+ * @param count The count, drawn bold before the label. It is written as [formatCount] writes a
+ *   large one; the feed's own vote line does not abbreviate.
  * @param modifier Applied to the `Row`. The pair is laid out inline, so this is the only place to
  *   give it room.
  * @param onClick Called when the pair is tapped, for a count that leads somewhere. The pair is

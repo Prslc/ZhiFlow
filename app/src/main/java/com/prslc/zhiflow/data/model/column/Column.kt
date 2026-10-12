@@ -20,6 +20,7 @@ data class ZhihuColumn(
     val intro: String = "",
     @SerialName("image_url") val imageUrl: String = "",
     val author: ZhihuPerson = ZhihuPerson(),
+    @SerialName("author_ext") val authorExt: ColumnAuthorExt? = null,
     val followers: Int = 0,
     @SerialName("articles_count") val articlesCount: Int = 0,
     @SerialName("views_count") val viewsCount: Int = 0,
@@ -54,6 +55,15 @@ data class ZhihuColumnPaging(
  */
 @Serializable
 data class ColumnItemQuestion(val title: String = "")
+
+/**
+ * The author's standing, worded: `["6046 次赞同", "3886 次喜欢", "4098 次收藏"]`.
+ *
+ * The response carries an `author_ext` in two places, and this is the outer one; the one inside
+ * `author` is an empty object.
+ */
+@Serializable
+data class ColumnAuthorExt(@SerialName("influence_desc") val influenceDesc: List<String> = emptyList())
 
 /** One entry of a column's list — an article, or an answer with the question it was written for. */
 @Serializable

@@ -10,4 +10,5 @@ data class PersonDto(
     val name: String,
     val headline: String,
     val avatarUrl: String?,
+    val isFollowing: Boolean,
 )

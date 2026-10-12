@@ -6,17 +6,26 @@ import com.prslc.zhiflow.data.model.column.ZhihuColumn
 import com.prslc.zhiflow.data.model.column.ZhihuColumnItem
 
 /** @return The column as its page draws it. */
-internal fun ZhihuColumn.toDto(): ColumnDto = ColumnDto(
-    urlToken = urlToken,
-    title = title,
-    intro = intro,
-    imageUrl = imageUrl.takeIf { it.isNotBlank() },
-    author = author.toPerson(),
-    followers = followers,
-    viewsCount = viewsCount,
-    voteupCount = voteupCount,
-    isFollowing = isFollowing,
-)
+internal fun ZhihuColumn.toDto(): ColumnDto {
+    val words = authorExt?.influenceDesc.orEmpty()
+    val influence = influenceStatsOf(words)
+
+    return ColumnDto(
+        urlToken = urlToken,
+        title = title,
+        intro = intro,
+        imageUrl = imageUrl.takeIf { it.isNotBlank() },
+        author = author.toPerson(),
+        followers = followers,
+        viewsCount = viewsCount,
+        voteupCount = voteupCount,
+        isFollowing = isFollowing,
+        authorAgree = influence?.agree,
+        authorLike = influence?.like,
+        authorFavourite = influence?.favourite,
+        authorInfluenceWords = if (influence == null) words else emptyList(),
+    )
+}
 
 /** @return The entry as one row of the column's list. */
 internal fun ZhihuColumnItem.toDto(): ColumnItemDto = ColumnItemDto(

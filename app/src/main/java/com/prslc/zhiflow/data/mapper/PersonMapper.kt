@@ -10,4 +10,5 @@ internal fun ZhihuPerson.toPerson(): PersonDto = PersonDto(
     name = name,
     headline = headline,
     avatarUrl = avatarUrl.takeIf { it.isNotBlank() },
+    isFollowing = isFollowing,
 )

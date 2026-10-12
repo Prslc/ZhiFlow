@@ -23,6 +23,7 @@ data class ZhihuPerson(
     val name: String = "",
     val headline: String = "",
     @SerialName("avatar_url") val avatarUrl: String = "",
+    @SerialName("is_following") val isFollowing: Boolean = false,
 )
 
 @Serializable

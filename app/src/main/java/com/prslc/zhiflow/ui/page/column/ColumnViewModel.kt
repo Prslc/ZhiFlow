@@ -12,12 +12,14 @@ import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
 import com.prslc.zhiflow.data.repository.ColumnRepository
+import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** One column: what it is, and the articles it holds, from the newest. */
 class ColumnViewModel(
     private val repository: ColumnRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     @Immutable
@@ -51,6 +53,8 @@ class ColumnViewModel(
     private var nextOffset = 0
 
     private var followJob: Job? = null
+
+    private var authorFollowJob: Job? = null
 
     /**
      * Reads the column and its first page of articles.
@@ -98,6 +102,35 @@ class ColumnViewModel(
 
             result.onApiFailure { error ->
                 uiState = uiState.copy(column = uiState.column?.copy(isFollowing = !target))
+                actionError = error
+            }
+        }
+    }
+
+    /**
+     * Optimistically toggles the author's follow state, rolling back on API failure.
+     */
+    fun toggleAuthorFollow() {
+        val column = uiState.column ?: return
+        val author = column.author
+        if (author.id.isEmpty()) return
+        if (authorFollowJob?.isActive == true) return
+
+        val target = !author.isFollowing
+        uiState = uiState.copy(column = column.copy(author = author.copy(isFollowing = target)))
+
+        authorFollowJob = viewModelScope.launch {
+            val result = if (target) {
+                userRepository.followUser(author.id)
+            } else {
+                userRepository.unfollowUser(author.id)
+            }
+
+            result.onApiFailure { error ->
+                val current = uiState.column ?: return@onApiFailure
+                uiState = uiState.copy(
+                    column = current.copy(author = current.author.copy(isFollowing = !target)),
+                )
                 actionError = error
             }
         }
