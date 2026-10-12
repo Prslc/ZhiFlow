@@ -26,13 +26,16 @@ class Navigator(
     /**
      * Navigate to a URL, resolving internal Zhihu routes vs external links.
      *
-     * Internal routes (answer, article, question, people, pin) navigate via
-     * [NavHostController]; external URLs open in the system browser.
+     * An internal address is opened as the route it names — a column by its token, everything else
+     * through [navigateToContent]; external URLs open in the system browser.
      */
     fun handleUrl(url: String) {
         when (val dest = LinkParser.parse(url)) {
             is LinkDestination.Internal -> {
-                navController.navigate(dest.route)
+                when (dest.type) {
+                    "column" -> navigateToColumn(dest.id)
+                    else -> navigateToContent(dest.id, dest.type)
+                }
             }
 
             is LinkDestination.External -> {

@@ -3,17 +3,11 @@ package com.prslc.zhiflow.data.remote.parser
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
-import com.prslc.zhiflow.ui.navigation.AnswerDetail
-import com.prslc.zhiflow.ui.navigation.ArticleDetail
-import com.prslc.zhiflow.ui.navigation.ColumnDetail
-import com.prslc.zhiflow.ui.navigation.PeopleDetail
-import com.prslc.zhiflow.ui.navigation.PinDetail
-import com.prslc.zhiflow.ui.navigation.QuestionDetail
 
 @Stable
 sealed class LinkDestination {
-    // Internal route object (e.g. PeopleDetail)
-    data class Internal(val route: Any) : LinkDestination()
+    // What the address names — the kind of thing, and its id — for the navigator to open.
+    data class Internal(val type: String, val id: String) : LinkDestination()
 
     // Fallback external URL
     @Immutable
@@ -30,12 +24,13 @@ object LinkParser {
 
     /**
      * Resolves [url]: outbound links arrive wrapped in a redirect whose parameter holds the target,
-     * and Zhihu's own URLs map to a route while everything else stays [LinkDestination.External].
+     * and Zhihu's own URLs name something the app opens while everything else stays
+     * [LinkDestination.External].
      */
     fun parse(url: String): LinkDestination {
         val finalUrl = unwrapRedirect(url)
 
-        columnTokenOf(finalUrl)?.let { return LinkDestination.Internal(ColumnDetail(it)) }
+        columnTokenOf(finalUrl)?.let { return LinkDestination.Internal("column", it) }
 
         val finalUri = finalUrl.toUri()
         val host = finalUri.host ?: ""
@@ -49,14 +44,8 @@ object LinkParser {
         val id = extractId(path)
         val type = detectTypeFromPath(path)
 
-        val route = if (id != null && type != null) {
-            mapToRoute(id, type)
-        } else {
-            null
-        }
-
-        return if (route != null) {
-            LinkDestination.Internal(route)
+        return if (id != null && type != null) {
+            LinkDestination.Internal(type, id)
         } else {
             LinkDestination.External(finalUrl)
         }
@@ -92,19 +81,6 @@ object LinkParser {
 
     /** Whether [url] is a link out still wrapped in `link.zhihu.com/?target=`, not an address. */
     internal fun isRedirect(url: String): Boolean = url.toUri().host == REDIRECT_HOST
-
-    /**
-     * Map type and ID to a specific Navigation route.
-     */
-    private fun mapToRoute(id: String, type: String): Any? = when (type) {
-        "people" -> PeopleDetail(id)
-        "answer" -> AnswerDetail(id)
-        "article", "post" -> ArticleDetail(id)
-        "question" -> QuestionDetail(id)
-        "pin" -> PinDetail(id)
-        "column" -> ColumnDetail(id)
-        else -> null
-    }
 
     /**
      * Identify content type from URL path patterns.
