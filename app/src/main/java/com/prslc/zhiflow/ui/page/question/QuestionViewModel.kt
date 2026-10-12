@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
-import com.prslc.zhiflow.core.exception.toApiException
 import com.prslc.zhiflow.data.dto.AnswerDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.content.QuestionDetail
@@ -54,47 +53,43 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         uiState = QuestionUiState(isLoading = true)
 
         loadJob = viewModelScope.launch {
-            try {
-                val detailDeferred = async { repository.getQuestion(id) }
-                val feedDeferred = async { repository.getQuestionFeed(id) }
+            // Both go out together: the page needs both, and awaiting the second only after the
+            // first had answered would add the slower request's latency to the faster one's.
+            val detailDeferred = async { repository.getQuestion(id) }
+            val feedDeferred = async { repository.getQuestionFeed(id) }
 
-                val detailResult = detailDeferred.await()
-                val feedResult = feedDeferred.await()
+            val detailResult = detailDeferred.await()
+            val feedResult = feedDeferred.await()
 
-                if (detailResult.isSuccess && feedResult.isSuccess) {
-                    val detailData = detailResult.getOrNull()
-                    val feedResponse = feedResult.getOrNull()
-
-                    val elements = withContext(Dispatchers.Default) {
-                        QuestionParser.parse(detailData?.detail)
-                    }
-
-                    nextPageUrl = feedResponse?.paging?.next
-
-                    uiState = uiState.copy(
-                        isLoading = false,
-                        question = detailData,
-                        elements = elements,
-                        answers = feedResponse?.data
-                            ?.filter { it.targetType == "answer" }
-                            ?.map { it.target.toDto() }
-                            ?: emptyList(),
-                        hasMore = feedResponse?.paging?.isEnd == false,
-                    )
-                } else {
-                    val error = (detailResult.exceptionOrNull() ?: feedResult.exceptionOrNull())
-                        ?.toApiException() ?: ApiException.UnknownException()
-                    uiState = uiState.copy(
-                        isLoading = false,
-                        globalError = error,
-                    )
+            // Either request failing is this page's failure, and the one that failed answers for
+            // both, through the call every other load in the app answers a failure with.
+            if (detailResult.isFailure || feedResult.isFailure) {
+                val failed = if (detailResult.isFailure) detailResult else feedResult
+                failed.onApiFailure { error ->
+                    uiState = uiState.copy(isLoading = false, globalError = error)
                 }
-            } catch (e: Exception) {
-                uiState = uiState.copy(
-                    isLoading = false,
-                    globalError = e.toApiException(),
-                )
+                return@launch
             }
+
+            val detailData = detailResult.getOrNull()
+            val feedResponse = feedResult.getOrNull()
+
+            val elements = withContext(Dispatchers.Default) {
+                QuestionParser.parse(detailData?.detail)
+            }
+
+            nextPageUrl = feedResponse?.paging?.next
+
+            uiState = uiState.copy(
+                isLoading = false,
+                question = detailData,
+                elements = elements,
+                answers = feedResponse?.data
+                    ?.filter { it.targetType == "answer" }
+                    ?.map { it.target.toDto() }
+                    ?: emptyList(),
+                hasMore = feedResponse?.paging?.isEnd == false,
+            )
         }
     }
 
