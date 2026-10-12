@@ -11,6 +11,7 @@ import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.crossfade
+import com.prslc.zhiflow.core.native.Natives
 import com.prslc.zhiflow.core.network.HeaderProvider
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.data.session.SessionManager
@@ -29,6 +30,11 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
 
     override fun onCreate() {
         super.onCreate()
+
+        // First, and on this thread: naming this class is what loads the library, and every
+        // `System.loadLibrary` in the process queues on the one monitor inside `Runtime`. Left to
+        // whoever gets there first, a worker loading its own library makes the main thread wait.
+        Natives.preload()
 
         // koin
         startKoin {
