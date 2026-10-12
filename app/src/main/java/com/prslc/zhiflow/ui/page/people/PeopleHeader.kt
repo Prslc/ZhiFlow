@@ -59,7 +59,7 @@ fun PeopleHeader(
         actions = {
             OutlinedIconButton(
                 onClick = onMessageClick,
-                // M3 derives this border from the content colour, so a bright glyph would
+                // M3 derives this border from the content color, so a bright glyph would
                 // otherwise drag a bright ring along with it.
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 colors = IconButtonDefaults.outlinedIconButtonColors(

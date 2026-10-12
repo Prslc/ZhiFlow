@@ -29,7 +29,7 @@ import com.prslc.zhiflow.R
  * For a page that failed while a list is already up, use [LoadMoreErrorItem] instead: this one
  * takes the whole screen.
  *
- * @param message What went wrong, in the words the reader should read. It is centred and may wrap.
+ * @param message What went wrong, in the words the reader should read. It is centered and may wrap.
  * @param onRetry Called when the retry button is pressed; the button is drawn here, so a caller
  *   supplies only the work.
  * @param modifier Applied ahead of this column's own 32dp padding, so a caller's padding stacks

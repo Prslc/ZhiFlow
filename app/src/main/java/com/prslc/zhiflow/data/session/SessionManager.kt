@@ -28,7 +28,7 @@ class SessionManager(
 ) : SessionGate {
 
     // Its own scope, not a caller's: a refresh has to outlive the request that noticed it was
-    // due, and must not be cancelled along with whichever screen made that request.
+    // due, and must not be canceled along with whichever screen made that request.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val bootstrapMutex = Mutex()

@@ -34,7 +34,7 @@ import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
  *   the trailing slot too.
  * @param avatarSize The avatar's diameter; the name is not sized from it.
  * @param nameStyle The style the name is drawn with. [fontWeight] overrides the weight it carries.
- * @param nameColor The colour of the name; the avatar is not tinted.
+ * @param nameColor The color of the name; the avatar is not tinted.
  * @param fontWeight The name's weight, or null to take the one in [nameStyle].
  * @param trailing Content drawn after the name, for a trailing action.
  */

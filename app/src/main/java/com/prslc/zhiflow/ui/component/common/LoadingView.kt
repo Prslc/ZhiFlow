@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 /**
  * What a surface shows while its first page is still on the way.
  *
- * @param modifier Applied to the `Column` that centres the spinner and the message, so the caller's
+ * @param modifier Applied to the `Column` that centers the spinner and the message, so the caller's
  *   size is what decides where the pair lands.
  * @param message A line under the spinner, or null to draw the spinner alone.
  */

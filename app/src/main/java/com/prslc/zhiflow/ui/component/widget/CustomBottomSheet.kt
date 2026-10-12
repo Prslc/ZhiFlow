@@ -122,7 +122,7 @@ fun CustomBottomSheet(
             }
             throw e
         }
-        // Outside the try: a commit run in the gesture job would be cancelled by the next
+        // Outside the try: a commit run in the gesture job would be canceled by the next
         // gesture and land in the catch above, reading as a pull-back.
         isDismissing.value = true
         scope.launch {

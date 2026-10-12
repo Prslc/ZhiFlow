@@ -24,7 +24,7 @@ import com.prslc.zhiflow.R
  * It has to read as an omission rather than a failure, which an empty box does not: the icon is
  * a picture that has been crossed out, and the line under it says what a tap actually does.
  *
- * @param modifier Applied to the column, which centres its contents in whatever space it is given.
+ * @param modifier Applied to the column, which centers its contents in whatever space it is given.
  */
 @Composable
 fun ImageOmitted(modifier: Modifier = Modifier) {

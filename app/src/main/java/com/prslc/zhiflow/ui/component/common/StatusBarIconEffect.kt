@@ -51,7 +51,7 @@ fun StatusBarIconEffect(
  * Light status bar icons while a page's cover image is behind them, and the theme's own icons once
  * the page's surface has scrolled up to the bar.
  *
- * A cover can be any colour, so dark icons over one are a coin toss; the surface a page draws its
+ * A cover can be any color, so dark icons over one are a coin toss; the surface a page draws its
  * own, by contrast, is the theme's, and takes the theme's icons. A page whose top bar fades in as
  * the cover leaves does not need this -- past the point where the bar is opaque the icons sit on
  * the bar, not on the cover.

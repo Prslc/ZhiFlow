@@ -138,7 +138,7 @@ private val MIN_TABLE_CELL_WIDTH = 76.dp
  * scroll.
  *
  * @param element The table segment.
- * @param modifier Applied to the box that centres the table, ahead of the `fillMaxWidth` it adds.
+ * @param modifier Applied to the box that centers the table, ahead of the `fillMaxWidth` it adds.
  */
 @Composable
 fun TableComponent(
@@ -171,7 +171,7 @@ fun TableComponent(
             Card(
                 colors = CardDefaults.cardColors(
                     // The grid draws its own edges; a filled container under them only muddies the
-                    // band and the lines. The content colour has to be stated, since a transparent
+                    // band and the lines. The content color has to be stated, since a transparent
                     // container maps to none.
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurface,

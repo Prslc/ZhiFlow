@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.lerp
 /** Corner of a group's own outline. */
 val GroupCornerRadius = 16.dp
 
-/** Corner two neighbouring rows share, which rounds each row's inner end. */
+/** Corner two neighboring rows share, which rounds each row's inner end. */
 val GroupConnectionRadius = 5.dp
 
 /** Space left between two rows, which is where the page shows through as a hairline. */
@@ -55,8 +55,8 @@ annotation class SettingsGroupDsl
 /**
  * Collects the rows of a [SettingsGroup].
  *
- * A row is written as its content alone: the corner it is clipped to, the colour behind it and
- * the gap to its neighbour are all decided by the group, which is the only one that knows where
+ * A row is written as its content alone: the corner it is clipped to, the color behind it and
+ * the gap to its neighbor are all decided by the group, which is the only one that knows where
  * in the stack the row sits.
  */
 @SettingsGroupDsl
@@ -64,7 +64,7 @@ class SettingsGroupScope {
 
     internal val rows = mutableListOf<@Composable () -> Unit>()
 
-    /** @param content The row, drawn inside the shape and colour the group gives it. */
+    /** @param content The row, drawn inside the shape and color the group gives it. */
     fun row(content: @Composable () -> Unit) {
         rows.add(content)
     }
@@ -81,9 +81,9 @@ class SettingsGroupScope {
  * @param modifier Applied to the group, ahead of its own content padding.
  * @param title Heading drawn above the rows; blank draws none.
  * @param cornerRadius Corner of the group's own outline.
- * @param connectionRadius Corner two neighbouring rows share.
+ * @param connectionRadius Corner two neighboring rows share.
  * @param rowGap Space left between two rows.
- * @param containerColor Colour behind each row.
+ * @param containerColor Color behind each row.
  * @param contentPadding Padding around the whole group.
  * @param content The rows, declared in order.
  */

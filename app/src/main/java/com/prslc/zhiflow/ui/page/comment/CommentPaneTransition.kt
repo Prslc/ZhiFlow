@@ -64,7 +64,7 @@ private const val STALL_CHECK_MS = 150L
  *
  * A drive has to be re-issued rather than issued once: the framework hands its mutator mutex
  * between callers, so a gesture's seek, the next intent or a pull-back cancels whichever drive is
- * running, and a cancelled drive leaves the panes part-way across with nobody left to finish them.
+ * running, and a canceled drive leaves the panes part-way across with nobody left to finish them.
  * The stall watch is what repairs that.
  *
  * The intent has to be read through `rememberUpdatedState`: [isDetail] is a parameter, a value
@@ -102,7 +102,7 @@ fun CommentPaneTransition(
         }
     }
 
-    // The only thing that finishes a cancelled drive; see the note on this composable.
+    // The only thing that finishes a canceled drive; see the note on this composable.
     LaunchedEffect(Unit) {
         var lastFraction = detailState.fraction
         while (true) {
@@ -116,7 +116,7 @@ fun CommentPaneTransition(
             try {
                 detailState.driveTo(detailIntent)
             } catch (e: CancellationException) {
-                // Cancelled by whatever else wanted the panes; the next sample looks again.
+                // Canceled by whatever else wanted the panes; the next sample looks again.
                 if (!isActive) throw e
             }
         }

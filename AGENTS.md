@@ -24,7 +24,7 @@ can check. Numbers describing what the tree currently measures at are neither, a
 | Image Loading | Coil 3 (OkHttp network fetcher, GIF support, disk + memory cache) |
 | Zoom | Telephoto (`zoomable-image-coil3`) |
 | LaTeX | Rendered as pre-rasterized images served by the Zhihu API (`img_url` + dp `width`/`height`), loaded via Coil |
-| Licences | AboutLibraries — a Gradle plugin generates the list from the resolved dependencies, and `aboutlibraries-compose-m3` draws it |
+| Licenses | AboutLibraries — a Gradle plugin generates the list from the resolved dependencies, and `aboutlibraries-compose-m3` draws it |
 | Arch | MVVM — ViewModels expose `mutableStateOf` UI state, one per screen |
 | Min SDK | 33 (Android 13) |
 | Target/Compile SDK | compileSdk 37, targetSdk 36 |
@@ -80,13 +80,13 @@ ZhiFlow/
 │           │   ├── mapper/                     # model → dto extensions
 │           │   ├── model/                      # Raw API response models, one subpackage per domain (content, comment, feed, moment, user)
 │           │   ├── remote/
-│           │   │   ├── parser/                 # Segments → RichTextElement: links, formulas, tables, emoji (emoji/), code colour (CodeHighlighter), the annotated-string engine (engine/)
+│           │   │   ├── parser/                 # Segments → RichTextElement: links, formulas, tables, emoji (emoji/), code color (CodeHighlighter), the annotated-string engine (engine/)
 │           │   │   └── service/                # One OkHttp service per API domain
 │           │   ├── repository/                 # Service + mapper per domain, returning Result<T>
 │           │   └── session/                    # The current user's hash id, kept in memory; the credential store's implementation; the session manager
 │           ├── di/                             # The single Koin module
 │           └── ui/                             # Compose only
-│               ├── theme/                      # Colour, type, the dark-mode flag the tree reads, dynamic-colour fallback, and a syntax palette that follows neither
+│               ├── theme/                      # Color, type, the dark-mode flag the tree reads, dynamic-color fallback, and a syntax palette that follows neither
 │               ├── navigation/                 # Type-safe routes, the NavHost graph, the Navigator
 │               ├── component/                  # Reusable pieces no page owns
 │               │   ├── common/                 # Error and empty states, paging footer, author row
@@ -97,7 +97,7 @@ ZhiFlow/
 │                   ├── feed/  content/  question/  comment/
 │                   ├── pin/                    # The thought page, with a screen of its own instead of the one answers and articles share
 │                   ├── people/                 # Profile page; moment/ is its second tab
-│                   ├── profile/                # Profile page, plus the settings, about and licence screens
+│                   ├── profile/                # Profile page, plus the settings, about and license screens
 │                   └── history/  collection/  login/  debug/
 ```
 
@@ -180,7 +180,7 @@ var uiState by mutableStateOf(UiState())
 
 The rich text pipeline:
 1. API returns `List<Segment>` (paragraph, heading, blockquote, code_block, list_node, table, image, card, formula, etc.)
-2. `ContentParser.transform(segments)` → `List<RichTextElement>` (sealed interface hierarchy of Compose-ready primitives). No mode and no colour: one parse serves both themes, which is what lets its result be cached
+2. `ContentParser.transform(segments)` → `List<RichTextElement>` (sealed interface hierarchy of Compose-ready primitives). No mode and no color: one parse serves both themes, which is what lets its result be cached
 3. Each `RichTextElement` renders via a corresponding composable in `ui/component/richtext/component/`
 4. `ZRichText` composable wraps `Text` with clickable link interception and inline formula support via `InlineTextContent`
 
@@ -193,17 +193,17 @@ Formulas are **pre-rasterized images served by the Zhihu API**, not rendered loc
   - Image and `Placeholder` bounds use the exact server dp `width`/`height`, so formulas keep their natural size variation (simple subscripts ~13dp, display blocks up to ~164dp — 89dp and 164dp both occur in a single answer).
   - Widths are clamped to screen width minus 42dp (`constrainedSize`), scaling height proportionally — over-wide formulas are scaled down, never cropped or scrolled.
   - The dp→sp conversion divides by `fontScale` (`formulaPlaceholder`), so rendered pixels stay constant regardless of the user's system font size.
-- A row is only as tall as its style asks for: Compose re-imposes an explicit `lineHeight` on a row a tall placeholder has grown, so a formula taller than the line would be drawn across its neighbours. Every host of an inline formula — `FormulaTextSection` for a paragraph, `ZRichText` for a heading, quote, list item, reference or table cell — takes its line height from `withFormulaLineHeight`, which raises it to the tallest formula plus 8dp of clearance.
+- A row is only as tall as its style asks for: Compose re-imposes an explicit `lineHeight` on a row a tall placeholder has grown, so a formula taller than the line would be drawn across its neighbors. Every host of an inline formula — `FormulaTextSection` for a paragraph, `ZRichText` for a heading, quote, list item, reference or table cell — takes its line height from `withFormulaLineHeight`, which raises it to the tallest formula plus 8dp of clearance.
 - Dark mode inverts the white-background bitmap via a `ColorMatrix`, not a tint.
 
-#### Code colour (tokenizer-based)
+#### Code color (tokenizer-based)
 
-The API sends a code block as `{content, language}` and nothing more — the server does no colouring, so the client tokenizes:
-- `CodeHighlighter` (in `parser/CodeHighlighter.kt`, over `dev.snipme:highlights`) runs inside `ContentParser.transform`, on the same `Dispatchers.Default` as the rest of the body. It builds a fresh tokenizer per block, against the library's own advice to keep one around: the instance holds the analysed code in mutable state, so a shared one would answer with a block another page parsed a moment earlier.
-- The tokenizer answers with **eight sets of ranges that overlap** — only comments and strings are kept out of the keyword search, so the `.` in `// foo.bar` is punctuation and comment at once. They are laid down in the library's own order — the later set wins — and then cut into runs that never overlap, so a renderer adds them in the order it is handed them and the gaps keep the block's own colour. Language names go through an alias table, because a fence is written by hand: `c++`, `js` and `bash` are not the spellings the tokenizer knows.
-- `RichTextElement.Code` carries those runs and no colour. Which colour a kind gets is the renderer's, which is what lets one parsed body be cached and drawn in either mode.
-- `SyntaxColors` (in `ui/theme/SyntaxColors.kt`) holds the palette, one arm per mode, and is its own rather than the scheme's. Every colour clears 4.5:1 on the card it is drawn on, the dark arm measured against that card's own `#1A1F24`. Brackets, commas and the like are left unspecified, so they keep the text's colour rather than making the block busier.
-- A fence naming a language the tokenizer does not carry — `text`, and SQL, JSON, HTML and the rest — yields no runs, and the block draws in one colour exactly as it did before there was a tokenizer.
+The API sends a code block as `{content, language}` and nothing more — the server does no coloring, so the client tokenizes:
+- `CodeHighlighter` (in `parser/CodeHighlighter.kt`, over `dev.snipme:highlights`) runs inside `ContentParser.transform`, on the same `Dispatchers.Default` as the rest of the body. It builds a fresh tokenizer per block, against the library's own advice to keep one around: the instance holds the analyzed code in mutable state, so a shared one would answer with a block another page parsed a moment earlier.
+- The tokenizer answers with **eight sets of ranges that overlap** — only comments and strings are kept out of the keyword search, so the `.` in `// foo.bar` is punctuation and comment at once. They are laid down in the library's own order — the later set wins — and then cut into runs that never overlap, so a renderer adds them in the order it is handed them and the gaps keep the block's own color. Language names go through an alias table, because a fence is written by hand: `c++`, `js` and `bash` are not the spellings the tokenizer knows.
+- `RichTextElement.Code` carries those runs and no color. Which color a kind gets is the renderer's, which is what lets one parsed body be cached and drawn in either mode.
+- `SyntaxColors` (in `ui/theme/SyntaxColors.kt`) holds the palette, one arm per mode, and is its own rather than the scheme's. Every color clears 4.5:1 on the card it is drawn on, the dark arm measured against that card's own `#1A1F24`. Brackets, commas and the like are left unspecified, so they keep the text's color rather than making the block busier.
+- A fence naming a language the tokenizer does not carry — `text`, and SQL, JSON, HTML and the rest — yields no runs, and the block draws in one color exactly as it did before there was a tokenizer.
 
 ### Error Handling
 
@@ -243,6 +243,7 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
 - **Composable parameters**: required first, then `modifier: Modifier = Modifier`, then what is optional, with a trailing `content` lambda last — the order Material's own components use. A required callback belongs with the other required parameters, not parked after `modifier`.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
+- **The prose is American English**: comments, KDoc, user-facing strings and this file — `color`, `behavior`, `canceled`, `center`, `gray`, `license`, `-ize` over `-ise`. The IDE checks it in the same pass as the code (Grazie, `Language: English (USA)`), so a British spelling comes back as a finding on the next inspection.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
 - **Content images**: An illustration in a body and a list's thumbnails read `LocalDataSaver`, which is what lets the reader's choice reach them. Avatars, covers, formulas and the lightbox do not — those are not what a reader is paying traffic for, and the lightbox exists to show an image that was asked for.
 - **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore`, read fresh on every request so a write reaches the next one with nothing having to be told. It also publishes the session as a `StateFlow`, for what draws the session rather than requests it — a screen has no request of its own that would come back and tell it. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
@@ -259,7 +260,7 @@ it is not, and a percentage is not something a reader can act on while writing.
 | Where | What |
 |---|---|
 | `data/repository`, `data/session`, `data/remote/service` | KDoc on **every public function**, with `@param` / `@return`. Multi-line is fine. |
-| ViewModel public methods | KDoc: behaviour, side effects, boundaries — "Sets `[FeedUiState.globalError]` on failure", "No-op when `[nextPageUrl]` is null". |
+| ViewModel public methods | KDoc: behavior, side effects, boundaries — "Sets `[FeedUiState.globalError]` on failure", "No-op when `[nextPageUrl]` is null". |
 | Other public API (`core/`, `ui/navigation/`) | KDoc where the contract is not readable off the signature. |
 | UI composables | Nothing by default. A mechanism note goes on the KDoc of the host composable, where it explains the widget as a whole. |
 | A composable in `ui/component/` | Carries a KDoc, because another screen calls it. The summary says what the widget is; every parameter gets its own line. |
@@ -300,7 +301,7 @@ written with KDoc's markup under a plain `/*` looks documented and is not. `//` 
 identical to the compiler and to every tool; Kotlin's block comments even nest, so `/* */` is not the
 fragile one, and the only mechanical difference is that `//` runs to the end of the line. That is the
 whole rule: `//` everywhere, except where a line comment cannot go (inside an expression) or a
-licence header that has to stay verbatim as it came.
+license header that has to stay verbatim as it came.
 
 ## Git Conventions
 

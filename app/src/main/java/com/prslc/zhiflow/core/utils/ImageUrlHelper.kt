@@ -36,7 +36,7 @@ private val IMAGE_STEPS = listOf(200 to "_xl", 600 to "_b", 1249 to "_xxl")
  * the next one up costs a string replace — the server's own client does the same, and never asks
  * for the little presets.
  *
- * Sizes only ever move up, and only off the suffixes listed above: a url this does not recognise is
+ * Sizes only ever move up, and only off the suffixes listed above: a url this does not recognize is
  * left alone and drawn as it came, rather than rewritten into something the CDN may not keep.
  *
  * @param url The url the server handed out.

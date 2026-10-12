@@ -31,7 +31,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 
 /**
- * A follow toggle's behaviour: the state it draws, the tap that flips it, the haptic that tap
+ * A follow toggle's behavior: the state it draws, the tap that flips it, the haptic that tap
  * plays, and the morph between the two states.
  *
  * The look is the caller's — [content] is handed the state to draw and the tap to call. Nothing

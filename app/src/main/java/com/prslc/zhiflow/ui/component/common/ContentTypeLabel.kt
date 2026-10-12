@@ -53,9 +53,9 @@ data class ContentTypeConfig(
 )
 
 /**
- * The label and colours a content type is drawn with.
+ * The label and colors a content type is drawn with.
  *
- * The article and pin badges take their hue from the primary one rather than naming a colour of
+ * The article and pin badges take their hue from the primary one rather than naming a color of
  * their own, so they follow the scheme the reader is on.
  *
  * @param type The API's content-type string: `answer`, `article` or `pin`, in whatever case it

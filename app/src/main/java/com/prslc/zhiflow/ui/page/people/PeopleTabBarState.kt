@@ -47,7 +47,7 @@ class PeopleTabBarState(
     /** Whether the bar carries the user's name yet. */
     val isTitleShown by derivedStateOf { topBarAlpha > 0.8f }
 
-    /** Whether the bar's own icons are drawn in the theme's colour rather than white. */
+    /** Whether the bar's own icons are drawn in the theme's color rather than white. */
     val iconsOnSurface by derivedStateOf { topBarAlpha > 0.5f }
 
     val nestedScrollConnection = object : NestedScrollConnection {

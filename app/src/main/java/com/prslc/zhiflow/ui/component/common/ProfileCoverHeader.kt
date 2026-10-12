@@ -43,7 +43,7 @@ internal val ProfileCoverHeight = 160.dp
 private val AvatarSize = 84.dp
 private val HeaderGutter = 20.dp
 
-/** Half the 84dp avatar, so it sits centred on the cover's bottom edge. */
+/** Half the 84dp avatar, so it sits centered on the cover's bottom edge. */
 private val AvatarOverhang = 42.dp
 
 /**
@@ -85,7 +85,7 @@ data class ProfileStat(
  * @param modifier Applied to the header's `Box`, so the caller sizes the whole cover block.
  * @param coverContentDescription Null when the cover is decorative rather than a thing to open.
  * @param topEndAction A control for the cover's top-right corner. The slot is positioned and given
- * an [iconScrim] disc and white content colour; the caller supplies only the icon button.
+ * an [iconScrim] disc and white content color; the caller supplies only the icon button.
  * @param actions The right-hand side of the avatar row. Already offset by [ActionOverhang]; do not
  * add the offset again.
  */

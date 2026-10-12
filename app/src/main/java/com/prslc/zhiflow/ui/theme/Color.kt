@@ -17,7 +17,7 @@ val CodeBackgroundDark = Color(0x33808080)
 
 /**
  * The band that breaks a sheet into sections: darker than the sheet in both modes, the way the page
- * behind it is. A line of a colour role would be lighter than the sheet in dark mode and all but
+ * behind it is. A line of a color role would be lighter than the sheet in dark mode and all but
  * invisible in light, so the two ends are picked per mode instead.
  */
 val SectionGapLight = Color(0x0F000000)

@@ -42,7 +42,7 @@ private data class LabFormula(
  *
  * The lab uses captured addresses rather than ones it builds from the equation endpoint, because a
  * formula's box is the API's to decide: the bitmap is three times the dp size, transparent, with
- * its ink centred in the box. An address built from the endpoint answers with a box tight around
+ * its ink centered in the box. An address built from the endpoint answers with a box tight around
  * the ink, which is a different picture, and a case would be showing something no reader sees.
  */
 private val SMALL_FORMULA = LabFormula(

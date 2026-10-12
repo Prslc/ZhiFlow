@@ -21,10 +21,10 @@ data class ProcessedText(
 )
 
 /**
- * One run of code that shares a colour, as a half-open `[start, end)` range.
+ * One run of code that shares a color, as a half-open `[start, end)` range.
  *
  * Runs never overlap and never cover text the tokenizer said nothing about, so a renderer paints
- * them in the order it is handed them and the gaps keep the block's own colour.
+ * them in the order it is handed them and the gaps keep the block's own color.
  */
 @Immutable
 data class CodeToken(
@@ -79,7 +79,7 @@ sealed interface RichTextElement {
     /**
      * Code block with optional language identifier.
      *
-     * [tokens] carries no colour of its own — which colour a kind gets is the renderer's, and the
+     * [tokens] carries no color of its own — which color a kind gets is the renderer's, and the
      * block is cached across both themes on that account.
      */
     @Immutable

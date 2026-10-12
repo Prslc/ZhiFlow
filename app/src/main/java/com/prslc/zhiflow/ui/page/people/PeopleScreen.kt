@@ -184,7 +184,7 @@ fun PeopleScreen(
                             }
 
                             // topbar
-                            // Drawn rather than composed: as a colour the fade would be a new
+                            // Drawn rather than composed: as a color the fade would be a new
                             // value every frame, and the surface has to be transparent for that.
                             val topBarSurface = MaterialTheme.colorScheme.surface
                             Surface(

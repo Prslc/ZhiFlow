@@ -31,11 +31,11 @@ object AnnotatedStringBuilder {
     /** The speech-bubble placeholder at the end of that range, carrying the same key. */
     const val SEGMENT_LIKE_ICON_TAG = "SEGMENT_LIKE_ICON"
 
-    /** Range that carries a url to open. Coloured by the theme, like [CODE_TAG]. */
+    /** Range that carries a url to open. Colored by the theme, like [CODE_TAG]. */
     const val URL_TAG = "URL"
 
     /**
-     * Range of a `code` mark. Its colours are the theme's, so the range is marked and not styled.
+     * Range of a `code` mark. Its colors are the theme's, so the range is marked and not styled.
      */
     const val CODE_TAG = "CODE"
 
@@ -67,7 +67,7 @@ object AnnotatedStringBuilder {
      *
      * Three kinds of range are annotated rather than styled, because what they look like is not
      * known here. A `seg_like` range's underline is solid or dashed with live like state; a link, a
-     * `code` block and a `reference` take their colours from the theme, which flips while a body
+     * `code` block and a `reference` take their colors from the theme, which flips while a body
      * stays parsed. Carrying a mode in the string would make the parse depend on it, and every
      * cache of a parsed body would have to be purged whenever the reader changed theme. The
      * renderer knows the mode and applies those three styles, reading the ranges back off these
@@ -225,8 +225,8 @@ object AnnotatedStringBuilder {
 }
 
 /**
- * Applies what a mark says without asking the theme anything: the styles that carry no colour are
- * set here, and the marks whose colour belongs to the theme are left as annotations for the
+ * Applies what a mark says without asking the theme anything: the styles that carry no color are
+ * set here, and the marks whose color belongs to the theme are left as annotations for the
  * renderer to find.
  */
 private fun AnnotatedString.Builder.applyMarkStyle(

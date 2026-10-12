@@ -47,7 +47,7 @@ object CodeHighlighter {
     /**
      * Tokenize one code block into the runs its renderer paints.
      *
-     * An empty list means "draw it in a single colour", which is what comes back for an empty
+     * An empty list means "draw it in a single color", which is what comes back for an empty
      * block, for a fence naming no language we know (`text`, and the languages the tokenizer does
      * not carry, both land here), and for a tokenizer that failed. Nothing tells those apart: the
      * renderer has the whole code either way, and the fence's own string still reaches it.
@@ -57,12 +57,12 @@ object CodeHighlighter {
         val syntax = LANGUAGES[language?.trim()?.lowercase()] ?: return emptyList()
 
         // A fresh instance per block, against the library's advice to keep one around: it holds the
-        // analysed code in mutable state, so a shared one would answer with whatever block another
+        // analyzed code in mutable state, so a shared one would answer with whatever block another
         // page's parse had set a moment earlier.
         val structure = try {
             Highlights.Builder().code(code).language(syntax).build().getCodeStructure()
         } catch (e: Exception) {
-            // A tokenizer bug costs this block its colours, not the article its body. The call
+            // A tokenizer bug costs this block its colors, not the article its body. The call
             // cannot suspend, so there is no cancellation in flight here to swallow.
             return emptyList()
         }
@@ -76,7 +76,7 @@ object CodeHighlighter {
      * The sets overlap by design: only comments and strings are excluded from the keyword search,
      * so the `.` in `// foo.bar` is punctuation and comment at once. The library settles that by
      * adding them in one fixed order, replayed here so the later set wins — that order is what
-     * keeps a comment from being speckled with the colours of what it contains.
+     * keeps a comment from being speckled with the colors of what it contains.
      */
     private fun resolve(code: String, structure: CodeStructure): List<CodeToken> {
         val kinds = arrayOfNulls<CodeTokenKind>(code.length)

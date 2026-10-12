@@ -282,7 +282,7 @@ fun SegmentPanelSheet(
  * The row of things one passage can be used for.
  *
  * The like button reports the passage's own count whether or not the reader liked it; only the icon
- * and its colour follow the reader. At zero there is no count to report and it names the action
+ * and its color follow the reader. At zero there is no count to report and it names the action
  * instead, the way the comment rows drop a zero.
  *
  * Share and search are drawn but inert: they lead to surfaces this app does not have yet, and the

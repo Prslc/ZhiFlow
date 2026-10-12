@@ -72,7 +72,7 @@ class HttpClientProvider(
      *
      * Its own connection pool and dispatcher rather than the API client's, so a feed's worth of
      * covers cannot queue behind API calls. The device id is left off too, though it is only a
-     * read: it is taken under the store's own lock, which is the serialisation this client is
+     * read: it is taken under the store's own lock, which is the serialization this client is
      * here to avoid.
      */
     val imageClient: OkHttpClient = OkHttpClient.Builder()

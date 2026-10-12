@@ -28,7 +28,7 @@ import com.prslc.zhiflow.ui.component.richtext.ZRichText
 
 /**
  * One list item. Its bullet is drawn rather than written as a "•": a glyph's size comes from the
- * font and it cannot be centred on the line, which is where a bullet reads as belonging to the
+ * font and it cannot be centered on the line, which is where a bullet reads as belonging to the
  * text. Hence a fixed-size mark resting on the first line's baseline, as an ordered item's number
  * does: the row can be taller than its text — a formula in the item makes it so — and a mark placed
  * against the row itself would be left behind.

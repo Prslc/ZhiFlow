@@ -274,7 +274,7 @@ fun LoginScreen(
 }
 
 /* The wordmark carries the identity, so it stays in the neutral on-surface tone
- * and the accent is spent on the one action instead. Under dynamic colour a
+ * and the accent is spent on the one action instead. Under dynamic color a
  * brand tinted with `primary` would come out whatever the wallpaper is, which is
  * the opposite of what a wordmark is for. */
 @Composable

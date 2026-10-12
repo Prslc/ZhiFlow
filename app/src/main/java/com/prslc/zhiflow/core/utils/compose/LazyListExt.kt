@@ -6,7 +6,7 @@ import androidx.compose.runtime.derivedStateOf
 
 /**
  * Returns a derived [State] that is `true` when the last visible item
- * is within 2 positions of the list end, signalling that more data
+ * is within 2 positions of the list end, signaling that more data
  * should be loaded for infinite scrolling.
  */
 internal fun LazyListState.shouldLoadMore(): State<Boolean> = derivedStateOf {

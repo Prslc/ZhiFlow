@@ -19,7 +19,7 @@ import com.prslc.zhiflow.R
 /**
  * The footer a paged list shows when the next page failed. The whole strip is the tap target.
  *
- * @param message What went wrong, in the reader's words. It is drawn in the error colour.
+ * @param message What went wrong, in the reader's words. It is drawn in the error color.
  * @param modifier Applied to the clickable strip, so anything a caller adds -- padding, a
  *   background -- carries the tap target with it.
  * @param onRetry Called when the strip is tapped.

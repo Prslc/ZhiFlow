@@ -47,8 +47,8 @@ import com.prslc.zhiflow.ui.theme.SyntaxColors
  * @param code The code as the parser found it, with the fence already off.
  * @param lang The language the fence named, or null when it named none. It is drawn upper-cased,
  *   with `CODE` standing in where there is nothing to name.
- * @param tokens The runs the tokenizer found, never overlapping and carrying no colour of their
- *   own. A kind the palette leaves unspecified keeps the text's colour, so a block the tokenizer
+ * @param tokens The runs the tokenizer found, never overlapping and carrying no color of their
+ *   own. A kind the palette leaves unspecified keeps the text's color, so a block the tokenizer
  *   had nothing to say about draws exactly as it did before there was a tokenizer.
  * @param modifier Applied to the card ahead of the `fillMaxWidth` it adds itself.
  */
@@ -63,7 +63,7 @@ fun CodeBlock(
     val scrollState = rememberScrollState()
     val isDark = LocalIsDarkTheme.current
 
-    // Keyed on the mode: the block is parsed once and cached across both, so the colours are the
+    // Keyed on the mode: the block is parsed once and cached across both, so the colors are the
     // one part of it that has to be rebuilt when the reader switches.
     val styledCode = remember(code, tokens, isDark) {
         buildAnnotatedString {

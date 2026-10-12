@@ -9,7 +9,7 @@ import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
- * Adds the colours of [from]'s annotated ranges to this builder.
+ * Adds the colors of [from]'s annotated ranges to this builder.
  *
  * A body is parsed once and drawn in whichever mode the reader is in, so the three marks whose
  * appearance follows the theme -- a link, an inline `code`, a `reference` -- travel as annotations
