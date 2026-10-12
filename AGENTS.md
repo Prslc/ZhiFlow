@@ -117,7 +117,7 @@ API Server
 
 1. **`data/model/`** — Raw API response models, `@Serializable`, with `@SerialName` mapping. These mirror the Zhihu JSON structure exactly. A page reads them directly wherever the payload is already the shape it draws; the parser's own output carries them too (`RichTextElement.Image` holds a `ZhihuImage`), so this is vocabulary both layers share. What a model must not do is travel somewhere that has nothing to do with the payload it arrived in.
 
-2. **`data/dto/`** — Flat, UI-ready data classes (no nested serialization). For where the UI wants a shape the payload does not have: a list row, a search hit, an unread summary. Marked `@Immutable` where applicable.
+2. **`data/dto/`** — Flat, UI-ready data classes (no nested serialization). For where the UI wants a shape the payload does not have: a list row, a search hit, an unread summary. Marked `@Immutable` where applicable. A few of them carry an `AnnotatedString` built while mapping — a search hit's highlight, a message's markup — so `data/` is not free of Compose and does not pretend to be: the parser's output and these rows exist to be drawn.
 
 3. **`data/mapper/`** — Extension functions that convert model → dto. Named `toDto()`. All are `internal`.
 
