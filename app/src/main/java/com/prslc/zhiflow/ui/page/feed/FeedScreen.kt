@@ -47,6 +47,7 @@ import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -68,9 +69,6 @@ private val SearchBarInset = 4.dp
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FeedScreen(
-    onItemClick: (String, String) -> Unit,
-    onItemLongClick: (String, String) -> Unit,
-    onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel(),
 ) {
@@ -85,8 +83,14 @@ fun FeedScreen(
         }
     }
 
-    val stableOnItemClick = remember(onItemClick) { onItemClick }
-    val stableOnItemLongClick = remember(onItemLongClick) { onItemLongClick }
+    val navigator = LocalNavigator.current
+
+    // Held across recompositions rather than written inline: the list is keyed on these two, and a
+    // lambda that changes identity takes every row down with it.
+    val stableOnItemClick: (String, String) -> Unit =
+        remember(navigator) { navigator::navigateToContent }
+    val stableOnItemLongClick: (String, String) -> Unit =
+        remember(viewModel) { viewModel::openFeedback }
 
     val items = viewModel.uiState.items
     val isRefreshing = viewModel.uiState.isRefreshing
@@ -106,7 +110,7 @@ fun FeedScreen(
                 .clipToBounds(),
         ) {
             SearchEntry(
-                onClick = onSearch,
+                onClick = { navigator.navigateToSearch() },
                 modifier = Modifier.graphicsLayer {
                     translationY = -barHeightPx * searchBar.fraction
                 },
