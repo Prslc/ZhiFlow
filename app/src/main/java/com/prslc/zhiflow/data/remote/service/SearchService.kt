@@ -28,12 +28,15 @@ class SearchService(private val api: ApiClient) {
      * @param nextUrl The page to request, from `paging.next` of a previous response. That url
      *   already carries the cursor, the hash id and the tab it was run against, so nothing is
      *   added to it; null asks for a first page, whose parameters are set here.
+     * @param correction Whether the server may correct the query as it reads it. Searching for
+     *   people asks it not to, so that a name is looked for as it was typed.
      * @return A [Result] holding the page of cards, or the failure that kept them away.
      */
     suspend fun search(
         query: String,
         tab: String = "general",
         nextUrl: String? = null,
+        correction: Boolean = true,
     ): Result<ZhihuSearchResponse> = api.safeApiCall {
         val url = nextUrl?.toHttpUrl() ?: "${BASE_URL}/search_v3".toHttpUrl()
         val urlBuilder = url.newBuilder()
@@ -43,7 +46,8 @@ class SearchService(private val api: ApiClient) {
             urlBuilder.addQueryParameter("t", tab)
             urlBuilder.addQueryParameter("search_source", "Normal")
             urlBuilder.addQueryParameter("is_real_time", "0")
-            urlBuilder.addQueryParameter("correction", "1")
+            // The endpoint takes this one as a number rather than as a flag.
+            urlBuilder.addQueryParameter("correction", if (correction) "1" else "0")
             urlBuilder.addQueryParameter("show_all_topics", "0")
             urlBuilder.addQueryParameter("pin_flow", "false")
             urlBuilder.addQueryParameter("entry", "main")

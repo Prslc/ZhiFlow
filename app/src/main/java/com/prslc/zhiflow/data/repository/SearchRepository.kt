@@ -46,11 +46,14 @@ class SearchRepository(private val service: SearchService) {
     /**
      * Searches for people, which is how the picker finds someone to write to.
      *
+     * A name is looked for as it was typed: this search asks for no correction, which the tabs
+     * that search content do ask for.
+     *
      * @param query The name, or part of one, to look for.
      * @return A [Result] holding the people found.
      */
     suspend fun people(query: String): Result<List<PersonDto>> =
-        service.search(query, tab = PEOPLE_TAB)
+        service.search(query, tab = PEOPLE_TAB, correction = false)
             .mapOffMain { it.toPeople() }
 
     /**
