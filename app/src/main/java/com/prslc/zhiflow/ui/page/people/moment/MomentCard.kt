@@ -30,10 +30,10 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
+import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
-import com.prslc.zhiflow.ui.component.common.ImageData
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 

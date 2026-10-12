@@ -7,26 +7,17 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.data.dto.MomentContentType
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
-
-@Immutable
-enum class MomentContentType {
-    ANSWER,
-    ARTICLE,
-    THOUGHT,
-    USER,
-    UNKNOWN,
-}
 
 fun LazyListScope.momentsContent(
     urlToken: String,

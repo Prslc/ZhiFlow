@@ -22,23 +22,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import org.koin.compose.koinInject
-
-/**
- * One image and the box it is drawn in.
- *
- * [width] and [height] carry that box's proportions, not a pixel size: a thumbnail is drawn at
- * their ratio, and a feed card's images already carry the ratio its own style asks for.
- */
-data class ImageData(
-    val url: String,
-    val width: Int,
-    val height: Int,
-)
 
 /** Display-layer adapter for the lightbox: a thumbnail only carries a single url. */
 private fun ImageData.toZhihuImage(): ZhihuImage = ZhihuImage(

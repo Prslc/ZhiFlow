@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.data.mapper
 
 import com.prslc.zhiflow.data.dto.AnswerDto
+import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.model.feed.AnswerTarget
-import com.prslc.zhiflow.ui.component.common.ImageData
 
 internal fun AnswerTarget.toDto(): AnswerDto = AnswerDto(
     id = id,

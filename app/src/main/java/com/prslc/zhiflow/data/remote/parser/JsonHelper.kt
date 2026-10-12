@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.core.utils
+package com.prslc.zhiflow.data.remote.parser
 
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.data.model.content.CardExtraInfo

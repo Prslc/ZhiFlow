@@ -3,12 +3,12 @@ package com.prslc.zhiflow.data.mapper
 import com.prslc.zhiflow.data.dto.FeedAuthorNote
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.dto.FeedReason
+import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.model.feed.CardChild
 import com.prslc.zhiflow.data.model.feed.CardElement
 import com.prslc.zhiflow.data.model.feed.CardImage
 import com.prslc.zhiflow.data.model.feed.CardStyle
 import com.prslc.zhiflow.data.model.feed.ComponentCard
-import com.prslc.zhiflow.ui.component.common.ImageData
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive

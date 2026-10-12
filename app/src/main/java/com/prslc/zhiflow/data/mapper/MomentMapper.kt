@@ -1,10 +1,10 @@
 package com.prslc.zhiflow.data.mapper
 
+import com.prslc.zhiflow.data.dto.MomentContentType
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.data.model.moment.ComponentCard
 import com.prslc.zhiflow.data.model.moment.MediaImage
 import com.prslc.zhiflow.data.model.moment.MomentsFeedItem
-import com.prslc.zhiflow.ui.page.people.moment.MomentContentType
 
 internal fun ComponentCard.toDto(): MomentDto {
     val bem = extra?.businessExtMap

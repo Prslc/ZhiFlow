@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.mapper
 
 import com.prslc.zhiflow.data.dto.HotQueryDto
+import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.model.search.ZhihuPresetWordsResponse
@@ -8,7 +9,6 @@ import com.prslc.zhiflow.data.model.search.ZhihuSearchContent
 import com.prslc.zhiflow.data.model.search.ZhihuSearchResponse
 import com.prslc.zhiflow.data.remote.parser.htmlToPlainText
 import com.prslc.zhiflow.data.remote.parser.searchTextToAnnotatedString
-import com.prslc.zhiflow.ui.component.common.ImageData
 
 /** What the `object` of a card says it holds, when the app knows how to draw it. */
 private val CONTENT_TYPES = setOf("article", "answer")

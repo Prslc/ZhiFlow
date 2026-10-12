@@ -2,7 +2,6 @@ package com.prslc.zhiflow.data.dto
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
-import com.prslc.zhiflow.ui.component.common.ImageData
 
 /**
  * One entry in a page of results.
