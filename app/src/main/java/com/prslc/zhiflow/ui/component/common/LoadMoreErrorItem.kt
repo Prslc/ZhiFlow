@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The footer a paged list shows when the next page failed. The whole strip is the tap target.
@@ -48,6 +50,17 @@ fun LoadMoreErrorItem(
             text = stringResource(R.string.feed_retry),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+@AppPreviews
+@Composable
+private fun LoadMoreErrorItemPreview() {
+    PreviewSurface {
+        LoadMoreErrorItem(
+            message = "Could not load the next page.",
+            onRetry = {},
         )
     }
 }

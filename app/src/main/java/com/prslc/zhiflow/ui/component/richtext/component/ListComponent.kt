@@ -25,6 +25,11 @@ import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleBullets
+import com.prslc.zhiflow.ui.preview.sampleReference
 
 /**
  * One list item. Its bullet is drawn rather than written as a "•": a glyph's size comes from the
@@ -133,6 +138,26 @@ fun ReferenceSection(
                     color = Color.Gray,
                 ),
                 modifier = Modifier.padding(vertical = 2.dp),
+            )
+        }
+    }
+}
+
+/** Bullets at two levels, and the footnote block a reference list is drawn as. */
+@AppPreviews
+@Composable
+private fun ListComponentPreview() {
+    PreviewSurface {
+        Column {
+            sampleBullets.forEach { bullet ->
+                BulletItemRow(
+                    element = bullet,
+                    modifier = Modifier.padding(bodyElementPadding(bullet)),
+                )
+            }
+            ReferenceSection(
+                items = sampleReference.items,
+                modifier = Modifier.padding(bodyElementPadding(sampleReference)),
             )
         }
     }

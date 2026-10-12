@@ -1,11 +1,15 @@
 package com.prslc.zhiflow.ui.component.common
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The votes and comments of one card, as the single line the lists show them on.
@@ -27,4 +31,16 @@ fun ContentMeta(
         color = MaterialTheme.colorScheme.outline,
         modifier = modifier,
     )
+}
+
+@AppPreviews
+@Composable
+private fun ContentMetaPreview() {
+    PreviewSurface {
+        ContentMeta(
+            voteCount = 1284,
+            commentCount = 96,
+            modifier = Modifier.padding(20.dp),
+        )
+    }
 }

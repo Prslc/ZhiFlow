@@ -76,6 +76,10 @@ import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleMessages
+import com.prslc.zhiflow.ui.preview.samplePeer
 import org.koin.androidx.compose.koinViewModel
 
 /** How long a silence has to be before the messages under it are stamped with the time. */
@@ -574,4 +578,64 @@ private fun SelectionMark(
             MaterialTheme.colorScheme.outline
         },
     )
+}
+
+/** Both sides of the conversation, in the order they were sent. */
+@AppPreviews
+@Composable
+private fun MessageBubblePreview() {
+    PreviewSurface {
+        Column {
+            sampleMessages.forEach { message ->
+                MessageBubble(
+                    message = message,
+                    isSelecting = false,
+                    isSelected = false,
+                    onLongClick = {},
+                    onClick = {},
+                )
+            }
+        }
+    }
+}
+
+/** Empty, typed into, and mid-send. */
+@AppPreviews
+@Composable
+private fun ComposerPreview() {
+    PreviewSurface {
+        Column {
+            Composer(draft = "", isSending = false, onDraftChange = {}, onSend = {})
+            Composer(
+                draft = "Segments in, elements out.",
+                isSending = false,
+                onDraftChange = {},
+                onSend = {},
+            )
+            Composer(draft = "Sending", isSending = true, onDraftChange = {}, onSend = {})
+        }
+    }
+}
+
+/** Nothing picked, something picked, and the wait while it goes. */
+@AppPreviews
+@Composable
+private fun SelectionBarPreview() {
+    PreviewSurface {
+        Column {
+            SelectionBar(count = 1, isDeleting = false, onDelete = {}, onCancel = {})
+            SelectionBar(count = 3, isDeleting = true, onDelete = {}, onCancel = {})
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ChatHeaderPreview() {
+    PreviewSurface {
+        Column {
+            PeerTitle(peer = samplePeer)
+            TimeMark(stamp = "Today 14:02")
+        }
+    }
 }

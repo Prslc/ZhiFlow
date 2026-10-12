@@ -19,6 +19,9 @@ import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.FollowButton
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeader
 import com.prslc.zhiflow.ui.component.common.ProfileStat
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleUser
 
 /**
  * The header of someone else's profile: a message button, then the follow toggle.
@@ -81,4 +84,18 @@ fun PeopleHeader(
             )
         },
     )
+}
+
+@AppPreviews
+@Composable
+private fun PeopleHeaderPreview() {
+    PreviewSurface {
+        PeopleHeader(
+            user = sampleUser,
+            onFollowClick = {},
+            onMessageClick = {},
+            onFollowersClick = {},
+            onFollowingClick = {},
+        )
+    }
 }

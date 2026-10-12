@@ -30,6 +30,8 @@ import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The content's own comment surface: its root list, and one comment's replies behind it. The pair
@@ -233,6 +235,18 @@ fun CommentHeader(
                     contentDescription = stringResource(R.string.general_close),
                 )
             }
+        }
+    }
+}
+
+/** The sheet's own heading, as it reads over the content and as it reads over a passage. */
+@AppPreviews
+@Composable
+private fun CommentHeaderPreview() {
+    PreviewSurface {
+        Column {
+            CommentHeader(title = "96 comments", onClose = {})
+            CommentHeader(title = "96 comments", onClose = {}, isBackStyle = true)
         }
     }
 }

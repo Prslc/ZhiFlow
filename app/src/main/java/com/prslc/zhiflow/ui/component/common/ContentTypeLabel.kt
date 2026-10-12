@@ -1,5 +1,7 @@
 package com.prslc.zhiflow.ui.component.common
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -9,9 +11,12 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
@@ -120,4 +125,25 @@ private fun Color.shiftHue(degrees: Float): Color {
         else -> 60f * ((r - g) / d + 4f)
     }.let { if (it < 0f) it + 360f else it }
     return Color.hsl((h + degrees) % 360f, s, l, alpha)
+}
+
+/** Every badge the app can wear, including the one a type it does not know gets. */
+@AppPreviews
+@Composable
+private fun ContentTypeLabelPreview() {
+    PreviewSurface {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            listOf("answer", "article", "pin", "question").forEach { type ->
+                val config = contentTypeConfig(type)
+                ContentTypeLabel(
+                    text = stringResource(config.labelResId),
+                    containerColor = config.containerColor,
+                    contentColor = config.contentColor,
+                )
+            }
+        }
+    }
 }

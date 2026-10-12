@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 private const val DISABLED_ALPHA = 0.38f
 
@@ -163,4 +165,31 @@ fun SettingsNavRow(
             )
         },
     )
+}
+
+/** A bare row, a row with a description, a disabled one, and the one that opens something. */
+@AppPreviews
+@Composable
+private fun SettingsRowPreview() {
+    PreviewSurface {
+        SettingsGroup(title = "Reading") {
+            row { SettingsNavRow(title = "Read history", onClick = {}) }
+            row {
+                SettingsNavRow(
+                    title = "Collections",
+                    description = "What you have saved, and where",
+                    onClick = {},
+                )
+            }
+            row { SettingsRow(title = "Data saver", description = "Off", onClick = {}) }
+            row {
+                SettingsRow(
+                    title = "Developer tools",
+                    description = "Needs ten taps on the version row",
+                    onClick = {},
+                    enabled = false,
+                )
+            }
+        }
+    }
 }

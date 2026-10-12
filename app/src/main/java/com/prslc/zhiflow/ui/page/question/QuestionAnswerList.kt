@@ -16,6 +16,9 @@ import com.prslc.zhiflow.data.dto.AnswerDto
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleAnswer
 
 @Composable
 fun AnswerItem(
@@ -70,4 +73,15 @@ fun AnswerDivider(modifier: Modifier = Modifier) {
         thickness = 0.5.dp,
         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
     )
+}
+
+@AppPreviews
+@Composable
+private fun AnswerItemPreview() {
+    PreviewSurface {
+        Column {
+            AnswerItem(display = sampleAnswer, onClick = {})
+            AnswerDivider()
+        }
+    }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The failure state of a surface that has nothing else to draw, with the retry it needs.
@@ -80,5 +83,17 @@ fun ErrorView(
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = stringResource(R.string.error_retry))
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ErrorViewPreview() {
+    PreviewSurface(modifier = Modifier.height(400.dp)) {
+        ErrorView(
+            message = "The server did not answer. Check the connection and try again.",
+            onRetry = {},
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

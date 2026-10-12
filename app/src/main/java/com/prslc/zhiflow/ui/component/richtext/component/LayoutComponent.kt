@@ -34,6 +34,12 @@ import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleHeading
+import com.prslc.zhiflow.ui.preview.sampleQuote
+import com.prslc.zhiflow.ui.preview.sampleTable
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
@@ -245,6 +251,29 @@ fun TableComponent(
                     }
                 }
             }
+        }
+    }
+}
+
+/** The block-level elements that carry no interaction of their own. */
+@AppPreviews
+@Composable
+private fun LayoutComponentPreview() {
+    PreviewSurface {
+        Column {
+            Heading(
+                element = sampleHeading,
+                modifier = Modifier.padding(bodyElementPadding(sampleHeading)),
+            )
+            BlockquoteComponent(
+                element = sampleQuote,
+                modifier = Modifier.padding(bodyElementPadding(sampleQuote)),
+            )
+            TableComponent(
+                element = sampleTable,
+                modifier = Modifier.padding(bodyElementPadding(sampleTable)),
+            )
+            Divider(modifier = Modifier.padding(bodyElementPadding(RichTextElement.Divider)))
         }
     }
 }

@@ -77,6 +77,10 @@ import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleQuestion
+import com.prslc.zhiflow.ui.preview.sampleTopics
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -473,5 +477,32 @@ fun QuestionStatsSection(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.outline,
         )
+    }
+}
+
+@AppPreviews
+@Composable
+private fun TopicRowPreview() {
+    PreviewSurface {
+        TopicRow(topics = sampleTopics)
+    }
+}
+
+@AppPreviews
+@Composable
+private fun QuestionStatsSectionPreview() {
+    PreviewSurface {
+        QuestionStatsSection(question = sampleQuestion)
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ExpandToggleButtonPreview() {
+    PreviewSurface {
+        Column {
+            ExpandToggleButton(isExpanded = false, onClick = {})
+            ExpandToggleButton(isExpanded = true, onClick = {})
+        }
     }
 }

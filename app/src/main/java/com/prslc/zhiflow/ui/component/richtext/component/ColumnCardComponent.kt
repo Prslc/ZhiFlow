@@ -28,7 +28,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleColumnCard
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
@@ -131,5 +135,16 @@ fun ColumnCardComponent(
                 }
             }
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ColumnCardComponentPreview() {
+    PreviewSurface {
+        ColumnCardComponent(
+            element = sampleColumnCard,
+            modifier = Modifier.padding(bodyElementPadding(sampleColumnCard)),
+        )
     }
 }

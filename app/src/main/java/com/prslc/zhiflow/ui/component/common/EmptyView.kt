@@ -3,6 +3,7 @@ package com.prslc.zhiflow.ui.component.common
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * What a surface shows in place of a list it has nothing to put in.
@@ -49,5 +52,13 @@ fun EmptyView(
             color = MaterialTheme.colorScheme.outline,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+@AppPreviews
+@Composable
+private fun EmptyViewPreview() {
+    PreviewSurface(modifier = Modifier.height(320.dp)) {
+        EmptyView(message = "Nothing here yet.", modifier = Modifier.fillMaxSize())
     }
 }

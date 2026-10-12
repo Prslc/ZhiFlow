@@ -3,6 +3,7 @@ package com.prslc.zhiflow.ui.component.common
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
@@ -12,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * What a surface shows while its first page is still on the way.
@@ -42,5 +45,13 @@ fun LoadingView(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun LoadingViewPreview() {
+    PreviewSurface(modifier = Modifier.height(200.dp)) {
+        LoadingView(message = "Fetching the page", modifier = Modifier.fillMaxSize())
     }
 }

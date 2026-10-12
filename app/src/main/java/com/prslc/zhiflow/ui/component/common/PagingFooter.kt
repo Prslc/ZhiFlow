@@ -1,12 +1,15 @@
 package com.prslc.zhiflow.ui.component.common
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -14,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * Draws the single row a paged list ends with: the spinner while the next page is on its way, the
@@ -64,6 +69,25 @@ internal fun LazyListScope.pagingFooter(
                     text = endText,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline,
+                )
+            }
+        }
+    }
+}
+
+/** The two ends of a paged list: the wait, and the line that says there is no more. */
+@AppPreviews
+@Composable
+private fun PagingFooterPreview() {
+    PreviewSurface {
+        Column {
+            LazyColumn { pagingFooter(isLoading = true, error = null, onRetry = {}) }
+            LazyColumn {
+                pagingFooter(
+                    isLoading = false,
+                    error = null,
+                    onRetry = {},
+                    endText = "That is all",
                 )
             }
         }

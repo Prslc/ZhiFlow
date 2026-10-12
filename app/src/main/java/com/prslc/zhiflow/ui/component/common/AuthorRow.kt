@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * An avatar and a name, with room after them for whatever the caller's row needs.
@@ -71,5 +73,30 @@ fun AuthorRow(
         )
 
         trailing()
+    }
+}
+
+@AppPreviews
+@Composable
+private fun AuthorRowPreview() {
+    PreviewSurface {
+        AuthorRow(
+            avatarUrl = null,
+            authorName = "Ada Lovelace",
+            modifier = Modifier.padding(20.dp),
+        )
+    }
+}
+
+/** The branch a card with no author takes: the name is blank, so the anonymous string is drawn. */
+@AppPreviews
+@Composable
+private fun AuthorRowAnonymousPreview() {
+    PreviewSurface {
+        AuthorRow(
+            avatarUrl = null,
+            authorName = "",
+            modifier = Modifier.padding(20.dp),
+        )
     }
 }

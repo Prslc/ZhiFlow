@@ -67,6 +67,10 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleCategories
+import com.prslc.zhiflow.ui.preview.sampleThreads
 
 /** How many entries fit on a line before the next one starts. */
 private const val CATEGORIES_PER_ROW = 4
@@ -447,4 +451,31 @@ private fun categoryIcon(type: String): ImageVector = when (type) {
     "system" -> Icons.Filled.Campaign
     "system_message" -> Icons.Filled.Verified
     else -> Icons.Filled.Notifications
+}
+
+@AppPreviews
+@Composable
+private fun CategoryRowPreview() {
+    PreviewSurface {
+        CategoryRow(categories = sampleCategories, onClick = {})
+    }
+}
+
+/** One thread with something unread, one without. */
+@AppPreviews
+@Composable
+private fun ThreadRowPreview() {
+    PreviewSurface {
+        Column {
+            sampleThreads.forEach { ThreadRow(thread = it, onClick = {}) }
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun GuestMessagePreview() {
+    PreviewSurface {
+        GuestMessage(onSignIn = {})
+    }
 }

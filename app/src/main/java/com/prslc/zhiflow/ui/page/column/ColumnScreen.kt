@@ -68,6 +68,11 @@ import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleColumn
+import com.prslc.zhiflow.ui.preview.sampleColumnInWords
+import com.prslc.zhiflow.ui.preview.sampleColumnItems
 import org.koin.androidx.compose.koinViewModel
 
 private val AvatarSize = 56.dp
@@ -553,6 +558,53 @@ private fun ColumnInfluence(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ColumnHeaderPreview() {
+    PreviewSurface {
+        ColumnHeader(
+            column = sampleColumn,
+            onFollowClick = {},
+            onAuthorClick = {},
+            onAuthorFollowClick = {},
+        )
+    }
+}
+
+/** The counts when the server sent them, and the server's own words when it did not. */
+@AppPreviews
+@Composable
+private fun ColumnInfluencePreview() {
+    PreviewSurface {
+        Column {
+            ColumnInfluence(column = sampleColumn)
+            ColumnInfluence(column = sampleColumnInWords)
+        }
+    }
+}
+
+/** One row with a cover, one without. */
+@AppPreviews
+@Composable
+private fun ColumnItemRowPreview() {
+    PreviewSurface {
+        Column {
+            sampleColumnItems.forEach { ColumnItemRow(item = it, onClick = {}) }
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun AuthorFollowButtonPreview() {
+    PreviewSurface {
+        Row {
+            AuthorFollowButton(isFollowing = false, onClick = {})
+            AuthorFollowButton(isFollowing = true, onClick = {})
         }
     }
 }

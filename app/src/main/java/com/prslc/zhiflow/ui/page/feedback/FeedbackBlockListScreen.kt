@@ -49,6 +49,8 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -275,3 +277,11 @@ private fun keywordHint(state: FeedbackBlockListViewModel.BlockUiState): String 
             )
         }
     }
+
+@AppPreviews
+@Composable
+private fun SectionTitlePreview() {
+    PreviewSurface {
+        SectionTitle(text = "Topics")
+    }
+}

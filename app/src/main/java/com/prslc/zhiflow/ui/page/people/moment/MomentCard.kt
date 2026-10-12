@@ -36,6 +36,10 @@ import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleMoment
+import com.prslc.zhiflow.ui.preview.sampleThought
 
 private val CardShape = RoundedCornerShape(8.dp)
 
@@ -214,5 +218,17 @@ fun StandardMomentCard(
             voteCount = state.voteCount,
             commentCount = state.commentCount,
         )
+    }
+}
+
+/** A moment of the page's own author, and one of the standard cards. */
+@AppPreviews
+@Composable
+private fun MomentCardPreview() {
+    PreviewSurface {
+        Column {
+            UserMomentCard(state = sampleMoment)
+            StandardMomentCard(state = sampleThought)
+        }
     }
 }

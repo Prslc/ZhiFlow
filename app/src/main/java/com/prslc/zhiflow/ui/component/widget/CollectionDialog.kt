@@ -38,6 +38,8 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -272,5 +274,39 @@ fun CollectionItem(
             checked = isSelected,
             onCheckedChange = { onToggle() },
         )
+    }
+}
+
+/** Every combination a row draws: private, default, ticked, and the plain one. */
+@AppPreviews
+@Composable
+private fun CollectionItemPreview() {
+    PreviewSurface {
+        Column {
+            CollectionItem(
+                title = "Reading list",
+                itemCount = 42,
+                isPublic = true,
+                isDefault = true,
+                isSelected = true,
+                onToggle = {},
+            )
+            CollectionItem(
+                title = "Parsing",
+                itemCount = 7,
+                isPublic = false,
+                isDefault = false,
+                isSelected = false,
+                onToggle = {},
+            )
+            CollectionItem(
+                title = "A collection with a name long enough to be cut off somewhere",
+                itemCount = 1,
+                isPublic = false,
+                isDefault = true,
+                isSelected = false,
+                onToggle = {},
+            )
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
@@ -30,6 +32,9 @@ import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
 import com.prslc.zhiflow.ui.component.richtext.component.withFormulaLineHeight
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleParagraph
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
@@ -198,4 +203,20 @@ fun ZRichText(
             }
             .then(segmentGesture),
     )
+}
+
+/** The one text primitive every block goes through, at the style a paragraph uses. */
+@AppPreviews
+@Composable
+private fun ZRichTextPreview() {
+    PreviewSurface {
+        ZRichText(
+            content = AnnotatedString(
+                "A paragraph arrives as one run of text with the marks already resolved, which is " +
+                    "why it is drawn as it comes rather than being taken apart here.",
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bodyElementPadding(sampleParagraph)),
+        )
+    }
 }

@@ -23,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The box a comment is written in, under the list it will join.
@@ -93,6 +95,30 @@ fun CommentComposer(
                     stringResource(R.string.comment_action_send),
                 )
             }
+        }
+    }
+}
+
+/** Writing on the content, answering someone, and the wait while it goes. */
+@AppPreviews
+@Composable
+private fun CommentComposerPreview() {
+    PreviewSurface {
+        Column {
+            CommentComposer(draft = "", isSubmitting = false, onDraftChange = {}, onSend = {})
+            CommentComposer(
+                draft = "The tree is only half the story.",
+                isSubmitting = false,
+                onDraftChange = {},
+                onSend = {},
+                replyToName = "Grace Hopper",
+            )
+            CommentComposer(
+                draft = "Sending",
+                isSubmitting = true,
+                onDraftChange = {},
+                onSend = {},
+            )
         }
     }
 }

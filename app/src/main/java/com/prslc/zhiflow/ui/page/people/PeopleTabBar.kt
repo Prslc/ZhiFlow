@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.page.people
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
@@ -17,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import kotlin.math.absoluteValue
 
 private val INDICATOR_TEXT_WIDTH = 30.dp
@@ -109,5 +112,16 @@ fun PeopleTabBar(
                 )
             }
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun PeopleTabBarPreview() {
+    PreviewSurface {
+        PeopleTabBar(
+            pagerState = rememberPagerState { 4 },
+            onTabSelected = {},
+        )
     }
 }

@@ -23,6 +23,10 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.data.dto.PersonDto
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleFollowedPerson
+import com.prslc.zhiflow.ui.preview.samplePerson
 
 /**
  * One person in a list of them: their picture, their name, and the line they introduce themselves
@@ -79,6 +83,18 @@ fun PersonRow(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+/** One already followed, one not: the row itself does not draw the difference. */
+@AppPreviews
+@Composable
+private fun PersonRowPreview() {
+    PreviewSurface {
+        Column {
+            PersonRow(person = samplePerson, onClick = {})
+            PersonRow(person = sampleFollowedPerson, onClick = {})
         }
     }
 }

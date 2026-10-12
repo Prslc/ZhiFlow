@@ -21,6 +21,11 @@ import com.prslc.zhiflow.data.dto.SuggestedQueryDto
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleRefinements
+import com.prslc.zhiflow.ui.preview.sampleRelatedQueries
+import com.prslc.zhiflow.ui.preview.sampleSearchResult
 
 /**
  * One result in a page of results.
@@ -161,5 +166,30 @@ internal fun RelatedQueriesRow(
                 },
             )
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun SearchResultCardPreview() {
+    PreviewSurface {
+        SearchResultCard(item = sampleSearchResult, onClick = { _, _ -> })
+    }
+}
+
+/** The chips under the box: the ending is what is read, the whole phrase is what is searched. */
+@AppPreviews
+@Composable
+private fun RefinementRowPreview() {
+    PreviewSurface {
+        RefinementRow(refinements = sampleRefinements, onClick = {})
+    }
+}
+
+@AppPreviews
+@Composable
+private fun RelatedQueriesRowPreview() {
+    PreviewSurface {
+        RelatedQueriesRow(item = sampleRelatedQueries, onClick = {})
     }
 }

@@ -48,6 +48,8 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -214,5 +216,14 @@ private fun SearchEntry(onClick: () -> Unit, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+/** The way into the search page, which is the feed's own top bar entry. */
+@AppPreviews
+@Composable
+private fun SearchEntryPreview() {
+    PreviewSurface {
+        SearchEntry(onClick = {})
     }
 }

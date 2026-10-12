@@ -48,6 +48,8 @@ import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import com.prslc.zhiflow.ui.theme.SectionGapDark
 import com.prslc.zhiflow.ui.theme.SectionGapLight
@@ -368,5 +370,31 @@ private fun SegmentAction(
             color = MaterialTheme.colorScheme.outline,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+/** The three things a passage offers, before and after its like. */
+@AppPreviews
+@Composable
+private fun SegmentActionRowPreview() {
+    PreviewSurface {
+        Column {
+            SegmentActionRow(
+                likeCount = 12,
+                isLiked = false,
+                commentCount = 3,
+                onCopy = {},
+                onLike = {},
+                onComments = {},
+            )
+            SegmentActionRow(
+                likeCount = 13,
+                isLiked = true,
+                commentCount = 3,
+                onCopy = {},
+                onLike = {},
+                onComments = {},
+            )
+        }
     }
 }

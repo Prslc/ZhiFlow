@@ -35,7 +35,11 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.common.contentTypeConfig
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleCard
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
@@ -170,6 +174,17 @@ private fun CardMetaLine(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier,
+        )
+    }
+}
+
+@AppPreviews
+@Composable
+private fun CardComponentPreview() {
+    PreviewSurface {
+        CardComponent(
+            element = sampleCard,
+            modifier = Modifier.padding(bodyElementPadding(sampleCard)),
         )
     }
 }

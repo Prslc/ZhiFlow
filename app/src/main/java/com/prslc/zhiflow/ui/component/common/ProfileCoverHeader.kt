@@ -37,6 +37,10 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.widget.rememberSingleImageLightbox
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleProfileStats
+import com.prslc.zhiflow.ui.preview.sampleUser
 
 /** The cover's height, from the top of the page. The status bar's icons are told it as well. */
 internal val ProfileCoverHeight = 160.dp
@@ -203,5 +207,32 @@ fun ProfileCoverHeader(
                 stats.forEach { StatItem(it.label, it.count, onClick = it.onClick) }
             }
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ProfileCoverHeaderPreview() {
+    PreviewSurface {
+        ProfileCoverHeader(
+            user = sampleUser,
+            stats = sampleProfileStats,
+            actions = {
+                FollowButton(isFollowing = false, onClick = {})
+            },
+        )
+    }
+}
+
+/** A profile the server sent no cover for, which falls back to the theme's own surface. */
+@AppPreviews
+@Composable
+private fun ProfileCoverHeaderNoCoverPreview() {
+    PreviewSurface {
+        ProfileCoverHeader(
+            user = sampleUser.copy(coverUrl = null, avatar = null),
+            stats = sampleProfileStats,
+            actions = {},
+        )
     }
 }

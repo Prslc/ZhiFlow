@@ -3,6 +3,7 @@ package com.prslc.zhiflow.ui.component.common
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.core.utils.formatCount
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * One count-and-label pair of a profile header's stat row, laid out inline so a row of them reads
@@ -54,5 +57,21 @@ fun StatItem(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.alignByBaseline(),
         )
+    }
+}
+
+/** The size the abbreviation starts to matter at, beside the one that reads as a number. */
+@AppPreviews
+@Composable
+private fun StatItemPreview() {
+    PreviewSurface {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            StatItem(label = "Answers", count = 128)
+            StatItem(label = "Followers", count = 12400)
+            StatItem(label = "Agreements", count = 98211)
+        }
     }
 }

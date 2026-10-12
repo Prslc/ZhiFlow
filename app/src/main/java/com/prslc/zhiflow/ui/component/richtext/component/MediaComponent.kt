@@ -24,8 +24,13 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.ImageOmitted
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleZhihuImage
 import com.prslc.zhiflow.ui.theme.TextStyles
 
 /**
@@ -98,5 +103,19 @@ fun ImageComponent(
                 )
             }
         }
+    }
+}
+
+/** The body's own illustration, which is one of the two things the data saver reaches. */
+@AppPreviews
+@Composable
+private fun ImageComponentPreview() {
+    val element = RichTextElement.Image(sampleZhihuImage)
+    PreviewSurface {
+        ImageComponent(
+            image = sampleZhihuImage,
+            onImageClick = {},
+            modifier = Modifier.padding(bodyElementPadding(element)),
+        )
     }
 }

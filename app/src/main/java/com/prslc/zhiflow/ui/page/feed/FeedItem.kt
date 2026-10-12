@@ -32,6 +32,10 @@ import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.component.common.contentTypeConfig
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleBareFeed
+import com.prslc.zhiflow.ui.preview.sampleFeed
 
 @Composable
 fun FeedItem(
@@ -197,5 +201,25 @@ private fun RelationNote(text: String) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
         )
+    }
+}
+
+/** A full card, and one the server left with nothing but an author and a line. */
+@AppPreviews
+@Composable
+private fun FeedItemPreview() {
+    PreviewSurface {
+        Column {
+            FeedItem(
+                display = sampleFeed,
+                onClick = { _, _ -> },
+                onLongClick = { _, _ -> },
+            )
+            FeedItem(
+                display = sampleBareFeed,
+                onClick = { _, _ -> },
+                onLongClick = { _, _ -> },
+            )
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.prslc.zhiflow.ui.component.richtext
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.prslc.zhiflow.data.model.content.Formula
@@ -19,6 +21,9 @@ import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
 import com.prslc.zhiflow.ui.component.richtext.component.ReferenceSection
 import com.prslc.zhiflow.ui.component.richtext.component.TableComponent
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleRichTextElements
 
 /**
  * Draws one parsed element of a body.
@@ -111,6 +116,27 @@ fun RichTextSingleElement(
 
         is RichTextElement.Divider -> {
             Divider(modifier)
+        }
+    }
+}
+
+/**
+ * The dispatch itself: one of every element kind, drawn the way the body draws it: the host's own
+ * [bodyElementPadding] is the only thing that gives an element its room, and a preview without it
+ * shows a geometry no reader ever sees.
+ */
+@AppPreviews
+@Composable
+private fun RichTextSingleElementPreview() {
+    PreviewSurface {
+        Column {
+            sampleRichTextElements.forEach { element ->
+                RichTextSingleElement(
+                    element = element,
+                    onImageClick = {},
+                    modifier = Modifier.padding(bodyElementPadding(element)),
+                )
+            }
         }
     }
 }

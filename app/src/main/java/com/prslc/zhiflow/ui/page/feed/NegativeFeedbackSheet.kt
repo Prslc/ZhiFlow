@@ -36,6 +36,9 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.widget.CustomBottomSheet
 import com.prslc.zhiflow.ui.navigation.FeedbackBlockList
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleFeedbackActions
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 // The height the panel has while it loads, and about what the rows take so little moves when they
@@ -198,4 +201,25 @@ private fun Uri.toBlockListRoute(): FeedbackBlockList? {
         contentType = getQueryParameter("content_type").orEmpty(),
         feedbackType = getQueryParameter("feedback_type").orEmpty(),
     )
+}
+
+/**
+ * The rows the panel is made of. The sheet that holds them is not previewed: it goes through
+ * `CustomBottomSheet`, whose predictive-back handler needs a back dispatcher owner a preview has
+ * none of.
+ */
+@AppPreviews
+@Composable
+private fun FeedbackRowPreview() {
+    PreviewSurface {
+        Column {
+            sampleFeedbackActions.forEach { action ->
+                FeedbackRow(
+                    action = action,
+                    authorName = "Ada Lovelace",
+                    onClick = {},
+                )
+            }
+        }
+    }
 }

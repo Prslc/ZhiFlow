@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,6 +31,9 @@ import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleComments
 
 @Composable
 fun CommentList(
@@ -153,5 +157,20 @@ fun CommentList(
                 }
             }
         }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun CommentListPreview() {
+    PreviewSurface {
+        CommentList(
+            onEvent = {},
+            comments = sampleComments.map { CommentViewModel.CommentUiModel(it) },
+            isLoading = false,
+            hasMore = true,
+            onLoadMore = {},
+            state = rememberLazyListState(),
+        )
     }
 }

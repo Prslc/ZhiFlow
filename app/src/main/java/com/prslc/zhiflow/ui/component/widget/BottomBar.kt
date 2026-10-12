@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.formatCount
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The action bar a content page pins to the bottom: vote, favorite, comment.
@@ -231,6 +233,49 @@ private fun BottomActionItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+/** All three states the bar can be in, one under the other: untouched, voted, and with no counts. */
+@AppPreviews
+@Composable
+private fun BottomBarPreview() {
+    PreviewSurface {
+        Column {
+            BottomBar(
+                isUpvoted = false,
+                isDownvoted = false,
+                isFavorite = false,
+                upvoteCount = 1284,
+                favCount = 210,
+                commentCount = 96,
+                onVoteClick = {},
+                onStarClick = {},
+                onCommentClick = {},
+            )
+            BottomBar(
+                isUpvoted = true,
+                isDownvoted = true,
+                isFavorite = true,
+                upvoteCount = 12840,
+                favCount = 12,
+                commentCount = 8,
+                onVoteClick = {},
+                onStarClick = {},
+                onCommentClick = {},
+            )
+            BottomBar(
+                isUpvoted = false,
+                isDownvoted = false,
+                isFavorite = false,
+                upvoteCount = null,
+                favCount = null,
+                commentCount = null,
+                onVoteClick = {},
+                onStarClick = {},
+                onCommentClick = {},
             )
         }
     }

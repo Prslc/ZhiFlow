@@ -43,6 +43,10 @@ import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleComment
+import com.prslc.zhiflow.ui.preview.sampleReply
 import com.prslc.zhiflow.ui.theme.TextStyles
 import org.koin.compose.koinInject
 
@@ -245,6 +249,25 @@ fun CommentItem(
                     ),
                 )
             }
+        }
+    }
+}
+
+/** A root comment, and a reply under it, which is indented and names who it answers. */
+@AppPreviews
+@Composable
+private fun CommentItemPreview() {
+    PreviewSurface {
+        Column {
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleComment),
+                onEvent = {},
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleReply),
+                onEvent = {},
+                isChild = true,
+            )
         }
     }
 }

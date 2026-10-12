@@ -56,6 +56,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 import org.koin.androidx.compose.koinViewModel
 
 /* Rhythm: 24dp between the brand block and the form, then 16dp between form
@@ -367,4 +369,37 @@ private fun PasswordField(
         ),
         modifier = modifier,
     )
+}
+
+@AppPreviews
+@Composable
+private fun BrandBlockPreview() {
+    PreviewSurface {
+        BrandBlock()
+    }
+}
+
+/** Both ways in, with the one in use marked. */
+@AppPreviews
+@Composable
+private fun MethodSelectorPreview() {
+    PreviewSurface {
+        Column {
+            MethodSelector(selected = LoginViewModel.Method.CODE, onSelect = {})
+            MethodSelector(selected = LoginViewModel.Method.PASSWORD, onSelect = {})
+        }
+    }
+}
+
+/** Filled, and rejected. */
+@AppPreviews
+@Composable
+private fun PasswordFieldPreview() {
+    PreviewSurface {
+        Column {
+            PasswordField(value = "", onValueChange = {}, isError = false)
+            PasswordField(value = "hunter2", onValueChange = {}, isError = false)
+            PasswordField(value = "hunter2", onValueChange = {}, isError = true)
+        }
+    }
 }

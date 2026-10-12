@@ -55,6 +55,10 @@ import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleReadHistory
+import com.prslc.zhiflow.ui.preview.sampleReadHistoryQuestion
 import org.koin.androidx.compose.koinViewModel
 
 /** The kinds of history that carry a body, and so a position in one worth drawing. */
@@ -389,6 +393,34 @@ private fun HistoryItem(
                     ImageOmitted()
                 }
             }
+        }
+    }
+}
+
+/** The heading a group of answers is filed under. */
+@AppPreviews
+@Composable
+private fun HistoryHeaderPreview() {
+    PreviewSurface {
+        HistoryHeader(
+            header = HistoryListItem.Header(
+                questionTitle = "How does a parser turn segments into elements?",
+                questionToken = "19550972",
+                icon = null,
+            ),
+            onClick = {},
+        )
+    }
+}
+
+/** An answer read part way through, and a question read to its end. */
+@AppPreviews
+@Composable
+private fun HistoryItemPreview() {
+    PreviewSurface {
+        Column {
+            HistoryItem(item = sampleReadHistory, isInGroup = true, onClick = {})
+            HistoryItem(item = sampleReadHistoryQuestion, isInGroup = false, onClick = {})
         }
     }
 }

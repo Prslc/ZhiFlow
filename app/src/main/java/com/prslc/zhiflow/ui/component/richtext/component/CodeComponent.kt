@@ -35,6 +35,11 @@ import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.remote.parser.model.CodeToken
+import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleCode
+import com.prslc.zhiflow.ui.preview.samplePlainCode
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 import com.prslc.zhiflow.ui.theme.SyntaxColors
 
@@ -131,6 +136,28 @@ fun CodeBlock(
                     )
                 }
             }
+        }
+    }
+}
+
+/** A block the tokenizer carried, and one whose language it does not know. */
+@AppPreviews
+@Composable
+private fun CodeBlockPreview() {
+    PreviewSurface {
+        Column {
+            CodeBlock(
+                code = sampleCode.code,
+                lang = sampleCode.lang,
+                tokens = sampleCode.tokens,
+                modifier = Modifier.padding(bodyElementPadding(sampleCode)),
+            )
+            CodeBlock(
+                code = samplePlainCode.code,
+                lang = samplePlainCode.lang,
+                tokens = samplePlainCode.tokens,
+                modifier = Modifier.padding(bodyElementPadding(samplePlainCode)),
+            )
         }
     }
 }

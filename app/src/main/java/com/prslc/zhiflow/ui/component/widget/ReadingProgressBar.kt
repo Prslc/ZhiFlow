@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * The hairline a content page shows at its very top, tracking how far the reader has got.
@@ -36,4 +38,12 @@ fun ReadingProgressBar(
                 )
             },
     )
+}
+
+@AppPreviews
+@Composable
+private fun ReadingProgressBarPreview() {
+    PreviewSurface {
+        ReadingProgressBar(progress = { 0.62f })
+    }
 }

@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * What stands in for an image the reader chose not to load.
@@ -45,5 +47,13 @@ fun ImageOmitted(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@AppPreviews
+@Composable
+private fun ImageOmittedPreview() {
+    PreviewSurface(modifier = Modifier.height(160.dp)) {
+        ImageOmitted()
     }
 }

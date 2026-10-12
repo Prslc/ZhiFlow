@@ -38,6 +38,9 @@ import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
 import com.prslc.zhiflow.ui.component.richtext.rememberInlineContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleFormulaParagraph
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
@@ -303,4 +306,23 @@ fun FormulaTextSection(
             .copy(letterSpacing = 0.25.sp)
             .withFormulaLineHeight(element.inlineMetas),
     )
+}
+
+/**
+ * A formula taller than the line it stands in, which is the case the row's height exists for: with
+ * the line height left alone it would be drawn across the rows around it.
+ *
+ * The formula itself is not drawn: `FormulaImage` is a bare `AsyncImage` with neither a placeholder
+ * nor an error drawable, so a bitmap the preview cannot fetch leaves the box invisible. What shows
+ * is what the box does to the text around it.
+ */
+@AppPreviews
+@Composable
+private fun FormulaTextSectionPreview() {
+    PreviewSurface {
+        FormulaTextSection(
+            element = sampleFormulaParagraph,
+            modifier = Modifier.padding(20.dp),
+        )
+    }
 }

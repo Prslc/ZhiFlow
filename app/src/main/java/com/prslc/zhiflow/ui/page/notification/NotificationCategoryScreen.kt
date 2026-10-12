@@ -55,6 +55,10 @@ import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleNotificationDay
+import com.prslc.zhiflow.ui.preview.sampleNotificationEntry
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -329,6 +333,17 @@ private fun NotificationRow(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary),
             )
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun NotificationRowPreview() {
+    PreviewSurface {
+        Column {
+            DaySeparator(day = sampleNotificationDay)
+            NotificationRow(item = sampleNotificationEntry, onClick = {})
         }
     }
 }

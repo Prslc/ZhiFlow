@@ -51,6 +51,9 @@ import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleHotQueries
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -264,5 +267,18 @@ private fun PhraseList(
                 )
             }
         }
+    }
+}
+
+/** The list before anything is typed: the hot phrases, marked, and the rest beside them. */
+@AppPreviews
+@Composable
+private fun PhraseListPreview() {
+    PreviewSurface {
+        PhraseList(
+            phrases = sampleHotQueries.map { it.query },
+            hotPhrases = sampleHotQueries.filter { it.isHot }.map { it.query }.toSet(),
+            onClick = {},
+        )
     }
 }

@@ -8,9 +8,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +32,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
 
 /**
  * A follow toggle's behavior: the state it draws, the tap that flips it, the haptic that tap
@@ -139,6 +144,35 @@ fun FollowButton(
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun FollowButtonPreview() {
+    PreviewSurface {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            FollowButton(isFollowing = false, onClick = {})
+            FollowButton(isFollowing = true, onClick = {})
+        }
+    }
+}
+
+/** The size a card's header row uses, which is the same pair capped to 30dp. */
+@AppPreviews
+@Composable
+private fun FollowButtonCompactPreview() {
+    PreviewSurface {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            FollowButton(isFollowing = false, onClick = {}, compact = true)
+            FollowButton(isFollowing = true, onClick = {}, compact = true)
         }
     }
 }
