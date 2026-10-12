@@ -78,15 +78,6 @@ data class VipIcon(
 
 @Immutable
 @Serializable
-data class ExposedMedal(
-    @SerialName("medal_id") val id: String = "",
-    @SerialName("medal_name") val name: String = "",
-    @SerialName("avatar_url") val avatarUrl: String = "",
-    val description: String = "",
-)
-
-@Immutable
-@Serializable
 data class AtmosphereConfig(
     val title: String? = null,
     val detail: List<AtmosphereEmoji> = emptyList(),
