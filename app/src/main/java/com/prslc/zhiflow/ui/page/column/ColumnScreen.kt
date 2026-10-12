@@ -145,8 +145,8 @@ fun ColumnScreen(
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            when {
-                column == null && uiState.error != null -> {
+            when (column) {
+                null if uiState.error != null -> {
                     ErrorView(
                         message = uiState.error.uiMessage,
                         onRetry = viewModel::retry,
@@ -154,7 +154,7 @@ fun ColumnScreen(
                     )
                 }
 
-                column == null -> {
+                null -> {
                     LoadingView(modifier = Modifier.fillMaxSize())
                 }
 
