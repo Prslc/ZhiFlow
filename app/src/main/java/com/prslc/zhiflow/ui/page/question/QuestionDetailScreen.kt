@@ -114,9 +114,9 @@ fun QuestionDetailScreen(
                     LoadingView(Modifier.fillMaxSize())
                 }
 
-                uiState.error != null && uiState.question == null -> {
+                uiState.globalError != null && uiState.question == null -> {
                     ErrorView(
-                        message = uiState.error.uiMessage,
+                        message = uiState.globalError.uiMessage,
                         onRetry = { viewModel.loadQuestion(id) },
                     )
                 }

@@ -60,7 +60,7 @@ fun ChatInviteScreen(
 ) {
     val navigator = LocalNavigator.current
     val uiState = viewModel.uiState
-    val error = uiState.error
+    val globalError = uiState.globalError
     val query = viewModel.query
     val isSearch = query.isNotBlank()
     val people = if (isSearch) uiState.found else uiState.followees
@@ -121,8 +121,8 @@ fun ChatInviteScreen(
                 when {
                     uiState.isLoading || uiState.isSearching -> LoadingView(modifier = Modifier.fillMaxSize())
 
-                    error != null -> ErrorView(
-                        message = error.uiMessage,
+                    globalError != null -> ErrorView(
+                        message = globalError.uiMessage,
                         onRetry = { if (isSearch) viewModel.retrySearch() else viewModel.loadFollowees() },
                         modifier = Modifier.fillMaxSize(),
                     )

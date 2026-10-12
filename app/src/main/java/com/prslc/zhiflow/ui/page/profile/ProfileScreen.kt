@@ -227,7 +227,7 @@ fun ProfileScreen(
             LoadingIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
-                message = uiState.error?.uiMessage ?: stringResource(R.string.error_unknown),
+                message = uiState.globalError?.uiMessage ?: stringResource(R.string.error_unknown),
                 onRetry = { viewModel.loadProfile() },
                 modifier = Modifier.align(Alignment.Center),
             )

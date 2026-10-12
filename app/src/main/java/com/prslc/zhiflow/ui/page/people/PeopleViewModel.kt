@@ -29,7 +29,7 @@ class PeopleViewModel(
     data class PeopleUiState(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
     )
 
     var uiState by mutableStateOf(PeopleUiState(isLoading = true))
@@ -40,7 +40,7 @@ class PeopleViewModel(
     private var currentUrlToken: String? = null
 
     fun loadPeople(urlToken: String) {
-        if (currentUrlToken == urlToken && !uiState.isLoading && uiState.user != null && uiState.error == null) return
+        if (currentUrlToken == urlToken && !uiState.isLoading && uiState.user != null && uiState.globalError == null) return
         currentUrlToken = urlToken
 
         uiState = PeopleUiState(isLoading = true)
@@ -52,7 +52,7 @@ class PeopleViewModel(
                     recordVisit(user.id)
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(error = error, isLoading = false)
+                    uiState = uiState.copy(globalError = error, isLoading = false)
                 }
         }
     }

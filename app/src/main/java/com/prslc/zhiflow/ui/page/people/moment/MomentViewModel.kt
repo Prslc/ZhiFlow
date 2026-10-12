@@ -29,7 +29,7 @@ open class MomentViewModel<T>(
         val isLoading: Boolean = false,
         val isNextLoading: Boolean = false,
         val moments: List<MomentDto> = emptyList(),
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
     )
 
     var uiState by mutableStateOf(MomentUiState(isLoading = true))
@@ -52,7 +52,7 @@ open class MomentViewModel<T>(
         currentUrlToken = urlToken
         nextUrl = null
         isEnd = false
-        uiState = MomentUiState(isLoading = true, error = null)
+        uiState = MomentUiState(isLoading = true, globalError = null)
 
         viewModelScope.launch {
             fetchSource(repository, urlToken, null)
@@ -66,7 +66,7 @@ open class MomentViewModel<T>(
                     uiState = uiState.copy(moments = cleanMoments, isLoading = false)
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(error = error, isLoading = false)
+                    uiState = uiState.copy(globalError = error, isLoading = false)
                 }
         }
     }
@@ -89,12 +89,12 @@ open class MomentViewModel<T>(
                     uiState = uiState.copy(
                         moments = uiState.moments + moreCleanMoments,
                         isNextLoading = false,
-                        error = null,
+                        globalError = null,
                     )
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(
-                        error = error,
+                        globalError = error,
                         isNextLoading = false,
                     )
                 }

@@ -30,7 +30,7 @@ class ColumnViewModel(
         val isNextLoading: Boolean = false,
         val isEnd: Boolean = false,
         /** Set when the column itself could not be read, which is the whole page failing. */
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
         val loadMoreError: ApiException? = null,
     )
 
@@ -147,7 +147,7 @@ class ColumnViewModel(
                     uiState = uiState.copy(column = column, isLoading = false)
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(error = error, isLoading = false)
+                    uiState = uiState.copy(globalError = error, isLoading = false)
                 }
         }
 

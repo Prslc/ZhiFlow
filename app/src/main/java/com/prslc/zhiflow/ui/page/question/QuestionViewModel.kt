@@ -36,7 +36,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val question: QuestionDetail? = null,
         val elements: List<DetailElement> = emptyList(),
         val answers: List<AnswerDto> = emptyList(),
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
         val loadMoreError: ApiException? = null,
         val hasMore: Boolean = false,
     )
@@ -86,13 +86,13 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
                         ?.toApiException() ?: ApiException.UnknownException()
                     uiState = uiState.copy(
                         isLoading = false,
-                        error = error,
+                        globalError = error,
                     )
                 }
             } catch (e: Exception) {
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = e.toApiException(),
+                    globalError = e.toApiException(),
                 )
             }
         }

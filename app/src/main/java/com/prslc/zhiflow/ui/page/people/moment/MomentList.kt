@@ -50,7 +50,7 @@ fun LazyListScope.momentsContent(
             }
         }
 
-        state.error != null && state.moments.isEmpty() -> {
+        state.globalError != null && state.moments.isEmpty() -> {
             item(key = "${prefix}_initial_error") {
                 Box(
                     modifier = Modifier
@@ -59,7 +59,7 @@ fun LazyListScope.momentsContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     ErrorView(
-                        message = state.error.uiMessage,
+                        message = state.globalError.uiMessage,
                         onRetry = { viewModel.loadMoment(urlToken) },
                     )
                 }
@@ -99,7 +99,7 @@ fun LazyListScope.momentsContent(
             pagingFooter(
                 keyPrefix = prefix,
                 isLoading = state.isNextLoading,
-                error = state.error.takeIf { state.moments.isNotEmpty() },
+                error = state.globalError.takeIf { state.moments.isNotEmpty() },
                 onRetry = { viewModel.loadMore() },
             )
         }

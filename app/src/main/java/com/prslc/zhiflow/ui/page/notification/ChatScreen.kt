@@ -104,7 +104,7 @@ fun ChatScreen(
     val uiState = viewModel.uiState
     val messages = uiState.messages
     val peer = uiState.peer
-    val error = uiState.error
+    val globalError = uiState.globalError
     val isSelecting = uiState.isSelecting
     val endText = if (uiState.isEnd) stringResource(R.string.end_of_list) else null
 
@@ -170,8 +170,8 @@ fun ChatScreen(
                     when {
                         uiState.isLoading -> LoadingView(modifier = Modifier.fillMaxSize())
 
-                        error != null -> ErrorView(
-                            message = error.uiMessage,
+                        globalError != null -> ErrorView(
+                            message = globalError.uiMessage,
                             onRetry = { viewModel.load(peerId) },
                             modifier = Modifier.fillMaxSize(),
                         )

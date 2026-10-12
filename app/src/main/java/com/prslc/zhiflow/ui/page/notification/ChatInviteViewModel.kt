@@ -35,7 +35,7 @@ class ChatInviteViewModel(
         val isNextLoading: Boolean = false,
         /** Whether the reader's own list has been read to its end. A search never pages. */
         val isEnd: Boolean = false,
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
         val loadMoreError: ApiException? = null,
     )
 
@@ -60,7 +60,7 @@ class ChatInviteViewModel(
         if (uiState.isLoading || uiState.followees.isNotEmpty()) return
 
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
+            uiState = uiState.copy(isLoading = true, globalError = null)
 
             userRepository.people(PeopleListKind.FOLLOWING)
                 .onSuccess { result ->
@@ -72,7 +72,7 @@ class ChatInviteViewModel(
                     )
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(error = error, isLoading = false)
+                    uiState = uiState.copy(globalError = error, isLoading = false)
                 }
         }
     }
@@ -134,14 +134,14 @@ class ChatInviteViewModel(
     private fun search(value: String) {
         searchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_MS)
-            uiState = uiState.copy(isSearching = true, error = null)
+            uiState = uiState.copy(isSearching = true, globalError = null)
 
             searchRepository.people(value)
                 .onSuccess { people ->
                     uiState = uiState.copy(found = people, isSearching = false)
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(error = error, isSearching = false)
+                    uiState = uiState.copy(globalError = error, isSearching = false)
                 }
         }
     }

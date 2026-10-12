@@ -242,10 +242,10 @@ fun PeopleScreen(
                             }
                         }
 
-                        uiState.error != null -> {
+                        uiState.globalError != null -> {
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 ErrorView(
-                                    message = uiState.error.uiMessage,
+                                    message = uiState.globalError.uiMessage,
                                     onRetry = { viewModel.loadPeople(urlToken) },
                                 )
                             }

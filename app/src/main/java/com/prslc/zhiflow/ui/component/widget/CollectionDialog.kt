@@ -105,9 +105,9 @@ fun CollectionDialog(
                             LoadingIndicator()
                         }
 
-                        state.collections.isEmpty() && state.error != null -> {
+                        state.collections.isEmpty() && state.globalError != null -> {
                             LoadMoreErrorItem(
-                                message = state.error.uiMessage,
+                                message = state.globalError.uiMessage,
                                 onRetry = { viewModel.loadCollections(id, contentType) },
                             )
                         }
@@ -146,7 +146,7 @@ fun CollectionDialog(
 
                 // Only a submit failure reaches here; a failed initial load shows
                 // LoadMoreErrorItem.
-                val submitError = state.error?.takeIf { state.collections.isNotEmpty() }
+                val submitError = state.globalError?.takeIf { state.collections.isNotEmpty() }
                 LaunchedEffect(submitError) {
                     if (submitError != null) haptic.performHapticFeedback(HapticFeedbackType.Reject)
                 }

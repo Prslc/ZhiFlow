@@ -20,7 +20,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         val collections: List<ZhihuCollection> = emptyList(),
         val selectedIds: Map<Long, Boolean> = emptyMap(),
         val isLoading: Boolean = false,
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
     )
 
     var uiState by mutableStateOf(CollectionUiState())
@@ -47,7 +47,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
 
     fun loadCollections(contentId: String, contentType: ContentType) {
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
+            uiState = uiState.copy(isLoading = true, globalError = null)
             repository.getCollections(contentId, contentType)
                 .onSuccess { response ->
                     uiState = uiState.copy(
@@ -57,7 +57,7 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
                     )
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(isLoading = false, error = error)
+                    uiState = uiState.copy(isLoading = false, globalError = error)
                 }
         }
     }
@@ -85,14 +85,14 @@ class CollectionViewModel(private val repository: CollectionRepository) : ViewMo
         }
 
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
+            uiState = uiState.copy(isLoading = true, globalError = null)
             repository.updateCollections(contentId, contentType, addIds, removeIds)
                 .onSuccess {
                     onComplete(currentIds.isNotEmpty())
                     loadCollections(contentId, contentType)
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(isLoading = false, error = error)
+                    uiState = uiState.copy(isLoading = false, globalError = error)
                 }
         }
     }

@@ -143,9 +143,9 @@ fun ColumnScreen(
                 .padding(padding),
         ) {
             when (column) {
-                null if uiState.error != null -> {
+                null if uiState.globalError != null -> {
                     ErrorView(
-                        message = uiState.error.uiMessage,
+                        message = uiState.globalError.uiMessage,
                         onRetry = viewModel::retry,
                         modifier = Modifier.fillMaxSize(),
                     )

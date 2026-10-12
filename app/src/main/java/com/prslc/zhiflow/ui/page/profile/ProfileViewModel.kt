@@ -25,7 +25,7 @@ class ProfileViewModel(
     data class UserUiState(
         val isLoading: Boolean = false,
         val user: ZhihuUser? = null,
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
         /** True with only an anonymous session behind it, where there is no profile to fetch. */
         val isGuest: Boolean = false,
     )
@@ -77,7 +77,7 @@ class ProfileViewModel(
                     uiState = uiState.copy(user = user, isLoading = false)
                 }
                 .onApiFailure { error ->
-                    uiState = uiState.copy(error = error, isLoading = false)
+                    uiState = uiState.copy(globalError = error, isLoading = false)
                 }
         }
     }

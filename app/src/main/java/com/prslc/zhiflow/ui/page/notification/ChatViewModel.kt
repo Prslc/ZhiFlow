@@ -30,7 +30,7 @@ class ChatViewModel(
         val isNextLoading: Boolean = false,
         val isEnd: Boolean = false,
         val selectedIds: Set<String> = emptySet(),
-        val error: ApiException? = null,
+        val globalError: ApiException? = null,
         val loadMoreError: ApiException? = null,
     )
 
@@ -63,7 +63,7 @@ class ChatViewModel(
         if (uiState.isLoading) return
 
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
+            uiState = uiState.copy(isLoading = true, globalError = null)
 
             // The name and the picture are not worth failing the conversation over: without them
             // the page is headed by nothing, and the messages still read.
@@ -82,7 +82,7 @@ class ChatViewModel(
                     )
                 }
                 .onApiFailure { error ->
-                    uiState = ChatUiState(peer = peer, error = error)
+                    uiState = ChatUiState(peer = peer, globalError = error)
                 }
         }
     }
