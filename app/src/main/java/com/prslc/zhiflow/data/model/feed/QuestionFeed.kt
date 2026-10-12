@@ -1,6 +1,6 @@
 package com.prslc.zhiflow.data.model.feed
 import androidx.compose.runtime.Immutable
-import com.prslc.zhiflow.data.model.user.Paging
+import com.prslc.zhiflow.data.model.Paging
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

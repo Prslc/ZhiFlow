@@ -2,8 +2,8 @@ package com.prslc.zhiflow.data.model.comment
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
+import com.prslc.zhiflow.data.model.Paging
 import com.prslc.zhiflow.data.model.content.ZhihuImage
-import com.prslc.zhiflow.data.model.user.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

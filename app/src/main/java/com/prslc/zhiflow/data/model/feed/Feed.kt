@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.model.feed
 
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -10,7 +11,7 @@ import kotlinx.serialization.json.JsonElement
 data class ZhihuResponse(
     val data: List<ComponentCard> = emptyList(),
     val styles: List<CardStyle> = emptyList(),
-    val paging: PagingData = PagingData(),
+    val paging: Paging = Paging(),
 )
 
 @Immutable
@@ -18,14 +19,6 @@ data class ZhihuResponse(
 data class CardStyle(
     val id: String? = null,
     @SerialName("scale_ratio") val scaleRatio: Float? = null,
-)
-
-@Immutable
-@Serializable
-data class PagingData(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String? = null, // next page
-    val previous: String? = null, // previous page
 )
 
 @Immutable

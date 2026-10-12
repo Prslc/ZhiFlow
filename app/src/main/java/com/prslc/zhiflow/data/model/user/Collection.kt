@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model.user
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.Paging
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,14 +25,4 @@ data class ZhihuCollection(
     @SerialName("updated_time") val updatedTime: Long,
     @SerialName("is_default") val isDefault: Boolean = false,
     val creator: AnswerAuthor? = null,
-)
-
-@Immutable
-@Serializable
-data class Paging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    @SerialName("is_start") val isStart: Boolean = false,
-    val next: String? = null,
-    val previous: String? = null,
-    val totals: Int = 0,
 )
