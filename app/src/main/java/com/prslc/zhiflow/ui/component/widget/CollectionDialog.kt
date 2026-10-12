@@ -38,7 +38,6 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.component.common.LoadMoreErrorItem
-import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -66,7 +65,7 @@ fun CollectionDialog(
     onDismissRequest: () -> Unit,
     onResult: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CollectionViewModel = koinViewModel(),
+    viewModel: CollectionDialogViewModel = koinViewModel(),
 ) {
     val haptic = LocalHapticFeedback.current
 

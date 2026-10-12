@@ -1,4 +1,4 @@
-package com.prslc.zhiflow.ui.page.content
+package com.prslc.zhiflow.ui.component.widget
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -13,7 +13,7 @@ import com.prslc.zhiflow.data.model.user.ZhihuCollection
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import kotlinx.coroutines.launch
 
-class CollectionViewModel(private val repository: CollectionRepository) : ViewModel() {
+class CollectionDialogViewModel(private val repository: CollectionRepository) : ViewModel() {
 
     @Immutable
     data class CollectionUiState(

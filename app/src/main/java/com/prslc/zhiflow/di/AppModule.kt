@@ -46,11 +46,11 @@ import com.prslc.zhiflow.data.repository.UserRepository
 import com.prslc.zhiflow.data.session.CredentialStoreImpl
 import com.prslc.zhiflow.data.session.SessionManager
 import com.prslc.zhiflow.data.session.UserSession
+import com.prslc.zhiflow.ui.component.widget.CollectionDialogViewModel
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.page.collection.CollectionContentsViewModel
 import com.prslc.zhiflow.ui.page.column.ColumnViewModel
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
-import com.prslc.zhiflow.ui.page.content.CollectionViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
 import com.prslc.zhiflow.ui.page.debug.DebugViewModel
 import com.prslc.zhiflow.ui.page.debug.HttpLogViewModel
@@ -118,7 +118,7 @@ val appModule = module {
     // Collection
     singleOf(::CollectionService)
     singleOf(::CollectionRepository)
-    viewModelOf(::CollectionViewModel)
+    viewModelOf(::CollectionDialogViewModel)
     viewModelOf(::CollectionContentsViewModel)
 
     // Comment
