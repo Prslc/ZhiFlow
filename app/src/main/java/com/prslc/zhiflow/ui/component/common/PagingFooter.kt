@@ -15,6 +15,16 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
 
+/**
+ * Draws the single row a paged list ends with: the spinner while the next page is on its way, the
+ * retry line when that attempt came back failed, the end-of-list line once there is no more.
+ *
+ * @param keyPrefix Prefix for the item keys, so a list can hold more than one footer.
+ * @param isLoading Whether the next page is being fetched.
+ * @param error The failure of the last attempt at the next page, if there was one.
+ * @param onRetry What the retry line does when tapped.
+ * @param endText The line drawn at the very end; null while more pages are still to come.
+ */
 internal fun LazyListScope.pagingFooter(
     keyPrefix: String = "footer",
     isLoading: Boolean,
