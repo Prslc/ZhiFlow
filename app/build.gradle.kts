@@ -163,6 +163,8 @@ dependencies {
     implementation(libs.koin.compose.viewmodel)
 
     // Utils
+    // Declared, so the app and the tests run the same coroutines rather than one a dependency brought.
+    implementation(platform(libs.kotlinx.coroutines.bom))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
