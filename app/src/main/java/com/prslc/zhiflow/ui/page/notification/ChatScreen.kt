@@ -81,6 +81,11 @@ import org.koin.androidx.compose.koinViewModel
 /** How long a silence has to be before the messages under it are stamped with the time. */
 private const val MARK_GAP = 5 * 60L
 
+// The bubble's tail: one corner drawn to 4dp rather than 16 — at the bottom end for a message of
+// mine, at the bottom start for the other side's.
+private val BubbleShapeMine = RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
+private val BubbleShapeTheirs = RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)
+
 /**
  * One conversation, read from the newest message back, with a box to answer in at the end.
  *
@@ -518,11 +523,7 @@ private fun MessageBubble(
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
-                shape = if (mine) {
-                    RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
-                } else {
-                    RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)
-                },
+                shape = if (mine) BubbleShapeMine else BubbleShapeTheirs,
                 modifier = Modifier
                     .widthIn(max = 280.dp)
                     // No ripple: a bubble has nothing to open, and one on every tap would say it

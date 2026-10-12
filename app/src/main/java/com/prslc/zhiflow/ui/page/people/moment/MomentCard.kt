@@ -37,6 +37,8 @@ import com.prslc.zhiflow.ui.component.common.ImageData
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 
+private val CardShape = RoundedCornerShape(8.dp)
+
 @Composable
 fun BaseMomentCard(
     state: MomentDto,
@@ -129,7 +131,7 @@ fun UserMomentCard(
                 .border(
                     width = 0.5.dp,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = CardShape,
                 )
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,

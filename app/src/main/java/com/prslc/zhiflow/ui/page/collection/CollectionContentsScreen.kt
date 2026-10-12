@@ -64,6 +64,8 @@ import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
+private val CoverShape = RoundedCornerShape(6.dp)
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CollectionContentsScreen(
@@ -277,7 +279,7 @@ private fun CollectionContentCard(
             Box(
                 modifier = Modifier
                     .size(width = 100.dp, height = 68.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(CoverShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
             ) {
                 if (!LocalDataSaver.current) {

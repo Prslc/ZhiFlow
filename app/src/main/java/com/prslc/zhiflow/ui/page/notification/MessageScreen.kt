@@ -71,6 +71,8 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 /** How many entries fit on a line before the next one starts. */
 private const val CATEGORIES_PER_ROW = 4
 
+private val CategoryShape = RoundedCornerShape(12.dp)
+
 /**
  * The message tab: the way into each list of notifications, and the conversations under them.
  *
@@ -301,7 +303,7 @@ private fun CategoryEntry(
 ) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(CategoryShape)
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

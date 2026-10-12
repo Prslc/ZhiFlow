@@ -72,6 +72,7 @@ import org.koin.androidx.compose.koinViewModel
 
 private val AvatarSize = 56.dp
 private val Gutter = 20.dp
+private val CoverShape = RoundedCornerShape(6.dp)
 
 /** How much of the primary color the author's follow button washes its own fill with. */
 private const val TINT_ALPHA = 0.08f
@@ -488,7 +489,7 @@ private fun ColumnItemRow(
             Box(
                 modifier = Modifier
                     .size(width = 100.dp, height = 68.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(CoverShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
             ) {
                 // An illustration in a body and a list's thumbnails read the reader's choice; this

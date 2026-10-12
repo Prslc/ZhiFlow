@@ -57,6 +57,15 @@ import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import org.koin.androidx.compose.koinViewModel
 
+/** The kinds of history that carry a body, and so a position in one worth drawing. */
+private val ReadableContentTypes = setOf("answer", "article", "pin")
+
+// The rectangles a row draws, each rounded by its own size: the type icon, the progress chip, the
+// cover.
+private val TypeIconShape = RoundedCornerShape(2.dp)
+private val ProgressChipShape = RoundedCornerShape(4.dp)
+private val CoverShape = RoundedCornerShape(6.dp)
+
 @Composable
 fun ReadHistoryScreen(
     onBack: () -> Unit,
@@ -238,7 +247,7 @@ private fun HistoryItem(
     isInGroup: Boolean,
     onClick: () -> Unit,
 ) {
-    val hasContent = item.contentType in listOf("answer", "article", "pin")
+    val hasContent = item.contentType in ReadableContentTypes
     val startPadding = if (isInGroup) 36.dp else 16.dp
 
     Row(
@@ -264,7 +273,7 @@ private fun HistoryItem(
                             modifier = Modifier
                                 .padding(top = 2.dp)
                                 .size(16.dp)
-                                .clip(RoundedCornerShape(2.dp)),
+                                .clip(TypeIconShape),
                             contentScale = ContentScale.Crop,
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -346,7 +355,7 @@ private fun HistoryItem(
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(ProgressChipShape)
                             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                             .padding(horizontal = 6.dp, vertical = 2.dp),
                     ) {
@@ -366,7 +375,7 @@ private fun HistoryItem(
             Box(
                 modifier = Modifier
                     .size(width = 100.dp, height = 68.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(CoverShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
             ) {
                 if (!LocalDataSaver.current) {
