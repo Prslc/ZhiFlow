@@ -117,21 +117,23 @@ fun ChatInviteScreen(
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            if (people.isEmpty() && (uiState.isLoading || uiState.isSearching)) {
-                LoadingView(modifier = Modifier.fillMaxSize())
-            } else if (people.isEmpty() && error != null) {
-                ErrorView(
-                    message = error.uiMessage,
-                    onRetry = { if (isSearch) viewModel.retrySearch() else viewModel.loadFollowees() },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else if (people.isEmpty()) {
-                EmptyView(
-                    message = stringResource(
-                        if (isSearch) R.string.chat_invite_empty else R.string.chat_invite_nobody_followed,
-                    ),
-                    modifier = Modifier.fillMaxSize(),
-                )
+            if (people.isEmpty()) {
+                when {
+                    uiState.isLoading || uiState.isSearching -> LoadingView(modifier = Modifier.fillMaxSize())
+
+                    error != null -> ErrorView(
+                        message = error.uiMessage,
+                        onRetry = { if (isSearch) viewModel.retrySearch() else viewModel.loadFollowees() },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+
+                    else -> EmptyView(
+                        message = stringResource(
+                            if (isSearch) R.string.chat_invite_empty else R.string.chat_invite_nobody_followed,
+                        ),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             } else {
                 LazyColumn(
                     state = viewModel.listState,

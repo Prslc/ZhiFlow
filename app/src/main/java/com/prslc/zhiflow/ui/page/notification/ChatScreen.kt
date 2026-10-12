@@ -166,19 +166,21 @@ fun ChatScreen(
                 .imePadding(),
         ) {
             Box(modifier = Modifier.weight(1f)) {
-                if (messages.isEmpty() && uiState.isLoading) {
-                    LoadingView(modifier = Modifier.fillMaxSize())
-                } else if (messages.isEmpty() && error != null) {
-                    ErrorView(
-                        message = error.uiMessage,
-                        onRetry = { viewModel.load(peerId) },
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else if (messages.isEmpty()) {
-                    EmptyView(
-                        message = stringResource(R.string.chat_empty),
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                if (messages.isEmpty()) {
+                    when {
+                        uiState.isLoading -> LoadingView(modifier = Modifier.fillMaxSize())
+
+                        error != null -> ErrorView(
+                            message = error.uiMessage,
+                            onRetry = { viewModel.load(peerId) },
+                            modifier = Modifier.fillMaxSize(),
+                        )
+
+                        else -> EmptyView(
+                            message = stringResource(R.string.chat_empty),
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
                 } else {
                     LazyColumn(
                         // Laid out from the bottom, so the newest message is where the reader left

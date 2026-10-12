@@ -166,21 +166,25 @@ fun MessageScreen(
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            if (isEmpty && uiState.isRefreshing) {
-                LoadingView(modifier = Modifier.fillMaxSize())
-            } else if (isEmpty && globalError is ApiException.UnAuthorizedException) {
-                GuestMessage(onSignIn = navigator::navigateToLogin)
-            } else if (isEmpty && globalError != null) {
-                ErrorView(
-                    message = globalError.uiMessage,
-                    onRetry = { viewModel.refresh() },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else if (isEmpty) {
-                EmptyView(
-                    message = stringResource(R.string.notification_empty),
-                    modifier = Modifier.fillMaxSize(),
-                )
+            if (isEmpty) {
+                when {
+                    uiState.isRefreshing -> LoadingView(modifier = Modifier.fillMaxSize())
+
+                    globalError is ApiException.UnAuthorizedException -> GuestMessage(
+                        onSignIn = navigator::navigateToLogin,
+                    )
+
+                    globalError != null -> ErrorView(
+                        message = globalError.uiMessage,
+                        onRetry = { viewModel.refresh() },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+
+                    else -> EmptyView(
+                        message = stringResource(R.string.notification_empty),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             } else {
                 val pullState = rememberPullToRefreshState()
 
