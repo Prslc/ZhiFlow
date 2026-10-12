@@ -19,6 +19,7 @@ highlights = "1.1.0"
 tracingPerfetto = "1.0.1"
 junit = "4.13.2"
 robolectric = "4.17"
+kotlinxCoroutines = "1.10.2"
 
 [plugins]
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
@@ -73,3 +74,7 @@ compose-lint = { group = "com.slack.lint.compose", name = "compose-lint-checks",
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver3", version.ref = "okhttp" }
+
+# Pinned to the version the app resolves for coroutines-core, so a test never runs against a
+# different runtime than the code it is testing.
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }

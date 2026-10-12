@@ -184,4 +184,7 @@ dependencies {
     // The funnel is tested through a real HTTP server rather than a stubbed client, so the
     // requests are the ones the services actually build.
     testImplementation(libs.mockwebserver)
+
+    // A ViewModel's scope needs a main dispatcher, and there is none outside an app.
+    testImplementation(libs.kotlinx.coroutines.test)
 }
