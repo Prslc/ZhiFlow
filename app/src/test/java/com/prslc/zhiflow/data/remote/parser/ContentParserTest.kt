@@ -189,6 +189,38 @@ class ContentParserTest {
     }
 
     @Test
+    fun `a mark reaching past its paragraph is clamped rather than cut out of it`() {
+        // The offsets are the server's, measured against text this app has already had. One that
+        // reaches past the end has to be clamped the way a passage's offsets are: `substring`
+        // throws, and a throw out of a mapper is not a `Result` in this app -- it leaves the
+        // coroutine, and on a device it takes the process with it.
+        val overrun = 999
+        val text = "before $formulaPlaceholder after"
+        val start = text.indexOf(formulaPlaceholder)
+        val block = "\\begin{aligned}a\\end{aligned}"
+
+        val elements = ContentParser.transform(
+            listOf(
+                paragraph(
+                    text = text,
+                    marks = listOf(
+                        // An end running past the paragraph, which is where the index the next mark
+                        // is measured against comes from.
+                        formulaMark(start, overrun, block),
+                        // And a start past the end of the paragraph outright.
+                        formulaMark(overrun + 1, overrun * 2, block),
+                    ),
+                ),
+            ),
+        )
+
+        // Neither mark can be placed, so neither of them splits the paragraph. The formulas are
+        // still drawn, and the text before the first of them is where it was.
+        assertEquals(2, elements.count { it is RichTextElement.FormulaBlock })
+        assertEquals("before ", (elements.first() as RichTextElement.ParsedText).content.text)
+    }
+
+    @Test
     fun `a blank run between two formulas is not drawn`() {
         val block = "\\begin{aligned}a\\end{aligned}"
         val text = "$formulaPlaceholder\n$formulaPlaceholder"

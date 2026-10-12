@@ -197,10 +197,14 @@ object ContentParser {
         var lastIndex = 0
 
         blockFormulaMarks.forEach { mark ->
-            if (mark.start > lastIndex) {
-                val subText = rawText.substring(lastIndex, mark.start)
+            // The offsets are the server's, and clamped the way a passage's are a few lines up: one
+            // reaching past the text would end the parse, and a throw out of a mapper is not a
+            // `Result` in this app -- it leaves the coroutine and takes the process with it.
+            val start = mark.start.coerceIn(lastIndex, rawText.length)
+            if (start > lastIndex) {
+                val subText = rawText.substring(lastIndex, start)
                 if (subText.isNotBlank() && subText != "\n") {
-                    val subMarks = marks.filter { it.start >= lastIndex && it.end <= mark.start }
+                    val subMarks = marks.filter { it.start >= lastIndex && it.end <= start }
                         .map { it.copy(start = it.start - lastIndex, end = it.end - lastIndex) }
                     val processed = parseContent(
                         subText, subMarks, paragraph.pid, segLikeHost = true,
@@ -215,7 +219,7 @@ object ContentParser {
                 }
             }
             mark.formula?.let { elements.add(RichTextElement.FormulaBlock(it)) }
-            lastIndex = mark.end
+            lastIndex = mark.end.coerceIn(start, rawText.length)
         }
 
         if (lastIndex < rawText.length) {
