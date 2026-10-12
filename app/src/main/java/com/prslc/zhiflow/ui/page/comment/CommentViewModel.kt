@@ -393,7 +393,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         uiState = uiState.copy(navigateToUser = null)
     }
 
-    fun onActionErrorShown() {
+    fun consumeActionError() {
         uiState = uiState.copy(actionError = null)
     }
 
