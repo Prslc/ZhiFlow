@@ -317,6 +317,51 @@ class SearchViewModelTest {
     // What the page offers before anything is typed
 
     @Test
+    fun `an answer for a page the reader has left cannot land on the search they moved to`() {
+        // The list is scrolled and paged, and the reader goes back to the box and searches again
+        // while that page is still out. Both write the whole state, so the late page would be
+        // appended to the new search's results -- rows from a search they are no longer looking at.
+        val backend = Backend(
+            delayMs = { url -> if (url.queryParameter("offset") == "20") 400 else 0 },
+            reply = { url ->
+                when {
+                    url.queryParameter("offset") == "20" -> {
+                        results("old-page", paging = """{"is_end":true}""")
+                    }
+
+                    url.queryParameter("q") == "grace" -> {
+                        results("grace", paging = """{"is_end":true}""")
+                    }
+
+                    else -> {
+                        results(
+                            "ada",
+                            paging = """{"is_end":false,"next":"$BASE$RESULTS_PATH?q=ada&offset=20"}""",
+                        )
+                    }
+                }
+            },
+        )
+        val viewModel = viewModel(backend)
+
+        viewModel.submit("ada", SearchTab.GENERAL)
+        awaitUntil("the first page") { shownIds(viewModel).isNotEmpty() }
+        viewModel.loadMore()
+        awaitUntil("the page to be on its way") {
+            backend.searching().any { it.queryParameter("offset") == "20" }
+        }
+        viewModel.submit("grace", SearchTab.GENERAL)
+        awaitUntil("all three answers") {
+            backend.answered.count { it.encodedPath == RESULTS_PATH } == 3
+        }
+        // The page has been answered; give it the moment it needs to write, if it is going to.
+        Thread.sleep(100)
+
+        assertEquals("grace", viewModel.submittedQuery)
+        assertEquals(listOf("grace"), shownIds(viewModel))
+    }
+
+    @Test
     fun `the hot phrases are asked for once, and only by the whole-site tab`() {
         // A page scoped to what the reader has saved would be offering them searches for things
         // they have not.
