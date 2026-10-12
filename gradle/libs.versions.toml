@@ -72,3 +72,4 @@ compose-lint = { group = "com.slack.lint.compose", name = "compose-lint-checks",
 # test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver3", version.ref = "okhttp" }

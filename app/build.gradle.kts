@@ -180,4 +180,8 @@ dependencies {
     // Test
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
+
+    // The funnel is tested through a real HTTP server rather than a stubbed client, so the
+    // requests are the ones the services actually build.
+    testImplementation(libs.mockwebserver)
 }
