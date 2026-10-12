@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 
 /**
  * An avatar and a name, with room after them for whatever the caller's row needs.
@@ -53,7 +54,7 @@ fun AuthorRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = avatarUrl,
+            model = sizedImageUrl(avatarUrl, avatarSize),
             contentDescription = stringResource(R.string.avatar_desc),
             modifier = Modifier
                 .size(avatarSize)

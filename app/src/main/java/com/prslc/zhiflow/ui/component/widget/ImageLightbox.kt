@@ -61,6 +61,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.imageUrlAt
 import com.prslc.zhiflow.core.utils.platform.ImageHelper
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.ui.component.richtext.component.formulaColorFilter
@@ -189,8 +190,10 @@ fun ImageLightbox(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
+                    // The largest copy there is: the lightbox draws it full screen and lets the
+                    // reader zoom into it, so anything smaller is the wrong picture.
                     ZoomableAsyncImage(
-                        model = ImageRequest.Builder(context).data(url)
+                        model = ImageRequest.Builder(context).data(imageUrlAt(url, Int.MAX_VALUE))
                             .crossfade(true).build(),
                         contentDescription = when (item) {
                             is LightboxItem.Image -> imageDescText

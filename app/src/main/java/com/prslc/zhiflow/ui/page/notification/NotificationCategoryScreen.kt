@@ -45,6 +45,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.data.dto.NotificationItemDto
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
@@ -232,7 +233,7 @@ private fun NotificationRow(
         verticalAlignment = Alignment.Top,
     ) {
         AsyncImage(
-            model = item.avatarUrl,
+            model = sizedImageUrl(item.avatarUrl, 44.dp),
             contentDescription = null,
             modifier = Modifier
                 .size(44.dp)

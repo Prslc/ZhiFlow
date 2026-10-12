@@ -52,6 +52,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
@@ -308,7 +309,7 @@ private fun ColumnHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 AsyncImage(
-                    model = column.author.avatarUrl,
+                    model = sizedImageUrl(column.author.avatarUrl, 32.dp),
                     contentDescription = null,
                     modifier = Modifier
                         .size(32.dp)

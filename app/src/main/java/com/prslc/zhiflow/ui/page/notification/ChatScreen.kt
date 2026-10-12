@@ -66,6 +66,7 @@ import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.dto.ChatMessageDto
 import com.prslc.zhiflow.data.dto.ChatPeerDto
@@ -447,7 +448,7 @@ private fun PeerTitle(peer: ChatPeerDto?, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = peer.avatarUrl,
+            model = sizedImageUrl(peer.avatarUrl, 32.dp),
             contentDescription = null,
             modifier = Modifier
                 .size(32.dp)

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
@@ -78,7 +79,7 @@ fun CommentItem(
     ) {
         // avatar
         AsyncImage(
-            model = comment.author.avatarUrl,
+            model = sizedImageUrl(comment.author.avatarUrl, 36.dp),
             contentDescription = "avatar",
             modifier = Modifier
                 .size(36.dp)

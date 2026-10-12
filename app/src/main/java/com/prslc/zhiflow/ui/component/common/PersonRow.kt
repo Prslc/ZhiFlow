@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.data.dto.PersonDto
 
 /**
@@ -48,7 +49,7 @@ fun PersonRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = person.avatarUrl,
+            model = sizedImageUrl(person.avatarUrl, 44.dp),
             contentDescription = null,
             modifier = Modifier
                 .size(44.dp)

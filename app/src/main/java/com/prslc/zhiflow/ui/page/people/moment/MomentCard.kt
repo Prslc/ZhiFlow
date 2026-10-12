@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.ui.component.common.ContentMeta
@@ -77,7 +78,7 @@ private fun MomentHeader(
         verticalAlignment = Alignment.Top,
     ) {
         AsyncImage(
-            model = state.authorAvatarUrl,
+            model = sizedImageUrl(state.authorAvatarUrl, 32.dp),
             contentDescription = stringResource(R.string.content_desc_avatar),
             modifier = Modifier
                 .size(32.dp)
