@@ -25,12 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
 import com.prslc.zhiflow.data.remote.parser.model.CodeToken
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
@@ -105,7 +107,7 @@ fun CodeBlock(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copy code",
+                            contentDescription = stringResource(R.string.richtext_code_copy),
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

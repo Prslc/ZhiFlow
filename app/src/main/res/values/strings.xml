@@ -204,6 +204,7 @@
     <!-- RichText -->
     <string name="outline_title">Contents</string>
     <string name="richtext_references">References</string>
+    <string name="richtext_code_copy">Copy code</string>
 
     <!-- question -->
     <string name="action_expand">Expand All</string>

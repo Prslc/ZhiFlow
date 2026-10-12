@@ -188,6 +188,7 @@
 
     <!-- RichText -->
     <string name="outline_title">目录</string>
+    <string name="richtext_code_copy">复制代码</string>
     <string name="richtext_references">参考</string>
 
     <!-- question -->
