@@ -522,9 +522,9 @@ private fun ColumnInfluence(
 ) {
     val agree = column.authorAgree
     val like = column.authorLike
-    val favourite = column.authorFavourite
+    val favorite = column.authorFavorite
     val words = column.authorInfluenceWords
-    val counted = agree != null && like != null && favourite != null
+    val counted = agree != null && like != null && favorite != null
 
     if (!counted && words.isEmpty()) return
 
@@ -536,7 +536,7 @@ private fun ColumnInfluence(
             fontWeight = FontWeight.SemiBold,
         )
 
-        if (agree != null && like != null && favourite != null) {
+        if (agree != null && like != null && favorite != null) {
             Row(
                 modifier = Modifier.padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -544,7 +544,7 @@ private fun ColumnInfluence(
             ) {
                 StatItem(stringResource(R.string.column_author_agree), agree)
                 StatItem(stringResource(R.string.column_author_like), like)
-                StatItem(stringResource(R.string.column_author_favourite), favourite)
+                StatItem(stringResource(R.string.column_author_favorite), favorite)
             }
         } else {
             Text(

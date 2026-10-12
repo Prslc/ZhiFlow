@@ -4,17 +4,17 @@ package com.prslc.zhiflow.data.mapper
 internal data class InfluenceStats(
     val agree: Int,
     val like: Int,
-    val favourite: Int,
+    val favorite: Int,
 )
 
 /** Which of those three a count is, while a line is being read. */
-private enum class InfluenceKind { AGREE, LIKE, FAVOURITE }
+private enum class InfluenceKind { AGREE, LIKE, FAVORITE }
 
 /** The word each count is written with, and which of the three it belongs to. */
 private val INFLUENCE_WORDS = mapOf(
     "次赞同" to InfluenceKind.AGREE,
     "次喜欢" to InfluenceKind.LIKE,
-    "次收藏" to InfluenceKind.FAVOURITE,
+    "次收藏" to InfluenceKind.FAVORITE,
 )
 
 /** What the server ends a count written in ten-thousands with, as in `26.5 万次喜欢`. */
@@ -48,7 +48,7 @@ internal fun influenceStatsOf(words: List<String>): InfluenceStats? {
 
     val agree = counts[InfluenceKind.AGREE] ?: return null
     val like = counts[InfluenceKind.LIKE] ?: return null
-    val favourite = counts[InfluenceKind.FAVOURITE] ?: return null
+    val favorite = counts[InfluenceKind.FAVORITE] ?: return null
 
-    return InfluenceStats(agree, like, favourite)
+    return InfluenceStats(agree, like, favorite)
 }

@@ -245,7 +245,7 @@
     <string name="column_action_subscribed">Subscribed</string>
     <string name="column_author_agree">Agree</string>
     <string name="column_author_like">Likes</string>
-    <string name="column_author_favourite">Favourites</string>
+    <string name="column_author_favorite">Favorites</string>
     <string name="column_author_influence">Influence</string>
     <string name="column_author_heading">Author</string>
 

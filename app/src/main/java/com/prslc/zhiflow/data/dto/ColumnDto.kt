@@ -15,12 +15,12 @@ data class ColumnDto(
     val voteupCount: Int,
     val isFollowing: Boolean,
     /**
-     * The author's standing: how many times they have been agreed with, liked and favourited, or
+     * The author's standing: how many times they have been agreed with, liked and favorited, or
      * all three null where the server's words for it could not be read.
      */
     val authorAgree: Int?,
     val authorLike: Int?,
-    val authorFavourite: Int?,
+    val authorFavorite: Int?,
     /** The server's own words for it, drawn as they came when the three above are null. */
     val authorInfluenceWords: List<String>,
 )

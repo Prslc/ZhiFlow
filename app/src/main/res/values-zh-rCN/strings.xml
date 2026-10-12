@@ -228,7 +228,7 @@
     <string name="column_action_subscribed">已订阅</string>
     <string name="column_author_agree">赞同</string>
     <string name="column_author_like">喜欢</string>
-    <string name="column_author_favourite">收藏</string>
+    <string name="column_author_favorite">收藏</string>
     <string name="column_author_influence">知乎影响力</string>
     <string name="column_author_heading">专栏作者</string>
 

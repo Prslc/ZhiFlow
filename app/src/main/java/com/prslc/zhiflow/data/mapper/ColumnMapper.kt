@@ -22,7 +22,7 @@ internal fun ZhihuColumn.toDto(): ColumnDto {
         isFollowing = isFollowing,
         authorAgree = influence?.agree,
         authorLike = influence?.like,
-        authorFavourite = influence?.favourite,
+        authorFavorite = influence?.favorite,
         authorInfluenceWords = if (influence == null) words else emptyList(),
     )
 }
