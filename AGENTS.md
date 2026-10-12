@@ -42,7 +42,7 @@ can check. Numbers describing what the tree currently measures at are neither, a
 - **Release**: R8 minification + resource shrink + multiDex; strips `kotlin.jvm.internal.Intrinsics` via ProGuard `-assumenosideeffects`
 - **Native library**: loads `libencrypt.so` from `app/libs/` through JNI
 - **`local.properties`**: stores per-machine SDK path; gitignored
-- **Style**: the rules live in the root `.editorconfig` — import layout, line width 100, at most one blank line between declarations — and ktlint reads them: `/usr/bin/ktlint <paths>` checks, `--format` fixes. Run it over the files you touched; anything it reports there is yours, since the tree is otherwise clean. Rules are switched off only by name in that file, and only after counting how much of the tree disagrees with them.
+- **Style**: the rules live in the root `.editorconfig` — import layout, line width 100, at most one blank line between declarations — and ktlint reads them: `/usr/bin/ktlint <paths>` checks, `--format` fixes. Run it over the files you touched; anything it reports there is yours, since the tree is otherwise clean. Rules are switched off only by name in that file, and only after counting how much of the tree disagrees with them. **`./gradlew lint` is the second channel and a different set of rules** — Android's own plus the compose-lints — and it *aborts the build* on an error, so a clean ktlint says nothing about it.
 
 Key Gradle tasks:
 ```bash
@@ -247,6 +247,7 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **Content images**: An illustration in a body and a list's thumbnails read `LocalDataSaver`, which is what lets the reader's choice reach them. Avatars, covers, formulas and the lightbox do not — those are not what a reader is paying traffic for, and the lightbox exists to show an image that was asked for.
 - **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore`, read fresh on every request so a write reaches the next one with nothing having to be told. It also publishes the session as a `StateFlow`, for what draws the session rather than requests it — a screen has no request of its own that would come back and tell it. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
+- **A ViewModel action is not navigation**: a composable that takes a `viewModel:` parameter must not hand anything *derived from it* to another composable — `remember(viewModel) { viewModel::openFeedback }` passed into a list row is `ComposeViewModelForwarding`, an error that fails `./gradlew lint`. Such a callback arrives as a parameter instead, from a caller that holds the ViewModel as a local (`MainScreen`'s `val feedViewModel = koinViewModel()`), which is not a forwarding. The bullets above still stand: a callback carrying no ViewModel belongs inside the screen.
 
 ## Comments
 
