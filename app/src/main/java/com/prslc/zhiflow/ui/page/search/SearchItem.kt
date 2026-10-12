@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.data.dto.SearchItemDto
+import com.prslc.zhiflow.data.dto.SuggestedQueryDto
 import com.prslc.zhiflow.ui.component.common.AuthorRow
 import com.prslc.zhiflow.ui.component.common.ContentMeta
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
@@ -83,6 +84,45 @@ internal fun SearchResultCard(
             commentCount = item.commentCount,
             modifier = Modifier.padding(top = 8.dp),
         )
+    }
+}
+
+/**
+ * The narrower searches for the phrase whose results are on screen, pinned under the box.
+ *
+ * Each chip reads the ending the server sent and searches the whole phrase it completes: the
+ * ending on its own would look for something else. A row that scrolls sideways rather than a list,
+ * for the reason the related queries below are one.
+ *
+ * @param refinements The narrower searches to draw.
+ * @param onClick Called with the phrase that was tapped, which is itself a search.
+ * @param modifier Applied to the scrolling row.
+ */
+@Composable
+internal fun RefinementRow(
+    refinements: List<SuggestedQueryDto>,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        refinements.forEach { refinement ->
+            SuggestionChip(
+                onClick = { onClick(refinement.query) },
+                label = {
+                    Text(
+                        text = refinement.suffix,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+            )
+        }
     }
 }
 

@@ -40,3 +40,16 @@ data class HotQueryDto(
     val query: String,
     val isHot: Boolean,
 )
+
+/**
+ * One narrower search the results page offers for the phrase it is showing.
+ *
+ * The server answers with an ending and the phrase it completes — `单词` for a search of `test` —
+ * and the two are not interchangeable: the ending is what reads as a chip, and the whole phrase is
+ * what a search of it has to use, since the ending on its own looks for something else entirely.
+ */
+@Immutable
+data class SuggestedQueryDto(
+    val suffix: String,
+    val query: String,
+)

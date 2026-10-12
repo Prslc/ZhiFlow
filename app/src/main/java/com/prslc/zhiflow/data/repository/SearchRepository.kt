@@ -4,6 +4,8 @@ import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
+import com.prslc.zhiflow.data.dto.SuggestedQueryDto
+import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.mapper.toHotQueries
 import com.prslc.zhiflow.data.mapper.toItems
 import com.prslc.zhiflow.data.mapper.toPeople
@@ -68,18 +70,16 @@ class SearchRepository(private val service: SearchService) {
         }
 
     /**
-     * Asks for the narrower phrases that follow a search already run.
+     * Asks for the narrower searches to offer for a phrase that has just been searched for.
      *
      * @param query The phrase that was searched for.
-     * @return A [Result] holding phrases that are whole searches in themselves. The ending alone
-     *   is never handed back, since searching for it would look for something else entirely.
+     * @return A [Result] holding them, each carrying the ending to draw as a chip and the phrase
+     *   that searching it uses. One that names nothing searchable is dropped.
      */
-    suspend fun suggestedQueries(query: String): Result<List<String>> =
+    suspend fun suggestedQueries(query: String): Result<List<SuggestedQueryDto>> =
         service.suggestedQueries(query)
             .mapOffMain { response ->
-                response.queryList
-                    .map { it.realQuery.ifBlank { it.query } }
-                    .filter { it.isNotBlank() }
+                response.queryList.map { it.toDto() }.filter { it.query.isNotBlank() }
             }
 
     /**

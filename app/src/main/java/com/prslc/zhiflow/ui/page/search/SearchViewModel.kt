@@ -12,6 +12,7 @@ import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
+import com.prslc.zhiflow.data.dto.SuggestedQueryDto
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.repository.SearchRepository
 import kotlinx.coroutines.Job
@@ -52,6 +53,10 @@ class SearchViewModel(
     var submittedQuery by mutableStateOf("")
         private set
 
+    /** The narrower searches offered for the phrase the results are for. */
+    var refinements by mutableStateOf<List<SuggestedQueryDto>>(emptyList())
+        private set
+
     var uiState by mutableStateOf(SearchUiState())
         private set
 
@@ -59,6 +64,7 @@ class SearchViewModel(
 
     private var nextPageUrl: String? = null
     private var suggestJob: Job? = null
+    private var refineJob: Job? = null
 
     /**
      * Takes what the reader has typed so far, and asks what they might mean.
@@ -101,6 +107,7 @@ class SearchViewModel(
         submittedQuery = phrase
         suggestions = emptyList()
         nextPageUrl = null
+        loadRefinements(phrase)
 
         viewModelScope.launch {
             uiState = SearchUiState(isSearching = true)
@@ -140,6 +147,26 @@ class SearchViewModel(
     }
 
     /**
+     * Asks for the narrower searches that go with [phrase], replacing the ones on screen.
+     *
+     * It goes out beside the search rather than after it: the chips are a second thought on the
+     * page, and making the results wait for them would spend the reader's time on it. A failure
+     * leaves the page without them, which is a state it can be in anyway.
+     *
+     * @param phrase The phrase the results are for.
+     */
+    private fun loadRefinements(phrase: String) {
+        refineJob?.cancel()
+        refinements = emptyList()
+
+        refineJob = viewModelScope.launch {
+            repository.suggestedQueries(phrase)
+                .onSuccess { refinements = it }
+                .ignoreOutcome()
+        }
+    }
+
+    /**
      * Fetches the phrases to show before anything has been typed.
      *
      * Called once when the page appears. A failure leaves the box empty of suggestions, which is
@@ -163,6 +190,8 @@ class SearchViewModel(
     fun clearResults() {
         nextPageUrl = null
         submittedQuery = ""
+        refineJob?.cancel()
+        refinements = emptyList()
         uiState = SearchUiState()
     }
 }

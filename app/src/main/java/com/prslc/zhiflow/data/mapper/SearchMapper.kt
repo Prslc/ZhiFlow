@@ -4,9 +4,11 @@ import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
+import com.prslc.zhiflow.data.dto.SuggestedQueryDto
 import com.prslc.zhiflow.data.model.search.ZhihuPresetWordsResponse
 import com.prslc.zhiflow.data.model.search.ZhihuSearchContent
 import com.prslc.zhiflow.data.model.search.ZhihuSearchResponse
+import com.prslc.zhiflow.data.model.search.ZhihuSuggestedQuery
 import com.prslc.zhiflow.data.remote.parser.htmlToPlainText
 import com.prslc.zhiflow.data.remote.parser.searchTextToAnnotatedString
 
@@ -52,6 +54,16 @@ internal fun ZhihuSearchResponse.toItems(): List<SearchItemDto> {
 
     return results + listOfNotNull(related)
 }
+
+/**
+ * @return The narrower search as a chip: the ending for the words on it, the whole phrase for the
+ *   search behind it. An ending the server left out falls back to the phrase, and the other way
+ *   around, so a chip is never empty and never searches for nothing.
+ */
+internal fun ZhihuSuggestedQuery.toDto() = SuggestedQueryDto(
+    suffix = query.ifBlank { realQuery },
+    query = realQuery.ifBlank { query },
+)
 
 /** @return The result as a row, with the words the query matched left marked in its title. */
 private fun ZhihuSearchContent.toItem(): SearchItemDto.Content = SearchItemDto.Content(

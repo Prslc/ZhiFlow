@@ -2,6 +2,7 @@ package com.prslc.zhiflow.ui.page.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -130,35 +131,46 @@ fun SearchScreen(
             )
         },
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            when {
-                viewModel.submittedQuery.isNotEmpty() -> Results(
-                    uiState = uiState,
-                    listState = listState,
-                    endText = endText,
-                    onItemClick = navigator::navigateToContent,
-                    onPhraseClick = { viewModel.submit(it, tab) },
-                    onRetry = { viewModel.submit(viewModel.submittedQuery, tab) },
-                    onLoadMore = viewModel::loadMore,
-                )
-
-                viewModel.suggestions.isNotEmpty() -> PhraseList(
-                    phrases = viewModel.suggestions,
-                    hotPhrases = emptySet(),
+            // Above the results rather than in them: what it offers is another search for the
+            // phrase they are for, and it has to be there while the reader is looking at them.
+            if (viewModel.refinements.isNotEmpty()) {
+                RefinementRow(
+                    refinements = viewModel.refinements,
                     onClick = { viewModel.submit(it, tab) },
                 )
+            }
 
-                else -> PhraseList(
-                    phrases = viewModel.hotQueries.map { it.query },
-                    hotPhrases = viewModel.hotQueries.filter { it.isHot }
-                        .map { it.query }
-                        .toSet(),
-                    onClick = { viewModel.submit(it, tab) },
-                )
+            Box(modifier = Modifier.weight(1f)) {
+                when {
+                    viewModel.submittedQuery.isNotEmpty() -> Results(
+                        uiState = uiState,
+                        listState = listState,
+                        endText = endText,
+                        onItemClick = navigator::navigateToContent,
+                        onPhraseClick = { viewModel.submit(it, tab) },
+                        onRetry = { viewModel.submit(viewModel.submittedQuery, tab) },
+                        onLoadMore = viewModel::loadMore,
+                    )
+
+                    viewModel.suggestions.isNotEmpty() -> PhraseList(
+                        phrases = viewModel.suggestions,
+                        hotPhrases = emptySet(),
+                        onClick = { viewModel.submit(it, tab) },
+                    )
+
+                    else -> PhraseList(
+                        phrases = viewModel.hotQueries.map { it.query },
+                        hotPhrases = viewModel.hotQueries.filter { it.isHot }
+                            .map { it.query }
+                            .toSet(),
+                        onClick = { viewModel.submit(it, tab) },
+                    )
+                }
             }
         }
     }
