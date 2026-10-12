@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
@@ -39,11 +40,11 @@ class ActionRepository(private val service: ActionService) {
         isLike: Boolean,
     ): Result<String?> {
         if (isLike) {
-            return service.likeSegment(id, type, target).map { it.segId }
+            return service.likeSegment(id, type, target).mapOffMain { it.segId }
         }
 
         val mySegId = target.mySegId ?: return Result.success(null)
-        return service.unlikeSegment(id, type, mySegId).map { null }
+        return service.unlikeSegment(id, type, mySegId).mapOffMain { null }
     }
 
     /**

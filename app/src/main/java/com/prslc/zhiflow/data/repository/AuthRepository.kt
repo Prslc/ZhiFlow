@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.repository
 
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.core.network.CredentialStore
 import com.prslc.zhiflow.core.network.Credentials
 import com.prslc.zhiflow.data.mapper.toCredentials
@@ -20,7 +21,7 @@ class AuthRepository(
      * @return A [Result] carrying the stored session.
      */
     suspend fun startGuestSession(): Result<Credentials> =
-        authService.guestToken().map { store(it.toCredentials()) }
+        authService.guestToken().mapOffMain { store(it.toCredentials()) }
 
     /**
      * Asks for a login code.
@@ -44,7 +45,7 @@ class AuthRepository(
      * @return A [Result] carrying the stored session.
      */
     suspend fun signInWithDigits(phoneNumber: String, code: String): Result<Credentials> =
-        authService.signInWithDigits(phoneNumber, code).map { store(it.toCredentials(System.currentTimeMillis())) }
+        authService.signInWithDigits(phoneNumber, code).mapOffMain { store(it.toCredentials(System.currentTimeMillis())) }
 
     /**
      * Signs in with a password.
@@ -58,7 +59,7 @@ class AuthRepository(
      */
     suspend fun signInWithPassword(account: String, password: String): Result<Credentials> {
         authService.getCaptcha().getOrElse { return Result.failure(it) }
-        return authService.signInWithPassword(account, password).map { store(it.toCredentials(System.currentTimeMillis())) }
+        return authService.signInWithPassword(account, password).mapOffMain { store(it.toCredentials(System.currentTimeMillis())) }
     }
 
     /**
@@ -72,7 +73,7 @@ class AuthRepository(
         if (refreshToken.isBlank()) {
             return Result.failure(ApiException.UnAuthorizedException())
         }
-        return authService.refresh(refreshToken).map { store(it.toCredentials(System.currentTimeMillis())) }
+        return authService.refresh(refreshToken).mapOffMain { store(it.toCredentials(System.currentTimeMillis())) }
     }
 
     /**

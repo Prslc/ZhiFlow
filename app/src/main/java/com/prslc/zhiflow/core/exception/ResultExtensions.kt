@@ -15,9 +15,22 @@ internal suspend fun <R> offMain(block: () -> R): R = withContext(Dispatchers.De
 /**
  * [offMain] for a [Result] whose value is a whole page: one hop per page rather than one per row,
  * with the transform itself unchanged.
+ *
+ * A transform that throws is a failure rather than an escape. The mapping is inside the [Result]
+ * contract, so nothing it does can leave the caller's coroutine -- which is what a parser and a
+ * mapper need, both reading the server's data and neither written to be total. Left to escape, a
+ * throw from one goes past every `onApiFailure`, out of the scope it was launched in, and to the
+ * thread's uncaught handler; for a ViewModel, that is the process.
+ *
+ * Cancellation is control flow rather than a failure, and [toApiException] rethrows it.
  */
-internal suspend fun <T, R> Result<T>.mapOffMain(transform: (T) -> R): Result<R> =
-    offMain { map(transform) }
+internal suspend fun <T, R> Result<T>.mapOffMain(transform: (T) -> R): Result<R> = offMain {
+    try {
+        map(transform)
+    } catch (e: Exception) {
+        Result.failure(e.toApiException())
+    }
+}
 
 /**
  * Like [Result.onFailure], but the callback always receives a non-null [ApiException]:

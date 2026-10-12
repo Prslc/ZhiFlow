@@ -97,4 +97,33 @@ class ResultExtensionsTest {
         assertTrue(mapped.isFailure)
         assertTrue(mapped.exceptionOrNull() is ApiException.NetworkException)
     }
+
+    @Test
+    fun `a mapping that throws is a failure rather than an escape`() {
+        // A parser or a mapper reads the server's data and is not written to be total. Left to
+        // escape, a throw from one goes past every `onApiFailure`, out of the scope it was
+        // launched in and to the thread's uncaught handler, which for a ViewModel is the process.
+        val mapped = runBlocking {
+            Result.success("a page").mapOffMain { error("a parser that met something new") }
+        }
+
+        assertTrue(mapped.isFailure)
+        assertTrue(mapped.exceptionOrNull() is ApiException.UnknownException)
+    }
+
+    @Test
+    fun `a mapping that is cancelled stays cancelled`() {
+        // Cancellation stays control flow rather than becoming something the reader is shown. The
+        // instance is not the one thrown: the hop through `withContext` wraps it.
+        val thrown = runCatching {
+            runBlocking {
+                Result.success("a page").mapOffMain<String, Unit> {
+                    throw CancellationException("superseded")
+                }
+            }
+        }.exceptionOrNull()
+
+        assertTrue("a cancellation must stay one", thrown is CancellationException)
+        assertEquals("superseded", thrown?.message)
+    }
 }

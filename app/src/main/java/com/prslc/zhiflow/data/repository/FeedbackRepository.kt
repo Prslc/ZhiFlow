@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.repository
 
+import com.prslc.zhiflow.core.exception.mapOffMain
 import com.prslc.zhiflow.data.dto.BlockOptions
 import com.prslc.zhiflow.data.dto.BlockTag
 import com.prslc.zhiflow.data.dto.FeedbackAction
@@ -21,7 +22,7 @@ class FeedbackRepository(private val service: FeedbackService) {
      * @return A [Result] containing the rows to render, in the order the backend sent them.
      */
     suspend fun getPanel(contentId: String, contentType: String): Result<List<FeedbackAction>> = service.getPanel(contentId, contentType)
-        .map { panel -> panel.data.items.mapNotNull { it.toDto() } }
+        .mapOffMain { panel -> panel.data.items.mapNotNull { it.toDto() } }
 
     /**
      * Runs a panel row whose action is a request.
@@ -50,7 +51,7 @@ class FeedbackRepository(private val service: FeedbackService) {
             .getOrElse { return Result.failure(it) }
 
         return service.getBlockKeywords(contentToken, contentType, feedbackType)
-            .map { block -> block.toDto(tags.data.map { tag -> tag.toDto() }) }
+            .mapOffMain { block -> block.toDto(tags.data.map { tag -> tag.toDto() }) }
     }
 
     /**
