@@ -257,9 +257,12 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 ## Tests
 
 Unit tests live in `app/src/test/`, in the package of what they test, and run with `./gradlew test`.
-They are plain JVM tests unless the subject reaches the framework — the parser's `HtmlText` does, and
-so does the search page, whose mapper builds a row's title the same way; the funnel's does not, since
-the `Json` it decodes with is a plain property of a companion.
+They are plain JVM tests unless **the path the test drives** reaches the framework — which the file
+under test does not tell you, because a path through a ViewModel runs through a mapper into a parser.
+The search page's mapper reaches `HtmlText`, and so does the comment sheet's, one file further along
+(`CommentMapper` → `CommentParser` → `HtmlText`). The funnel's path does not: the `Json` it decodes
+with is a plain property of a companion. Reading the mapper alone answers "no framework here", and is
+wrong — twice, so far. The way to find out is to run it and read the stack in the report.
 
 That costs two annotations, and the second is the one easy to leave out:
 
