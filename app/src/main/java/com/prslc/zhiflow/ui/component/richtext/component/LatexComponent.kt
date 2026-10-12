@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
@@ -66,14 +66,18 @@ fun formulaPlaceholder(density: Density, widthDp: Float, heightDp: Float): Place
 }
 
 /**
- * Returns the max inline formula width in dp: screen width minus 42dp, so an over-wide formula
- * scales down instead of being cropped or scrolled.
+ * Returns the max inline formula width in dp: the width of the window the page is drawn in, minus
+ * 42dp, so an over-wide formula scales down instead of being cropped or scrolled.
+ *
+ * The window rather than the display: in a split screen or on a folded cover the page has less room
+ * than the screen does, and a formula clamped to the screen would be laid out past the edge.
  */
 @Composable
 @ReadOnlyComposable
 internal fun rememberFormulaMaxWidth(): Float {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    return (screenWidth - 2 * 21).coerceAtLeast(200).toFloat()
+    val density = LocalDensity.current
+    val containerWidth = with(density) { LocalWindowInfo.current.containerSize.width.toDp() }
+    return (containerWidth.value - 2 * 21).coerceAtLeast(200f)
 }
 
 /**
@@ -277,7 +281,10 @@ fun FormulaTextSection(
                 detectTapGestures { pos ->
                     layoutResult.value?.let { layout ->
                         val offset = layout.getOffsetForPosition(pos)
-                        element.content.getStringAnnotations(AnnotatedStringBuilder.URL_TAG, offset, offset)
+                        element.content
+                            .getStringAnnotations(
+                                AnnotatedStringBuilder.URL_TAG, offset, offset,
+                            )
                             .firstOrNull()?.let { navigator.handleUrl(it.item) }
 
                         // The bubble carries its own tap target; this covers a tap that lands on
