@@ -66,6 +66,9 @@ class SearchViewModel(
     private var suggestJob: Job? = null
     private var refineJob: Job? = null
 
+    /** The search whose results are on screen, so that a newer one can supersede it. */
+    private var searchJob: Job? = null
+
     /**
      * Takes what the reader has typed so far, and asks what they might mean.
      *
@@ -109,7 +112,11 @@ class SearchViewModel(
         nextPageUrl = null
         loadRefinements(phrase)
 
-        viewModelScope.launch {
+        // A search the reader has moved on from must not land on the one they are waiting for.
+        // Both write the whole state, so whichever finished last would be what they read, and the
+        // box would be naming a phrase the results are not for.
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
             uiState = SearchUiState(isSearching = true)
 
             repository.search(phrase, tab.value)
