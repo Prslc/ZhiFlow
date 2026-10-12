@@ -46,7 +46,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
@@ -56,7 +55,6 @@ import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
-import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
@@ -70,7 +68,6 @@ import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import org.koin.androidx.compose.koinViewModel
 
 private val AvatarSize = 56.dp

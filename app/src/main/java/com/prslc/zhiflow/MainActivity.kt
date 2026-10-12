@@ -5,15 +5,12 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +18,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -38,15 +34,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -56,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
@@ -74,7 +65,6 @@ import com.prslc.zhiflow.ui.navigation.MessageTab
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
 import com.prslc.zhiflow.ui.navigation.contentGraph
-import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feed.NegativeFeedbackSheet

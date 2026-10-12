@@ -1,6 +1,5 @@
 package com.prslc.zhiflow.data.mapper
 
-import androidx.compose.ui.text.AnnotatedString
 import com.prslc.zhiflow.data.dto.ChatMessageDto
 import com.prslc.zhiflow.data.dto.ChatPeerDto
 import com.prslc.zhiflow.data.model.notification.ZhihuMessage
