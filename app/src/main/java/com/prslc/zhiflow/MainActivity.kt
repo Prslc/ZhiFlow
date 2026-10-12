@@ -235,7 +235,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 .nestedScroll(bottomBar.connection),
         ) { pageIndex ->
             when (tabs[pageIndex]) {
-                HomeTab -> FeedScreen()
+                HomeTab -> FeedScreen(onItemLongClick = feedViewModel::openFeedback)
 
                 ProfileTab -> ProfileScreen(
                     onNavigateToHistory = navigator::navigateToReadHistory,

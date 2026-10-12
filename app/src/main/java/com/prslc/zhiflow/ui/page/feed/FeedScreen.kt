@@ -69,6 +69,7 @@ private val SearchBarInset = 4.dp
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FeedScreen(
+    onItemLongClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = koinViewModel(),
 ) {
@@ -86,11 +87,14 @@ fun FeedScreen(
     val navigator = LocalNavigator.current
 
     // Held across recompositions rather than written inline: the list is keyed on these two, and a
-    // lambda that changes identity takes every row down with it.
+    // lambda that changes identity takes every row down with it. The long press comes from the
+    // caller rather than being bound to this page's ViewModel here: a composable that takes a
+    // ViewModel may not hand anything derived from it down to another one — which is the screen
+    // that draws the sheet the long press opens.
     val stableOnItemClick: (String, String) -> Unit =
         remember(navigator) { navigator::navigateToContent }
     val stableOnItemLongClick: (String, String) -> Unit =
-        remember(viewModel) { viewModel::openFeedback }
+        remember(onItemLongClick) { onItemLongClick }
 
     val items = viewModel.uiState.items
     val isRefreshing = viewModel.uiState.isRefreshing
