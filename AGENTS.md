@@ -103,9 +103,9 @@ API Server
 
 ### Layer Conventions
 
-1. **`data/model/`** — Raw API response models, `@Serializable`, with `@SerialName` mapping. These mirror the Zhihu JSON structure exactly. Never expose these to UI.
+1. **`data/model/`** — Raw API response models, `@Serializable`, with `@SerialName` mapping. These mirror the Zhihu JSON structure exactly. A page reads them directly wherever the payload is already the shape it draws; the parser's own output carries them too (`RichTextElement.Image` holds a `ZhihuImage`), so this is vocabulary both layers share. What a model must not do is travel somewhere that has nothing to do with the payload it arrived in.
 
-2. **`data/dto/`** — Flat, UI-ready data classes (no nested serialization). These are what ViewModels expose and Composables consume. Marked `@Immutable` where applicable.
+2. **`data/dto/`** — Flat, UI-ready data classes (no nested serialization). For where the UI wants a shape the payload does not have: a list row, a search hit, an unread summary. Marked `@Immutable` where applicable.
 
 3. **`data/mapper/`** — Extension functions that convert model → dto. Named `toDto()`. All are `internal`.
 
@@ -158,7 +158,7 @@ var uiState by mutableStateOf(UiState())
 
 - **Optimistic updates**: Vote toggling updates state immediately, rolls back on API failure.
 - **Pagination**: ViewModels track `nextPageUrl`, expose `loadIfEmpty()`, `refresh()`, `loadMore()`.
-- **Load state**: `isLoading`, `isRefreshing`, `isNextLoading`, `globalError`, `loadMoreError` — each ViewModel defines its own UI State data class nested inside the ViewModel class.
+- **Load state**: `isLoading`, `isRefreshing`, `isNextLoading`, `globalError`, `loadMoreError` — each ViewModel defines its own UI State data class nested inside the ViewModel class. The page-level failure is `globalError`; a named sub-state (`LoadingState`, the comment sheet's three, the feedback sheet's) keeps its own `error`, which no paging field is there to be confused with.
 - **Chunked parsing**: `ContentViewModel` parses segments in chunks of 10 on `Dispatchers.Default`, emitting incremental state updates for progressive rendering. Results cached in an `LruCache<String, List<RichTextElement>>`.
 - **Pin rendering**: `PinViewModel` handles the thought page separately. When a pin has no `structured_content` (image-only pins), it falls back to `image_list` to build `RichTextElement.Image` elements.
 
@@ -210,10 +210,12 @@ notice of the two; over it, only a host can show the message whole.
 | `Dialog()` (`CollectionDialog`) | render `error.uiMessage` inside the dialog | it draws in its own window; the host's snackbar would be hidden behind it |
 | App-level non-Composable (`Navigator`) | Toast | no `SnackbarHostState` is reachable, and it outlives the current screen |
 | Reusable widget with no host parameter (`ImageLightbox`) | Toast inside the widget | cannot require every call site to supply a host |
-| Surface with no `Scaffold` (comment bottom sheet) | `ErrorView` / `LoadMoreErrorItem` inside the surface | there is no host to use |
+| Surface with no `Scaffold` (comment bottom sheet, the message tab) | `ErrorView` / `LoadMoreErrorItem` inside the surface; a Toast for a tap's own answer | there is no host to use |
 
 A surface with no host to reach has no fallback: what it says has to fit those two lines on its
-own, because nothing else can show it.
+own, because nothing else can show it. That is the one failure a Toast is for — a tap that came
+back failed, answered where it was made. A page that failed to load still draws its error inside
+itself, host or not.
 
 Do not pass a snackbar host down through a `CompositionLocal`: two of these rows have no host to reach at all.
 
