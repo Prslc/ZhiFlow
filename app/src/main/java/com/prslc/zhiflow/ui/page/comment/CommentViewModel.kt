@@ -17,6 +17,7 @@ import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.repository.CommentRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Immutable
@@ -117,6 +118,9 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     private var lastLoadedAnswerId: String? = null
     private var lastContentType: ContentType? = null
     private var lastSegmentId: String? = null
+    private var lastChildCommentId: String? = null
+    private var segmentJob: Job? = null
+    private var childJob: Job? = null
     private val pendingReactions = mutableSetOf<String>()
 
     fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
@@ -179,13 +183,17 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         if (!isNewOrRefresh && (segmentUiState.isLoading || !segmentUiState.hasMore)) return
 
         if (isNewOrRefresh) {
+            // A passage the reader has moved on from must not be answered into the one they are
+            // looking at now: both write the same state, so whichever finished last would be what
+            // they read -- another passage's comments, and its count beside them.
+            segmentJob?.cancel()
             lastSegmentId = segmentId
             segmentUiState = SegmentUiState(isLoading = true)
         } else {
             segmentUiState = segmentUiState.copy(isLoading = true, error = null)
         }
 
-        viewModelScope.launch {
+        segmentJob = viewModelScope.launch {
             repository.getSegmentComments(id, contentType, segmentId, segmentUiState.offset)
                 .onSuccess { response ->
                     val processed = response.data.toUiModels()
@@ -211,8 +219,17 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     fun loadChildComments(rootComment: CommentDto, forceRefresh: Boolean = false) {
-        viewModelScope.launch {
-            if (forceRefresh) {
+        // The pane's subject is the comment whose replies are open, and the two panes beside this
+        // one track theirs the same way. An answer to the comment the reader has left must not be
+        // written into the one they are reading now.
+        val isNewOrRefresh = forceRefresh || rootComment.id != lastChildCommentId
+        if (isNewOrRefresh) {
+            childJob?.cancel()
+            lastChildCommentId = rootComment.id
+        }
+
+        childJob = viewModelScope.launch {
+            if (isNewOrRefresh) {
                 val rootUiModel = CommentUiModel(rootComment)
                 childUiState = ChildCommentUiState(
                     rootComment = rootUiModel,
@@ -224,10 +241,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 )
             }
 
-            if (childUiState.isLoading && !forceRefresh) return@launch
-            if (!forceRefresh) childUiState = childUiState.copy(isLoading = true, error = null)
+            if (childUiState.isLoading && !isNewOrRefresh) return@launch
+            if (!isNewOrRefresh) childUiState = childUiState.copy(isLoading = true, error = null)
 
-            val currentOffset = if (forceRefresh) "" else childUiState.offset
+            val currentOffset = if (isNewOrRefresh) "" else childUiState.offset
             repository.getChildComments(rootComment.id, currentOffset).onSuccess { response ->
                 val processed = response.data.toUiModels()
                 val nextOffset =
@@ -235,7 +252,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 val hasNext = response.paging?.isEnd == false
 
                 childUiState = childUiState.copy(
-                    comments = if (forceRefresh) processed else childUiState.comments + processed,
+                    comments = if (isNewOrRefresh) processed else childUiState.comments + processed,
                     offset = nextOffset,
                     hasMore = hasNext,
                     isLoading = false,
