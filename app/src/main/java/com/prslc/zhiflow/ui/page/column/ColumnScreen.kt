@@ -1,13 +1,5 @@
 package com.prslc.zhiflow.ui.page.column
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ColumnDto
@@ -70,6 +61,7 @@ import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.FollowButton
+import com.prslc.zhiflow.ui.component.common.FollowToggle
 import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.StatItem
@@ -377,22 +369,14 @@ private fun AuthorFollowButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val toggleHaptic = rememberToggleHaptic()
-    AnimatedContent(
-        targetState = isFollowing,
+    FollowToggle(
+        isFollowing = isFollowing,
+        onClick = onClick,
         modifier = modifier,
-        transitionSpec = {
-            (fadeIn(tween(220)) + scaleIn(initialScale = 0.86f, animationSpec = tween(220)))
-                .togetherWith(fadeOut(tween(90)) + scaleOut(targetScale = 0.92f, animationSpec = tween(90)))
-                .using(SizeTransform(clip = false))
-        },
         label = "AuthorFollowButton",
-    ) { following ->
+    ) { following, onToggle ->
         Button(
-            onClick = {
-                toggleHaptic(!following)
-                onClick()
-            },
+            onClick = onToggle,
             modifier = Modifier
                 .height(22.dp)
                 .widthIn(min = 44.dp),

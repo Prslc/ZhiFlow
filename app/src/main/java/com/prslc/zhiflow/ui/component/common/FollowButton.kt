@@ -31,11 +31,51 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 
 /**
- * A follow toggle. `compact` sizes it down by capping the height from outside: M3's Button enforces
- * a 58x40dp minimum on its inner content row, and an outer `height()` is the only way under that.
+ * A follow toggle's behaviour: the state it draws, the tap that flips it, the haptic that tap
+ * plays, and the morph between the two states.
  *
- * The button draws [isFollowing] and nothing more; flipping it is the caller's, which is why the
- * tap arrives as a plain callback.
+ * The look is the caller's — [content] is handed the state to draw and the tap to call. Nothing
+ * here holds the state: [isFollowing] is the caller's and this only draws it, which is why the tap
+ * arrives as a plain callback.
+ *
+ * @param isFollowing Whether the reader follows the author. The toggle shows this state, it does
+ *   not hold it.
+ * @param onClick Called when the button is pressed, with the haptic for the new state already
+ *   played.
+ * @param modifier Applied to the animated content, so it survives the swap between the two states.
+ * @param label Names the animation, so a trace of it says which toggle this was.
+ * @param content What one state is drawn as: the state, and the tap that flips it.
+ */
+@Composable
+fun FollowToggle(
+    isFollowing: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "FollowToggle",
+    content: @Composable (following: Boolean, onToggle: () -> Unit) -> Unit,
+) {
+    val toggleHaptic = rememberToggleHaptic()
+    AnimatedContent(
+        targetState = isFollowing,
+        modifier = modifier,
+        transitionSpec = {
+            (fadeIn(tween(220)) + scaleIn(initialScale = 0.86f, animationSpec = tween(220)))
+                .togetherWith(fadeOut(tween(90)) + scaleOut(targetScale = 0.92f, animationSpec = tween(90)))
+                .using(SizeTransform(clip = false))
+        },
+        label = label,
+    ) { following ->
+        content(following) {
+            toggleHaptic(!following)
+            onClick()
+        }
+    }
+}
+
+/**
+ * A follow toggle as a page draws it. `compact` sizes it down by capping the height from outside:
+ * M3's Button enforces a 58x40dp minimum on its inner content row, and an outer `height()` is the
+ * only way under that.
  *
  * @param isFollowing Whether the reader follows the author. The button shows this state, it does
  *   not hold it.
@@ -63,21 +103,8 @@ fun FollowButton(
     }
     val iconSize = if (compact) 14.dp else 18.dp
     val buttonModifier = if (compact) Modifier.height(30.dp) else Modifier
-    val toggleHaptic = rememberToggleHaptic()
-    AnimatedContent(
-        targetState = isFollowing,
-        modifier = modifier,
-        transitionSpec = {
-            (fadeIn(tween(220)) + scaleIn(initialScale = 0.86f, animationSpec = tween(220)))
-                .togetherWith(fadeOut(tween(90)) + scaleOut(targetScale = 0.92f, animationSpec = tween(90)))
-                .using(SizeTransform(clip = false))
-        },
-        label = "FollowButton",
-    ) { following ->
-        val onToggle = {
-            toggleHaptic(!following)
-            onClick()
-        }
+
+    FollowToggle(isFollowing, onClick, modifier, label = "FollowButton") { following, onToggle ->
         if (following) {
             FilledTonalButton(
                 onClick = onToggle,
