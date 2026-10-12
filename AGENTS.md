@@ -247,13 +247,60 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **Previews**: a composable that draws from plain data carries a preview at the foot of the file that declares it — the same file, because most of them are `private` and one in another file could not call them. Name it `<Name>Preview` and annotate it `@AppPreviews`, the composed annotation that draws it twice, once per mode. Draw it inside `PreviewSurface`, which supplies what a bare `@Preview` lacks: the theme with dynamic color off, a `LocalNavigator` (which has no default, by design), an isolated Koin instance for the widgets that resolve the lightbox themselves, and a full-width background. Sample data is one set in `ui/preview/Samples.kt`, English like the rest of the code, referred to by nothing in the app.
   A screen is not previewed. It takes a `viewModel: … = koinViewModel()`, and hoisting its state into a content composable so that it could be is the forwarding `ComposeViewModelForwarding` forbids. A sheet built on `CustomBottomSheet` is not previewed either — its predictive-back handler needs a back dispatcher owner a preview has none of, and throws without one; preview the rows inside it instead. Nor is a full-screen overlay like `ImageLightbox`, which draws into a dialog window of its own: a preview leaves that canvas empty, and the picture the surface exists to show cannot load there in any case. A component whose whole content is a fetched bitmap is only half previewed for the same reason — a formula draws no picture and, `FormulaImage` carrying neither a placeholder nor an error drawable, no box either; what its preview shows is what that box does to the text around it.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
-- **Tests**: unit tests live in `app/src/test/`, in the package of what they test, and run with `./gradlew test`. They are plain JVM tests unless the subject reaches the framework, which adds `@RunWith(RobolectricTestRunner::class)` and `@Config(application = Application::class)` — without that second one Robolectric builds the app's own `Application`, whose `onCreate` starts Koin and goes out for a session. What earns a test here is logic that fails *silently*: a shape the parser gets wrong, an offset it loses, the funnel reporting a rejection as a success, a value read out of a captured response. Drawing is not tested this way: the render lab, the previews and a device cover it, and more cheaply.
 - **The prose is American English**: comments, KDoc, user-facing strings and this file — `color`, `behavior`, `canceled`, `center`, `gray`, `license`, `-ize` over `-ise`. The IDE checks it in the same pass as the code (Grazie, `Language: English (USA)`), so a British spelling comes back as a finding on the next inspection.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
 - **Content images**: An illustration in a body and a list's thumbnails read `LocalDataSaver`, which is what lets the reader's choice reach them. Avatars, covers, formulas and the lightbox do not — those are not what a reader is paying traffic for, and the lightbox exists to show an image that was asked for.
 - **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore`, read fresh on every request so a write reaches the next one with nothing having to be told. It also publishes the session as a `StateFlow`, for what draws the session rather than requests it — a screen has no request of its own that would come back and tell it. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
 - **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
 - **A ViewModel action is not navigation**: a composable that takes a `viewModel:` parameter must not hand anything *derived from it* to another composable — `remember(viewModel) { viewModel::openFeedback }` passed into a list row is `ComposeViewModelForwarding`, an error that fails `./gradlew lint`. Such a callback arrives as a parameter instead, from a caller that holds the ViewModel as a local (`MainScreen`'s `val feedViewModel = koinViewModel()`), which is not a forwarding. The bullets above still stand: a callback carrying no ViewModel belongs inside the screen.
+
+## Tests
+
+Unit tests live in `app/src/test/`, in the package of what they test, and run with `./gradlew test`.
+They are plain JVM tests unless the subject reaches the framework — the parser's `HtmlText` does, and
+so does the search page, whose mapper builds a row's title the same way; the funnel's does not, since
+the `Json` it decodes with is a plain property of a companion.
+
+That costs two annotations, and the second is the one easy to leave out:
+
+```kotlin
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
+```
+
+Robolectric otherwise builds the app's own `Application`, whose `onCreate` starts Koin and goes out
+for a session: the first test in the class passes and every one after it fails on
+`KoinApplicationAlreadyStartedException`. `robolectric.properties` holds the SDK level, which is not
+the app's; that file says why.
+
+**Time.** A ViewModel's scope needs a main dispatcher, and there is none outside an app:
+`Dispatchers.setMain(Dispatchers.Default)`. Virtual time cannot be used on any path that ends in
+`withContext(Dispatchers.IO)` — a test clock that has advanced past a coroutine suspended on another
+dispatcher has not waited for it, and the assertion is then about a coroutine that has not finished.
+Wait for the outcome the reader would see, and fail on the timeout rather than asserting into the gap.
+
+**Seams.** Nothing in the app takes an interface, and a test does not add one to change that. What a
+test substitutes is the `OkHttpClient`, which `ApiClient` takes as a parameter:
+
+| The subject | What is substituted | Why |
+|---|---|---|
+| The funnel | `MockWebServer`, over a real socket | the status, the transport failure and the decode *are* the subject |
+| Anything above it | an interceptor that fabricates the response | the test decides what a given request gets, and when |
+| The session | nothing — `SessionGate` is already an interface | a no-op is three lines |
+
+**What is asserted.** An `ApiException` is a plain class, so a test says `is
+ApiException.NotFoundException`, never `assertEquals`. What is asserted is the shape of a thing rather
+than a transcript of it: a run of tokens is checked for being in order and never overlapping, not for
+being *these* tokens. A transcript passes until the library it came from moves, fails then for no
+reason, and names no behaviour when it does. A fixture says the same from the other side — it carries
+exactly the fields the app reads, so a test that passes is saying the names line up rather than that
+the body was long enough to be forgiving.
+
+**What earns one** is logic that fails *silently*: an offset the parser loses, a state two writers
+both overwrite, a status mapped to the wrong failure. What does not: drawing, which the render lab,
+the previews and a device cover more cheaply; a data class or a field-by-field mapper, which is the
+compiler's work; and a heuristic that follows the captures, which is meant to change — a test would
+turn a working guess into a contract.
 
 ## Comments
 
