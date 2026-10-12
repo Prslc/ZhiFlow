@@ -24,10 +24,8 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -47,6 +45,7 @@ import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.ui.component.common.CoverStatusBarIconEffect
 import com.prslc.zhiflow.ui.component.common.ErrorView
+import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeader
 import com.prslc.zhiflow.ui.component.common.ProfileCoverHeight
 import com.prslc.zhiflow.ui.component.common.ProfileStat
@@ -62,7 +61,6 @@ private val GroupHairline = 1.dp
 /** The profile an anonymous page draws: no cover, no avatar, and the header's own defaults. */
 private val GuestUser = ZhihuUser()
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProfileScreen(
     onNavigateToHistory: () -> Unit,
@@ -224,7 +222,7 @@ fun ProfileScreen(
                 )
             }
         } else if (uiState.isLoading) {
-            LoadingIndicator(modifier = Modifier.align(Alignment.Center))
+            LoadingView(modifier = Modifier.align(Alignment.Center))
         } else {
             ErrorView(
                 message = uiState.globalError?.uiMessage ?: stringResource(R.string.error_unknown),
