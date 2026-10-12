@@ -22,13 +22,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.ContentParser
@@ -37,9 +40,26 @@ import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
 import kotlin.math.roundToInt
 
 /**
+ * The font scales the knob offers, as percentages. Bounded, because a page is worth sweeping only
+ * near the sizes a reader can pick, and because the seed below has to land inside it.
+ */
+private val FONT_SCALE_RANGE = 80..160
+
+/**
  * A body built from the parameters on the page rather than fetched, so a case can be conjured
  * instead of hunted for. Everything here goes through the same parse and the same composables a
  * real body does.
+ *
+ * The font scale is one of those parameters. It is applied around the cases rather than to them,
+ * as the density they are composed under, so it reaches every length the body states in sp -- the
+ * text, and with it the line a formula has to fit in. A formula's picture is in dp and does not
+ * follow, which is the whole reason the axis is worth a knob. The knob starts at the device's own
+ * scale, so the page opens on what the app actually renders.
+ *
+ * It is a Compose density and nothing more: the platform's own `scaledDensity` is untouched, so a
+ * case that reads `Resources` rather than a `Density` -- an Android view, a `TypedValue`, a WebView
+ * -- is drawn at the device's font size whatever this says. Everything the cases draw today goes
+ * through Compose, which is what makes the control honest here and only here.
  *
  * What it cannot show is anything the server decides: which segments an answer is made of, and what
  * the API says a formula's size is.
@@ -52,7 +72,17 @@ fun RenderLabScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var params by remember { mutableStateOf(LabParams()) }
+    // Seeded once, from the device, because the knob means an absolute scale: starting every
+    // device at 100 would open the page on a size this reader is not using. The read happens out
+    // here because a `remember` calculation is not a composable scope.
+    val deviceFontScale = LocalDensity.current.fontScale
+    var params by remember {
+        mutableStateOf(
+            LabParams(
+                fontScale = (deviceFontScale * 100f).roundToInt().coerceIn(FONT_SCALE_RANGE),
+            ),
+        )
+    }
     val cases = remember(params) { labCases(params) }
 
     Scaffold(
@@ -122,6 +152,13 @@ fun RenderLabScreen(
                 range = 1..3,
                 onChange = { params = params.copy(listDepth = it) },
             )
+            Knob(
+                label = R.string.lab_knob_font_scale,
+                value = params.fontScale,
+                valueFormat = R.string.lab_value_percent,
+                range = FONT_SCALE_RANGE,
+                onChange = { params = params.copy(fontScale = it) },
+            )
 
             HorizontalDivider(
                 thickness = 0.5.dp,
@@ -129,7 +166,18 @@ fun RenderLabScreen(
                 modifier = Modifier.padding(top = 8.dp),
             )
 
-            cases.forEach { case -> LabCaseBlock(case) }
+            // The knobs stay outside this, on the device's own font scale: they are the instrument,
+            // and one that resizes with what it measures is harder to read. The density is the
+            // device's throughout -- only the scale moves, so a case is the same layout at another
+            // reader's font size rather than a different layout.
+            CompositionLocalProvider(
+                LocalDensity provides Density(
+                    density = LocalDensity.current.density,
+                    fontScale = params.fontScale / 100f,
+                ),
+            ) {
+                cases.forEach { case -> LabCaseBlock(case) }
+            }
         }
     }
 }

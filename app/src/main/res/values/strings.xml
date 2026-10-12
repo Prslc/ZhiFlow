@@ -280,8 +280,10 @@
     <string name="lab_knob_table_cols">Table columns</string>
     <string name="lab_knob_cell_chars">Cell characters</string>
     <string name="lab_knob_list_depth">List level</string>
+    <string name="lab_knob_font_scale">Font scale</string>
     <string name="lab_value_dp">%1$d dp</string>
     <string name="lab_value_count">%1$d</string>
+    <string name="lab_value_percent">%1$d%%</string>
     <string name="lab_note_formula">Formula %1$d dp</string>
     <string name="lab_note_formula_line">Formula %1$d dp, on line %2$d</string>
     <string name="lab_note_formula_width">Formula %1$d dp, whose own width is past the column</string>

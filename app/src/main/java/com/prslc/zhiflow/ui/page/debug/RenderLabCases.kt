@@ -109,6 +109,13 @@ private val OVERWIDE_FORMULA = LabFormula(
  * @param tableCols How many columns the table case has.
  * @param cellChars How many characters each body cell of the table holds.
  * @param listDepth The indent level both lists are drawn at.
+ * @param fontScale The reader's font size, as a percentage of the standard one -- 100 is what the
+ *   platform calls unscaled, not what the device happens to be set to. The page seeds it from the
+ *   device's own, so the first render is what the app really shows rather than a size nobody is
+ *   using. Not one of the quantities the cases are built from: it is the setting the page is drawn
+ *   under. It is worth a knob because the two things it moves are in different units -- the text is
+ *   in sp and follows it, a formula's picture is in dp and does not -- so nothing about one can be
+ *   read off the other.
  */
 @Immutable
 data class LabParams(
@@ -118,6 +125,7 @@ data class LabParams(
     val tableCols: Int = 2,
     val cellChars: Int = 8,
     val listDepth: Int = 1,
+    val fontScale: Int = 100,
 )
 
 /**

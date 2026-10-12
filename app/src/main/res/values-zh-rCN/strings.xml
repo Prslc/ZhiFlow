@@ -260,8 +260,10 @@
     <string name="lab_knob_table_cols">表格列数</string>
     <string name="lab_knob_cell_chars">单元格字数</string>
     <string name="lab_knob_list_depth">列表层级</string>
+    <string name="lab_knob_font_scale">字体缩放</string>
     <string name="lab_value_dp">%1$d dp</string>
     <string name="lab_value_count">%1$d</string>
+    <string name="lab_value_percent">%1$d%%</string>
     <string name="lab_note_formula">公式 %1$d dp</string>
     <string name="lab_note_formula_line">公式 %1$d dp · 落在第 %2$d 行</string>
     <string name="lab_note_formula_width">公式 %1$d dp · 该高度下自然宽超出正文列</string>
