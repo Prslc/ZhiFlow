@@ -8,6 +8,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -137,6 +138,13 @@ tasks.withType<PackageAndroidArtifact> {
 
 dependencies {
     lintChecks(libs.compose.lint)
+
+    // The profile `:baseline-profile` generates, which the release build carries.
+    baselineProfile(project(":baseline-profile"))
+
+    // Installs the profile on the device -- Play only does that for its own installs. Declared
+    // rather than left to the copy Compose brings, since this depends on it existing.
+    implementation(libs.androidx.profileinstaller)
 
     implementation(libs.androidx.core.ktx)
 

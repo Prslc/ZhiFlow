@@ -50,6 +50,7 @@ Key Gradle tasks:
 ./gradlew assembleRelease      # build release APK (R8 + shrink)
 ./gradlew lint                 # run lint checks (includes compose-lint)
 ./gradlew test                 # run unit tests
+./gradlew :app:generateBaselineProfile   # record the startup profile; needs a connected device, API 33+, no root
 ```
 
 **Important**: Do not run `./gradlew` build commands. The user compiles manually and reports results.
@@ -101,6 +102,7 @@ ZhiFlow/
 │                   ├── people/                 # Profile page; moment/ is its second tab
 │                   ├── profile/                # Profile page, plus the settings, about and license screens
 │                   └── history/  collection/  login/  debug/
+└── baseline-profile/                           # A com.android.test module that runs the app to record its startup profile
 ```
 
 ## Architecture Patterns
