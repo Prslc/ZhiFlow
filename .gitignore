@@ -30,3 +30,8 @@ keystore.properties
 
 # Claude Code (MCP servers, with paths local to this machine)
 .mcp.json
+
+# Working notes, on purpose: `AGENTS.md` carries what a contributor must follow, and this carries
+# what this machine and this protocol did to us -- measurements, traps, and findings that are not
+# yet rules. Keeping them apart stops either from growing into the other.
+NOTES.md
