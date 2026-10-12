@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model.notification
 
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -7,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ZhihuMessagesResponse(
     val data: List<ZhihuMessage> = emptyList(),
-    val paging: ZhihuMessagePaging = ZhihuMessagePaging(),
+    val paging: Paging = Paging(),
 )
 
 /** One message in a conversation. [contentType] 0 is plain text. */
@@ -35,11 +36,4 @@ data class ZhihuMessageUser(
     @SerialName("avatar_url") val avatarUrl: String = "",
     @SerialName("message_user_type") val messageUserType: String = "",
     @SerialName("is_forbidden") val isForbidden: Boolean = false,
-)
-
-@Serializable
-data class ZhihuMessagePaging(
-    val previous: String = "",
-    val next: String = "",
-    @SerialName("is_end") val isEnd: Boolean = false,
 )

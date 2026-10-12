@@ -1,24 +1,15 @@
 package com.prslc.zhiflow.data.model.user
 
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Immutable
 @Serializable
 data class ReadHistoryResponse(
-    val paging: ReadHistoryPaging = ReadHistoryPaging(),
+    val paging: Paging = Paging(),
     val data: List<ReadHistoryCard> = emptyList(),
-)
-
-@Immutable
-@Serializable
-data class ReadHistoryPaging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    @SerialName("is_start") val isStart: Boolean = false,
-    val next: String? = null,
-    val previous: String? = null,
-    val totals: Int = 0,
 )
 
 @Immutable

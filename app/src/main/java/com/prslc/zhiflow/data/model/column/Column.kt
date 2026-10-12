@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model.column
 
+import com.prslc.zhiflow.data.model.Paging
 import com.prslc.zhiflow.data.model.user.ZhihuPerson
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -38,13 +39,7 @@ data class ZhihuColumn(
 @Serializable
 data class ZhihuColumnItems(
     val data: List<ZhihuColumnItem> = emptyList(),
-    val paging: ZhihuColumnPaging = ZhihuColumnPaging(),
-)
-
-@Serializable
-data class ZhihuColumnPaging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    val totals: Int = 0,
+    val paging: Paging = Paging(),
 )
 
 /**

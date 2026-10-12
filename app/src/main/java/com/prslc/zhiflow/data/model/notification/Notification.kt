@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model.notification
 
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,7 +11,7 @@ data class ZhihuMessagePage(
     val head: List<ZhihuNotificationCard> = emptyList(),
     @SerialName("column_head") val columnHead: List<ZhihuNotificationCard> = emptyList(),
     val unread: ZhihuUnreadSummary = ZhihuUnreadSummary(),
-    val paging: ZhihuNotificationPaging = ZhihuNotificationPaging(),
+    val paging: Paging = Paging(),
 )
 
 /** A page of one kind of notification. Its day separators arrive in [data] among the cards. */
@@ -18,7 +19,7 @@ data class ZhihuMessagePage(
 data class ZhihuNotificationTimeline(
     val data: List<ZhihuNotificationCard> = emptyList(),
     val head: List<ZhihuNotificationCard> = emptyList(),
-    val paging: ZhihuNotificationPaging = ZhihuNotificationPaging(),
+    val paging: Paging = Paging(),
     @SerialName("has_read") val hasRead: Boolean = false,
     val count: Int = 0,
 )
@@ -95,14 +96,6 @@ data class ZhihuNotificationTargetSource(
 data class ZhihuNotificationEmpty(
     val text: String = "",
     val number: Int = 0,
-)
-
-@Serializable
-data class ZhihuNotificationPaging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    @SerialName("is_start") val isStart: Boolean = false,
-    val next: String = "",
-    val previous: String = "",
 )
 
 /**

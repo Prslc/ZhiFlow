@@ -1,12 +1,13 @@
 package com.prslc.zhiflow.data.model.search
 
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ZhihuSearchResponse(
     val data: List<ZhihuSearchCard> = emptyList(),
-    val paging: ZhihuSearchPaging = ZhihuSearchPaging(),
+    val paging: Paging = Paging(),
     @SerialName("search_action_info") val searchActionInfo: ZhihuSearchActionInfo =
         ZhihuSearchActionInfo(),
 )
@@ -28,12 +29,6 @@ data class ZhihuSearchCard(
     @SerialName("object") val content: ZhihuSearchContent? = null,
     @SerialName("query_list") val queryList: List<ZhihuRelevantQuery> = emptyList(),
     @SerialName("is_single_column") val isSingleColumn: Boolean = false,
-)
-
-@Serializable
-data class ZhihuSearchPaging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String = "",
 )
 
 @Serializable

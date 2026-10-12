@@ -44,7 +44,7 @@ class NotificationRepository(private val service: NotificationService) {
                     categories = page.toCategories(),
                     threads = page.toThreads(),
                     unread = page.unread.toDto(),
-                    nextPageUrl = page.paging.next.takeIf { it.isNotBlank() },
+                    nextPageUrl = page.paging.next?.takeIf { it.isNotBlank() },
                 )
             }
 
@@ -62,7 +62,7 @@ class NotificationRepository(private val service: NotificationService) {
         .mapOffMain { timeline ->
             NotificationListResult(
                 items = timeline.toItems(),
-                nextPageUrl = timeline.paging.next.takeIf { it.isNotBlank() },
+                nextPageUrl = timeline.paging.next?.takeIf { it.isNotBlank() },
             )
         }
 

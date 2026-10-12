@@ -54,7 +54,7 @@ class UserRepository(
         return response.mapOffMain { body ->
             PeoplePageResult(
                 people = body.data.map { it.toPerson() },
-                nextPageUrl = body.paging.next.takeIf { it.isNotBlank() },
+                nextPageUrl = body.paging.next?.takeIf { it.isNotBlank() },
                 // A page holding nobody ends the list whatever the flag says: the reader's list is
                 // advanced by cursor, and one that answered nothing would have no next cursor to
                 // advance to.

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.data.model.user
 
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,7 +13,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ZhihuPeoplePage(
     val data: List<ZhihuPerson> = emptyList(),
-    val paging: ZhihuPeoplePaging = ZhihuPeoplePaging(),
+    val paging: Paging = Paging(),
 )
 
 /** One of them, read for the name, the line under it and the picture beside it. */
@@ -24,10 +25,4 @@ data class ZhihuPerson(
     val headline: String = "",
     @SerialName("avatar_url") val avatarUrl: String = "",
     @SerialName("is_following") val isFollowing: Boolean = false,
-)
-
-@Serializable
-data class ZhihuPeoplePaging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String = "",
 )

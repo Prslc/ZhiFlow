@@ -1,27 +1,21 @@
 package com.prslc.zhiflow.data.model.moment
 
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 interface MomentsPage<out T> {
     val data: List<T>
-    val paging: MomentsPaging
+    val paging: Paging
 }
 
 @Immutable
 @Serializable
 data class MomentsResponse(
     override val data: List<ComponentCard> = emptyList(),
-    override val paging: MomentsPaging = MomentsPaging(),
+    override val paging: Paging = Paging(),
 ) : MomentsPage<ComponentCard>
-
-@Immutable
-@Serializable
-data class MomentsPaging(
-    @SerialName("is_end") val isEnd: Boolean = false,
-    val next: String? = null,
-)
 
 @Immutable
 @Serializable

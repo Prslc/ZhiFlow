@@ -33,7 +33,7 @@ class MessageRepository(private val service: MessageService) {
         .mapOffMain { body ->
             ConversationResult(
                 messages = body.toMessages(peerId),
-                nextPageUrl = body.paging.next.takeIf { it.isNotBlank() },
+                nextPageUrl = body.paging.next?.takeIf { it.isNotBlank() },
                 isEnd = body.paging.isEnd,
             )
         }

@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.data.model.moment
 
 import androidx.compose.runtime.Immutable
+import com.prslc.zhiflow.data.model.Paging
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,7 +19,7 @@ import kotlinx.serialization.json.JsonPrimitive
 @Serializable
 data class MomentsFeedResponse(
     override val data: List<MomentsFeedItem> = emptyList(),
-    override val paging: MomentsPaging = MomentsPaging(),
+    override val paging: Paging = Paging(),
 ) : MomentsPage<MomentsFeedItem>
 
 @Immutable

@@ -38,7 +38,7 @@ class SearchRepository(private val service: SearchService) {
         .mapOffMain { response ->
             SearchResult(
                 items = response.toItems(),
-                nextPageUrl = response.paging.next.takeIf { it.isNotBlank() },
+                nextPageUrl = response.paging.next?.takeIf { it.isNotBlank() },
                 isEnd = response.paging.isEnd,
             )
         }
