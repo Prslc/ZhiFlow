@@ -71,8 +71,8 @@ fun BottomBar(
     commentCount: Int?,
     onVoteClick: (String) -> Unit,
     onStarClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onCommentClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val upvoteBgColor by animateColorAsState(
         targetValue = if (isUpvoted) {

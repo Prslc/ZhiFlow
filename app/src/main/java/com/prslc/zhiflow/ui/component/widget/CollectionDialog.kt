@@ -219,8 +219,8 @@ fun CollectionItem(
     isPublic: Boolean,
     isDefault: Boolean,
     isSelected: Boolean,
-    modifier: Modifier = Modifier,
     onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier

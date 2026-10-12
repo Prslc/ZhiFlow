@@ -27,8 +27,8 @@ import com.prslc.zhiflow.R
 @Composable
 fun LoadMoreErrorItem(
     message: String,
-    modifier: Modifier = Modifier,
     onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
