@@ -12,13 +12,13 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
- * How many articles one page of a column's list asks for. The server defaults to the same, and
+ * How many entries one page of a column's list asks for. The server defaults to the same, and
  * says the page size back in its cursor.
  */
 private const val PAGE_SIZE = "10"
 
 /**
- * Service for a column and the articles it holds.
+ * Service for a column and the content it holds.
  *
  * The three endpoints behind this are spread over two hosts and two prefixes, and the follow action
  * is a `PUT` where the same idea on a person is a `POST` — none of which follows from the others.
@@ -39,14 +39,15 @@ class ColumnService(private val api: ApiClient) {
     }
 
     /**
-     * Fetches a page of a column's articles, newest first.
+     * Fetches a page of a column's list, in the order the server keeps it — not by time, and with
+     * the answers mixed in among the articles.
      *
      * The site host serves these, not the API host, and its paging is an explicit `limit`/`offset`
      * the caller advances rather than a cursor followed — the cursor it answers with names this
      * host over plain http.
      *
      * @param urlToken The column's token.
-     * @param offset How many articles to skip, which is the pages already read.
+     * @param offset How many entries to skip, which is the pages already read.
      * @return A [Result] holding the page, or the failure that kept it away.
      */
     suspend fun items(urlToken: String, offset: Int): Result<ZhihuColumnItems> = api.safeApiCall {

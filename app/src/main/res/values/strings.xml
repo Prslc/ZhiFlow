@@ -234,9 +234,11 @@
     <string name="people_list_following">Following</string>
     <string name="people_list_followers">Followers</string>
     <string name="people_list_empty">Nobody here</string>
-    <string name="column_stat_followers">Followers</string>
-    <string name="column_stat_articles">Articles</string>
-    <string name="column_stat_voteup">Likes</string>
+
+    <!-- column -->
+    <string name="column_stat_views">Views</string>
+    <string name="column_stat_voteup">Agree</string>
+    <string name="column_stat_followers">Subscribers</string>
     <string name="column_empty">This column has published nothing yet</string>
     <string name="column_action_subscribe">Subscribe</string>
     <string name="column_action_subscribed">Subscribed</string>

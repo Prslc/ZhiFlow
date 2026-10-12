@@ -65,10 +65,10 @@ private val AvatarSize = 56.dp
 private val Gutter = 20.dp
 
 /**
- * One column: what it is, and the articles it holds.
+ * One column: what it is, and the content it holds.
  *
- * The header carries the column's own counts and the follow toggle; under it the articles read as
- * the feed's rows do, and each opens the article itself.
+ * The header carries the column's own counts and the follow toggle; under it the entries read as
+ * the feed's rows do, and each opens the article or the answer it names.
  *
  * @param urlToken The column to open.
  * @param onBack Called by the back arrow.
@@ -168,9 +168,9 @@ fun ColumnScreen(
                         }
 
                         items(uiState.items, key = { it.id }) { item ->
-                            ColumnArticleRow(
+                            ColumnItemRow(
                                 item = item,
-                                onClick = { navigator.navigateToContent(item.id, "article") },
+                                onClick = { navigator.navigateToContent(item.id, item.type) },
                             )
                             HorizontalDivider(
                                 modifier = Modifier.padding(horizontal = Gutter),
@@ -207,7 +207,7 @@ fun ColumnScreen(
 }
 
 /**
- * What a column is, above its articles: its picture, its name, the line it introduces itself with,
+ * What a column is, above its list: its picture, its name, the line it introduces itself with,
  * its author and its counts, with the follow toggle.
  */
 @Composable
@@ -272,9 +272,9 @@ private fun ColumnHeader(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            StatItem(stringResource(R.string.column_stat_followers), column.followers)
-            StatItem(stringResource(R.string.column_stat_articles), column.articlesCount)
+            StatItem(stringResource(R.string.column_stat_views), column.viewsCount)
             StatItem(stringResource(R.string.column_stat_voteup), column.voteupCount)
+            StatItem(stringResource(R.string.column_stat_followers), column.followers)
         }
 
         if (column.author.name.isNotBlank()) {
@@ -310,9 +310,9 @@ private fun ColumnHeader(
     }
 }
 
-/** One article of the column, drawn as the feed's rows are: title, excerpt, counts, and a cover. */
+/** One entry of the column, drawn as the feed's rows are: title, excerpt, counts, and a cover. */
 @Composable
-private fun ColumnArticleRow(
+private fun ColumnItemRow(
     item: ColumnItemDto,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

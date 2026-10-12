@@ -6,7 +6,7 @@ import com.prslc.zhiflow.data.dto.ColumnItemDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.remote.service.ColumnService
 
-/** A page of a column's articles, and whether it was the last of them. */
+/** A page of a column's list, and whether it was the last of them. */
 data class ColumnItemsResult(
     val items: List<ColumnItemDto>,
     val isEnd: Boolean,
@@ -26,11 +26,11 @@ class ColumnRepository(
         service.detail(urlToken).mapOffMain { it.toDto() }
 
     /**
-     * Fetches a page of a column's articles.
+     * Fetches a page of a column's list.
      *
      * @param urlToken The column's token.
-     * @param offset How many articles to skip, which is the pages already read.
-     * @return A [Result] holding the page — the end of the column is one with no articles in it —
+     * @param offset How many entries to skip, which is the pages already read.
+     * @return A [Result] holding the page — the end of the column is one with no entries in it —
      *   or the failure that kept it away.
      */
     suspend fun items(urlToken: String, offset: Int): Result<ColumnItemsResult> =

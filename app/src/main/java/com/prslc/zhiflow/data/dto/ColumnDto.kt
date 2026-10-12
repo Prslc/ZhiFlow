@@ -11,12 +11,12 @@ data class ColumnDto(
     val imageUrl: String?,
     val author: PersonDto,
     val followers: Int,
-    val articlesCount: Int,
+    val viewsCount: Int,
     val voteupCount: Int,
     val isFollowing: Boolean,
 )
 
-/** One row of a column's article list. */
+/** One row of a column's list. */
 @Immutable
 data class ColumnItemDto(
     val id: String,
@@ -27,4 +27,5 @@ data class ColumnItemDto(
     val imageUrl: String?,
     val voteupCount: Int,
     val commentCount: Int,
+    val type: String,
 )

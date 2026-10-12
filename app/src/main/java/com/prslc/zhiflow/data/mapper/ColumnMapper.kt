@@ -13,18 +13,19 @@ internal fun ZhihuColumn.toDto(): ColumnDto = ColumnDto(
     imageUrl = imageUrl.takeIf { it.isNotBlank() },
     author = author.toPerson(),
     followers = followers,
-    articlesCount = articlesCount,
+    viewsCount = viewsCount,
     voteupCount = voteupCount,
     isFollowing = isFollowing,
 )
 
-/** @return The article as one row of the column's list. */
+/** @return The entry as one row of the column's list. */
 internal fun ZhihuColumnItem.toDto(): ColumnItemDto = ColumnItemDto(
     id = id,
-    title = title,
+    title = title.ifBlank { question?.title.orEmpty() },
     excerpt = excerpt,
-    created = created,
-    imageUrl = imageUrl.takeIf { it.isNotBlank() },
+    created = created.takeIf { it > 0 } ?: createdTime,
+    imageUrl = thumbnail.takeIf { it.isNotBlank() } ?: imageUrl.takeIf { it.isNotBlank() },
     voteupCount = voteupCount,
     commentCount = commentCount,
+    type = type,
 )

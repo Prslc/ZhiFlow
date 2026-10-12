@@ -18,7 +18,7 @@ import java.io.IOException
 const val BASE_URL = "https://api.zhihu.com"
 
 /**
- * The site's own host, which serves a few things the API host does not — a column's articles among
+ * The site's own host, which serves a few things the API host does not — a column's items among
  * them, under an `/api/v4` prefix the API host's paths do not carry.
  */
 const val WEB_URL = "https://www.zhihu.com"
