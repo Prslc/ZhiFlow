@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 /**
  * A column: what its own page is headed with.
  *
- * A column carries two identifiers, a numeric [id] and the [urlToken] every route into it uses;
+ * A column carries two identifiers, a numeric `id` and the [urlToken] every route into it uses;
  * only the token is read here.
  *
  * `followers` is the count to draw. The response also carries a `follower_count`, which is a
@@ -45,7 +45,7 @@ data class ZhihuColumnItems(
 /**
  * The question an answer belongs to; the row is headed with its title.
  *
- * Its own type rather than [ZhihuQuestion], whose `id` and `title` are mandatory: a question
+ * Its own type rather than `ZhihuQuestion`, whose `id` and `title` are mandatory: a question
  * object missing either would fail the whole page's decoding.
  */
 @Serializable
