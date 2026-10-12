@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.core.utils.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import com.prslc.zhiflow.core.utils.imageUrlAt
@@ -16,5 +17,6 @@ import com.prslc.zhiflow.core.utils.imageUrlAt
  * @return The url at that size, or null where there was none to begin with.
  */
 @Composable
+@ReadOnlyComposable
 internal fun sizedImageUrl(url: String?, size: Dp): String? =
     url?.let { imageUrlAt(it, with(LocalDensity.current) { size.roundToPx() }) }

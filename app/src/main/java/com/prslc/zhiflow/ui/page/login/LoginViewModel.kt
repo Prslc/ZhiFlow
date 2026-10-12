@@ -12,6 +12,7 @@ import com.prslc.zhiflow.data.repository.AuthRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
@@ -87,7 +88,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         cooldownJob = viewModelScope.launch {
             for (remaining in RESEND_COOLDOWN_SECONDS downTo 1) {
                 resendIn = remaining
-                delay(1_000)
+                delay(1.seconds)
             }
             resendIn = 0
         }

@@ -98,7 +98,7 @@ class PeopleViewModel(
         if (user.id.isEmpty()) return
         if (followJob?.isActive == true) return
 
-        val target = !(user.isFollowing == true)
+        val target = user.isFollowing != true
         uiState = uiState.copy(user = user.copy(isFollowing = target))
         followJob = viewModelScope.launch {
             val result = if (target) repository.followUser(user.id) else repository.unfollowUser(user.id)

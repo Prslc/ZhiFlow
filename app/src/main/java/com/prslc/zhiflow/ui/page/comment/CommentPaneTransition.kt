@@ -34,6 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * How long a pane's move takes, and the pace the pull-back settles at. Both of the pair's moves run
@@ -105,7 +106,7 @@ fun CommentPaneTransition(
     LaunchedEffect(Unit) {
         var lastFraction = detailState.fraction
         while (true) {
-            delay(STALL_CHECK_MS)
+            delay(STALL_CHECK_MS.milliseconds)
             val fraction = detailState.fraction
             val stalled = fraction == lastFraction &&
                 !isGesturing &&
