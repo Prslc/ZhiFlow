@@ -2,6 +2,17 @@
 
 A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Compose, and OkHttp. Under active development.
 
+**When this file and the tree disagree, the tree is the evidence:**
+
+| The tree… | What it means | What to do |
+|---|---|---|
+| writes it one way, everywhere | that is the convention | change this file (or the linter's config), not the code |
+| writes it two ways | a real split | pick a side, write it down here, migrate the rest |
+| has one file doing its own thing | a slip | fix the code |
+
+A rule earns its place here by being followable: a criterion the reader applies, or something a tool
+can check. Numbers describing what the tree currently measures at are neither, and they drift.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -31,6 +42,7 @@ A third-party Zhihu (知乎) client for Android, built with Kotlin, Jetpack Comp
 - **Release**: R8 minification + resource shrink + multiDex; strips `kotlin.jvm.internal.Intrinsics` via ProGuard `-assumenosideeffects`
 - **Native library**: loads `libencrypt.so` from `app/libs/` through JNI
 - **`local.properties`**: stores per-machine SDK path; gitignored
+- **Style**: the rules live in the root `.editorconfig` — import layout, line width 100, at most one blank line between declarations — and ktlint reads them: `/usr/bin/ktlint <paths>` checks, `--format` fixes. Run it over the files you touched; anything it reports there is yours, since the tree is otherwise clean. Rules are switched off only by name in that file, and only after counting how much of the tree disagrees with them.
 
 Key Gradle tasks:
 ```bash
@@ -120,6 +132,7 @@ API Server
 - **`safeApiCall<T>(requestBuilder)`** — Extension on `ApiClient`. Executes on `Dispatchers.IO`, parses JSON via `kotlinx.serialization`, catches all exceptions and maps to `ApiException` sealed types. Returns `Result<T>`.
 - **`safeExecute(requestBuilder)`** — Same, for writes whose response body is not needed; returns `Result<Unit>`. **Neither helper ever reports a non-2xx as a success** — both fail with an `ApiException` carrying the status code. Pick between them only by whether you need the parsed body.
 - **`Response.body<T>()`** — `inline reified` extension that `use`-closes the response and decodes JSON. Throws `HttpStatusException` on non-2xx.
+- **`offMain { }` / `mapOffMain { }`** (`core/exception/ResultExtensions.kt`) — move a mapping to `Dispatchers.Default`, one hop per page rather than one per row. A repository called from a ViewModel is on the main thread, so a page of models turned into DTOs there is main-thread work; `mapOffMain` is what keeps it off.
 - Auth headers are injected by an OkHttp interceptor: `Authorization` and `x-udid` from `CredentialStore`, and the signature header from the native library — which a request with a sealed body does not carry. No `Cookie` header is written anywhere: that one belongs to the cookie jar.
 - The funnel is also where the session is kept in hand — `SessionGate.awaitReady()` before a request goes out, `onExchange(status)` after each response, successful or not.
 - **`HttpClientProvider`** holds the OkHttpClient singleton and a shared `Json` instance (lenient, coerce defaults, ignore unknown keys).
@@ -160,6 +173,7 @@ var uiState by mutableStateOf(UiState())
 - **Pagination**: ViewModels track `nextPageUrl`, expose `loadIfEmpty()`, `refresh()`, `loadMore()`.
 - **Load state**: `isLoading`, `isRefreshing`, `isNextLoading`, `globalError`, `loadMoreError` — each ViewModel defines its own UI State data class nested inside the ViewModel class. The page-level failure is `globalError`; a named sub-state (`LoadingState`, the comment sheet's three, the feedback sheet's) keeps its own `error`, which no paging field is there to be confused with.
 - **Chunked parsing**: `ContentViewModel` parses segments in chunks of 10 on `Dispatchers.Default`, emitting incremental state updates for progressive rendering. Results cached in an `LruCache<String, List<RichTextElement>>`.
+- **Sub-states**: a page whose state has outgrown one class splits it into named sub-states that travel together — `LoadingState` / `InteractionState` / `PresentationState` on the content pages, one per pane in the comment sheet. The split is for state with a lifecycle of its own, not for tidiness: a page that fits in one class keeps one.
 - **Pin rendering**: `PinViewModel` handles the thought page separately. When a pin has no `structured_content` (image-only pins), it falls back to `image_list` to build `RichTextElement.Image` elements.
 
 ### Rich Text Rendering
@@ -212,9 +226,9 @@ notice of the two; over it, only a host can show the message whole.
 | Reusable widget with no host parameter (`ImageLightbox`) | Toast inside the widget | cannot require every call site to supply a host |
 | Surface with no `Scaffold` (comment bottom sheet, the message tab) | `ErrorView` / `LoadMoreErrorItem` inside the surface; a Toast for a tap's own answer | there is no host to use |
 
-A surface with no host to reach has no fallback: what it says has to fit those two lines on its
-own, because nothing else can show it. That is the one failure a Toast is for — a tap that came
-back failed, answered where it was made. A page that failed to load still draws its error inside
+A Toast is capped at two lines and truncates whatever does not fit, without saying so — so where the
+table above reaches for one, the wording has to fit on its own, since a surface with no host has
+nothing else to show it. A page that failed to load is not that case: it draws its error inside
 itself, host or not.
 
 Do not pass a snackbar host down through a `CompositionLocal`: two of these rows have no host to reach at all.
@@ -227,6 +241,7 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **Handling a failed `Result`** — use `onApiFailure { error -> … }` (`core/exception/ResultExtensions.kt`), never `Result.onFailure` directly. It is the only place cancellation is filtered out of the failure path, and its callback always receives a non-null `ApiException`, so a failure cannot become a silent no-op. Never `runCatching` inside a coroutine — it swallows `CancellationException`.
 - **Discarding a `Result`** — only via `ignoreOutcome()`, so that "we do not care about this one" stays greppable instead of looking like a forgotten check.
 - **`@Immutable`/`@Stable`** annotations on data classes consumed by Compose for stability inference.
+- **Composable parameters**: required first, then `modifier: Modifier = Modifier`, then what is optional, with a trailing `content` lambda last — the order Material's own components use. A required callback belongs with the other required parameters, not parked after `modifier`.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Emoji**: Bundled as `.webp` assets in `assets/emoji/default/`; referenced by Zhihu emoji codes via `EmojiMap`.
 - **Content images**: An illustration in a body and a list's thumbnails read `LocalDataSaver`, which is what lets the reader's choice reach them. Avatars, covers, formulas and the lightbox do not — those are not what a reader is paying traffic for, and the lightbox exists to show an image that was asked for.
@@ -236,10 +251,9 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 ## Comments
 
 Comments are decided by layer, not by taste. The contract layers are documented, the UI is mostly
-silent, and a note earns its place only by naming something the code itself cannot say. The shape of
-that, roughly, as the tree stands: `data/repository` and `data/session` run near 40% comments with
-every public function documented, `data/remote` near 20%, `core` near 25%, `ui/` at 5–8%, and
-`data/model`, `data/dto`, `data/mapper` effectively silent.
+silent, and a note earns its place only by naming something the code itself cannot say. Which layer
+gets what is the table below; how much of it there is is not a target — a function is documented or
+it is not, and a percentage is not something a reader can act on while writing.
 
 | Where | What |
 |---|---|
