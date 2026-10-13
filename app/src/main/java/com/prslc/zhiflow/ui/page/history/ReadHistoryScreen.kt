@@ -58,6 +58,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleReadHistory
+import com.prslc.zhiflow.ui.preview.sampleReadHistoryColumn
 import com.prslc.zhiflow.ui.preview.sampleReadHistoryQuestion
 import org.koin.androidx.compose.koinViewModel
 
@@ -346,6 +347,17 @@ private fun HistoryItem(
                         item.followerCount,
                     )
 
+                    // The one kind whose author is not drawn above it: a column's entry has no body
+                    // to put under a name, so the name belongs on the line with the counts.
+                    "column" -> listOfNotNull(
+                        item.authorName?.takeIf { it.isNotBlank() },
+                        stringResource(
+                            R.string.history_column_meta,
+                            item.contentCount,
+                            item.voteCount,
+                        ),
+                    ).joinToString(" · ")
+
                     else -> pluralStringResource(R.plurals.history_meta, item.commentCount, item.voteCount, item.commentCount)
                 }
 
@@ -413,7 +425,7 @@ private fun HistoryHeaderPreview() {
     }
 }
 
-/** An answer read part way through, and a question read to its end. */
+/** An answer read part way through, a question read to its end, and a column. */
 @AppPreviews
 @Composable
 private fun HistoryItemPreview() {
@@ -421,6 +433,7 @@ private fun HistoryItemPreview() {
         Column {
             HistoryItem(item = sampleReadHistory, isInGroup = true, onClick = {})
             HistoryItem(item = sampleReadHistoryQuestion, isInGroup = false, onClick = {})
+            HistoryItem(item = sampleReadHistoryColumn, isInGroup = false, onClick = {})
         }
     }
 }

@@ -18,6 +18,17 @@ private val QUESTION_STAT_REGEX = Regex("([\\d.]+)\\s*(万?)\\s*回答\\s*[·•
  */
 private val PROFILE_STAT_REGEX = Regex("([\\d.]+)\\s*(万?)\\s*赞同\\s*[·•.]\\s*([\\d.]+)\\s*(万?)\\s*人关注")
 
+/**
+ * Matches strings like "作者 · 808 篇内容 · 4299 赞同".
+ *
+ * A column's entry is the one kind with no body under it: what the server sends instead of an
+ * author and a summary is this line, which carries the three things the row can draw -- the
+ * author's name, how much the column holds, and how often it has been agreed with.
+ */
+private val COLUMN_STAT_REGEX = Regex(
+    "(.+?)\\s*[·•.]\\s*([\\d.]+)\\s*(万?)\\s*篇内容\\s*[·•.]\\s*([\\d.]+)\\s*(万?)\\s*赞同",
+)
+
 internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
     val contentType = extra?.contentType.orEmpty()
     val statText = matrix.getOrNull(0)?.data?.text.orEmpty()
@@ -38,6 +49,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 readProgress = 0,
                 answerCount = match?.let { parseCount(it.groupValues[1], it.groupValues[2]) } ?: 0,
                 followerCount = match?.let { parseCount(it.groupValues[3], it.groupValues[4]) } ?: 0,
+                contentCount = 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )
@@ -58,6 +70,28 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 readProgress = 0,
                 answerCount = 0,
                 followerCount = match?.let { parseCount(it.groupValues[3], it.groupValues[4]) } ?: 0,
+                contentCount = 0,
+                contentToken = extra?.contentToken,
+                readTime = extra?.readTime ?: 0,
+            )
+        }
+
+        "column" -> {
+            val match = COLUMN_STAT_REGEX.find(statText)
+            ReadHistoryDto(
+                questionTitle = header?.title.orEmpty(),
+                questionToken = extra?.questionToken,
+                contentTypeIcon = header?.icon,
+                contentType = contentType,
+                authorName = match?.groupValues?.get(1)?.trim(),
+                summary = null,
+                coverImage = null,
+                voteCount = match?.let { parseCount(it.groupValues[4], it.groupValues[5]) } ?: 0,
+                commentCount = 0,
+                readProgress = 0,
+                answerCount = 0,
+                followerCount = 0,
+                contentCount = match?.let { parseCount(it.groupValues[2], it.groupValues[3]) } ?: 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )
@@ -80,6 +114,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 readProgress = progressMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0,
                 answerCount = 0,
                 followerCount = 0,
+                contentCount = 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )

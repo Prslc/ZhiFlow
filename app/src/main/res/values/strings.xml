@@ -263,6 +263,7 @@
     </plurals>
     <!-- Two nouns inflect here and a plural carries one quantity; fixing it means building the line from two. -->
     <string name="history_question_meta" tools:ignore="PluralsCandidate">%1$d Answers · %2$d Followers</string>
+    <string name="history_column_meta" tools:ignore="PluralsCandidate">%1$d Posts · %2$d Agree</string>
     <string name="history_read_progress">Read %1$d%%</string>
 
     <!-- collection contents -->

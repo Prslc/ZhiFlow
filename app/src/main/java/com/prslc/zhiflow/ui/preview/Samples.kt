@@ -229,6 +229,7 @@ val sampleReadHistory = ReadHistoryDto(
     readProgress = 42,
     answerCount = 0,
     followerCount = 0,
+    contentCount = 0,
     contentToken = "734558056",
     readTime = 1791726117L,
 )
@@ -247,7 +248,27 @@ val sampleReadHistoryQuestion = ReadHistoryDto(
     readProgress = 100,
     answerCount = 128,
     followerCount = 4200,
+    contentCount = 0,
     contentToken = null,
+    readTime = 1791726117L,
+)
+
+/** A column: the one kind with no body under it, whose line carries its author and its counts. */
+val sampleReadHistoryColumn = ReadHistoryDto(
+    questionTitle = "Notes on parsing",
+    questionToken = "",
+    contentTypeIcon = null,
+    contentType = "column",
+    authorName = "Ada Lovelace",
+    summary = null,
+    coverImage = null,
+    voteCount = 4299,
+    commentCount = 0,
+    readProgress = 0,
+    answerCount = 0,
+    followerCount = 0,
+    contentCount = 808,
+    contentToken = "c_1867989249418211328",
     readTime = 1791726117L,
 )
 

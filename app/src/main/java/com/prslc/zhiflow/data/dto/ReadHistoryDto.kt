@@ -18,6 +18,9 @@ data class ReadHistoryDto(
     // question fields
     val answerCount: Int,
     val followerCount: Int,
+    // column fields: how many pieces a column holds. Its entry has no body of its own, so this
+    // and the author are what its line is made of
+    val contentCount: Int,
     // common
     val contentToken: String?,
     val readTime: Long,
