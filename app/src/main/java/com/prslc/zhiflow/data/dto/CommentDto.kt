@@ -22,4 +22,5 @@ data class CommentDto(
     val parsedContent: CommentContent,
     /** Whether a reply can be left on this comment; false hides the way in. */
     val canReply: Boolean,
+    val canLike: Boolean,
 )

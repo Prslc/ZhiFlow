@@ -46,6 +46,7 @@ data class ZhihuComment(
      * server said nothing about is not read as one that refuses replies.
      */
     @SerialName("can_reply") val canReply: Boolean = true,
+    @SerialName("can_like") val canLike: Boolean = true,
 )
 
 @Immutable

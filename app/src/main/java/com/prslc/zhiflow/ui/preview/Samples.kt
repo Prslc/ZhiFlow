@@ -399,6 +399,7 @@ val sampleComment = CommentDto(
         images = emptyList(),
     ),
     canReply = true,
+    canLike = true,
 )
 
 /** A reply: it names who it answers, it is liked, and it has no replies of its own. */

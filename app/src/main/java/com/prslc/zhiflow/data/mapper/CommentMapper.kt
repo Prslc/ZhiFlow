@@ -34,5 +34,6 @@ private fun ZhihuComment.toDtoWith(childComments: List<CommentDto>): CommentDto 
         ipInfo = ipInfo,
         parsedContent = parsedContent,
         canReply = canReply,
+        canLike = canLike,
     )
 }

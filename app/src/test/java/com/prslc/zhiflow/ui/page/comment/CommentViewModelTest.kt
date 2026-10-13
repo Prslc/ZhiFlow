@@ -107,6 +107,7 @@ class CommentViewModelTest {
         ipInfo = null,
         parsedContent = CommentContent(AnnotatedString(""), emptyList()),
         canReply = true,
+        canLike = true,
     )
 
     private fun viewModel(backend: Backend) =

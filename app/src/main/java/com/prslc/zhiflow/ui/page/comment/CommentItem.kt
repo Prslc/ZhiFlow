@@ -226,15 +226,16 @@ fun CommentItem(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
-
-                LikeAction(
-                    liked = comment.liked,
-                    count = comment.likeCount,
-                    onClick = {
-                        toggleHaptic(!comment.liked)
-                        onEvent(CommentUiEvent.ToggleLike(comment.id))
-                    },
-                )
+                if (comment.canLike) {
+                    LikeAction(
+                        liked = comment.liked,
+                        count = comment.likeCount,
+                        onClick = {
+                            toggleHaptic(!comment.liked)
+                            onEvent(CommentUiEvent.ToggleLike(comment.id))
+                        },
+                    )
+                }
             }
 
             // The replies, where the response carried any: one of them whole, and the block itself
