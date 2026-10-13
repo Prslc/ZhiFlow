@@ -26,16 +26,12 @@ class Navigator(
     /**
      * Navigate to a URL, resolving internal Zhihu routes vs external links.
      *
-     * An internal address is opened as the route it names — a column by its token, everything else
-     * through [navigateToContent]; external URLs open in the system browser.
+     * An internal address is opened as the route it names; external URLs open in the system browser.
      */
     fun handleUrl(url: String) {
         when (val dest = LinkParser.parse(url)) {
             is LinkDestination.Internal -> {
-                when (dest.type) {
-                    "column" -> navigateToColumn(dest.id)
-                    else -> navigateToContent(dest.id, dest.type)
-                }
+                navigateToContent(dest.id, dest.type)
             }
 
             is LinkDestination.External -> {
@@ -55,7 +51,7 @@ class Navigator(
     /**
      * Navigate to a content detail by content type string.
      *
-     * @param type Content type: "answer", "article", "pin", or "question"
+     * @param type Content type: "answer", "article", "pin", "question", or "column"
      */
     fun navigateToContent(id: String, type: String) {
         when (type.lowercase()) {
@@ -66,6 +62,8 @@ class Navigator(
             "pin" -> navController.navigate(PinDetail(id))
 
             "question" -> navController.navigate(QuestionDetail(id))
+
+            "column" -> navController.navigate(ColumnDetail(id))
 
             "people", "profile" -> navController.navigate(PeopleDetail(id))
 

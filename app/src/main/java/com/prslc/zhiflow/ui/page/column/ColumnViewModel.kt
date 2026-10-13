@@ -8,18 +8,25 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
+import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
+import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
+import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ColumnRepository
 import com.prslc.zhiflow.data.repository.UserRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+/** What the history calls a column visit; a column is not one of the content types. */
+private const val COLUMN_CONTENT_TYPE = "column"
+
 /** One column: what it is, and the articles it holds, from the newest. */
 class ColumnViewModel(
     private val repository: ColumnRepository,
     private val userRepository: UserRepository,
+    private val actionRepository: ActionRepository,
 ) : ViewModel() {
 
     @Immutable
@@ -145,6 +152,7 @@ class ColumnViewModel(
             repository.detail(urlToken)
                 .onSuccess { column ->
                     uiState = uiState.copy(column = column, isLoading = false)
+                    recordVisit(urlToken)
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(globalError = error, isLoading = false)
@@ -152,6 +160,25 @@ class ColumnViewModel(
         }
 
         readItems(urlToken, firstPage = true)
+    }
+
+    /**
+     * Puts the visit in the reader's history.
+     *
+     * A column has no reading progress, and the entry is written on arrival rather than on the way
+     * out -- which is why this does not go through the progress the content screens keep. The
+     * history addresses a column by the token its routes already use.
+     */
+    private fun recordVisit(urlToken: String) {
+        viewModelScope.launch {
+            actionRepository.syncHistory(
+                ReadHistoryRequest(
+                    contentToken = urlToken,
+                    contentType = COLUMN_CONTENT_TYPE,
+                    readProgress = 0,
+                ),
+            ).ignoreOutcome()
+        }
     }
 
     /**
