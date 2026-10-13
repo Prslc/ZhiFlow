@@ -28,6 +28,9 @@ import com.prslc.zhiflow.data.remote.parser.model.SegLikeHost
 import com.prslc.zhiflow.data.repository.ActionRepository
 import com.prslc.zhiflow.data.repository.ContentRepository
 import com.prslc.zhiflow.data.repository.UserRepository
+import com.prslc.zhiflow.ui.component.InteractionState
+import com.prslc.zhiflow.ui.component.restoreVotes
+import com.prslc.zhiflow.ui.component.voteChange
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -54,14 +57,6 @@ class ContentViewModel(
 
     var loadingState by mutableStateOf(LoadingState())
         private set
-
-    @Immutable
-    data class InteractionState(
-        val isUpvoted: Boolean = false,
-        val isDownvoted: Boolean = false,
-        val isFavorite: Boolean = false,
-        val upvoteOffset: Int = 0,
-    )
 
     var interactionState by mutableStateOf(InteractionState())
         private set
@@ -158,46 +153,18 @@ class ContentViewModel(
      */
     fun vote(targetAction: String, contentType: ContentType) {
         val currentContent = loadingState.content ?: return
-        val contentId = currentContent.id
-
         val was = interactionState
-
-        var newUpvoted = was.isUpvoted
-        var newDownvoted = was.isDownvoted
-        var newOffset = was.upvoteOffset
-
-        when (targetAction) {
-            "up" -> {
-                newUpvoted = !was.isUpvoted
-                newOffset += if (newUpvoted) 1 else -1
-                if (newUpvoted) newDownvoted = false
-            }
-
-            "down" -> {
-                newDownvoted = !was.isDownvoted
-                if (newDownvoted && was.isUpvoted) {
-                    newUpvoted = false
-                    newOffset--
-                }
-            }
-        }
-
-        interactionState = was.copy(
-            isUpvoted = newUpvoted,
-            isDownvoted = newDownvoted,
-            upvoteOffset = newOffset,
-        )
+        val change = was.voteChange(targetAction)
+        interactionState = change.state
 
         viewModelScope.launch {
-            val isActive = if (targetAction == "up") was.isUpvoted else was.isDownvoted
-
             actionRepository.vote(
-                id = contentId,
+                id = currentContent.id,
                 type = contentType,
                 action = targetAction,
-                isRevoke = isActive,
+                isRevoke = change.isRevoke,
             ).onApiFailure { error ->
-                interactionState = was
+                interactionState = interactionState.restoreVotes(was)
                 actionError = error
             }
         }
