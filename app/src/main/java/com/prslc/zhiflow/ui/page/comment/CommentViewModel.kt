@@ -41,6 +41,12 @@ sealed interface CommentUiEvent {
 
     data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
 
+    /**
+     * The reader asked the box to answer this comment rather than to open anything: the pane is
+     * brought up where the comment is not the one on screen, and the box points at it either way.
+     */
+    data class ReplyTo(val comment: CommentDto) : CommentUiEvent
+
     /** What the reader has typed into the box. */
     data class DraftChanged(val text: String) : CommentUiEvent
 
@@ -86,6 +92,12 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val hasMore: Boolean = true,
         val error: ApiException? = null,
         val isDetailMode: Boolean = false,
+        /**
+         * The comment the box will answer, where the reader asked to answer one: a reply to a reply
+         * is written in the pane that reply is already in. Null answers the pane's own comment,
+         * which is what the pane means unless something in it was tapped.
+         */
+        val replyTarget: CommentDto? = null,
         /** The reply just posted; see [CommentUiState.lastPostedId]. */
         val lastPostedId: String? = null,
     )
@@ -138,6 +150,9 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 hasMore = true,
                 error = null,
             )
+            // A list read afresh is not the reader's last visit to it: a box left answering some
+            // comment of the old one starts a comment again.
+            childUiState = childUiState.copy(replyTarget = null)
         } else {
             uiState = uiState.copy(isLoading = true, error = null)
         }
@@ -219,6 +234,18 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                     segmentUiState = segmentUiState.copy(isLoading = false, error = error)
                 }
         }
+    }
+
+    /**
+     * Points the box at the comment a tap means to answer, wherever the tap was: a box is open in
+     * both panes, and answering is the one thing the tap is for. Opening a comment's replies is the
+     * block's job, which is the only thing in a row that leads anywhere.
+     *
+     * The box then answers that comment -- in the pane the comment belongs to, which is the one the
+     * reader is looking at -- and the pane's own comment where nothing was tapped.
+     */
+    fun replyTo(comment: CommentDto) {
+        childUiState = childUiState.copy(replyTarget = comment)
     }
 
     fun loadChildComments(rootComment: CommentDto, forceRefresh: Boolean = false) {
@@ -334,7 +361,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val text = uiState.draft.trim()
         if (text.isEmpty() || uiState.isSubmitting) return
 
-        val replyTo = childUiState.takeIf { it.isDetailMode }?.rootComment?.comment
+        // What the box is answering: the comment the reader pointed it at, and failing that the
+        // pane's own comment, which is what an opened pane means.
+        val replyTo = childUiState.replyTarget
+            ?: childUiState.takeIf { it.isDetailMode }?.rootComment?.comment
         uiState = uiState.copy(isSubmitting = true)
 
         viewModelScope.launch {
@@ -389,6 +419,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         childUiState = childUiState.copy(
             comments = childUiState.comments + model,
             rootComment = childUiState.rootComment?.let(answered),
+            // The answer is written; the next one in the pane answers the pane again.
+            replyTarget = null,
             lastPostedId = posted.id,
         )
         uiState = uiState.copy(

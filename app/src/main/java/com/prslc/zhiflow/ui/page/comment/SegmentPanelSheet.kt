@@ -192,6 +192,10 @@ fun SegmentPanelSheet(
                             CommentComposer(
                                 draft = draft,
                                 isSubmitting = isSubmitting,
+                                // Answering one of the comments above, where one was tapped; the
+                                // passage is what the answer is filed under either way.
+                                replyToName = childComments.replyTarget?.author?.name,
+                                focusKey = childComments.replyTarget?.id,
                                 onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                 onSend = {
                                     onEvent(
@@ -253,7 +257,9 @@ fun SegmentPanelSheet(
                                 CommentComposer(
                                     draft = draft,
                                     isSubmitting = isSubmitting,
-                                    replyToName = rootComment.comment.author.name,
+                                    replyToName = (childComments.replyTarget ?: rootComment.comment)
+                                        .author.name,
+                                    focusKey = childComments.replyTarget?.id,
                                     onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                     onSend = {
                                         onEvent(

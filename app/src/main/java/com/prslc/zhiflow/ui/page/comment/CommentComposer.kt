@@ -16,9 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,6 +45,9 @@ import com.prslc.zhiflow.ui.preview.PreviewSurface
  * @param replyToName Who the words will answer, for the panes that answer someone; null for a box
  *   that starts a comment. It is drawn above the field, so that a box carried over from another
  *   pane still says whom it is addressed to.
+ * @param focusKey What the box was last pointed at, where the reader asked to answer something: a
+ *   new value puts the cursor in the field and brings the keyboard up, which is what a tap on
+ *   reply means. Null, and a value that has not changed, leaves the box where it was.
  */
 @Composable
 fun CommentComposer(
@@ -49,7 +57,20 @@ fun CommentComposer(
     onSend: () -> Unit,
     modifier: Modifier = Modifier,
     replyToName: String? = null,
+    focusKey: Any? = null,
 ) {
+    // Asked for from inside the box, where the requester is attached: a pane still arriving has no
+    // node to give the focus to, and asking before that is an error rather than a no-op. The
+    // keyboard is asked for by name as well, because a focus no finger brought does not raise it.
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(focusKey) {
+        if (focusKey != null) {
+            focusRequester.requestFocus()
+            keyboard?.show()
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -80,7 +101,9 @@ fun CommentComposer(
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
                 ),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .weight(1f),
             )
 
             Spacer(modifier = Modifier.width(8.dp))

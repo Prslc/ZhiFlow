@@ -218,8 +218,11 @@ fun CommentItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (!isChild && showReplyButton && comment.canReply) {
-                    ReplyAction(onClick = { onEvent(CommentUiEvent.LoadChildComments(comment)) })
+                // Every row that takes an answer offers one, replies included. What a tap means is
+                // the view model's to say: it answers the row that was tapped, and only brings a
+                // pane up where the row is not already in one.
+                if (comment.canReply) {
+                    ReplyAction(onClick = { onEvent(CommentUiEvent.ReplyTo(comment)) })
                 }
 
                 Spacer(modifier = Modifier.weight(1f))

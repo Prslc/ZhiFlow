@@ -207,6 +207,7 @@ fun PinDetailScreen(
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
+                        is CommentUiEvent.ReplyTo -> commentViewModel.replyTo(event.comment)
                         is CommentUiEvent.DraftChanged -> commentViewModel.onDraftChange(event.text)
                         is CommentUiEvent.SubmitComment -> commentViewModel.submitComment(event.id, event.contentType)
                         is CommentUiEvent.SubmitSegmentComment -> Unit // A pin has no passages.

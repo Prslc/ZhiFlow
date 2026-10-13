@@ -111,6 +111,10 @@ fun CommentBottomSheet(
                         CommentComposer(
                             draft = uiState.draft,
                             isSubmitting = uiState.isSubmitting,
+                            // Answering one of the comments above, where one of them was tapped;
+                            // otherwise a comment on the content itself.
+                            replyToName = childUiState.replyTarget?.author?.name,
+                            focusKey = childUiState.replyTarget?.id,
                             onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                             onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
                         )
@@ -160,13 +164,16 @@ fun CommentBottomSheet(
                             }
                         }
 
-                        // The comment the pane is about is the one a reply answers; where the
-                        // server will not take one, the box is not offered.
+                        // The pane's own comment is what a reply answers, unless something in the
+                        // pane was tapped to answer that; where the server will not take an answer,
+                        // the box is not offered.
                         if (rootComment != null && rootComment.comment.canReply) {
                             CommentComposer(
                                 draft = uiState.draft,
                                 isSubmitting = uiState.isSubmitting,
-                                replyToName = rootComment.comment.author.name,
+                                replyToName = (childUiState.replyTarget ?: rootComment.comment)
+                                    .author.name,
+                                focusKey = childUiState.replyTarget?.id,
                                 onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                 onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
                             )
