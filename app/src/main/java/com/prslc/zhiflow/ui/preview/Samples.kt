@@ -230,6 +230,7 @@ val sampleReadHistory = ReadHistoryDto(
     answerCount = 0,
     followerCount = 0,
     contentCount = 0,
+    playCount = 0,
     contentToken = "734558056",
     readTime = 1791726117L,
 )
@@ -249,6 +250,7 @@ val sampleReadHistoryQuestion = ReadHistoryDto(
     answerCount = 128,
     followerCount = 4200,
     contentCount = 0,
+    playCount = 0,
     contentToken = null,
     readTime = 1791726117L,
 )
@@ -268,7 +270,28 @@ val sampleReadHistoryColumn = ReadHistoryDto(
     answerCount = 0,
     followerCount = 0,
     contentCount = 808,
+    playCount = 0,
     contentToken = "c_1867989249418211328",
+    readTime = 1791726117L,
+)
+
+/** A video: a body under it like an answer's, and a line that counts plays rather than comments. */
+val sampleReadHistoryVideo = ReadHistoryDto(
+    questionTitle = "How a parser walks a segment tree",
+    questionToken = "",
+    contentTypeIcon = null,
+    contentType = "zvideo",
+    authorName = "Ada Lovelace",
+    summary = "Six minutes on the shape the marks make, drawn out on a whiteboard.",
+    coverImage = PHOTO_URL,
+    voteCount = 230,
+    commentCount = 0,
+    readProgress = 0,
+    answerCount = 0,
+    followerCount = 0,
+    contentCount = 0,
+    playCount = 32000,
+    contentToken = "1990470495565550724",
     readTime = 1791726117L,
 )
 

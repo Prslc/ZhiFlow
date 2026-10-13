@@ -244,6 +244,7 @@
     </plurals>
     <string name="history_question_meta">%1$d 回答 · %2$d 关注</string>
     <string name="history_column_meta">%1$d 篇内容 · %2$d 赞同</string>
+    <string name="history_video_meta">%1$d 次播放 · %2$d 赞同</string>
     <string name="history_read_progress">已读 %1$d%%</string>
 
     <!-- collection contents -->

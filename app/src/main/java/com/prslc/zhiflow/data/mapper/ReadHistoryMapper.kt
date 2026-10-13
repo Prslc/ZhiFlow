@@ -29,6 +29,16 @@ private val COLUMN_STAT_REGEX = Regex(
     "(.+?)\\s*[·•.]\\s*([\\d.]+)\\s*(万?)\\s*篇内容\\s*[·•.]\\s*([\\d.]+)\\s*(万?)\\s*赞同",
 )
 
+/**
+ * Matches strings like "3.2 万次播放 · 230 赞同".
+ *
+ * A video's entry carries a body like an answer's, so its author, summary and cover are read the
+ * way an answer's are; its line differs in what the first count is, which is plays.
+ */
+private val VIDEO_STAT_REGEX = Regex(
+    "([\\d.]+)\\s*(万?)\\s*次播放\\s*[·•.]\\s*([\\d.]+)\\s*(万?)\\s*赞同",
+)
+
 internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
     val contentType = extra?.contentType.orEmpty()
     val statText = matrix.getOrNull(0)?.data?.text.orEmpty()
@@ -50,6 +60,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 answerCount = match?.let { parseCount(it.groupValues[1], it.groupValues[2]) } ?: 0,
                 followerCount = match?.let { parseCount(it.groupValues[3], it.groupValues[4]) } ?: 0,
                 contentCount = 0,
+                playCount = 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )
@@ -71,6 +82,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 answerCount = 0,
                 followerCount = match?.let { parseCount(it.groupValues[3], it.groupValues[4]) } ?: 0,
                 contentCount = 0,
+                playCount = 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )
@@ -92,6 +104,29 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 answerCount = 0,
                 followerCount = 0,
                 contentCount = match?.let { parseCount(it.groupValues[2], it.groupValues[3]) } ?: 0,
+                playCount = 0,
+                contentToken = extra?.contentToken,
+                readTime = extra?.readTime ?: 0,
+            )
+        }
+
+        "zvideo" -> {
+            val match = VIDEO_STAT_REGEX.find(statText)
+            ReadHistoryDto(
+                questionTitle = header?.title.orEmpty(),
+                questionToken = extra?.questionToken,
+                contentTypeIcon = header?.icon,
+                contentType = contentType,
+                authorName = content?.authorName,
+                summary = content?.summary,
+                coverImage = content?.coverImage?.takeIf { it.isNotBlank() },
+                voteCount = match?.let { parseCount(it.groupValues[3], it.groupValues[4]) } ?: 0,
+                commentCount = 0,
+                readProgress = 0,
+                answerCount = 0,
+                followerCount = 0,
+                contentCount = 0,
+                playCount = match?.let { parseCount(it.groupValues[1], it.groupValues[2]) } ?: 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )
@@ -115,6 +150,7 @@ internal fun ReadHistoryCardData.toDto(): ReadHistoryDto {
                 answerCount = 0,
                 followerCount = 0,
                 contentCount = 0,
+                playCount = 0,
                 contentToken = extra?.contentToken,
                 readTime = extra?.readTime ?: 0,
             )

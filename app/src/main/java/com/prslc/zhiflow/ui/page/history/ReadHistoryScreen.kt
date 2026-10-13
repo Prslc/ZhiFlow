@@ -60,10 +60,14 @@ import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleReadHistory
 import com.prslc.zhiflow.ui.preview.sampleReadHistoryColumn
 import com.prslc.zhiflow.ui.preview.sampleReadHistoryQuestion
+import com.prslc.zhiflow.ui.preview.sampleReadHistoryVideo
 import org.koin.androidx.compose.koinViewModel
 
-/** The kinds of history that carry a body, and so a position in one worth drawing. */
-private val ReadableContentTypes = setOf("answer", "article", "pin")
+/**
+ * The kinds of history whose entries carry a body of their own, and so an author, a summary and a
+ * cover worth drawing. Only some of them also carry a position in that body.
+ */
+private val ReadableContentTypes = setOf("answer", "article", "pin", "zvideo")
 
 // The rectangles a row draws, each rounded by its own size: the type icon, the progress chip, the
 // cover.
@@ -358,6 +362,14 @@ private fun HistoryItem(
                         ),
                     ).joinToString(" · ")
 
+                    // The one kind whose first count is what it was watched rather than argued
+                    // with: the server words it "N 次播放 · M 赞同", and there is no comment count.
+                    "zvideo" -> stringResource(
+                        R.string.history_video_meta,
+                        item.playCount,
+                        item.voteCount,
+                    )
+
                     else -> pluralStringResource(R.plurals.history_meta, item.commentCount, item.voteCount, item.commentCount)
                 }
 
@@ -425,7 +437,7 @@ private fun HistoryHeaderPreview() {
     }
 }
 
-/** An answer read part way through, a question read to its end, and a column. */
+/** An answer read part way through, a question read to its end, a column, and a video. */
 @AppPreviews
 @Composable
 private fun HistoryItemPreview() {
@@ -434,6 +446,7 @@ private fun HistoryItemPreview() {
             HistoryItem(item = sampleReadHistory, isInGroup = true, onClick = {})
             HistoryItem(item = sampleReadHistoryQuestion, isInGroup = false, onClick = {})
             HistoryItem(item = sampleReadHistoryColumn, isInGroup = false, onClick = {})
+            HistoryItem(item = sampleReadHistoryVideo, isInGroup = false, onClick = {})
         }
     }
 }
