@@ -181,12 +181,27 @@ class CommentService(private val api: ApiClient) {
      *
      * @param method Standard HTTP method string (e.g., "POST", "DELETE").
      */
-    suspend fun commentReaction(commentId: String, action: String, method: String): Result<Unit> =
+    suspend fun commentLikeReaction(commentId: String, action: String, method: String): Result<Unit> =
         api.safeExecute {
             val emptyBody = "".toRequestBody(null)
 
             Request.Builder()
                 .apiUrl("/reaction/comments/$commentId/$action")
+                .method(method, if (method == "GET") null else emptyBody)
+                .build()
+        }
+
+    /**
+     * Performs a reaction (dislike/undislike) on a comment.
+     *
+     * @param method Standard HTTP method string (e.g., "PUT", "DELETE").
+     */
+    suspend fun commentDislikeReaction(commentId: String, method: String): Result<Unit> =
+        api.safeExecute {
+            val emptyBody = "".toRequestBody(null)
+
+            Request.Builder()
+                .apiUrl("/comment_v5/comment/$commentId/reaction/dislike")
                 .method(method, if (method == "GET") null else emptyBody)
                 .build()
         }

@@ -27,6 +27,7 @@ private fun ZhihuComment.toDtoWith(childComments: List<CommentDto>): CommentDto 
         createdTime = createdTime,
         likeCount = likeCount,
         liked = liked,
+        disliked = disliked,
         isAuthor = isAuthor,
         isAuthorTop = isAuthorTop,
         childCount = childCount,
@@ -35,5 +36,6 @@ private fun ZhihuComment.toDtoWith(childComments: List<CommentDto>): CommentDto 
         parsedContent = parsedContent,
         canReply = canReply,
         canLike = canLike,
+        canDislike = canDislike,
     )
 }

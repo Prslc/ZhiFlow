@@ -13,6 +13,7 @@ data class CommentDto(
     val createdTime: Long,
     val likeCount: Int,
     val liked: Boolean,
+    val disliked: Boolean,
     val isAuthor: Boolean,
     val isAuthorTop: Boolean,
     val childCount: Int,
@@ -23,4 +24,5 @@ data class CommentDto(
     /** Whether a reply can be left on this comment; false hides the way in. */
     val canReply: Boolean,
     val canLike: Boolean,
+    val canDislike: Boolean,
 )

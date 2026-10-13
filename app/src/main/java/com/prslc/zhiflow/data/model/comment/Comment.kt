@@ -41,12 +41,14 @@ data class ZhihuComment(
      */
     @SerialName("child_comments") val childComments: List<ZhihuComment> = emptyList(),
     val liked: Boolean = false,
+    val disliked: Boolean = false,
     /**
      * Whether the server will take a reply on this comment. True by default so that a comment the
      * server said nothing about is not read as one that refuses replies.
      */
     @SerialName("can_reply") val canReply: Boolean = true,
     @SerialName("can_like") val canLike: Boolean = true,
+    @SerialName("can_dislike") val canDislike: Boolean = true,
 )
 
 @Immutable

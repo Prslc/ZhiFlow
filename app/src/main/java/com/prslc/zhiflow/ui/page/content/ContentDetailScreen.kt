@@ -241,6 +241,7 @@ fun ContentDetailScreen(
                         is CommentUiEvent.NavigatedToUser -> commentViewModel.onNavigated()
                         is CommentUiEvent.ActionErrorShown -> commentViewModel.consumeActionError()
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
+                        is CommentUiEvent.ToggleDislike -> commentViewModel.toggleDislike(event.commentId)
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                         is CommentUiEvent.ReplyTo -> commentViewModel.replyTo(event.comment)
@@ -284,6 +285,8 @@ fun ContentDetailScreen(
                 onEvent = { event ->
                     when (event) {
                         is CommentUiEvent.ToggleLike -> commentViewModel.toggleLike(event.commentId)
+
+                        is CommentUiEvent.ToggleDislike -> commentViewModel.toggleDislike(event.commentId)
 
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
 

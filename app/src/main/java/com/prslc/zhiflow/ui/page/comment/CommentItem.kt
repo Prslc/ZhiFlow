@@ -14,7 +14,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Reply
+import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -52,6 +55,7 @@ import com.prslc.zhiflow.ui.preview.sampleComment
 import com.prslc.zhiflow.ui.preview.sampleCommentByAuthor
 import com.prslc.zhiflow.ui.preview.sampleCommentByTop
 import com.prslc.zhiflow.ui.preview.sampleCommentWithReplies
+import com.prslc.zhiflow.ui.preview.sampleDislikedComment
 import com.prslc.zhiflow.ui.preview.sampleReply
 import com.prslc.zhiflow.ui.preview.sampleReplyByAuthor
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -226,10 +230,36 @@ fun CommentItem(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
+
+                if (comment.canDislike) {
+                    ReactionAction(
+                        active = comment.disliked,
+                        icon = Icons.Outlined.ThumbDown,
+                        activeIcon = Icons.Filled.ThumbDown,
+                        description = if (comment.disliked) {
+                            stringResource(R.string.comment_action_disagreed)
+                        } else {
+                            stringResource(R.string.comment_action_disagree)
+                        },
+                        onClick = {
+                            toggleHaptic(!comment.disliked)
+                            onEvent(CommentUiEvent.ToggleDislike(comment.id))
+                        },
+                        modifier = Modifier.padding(end = 12.dp),
+                    )
+                }
+
                 if (comment.canLike) {
-                    LikeAction(
-                        liked = comment.liked,
+                    ReactionAction(
+                        active = comment.liked,
+                        icon = Icons.Outlined.ThumbUp,
+                        activeIcon = Icons.Filled.ThumbUp,
                         count = comment.likeCount,
+                        description = if (comment.liked) {
+                            stringResource(R.string.comment_action_agreed)
+                        } else {
+                            stringResource(R.string.comment_action_agree)
+                        },
                         onClick = {
                             toggleHaptic(!comment.liked)
                             onEvent(CommentUiEvent.ToggleLike(comment.id))
@@ -284,13 +314,26 @@ private fun ReplyAction(onClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/** How the reader agrees with a comment: the thumb, and what it has been given. */
+/**
+ * One of the reactions a comment wears: the thumb, and what it has been given.
+ *
+ * The two differ in what they draw, not in how they sit -- one weight, one colour rule, one way of
+ * counting -- so they are one composable with the words and the glyph handed in.
+ *
+ * @param active Whether the reader's own reaction is on.
+ * @param icon What it is drawn as while it is off; [activeIcon] while it is on.
+ * @param description What it is called, for a reader who cannot see it.
+ * @param count How many it has, where the row draws a number at all; null leaves it out.
+ */
 @Composable
-private fun LikeAction(
-    liked: Boolean,
-    count: Int,
+private fun ReactionAction(
+    active: Boolean,
+    icon: ImageVector,
+    activeIcon: ImageVector,
+    description: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    count: Int? = null,
 ) {
     Row(
         modifier = modifier
@@ -299,20 +342,22 @@ private fun LikeAction(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = if (liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-            contentDescription = stringResource(
-                if (liked) R.string.comment_action_agreed else R.string.comment_action_agree,
-            ),
-            tint = if (liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+            imageVector = if (active) activeIcon else icon,
+            contentDescription = description,
+            tint = if (active) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outline
+            },
             modifier = Modifier.size(18.dp),
         )
-        if (count > 0) {
+        if (count != null && count > 0) {
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = count.toString(),
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontSize = TextStyles.commentLikeSize,
-                    color = if (liked) {
+                    color = if (active) {
                         MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.outline
@@ -352,6 +397,10 @@ private fun CommentItemPreview() {
             )
             CommentItem(
                 model = CommentViewModel.CommentUiModel(sampleCommentWithReplies),
+                onEvent = {},
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleDislikedComment),
                 onEvent = {},
             )
         }

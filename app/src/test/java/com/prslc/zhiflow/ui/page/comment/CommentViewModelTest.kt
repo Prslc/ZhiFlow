@@ -100,6 +100,7 @@ class CommentViewModelTest {
         createdTime = 1,
         likeCount = 0,
         liked = false,
+        disliked = false,
         isAuthor = false,
         isAuthorTop = false,
         childCount = 0,
@@ -108,6 +109,7 @@ class CommentViewModelTest {
         parsedContent = CommentContent(AnnotatedString(""), emptyList()),
         canReply = true,
         canLike = true,
+        canDislike = true,
     )
 
     private fun viewModel(backend: Backend) =

@@ -37,6 +37,8 @@ sealed interface CommentUiEvent {
 
     data class ToggleLike(val commentId: String) : CommentUiEvent
 
+    data class ToggleDislike(val commentId: String) : CommentUiEvent
+
     data class ShowAuthor(val urlToken: String) : CommentUiEvent
 
     data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
@@ -312,12 +314,42 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val isCurrentlyActive = targetModel.comment.liked
         val shouldBeActive = !isCurrentlyActive
 
-        updateLocalStatus(commentId, shouldBeActive)
+        updateLocalLike(commentId, shouldBeActive)
         pendingReactions.add(commentId)
 
         viewModelScope.launch {
             repository.toggleLike(commentId, shouldBeActive).onApiFailure { error ->
-                updateLocalStatus(commentId, isCurrentlyActive)
+                updateLocalLike(commentId, isCurrentlyActive)
+                uiState = uiState.copy(actionError = error)
+            }
+            pendingReactions.remove(commentId)
+        }
+    }
+
+    /**
+     * Takes the reader's dislike off or puts it on, where the row keeps its place either way.
+     *
+     * A disliked comment is not hidden here: the server stops handing it back, so it is gone the
+     * next time the list is read -- and until then the thumb is still there to take it back.
+     * [pendingReactions] debounces rapid taps, and a failure is rolled back.
+     */
+    fun toggleDislike(commentId: String) {
+        if (pendingReactions.contains(commentId)) return
+
+        val targetModel = uiState.comments.find { it.comment.id == commentId }
+            ?: childUiState.comments.find { it.comment.id == commentId }
+            ?: segmentUiState.comments.find { it.comment.id == commentId }
+            ?: childUiState.rootComment?.takeIf { it.comment.id == commentId } ?: return
+
+        val isCurrentlyActive = targetModel.comment.disliked
+        val shouldBeActive = !isCurrentlyActive
+
+        updateLocalDislike(commentId, shouldBeActive)
+        pendingReactions.add(commentId)
+
+        viewModelScope.launch {
+            repository.toggleDislike(commentId, shouldBeActive).onApiFailure { error ->
+                updateLocalDislike(commentId, isCurrentlyActive)
                 uiState = uiState.copy(actionError = error)
             }
             pendingReactions.remove(commentId)
@@ -472,28 +504,28 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     private suspend fun List<ZhihuComment>.toUiModels(): List<CommentUiModel> =
         offMain { map { CommentUiModel(it.toDto()) } }
 
-    private fun updateLocalStatus(id: String, active: Boolean) {
-        val mapper = { model: CommentUiModel ->
-            if (model.comment.id == id) {
-                val updatedComment = model.comment.copy(
-                    liked = active,
-                    likeCount = if (active) {
-                        model.comment.likeCount + 1
-                    } else {
-                        (model.comment.likeCount - 1).coerceAtLeast(0)
-                    },
-                )
-                model.copy(comment = updatedComment)
-            } else {
-                model
-            }
-        }
-
-        uiState = uiState.copy(comments = uiState.comments.map(mapper))
+    /** Rewrites one comment wherever it can be drawn: the list, a pane's own comment, its replies, a passage's. */
+    private fun mapEveryComment(update: (CommentUiModel) -> CommentUiModel) {
+        uiState = uiState.copy(comments = uiState.comments.map(update))
         childUiState = childUiState.copy(
-            rootComment = childUiState.rootComment?.let(mapper),
-            comments = childUiState.comments.map(mapper),
+            rootComment = childUiState.rootComment?.let(update),
+            comments = childUiState.comments.map(update),
         )
-        segmentUiState = segmentUiState.copy(comments = segmentUiState.comments.map(mapper))
+        segmentUiState = segmentUiState.copy(comments = segmentUiState.comments.map(update))
+    }
+
+    private fun updateLocalLike(id: String, active: Boolean) = mapEveryComment { model ->
+        if (model.comment.id != id) return@mapEveryComment model
+        model.copy(
+            comment = model.comment.copy(
+                liked = active,
+                likeCount = if (active) model.comment.likeCount + 1 else (model.comment.likeCount - 1).coerceAtLeast(0),
+            ),
+        )
+    }
+
+    private fun updateLocalDislike(id: String, active: Boolean) = mapEveryComment { model ->
+        if (model.comment.id != id) return@mapEveryComment model
+        model.copy(comment = model.comment.copy(disliked = active))
     }
 }

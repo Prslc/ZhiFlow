@@ -100,9 +100,25 @@ class CommentRepository(private val service: CommentService) {
     suspend fun toggleLike(commentId: String, isLike: Boolean): Result<Unit> {
         val method = if (isLike) "POST" else "DELETE"
 
-        return service.commentReaction(
+        return service.commentLikeReaction(
             commentId = commentId,
             action = "like",
+            method = method,
+        )
+    }
+
+    /**
+     * Toggle the dislike status of a comment.
+     *
+     * @param commentId Target comment ID.
+     * @param isDislike True to dislike, false to unlike.
+     * @return [Result] wrapping true if the operation succeeded.
+     */
+    suspend fun toggleDislike(commentId: String, isDislike: Boolean): Result<Unit> {
+        val method = if (isDislike) "PUT" else "DELETE"
+
+        return service.commentDislikeReaction(
+            commentId = commentId,
             method = method,
         )
     }

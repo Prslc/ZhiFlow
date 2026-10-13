@@ -386,6 +386,7 @@ val sampleComment = CommentDto(
     createdTime = 1791726117L,
     likeCount = 42,
     liked = false,
+    disliked = false,
     isAuthor = false,
     isAuthorTop = false,
     childCount = 3,
@@ -400,6 +401,7 @@ val sampleComment = CommentDto(
     ),
     canReply = true,
     canLike = true,
+    canDislike = true,
 )
 
 /** A reply: it names who it answers, it is liked, and it has no replies of its own. */
@@ -441,6 +443,12 @@ val sampleCommentWithReplies = sampleComment.copy(
     id = "11594201744",
     childCount = 5,
     childComments = listOf(sampleReply),
+)
+
+/** The same comment, disliked: the row draws the thumb filled in and keeps its place. */
+val sampleDislikedComment = sampleComment.copy(
+    id = "11594201745",
+    disliked = true,
 )
 
 val sampleComments = listOf(sampleComment, sampleReply, sampleUnreplyableComment)
