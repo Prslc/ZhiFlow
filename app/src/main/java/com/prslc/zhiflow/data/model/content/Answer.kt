@@ -106,6 +106,18 @@ data class ZhihuImage(
     val height: Int,
     val description: String,
     @SerialName("is_gif") val isGif: Boolean,
+    /**
+     * Whether the server found a QR code in this picture. It is the server's judgement, not one
+     * taken by looking at the bitmap here, and it arrives only on the pictures of a matrix image
+     * card -- a body illustration has no such field.
+     */
+    @SerialName("has_qr_code") val hasQrCode: Boolean = false,
+    /**
+     * A smaller copy of the same picture, when the API sent two. Only a matrix card's pictures come
+     * in pairs, and this is the one drawn blurred behind [hasQrCode]'s mask: small enough that the
+     * blur costs little and the code cannot be read, where the full-size copy would be neither.
+     */
+    val thumbnailUrl: String? = null,
 ) {
     /** GIF-first display URL; falls back to the first URL when no gif variant is present. */
     val displayUrl: String?

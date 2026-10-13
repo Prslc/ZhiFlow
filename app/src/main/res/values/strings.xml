@@ -205,6 +205,8 @@
     <string name="outline_title">Contents</string>
     <string name="richtext_references">References</string>
     <string name="richtext_code_copy">Copy code</string>
+    <string name="richtext_qr_masked">Contains a QR code</string>
+    <string name="richtext_qr_reveal">Tap to show</string>
 
     <!-- question -->
     <string name="action_expand">Expand All</string>
@@ -300,6 +302,7 @@
     <string name="lab_case_code">Code blocks</string>
     <string name="lab_case_divider">Divider</string>
     <string name="lab_case_reference">Footnotes</string>
+    <string name="lab_case_qr_card">Matrix card, one picture marked as holding a QR code</string>
     <string name="debug_title">Developer options</string>
     <string name="debug_item_open_link_title">Open Link</string>
     <string name="debug_item_open_link_subtitle">Paste a Zhihu URL to test LinkParser</string>

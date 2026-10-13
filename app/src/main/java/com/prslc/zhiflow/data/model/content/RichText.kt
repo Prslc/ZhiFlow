@@ -197,6 +197,7 @@ data class CardImageItem(
     @SerialName("original_url") val originalUrl: String? = null,
     @SerialName("original_width") val originalWidth: Int? = null,
     @SerialName("original_height") val originalHeight: Int? = null,
+    @SerialName("has_qr_code") val hasQrCode: Boolean = false,
 )
 
 /**

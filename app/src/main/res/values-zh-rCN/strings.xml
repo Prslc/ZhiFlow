@@ -190,6 +190,8 @@
     <string name="outline_title">目录</string>
     <string name="richtext_code_copy">复制代码</string>
     <string name="richtext_references">参考</string>
+    <string name="richtext_qr_masked">含二维码</string>
+    <string name="richtext_qr_reveal">点击查看</string>
 
     <!-- question -->
     <string name="action_expand">展开全部</string>
@@ -280,6 +282,7 @@
     <string name="lab_case_code">代码块</string>
     <string name="lab_case_divider">分割线</string>
     <string name="lab_case_reference">脚注</string>
+    <string name="lab_case_qr_card">矩阵卡，其中一张标了含二维码</string>
     <string name="debug_title">开发者选项</string>
     <string name="debug_item_open_link_title">打开链接</string>
     <string name="debug_item_open_link_subtitle">粘贴知乎 URL 以测试 LinkParser</string>

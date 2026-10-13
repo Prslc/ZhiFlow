@@ -3,6 +3,7 @@ package com.prslc.zhiflow.data.remote.parser
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.mapper.voteStatsOf
 import com.prslc.zhiflow.data.model.content.Card
+import com.prslc.zhiflow.data.model.content.CardImageItem
 import com.prslc.zhiflow.data.model.content.Mark
 import com.prslc.zhiflow.data.model.content.Paragraph
 import com.prslc.zhiflow.data.model.content.Segment
@@ -241,6 +242,26 @@ object ContentParser {
         return elements
     }
 
+    /**
+     * A matrix card picture's two sizes, the larger first and the smaller second.
+     *
+     * Which field holds which is not something either name promises, so the widths they declare
+     * decide it; a picture that arrived with one size comes back as itself and no thumbnail.
+     *
+     * @return The address to draw at full size, and the smaller one to blur behind a mask, or null
+     *   when the card sent only one address.
+     */
+    private fun CardImageItem.sizedUrls(): Pair<String, String?> {
+        val original = originalUrl?.takeIf { it.isNotBlank() }
+        if (original == null) return url to null
+        val originalIsLarger = originalWidth == null || originalWidth >= width
+        return if (originalIsLarger) {
+            original to url.takeIf { it.isNotBlank() && it != original }
+        } else {
+            url to original
+        }
+    }
+
     private fun parseCard(card: Card?) = card?.let {
         if (it.cardType == COLUMN_CARD_TYPE) return@let parseColumnCard(it)
         if (it.cardType in DROPPED_CARD_TYPES) return@let emptyList()
@@ -249,17 +270,19 @@ object ContentParser {
 
         if (it.cardType == "matrix-image-card") {
             extra?.imageList?.images?.mapNotNull { img ->
-                val url = img.originalUrl ?: img.url
-                if (url.isBlank()) {
+                val (display, thumbnail) = img.sizedUrls()
+                if (display.isBlank()) {
                     null
                 } else {
                     RichTextElement.Image(
                         ZhihuImage(
-                            urls = listOf(url),
+                            urls = listOf(display),
                             width = img.originalWidth ?: img.width,
                             height = img.originalHeight ?: img.height,
                             description = "",
                             isGif = img.suffix == "gif",
+                            hasQrCode = img.hasQrCode,
+                            thumbnailUrl = thumbnail,
                         ),
                     )
                 }

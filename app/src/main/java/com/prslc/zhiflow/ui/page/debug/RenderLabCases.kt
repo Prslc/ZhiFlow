@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.content.Blockquote
+import com.prslc.zhiflow.data.model.content.Card
 import com.prslc.zhiflow.data.model.content.CodeBlock
 import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.Heading
@@ -157,7 +158,45 @@ fun labCases(params: LabParams): List<LabCase> = listOf(
     codeCase(),
     dividerCase(),
     referenceCase(params),
+    qrCardCase(),
 )
+
+/**
+ * One picture of a matrix image card marked as holding a QR code, and the same picture beside it
+ * without the mark, so the difference is the mask and nothing else.
+ *
+ * The two addresses are one picture at two of the CDN's sizes rather than a pair a card sent,
+ * because no capture of a matrix card has turned up to copy one from: the `_l` size measures
+ * 100x100 at 4 KB and the `_720w` 685x685 at 56 KB. What that pair leaves open is which sizes a
+ * card really sends, so what the mask costs in the wild is still unmeasured.
+ *
+ * The case is here to be tapped. A preview cannot stand in for it: a preview fetches nothing, so
+ * there the blurred copy is absent and the tap has nothing to lift.
+ */
+private fun qrCardCase(): LabCase = LabCase(
+    title = R.string.lab_case_qr_card,
+    segments = listOf(
+        Segment(
+            type = "card",
+            card = Card(cardType = "matrix-image-card", extraInfo = QR_CARD_EXTRA),
+        ),
+    ),
+)
+
+private const val QR_PICTURE_URL = "https://picx.zhimg.com/v2-f1d7dc57926a68b812111df4bb3cef51"
+
+private val QR_CARD_EXTRA =
+    """
+    {"image_list":{"count":2,"is_grid":true,"images":[
+      {"url":"${QR_PICTURE_URL}_l.jpg?source=32738c0c",
+       "original_url":"${QR_PICTURE_URL}_720w.jpg?source=32738c0c",
+       "width":100,"height":100,"original_width":685,"original_height":685,
+       "suffix":"jpg","has_qr_code":true},
+      {"url":"${QR_PICTURE_URL}_l.jpg?source=32738c0c",
+       "original_url":"${QR_PICTURE_URL}_720w.jpg?source=32738c0c",
+       "width":100,"height":100,"original_width":685,"original_height":685,
+       "suffix":"jpg","has_qr_code":false}]}}
+    """.trimIndent()
 
 /**
  * A formula whose box is [height] dp tall, the width following the one the API rendered it at so
