@@ -149,9 +149,6 @@ fun FollowButton(
     }
 }
 
-/** How much of the primary color the author's follow button washes its own fill with. */
-private const val TINT_ALPHA = 0.08f
-
 /**
  * The follow button an author's own row wears: a wash of the primary color with that color written
  * on it, and a plus.
@@ -162,17 +159,30 @@ private const val TINT_ALPHA = 0.08f
  * of each other.
  *
  * Its size is capped from the outside: M3's Button enforces 58x40dp minimums on its inner content
- * row, and such a default only fills in where the incoming minimum is zero -- so a height and a
- * width of its own are what get under it.
+ * row, and such a default only fills in where the incoming minimum is zero -- so a height of its
+ * own is what gets under it.
+ *
+ * @param isFollowing Whether the reader follows the author. The button shows this state, it does
+ *   not hold it.
+ * @param onClick Called when the button is pressed, with the haptic for the new state already
+ *   played.
+ * @param modifier Applied to the animated content, so it survives the swap between the two states.
+ * @param compact True for the size a page header wears it at, where the name it sits beside is the
+ *   page's subject. Left false it is a row's: 30dp, which is what an author's row had before this
+ *   button moved here, and most of the height of the avatar beside it.
  */
 @Composable
 fun AuthorFollowButton(
     isFollowing: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     val followLabel = stringResource(R.string.people_action_follow)
     val followingLabel = stringResource(R.string.people_action_following)
+    val buttonModifier = Modifier
+        .height(if (compact) 22.dp else 30.dp)
+        .widthIn(min = 44.dp)
     FollowToggle(
         isFollowing = isFollowing,
         onClick = onClick,
@@ -181,15 +191,13 @@ fun AuthorFollowButton(
     ) { following, onToggle ->
         Button(
             onClick = onToggle,
-            modifier = Modifier
-                .height(22.dp)
-                .widthIn(min = 44.dp),
+            modifier = buttonModifier,
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (following) {
                     MaterialTheme.colorScheme.surfaceVariant
                 } else {
-                    MaterialTheme.colorScheme.primary.copy(alpha = TINT_ALPHA)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
                 },
                 contentColor = if (following) {
                     MaterialTheme.colorScheme.onSurfaceVariant
@@ -249,6 +257,18 @@ private fun AuthorFollowButtonPreview() {
         Row {
             AuthorFollowButton(isFollowing = false, onClick = {})
             AuthorFollowButton(isFollowing = true, onClick = {})
+        }
+    }
+}
+
+/** The same two, at the size a page header wears it: the name beside it is the page's subject. */
+@AppPreviews
+@Composable
+private fun AuthorFollowButtonCompactPreview() {
+    PreviewSurface {
+        Row {
+            AuthorFollowButton(isFollowing = false, onClick = {}, compact = true)
+            AuthorFollowButton(isFollowing = true, onClick = {}, compact = true)
         }
     }
 }

@@ -31,6 +31,7 @@ import com.prslc.zhiflow.data.dto.SuggestedQueryDto
 import com.prslc.zhiflow.data.model.comment.Author
 import com.prslc.zhiflow.data.model.comment.CommentAuthor
 import com.prslc.zhiflow.data.model.comment.CommentContent
+import com.prslc.zhiflow.data.model.content.AnswerAuthor
 import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.QuestionDetail
 import com.prslc.zhiflow.data.model.content.Topic
@@ -796,3 +797,15 @@ val sampleRichTextElements = listOf(
 val sampleImages = listOf(SampleImage, SampleWideImage)
 
 val sampleZhihuImage = SampleZhihuImage
+
+// The body's author row
+
+/**
+ * The author whose row opens a body: a name, a line about them, and the button beside it -- left
+ * not following, which is the state a reader meets it in.
+ */
+val sampleAnswerAuthor = AnswerAuthor(
+    fullname = "Ada Lovelace",
+    urlToken = "ada",
+    description = "Writes about parsers and the machines that read them",
+)

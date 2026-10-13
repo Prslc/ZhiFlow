@@ -325,6 +325,7 @@ private fun ColumnHeader(
                         AuthorFollowButton(
                             isFollowing = column.author.isFollowing,
                             onClick = onAuthorFollowClick,
+                            compact = true,
                         )
                     }
                     if (column.author.headline.isNotBlank()) {

@@ -57,10 +57,14 @@ import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
-import com.prslc.zhiflow.ui.component.common.FollowButton
+import com.prslc.zhiflow.ui.component.common.AuthorFollowButton
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.component.widget.LightboxItem
+import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.navigation.Navigator
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleAnswerAuthor
 import org.koin.compose.koinInject
 
 /** The items [ContentBodyList] lays out before the body: the author's row. */
@@ -441,10 +445,29 @@ private fun AuthorSection(
             }
         }
         Spacer(modifier = Modifier.width(12.dp))
-        FollowButton(
+        AuthorFollowButton(
             isFollowing = author.followStatus == "following",
             onClick = onFollowClick,
-            compact = true,
         )
+    }
+}
+
+/** The row a body opens with, in both states of the button it wears. */
+@AppPreviews
+@Composable
+private fun AuthorSectionPreview() {
+    PreviewSurface {
+        Column {
+            AuthorSection(
+                author = sampleAnswerAuthor,
+                navigator = LocalNavigator.current,
+                onFollowClick = {},
+            )
+            AuthorSection(
+                author = sampleAnswerAuthor.copy(followStatus = "following"),
+                navigator = LocalNavigator.current,
+                onFollowClick = {},
+            )
+        }
     }
 }
