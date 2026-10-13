@@ -92,14 +92,17 @@ class ColumnViewModelTest {
                 .filter { it.encodedPath.endsWith(ITEMS_PATH) }
                 .map { it.queryParameter("offset") }
 
-        private fun answer(url: HttpUrl): String = when {
-            url.encodedPath.endsWith(ITEMS_PATH) -> {
-                pageOf(url.queryParameter("offset")?.toInt() ?: 0)
-            }
+        private fun answer(url: HttpUrl): String {
+            val offset = url.queryParameter("offset")?.toInt() ?: 0
 
-            url.encodedPath.contains("/columns/v2/") -> COLUMN
-            // The visit the page writes on arrival, and whatever else this test is not about.
-            else -> "{}"
+            return when {
+                url.encodedPath.endsWith(ITEMS_PATH) -> pageOf(offset)
+
+                url.encodedPath.contains("/columns/v2/") -> COLUMN
+
+                // The visit the page writes on arrival, and whatever else this test is not about.
+                else -> "{}"
+            }
         }
     }
 
