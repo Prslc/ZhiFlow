@@ -37,6 +37,7 @@ import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
+import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.richtext.component.rememberEmojiContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
@@ -46,7 +47,9 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleComment
+import com.prslc.zhiflow.ui.preview.sampleCommentByAuthor
 import com.prslc.zhiflow.ui.preview.sampleReply
+import com.prslc.zhiflow.ui.preview.sampleReplyByAuthor
 import com.prslc.zhiflow.ui.theme.TextStyles
 import org.koin.compose.koinInject
 
@@ -103,6 +106,13 @@ fun CommentItem(
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
                 )
+
+                if (comment.isAuthor) {
+                    ContentTypeLabel(
+                        text = stringResource(R.string.comment_author),
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                }
 
                 comment.replyToAuthor?.let { replyTo ->
                     Text(
@@ -267,6 +277,14 @@ private fun CommentItemPreview() {
                 model = CommentViewModel.CommentUiModel(sampleReply),
                 onEvent = {},
                 isChild = true,
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleCommentByAuthor),
+                onEvent = {},
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleReplyByAuthor),
+                onEvent = {},
             )
         }
     }

@@ -179,6 +179,7 @@
     <string name="comment_end_root">已显示全部评论</string>
     <string name="comment_end_child">已显示全部回复</string>
     <string name="comment_published_with_ip">%1$s · %2$s</string>
+    <string name="comment_author">作者</string>
 
     <!-- segment panel -->
     <string name="segment_action_like">喜欢</string>

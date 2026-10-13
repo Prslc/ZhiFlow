@@ -13,6 +13,7 @@ data class CommentDto(
     val createdTime: Long,
     val likeCount: Int,
     val liked: Boolean,
+    val isAuthor: Boolean,
     val childCount: Int,
     val ipInfo: String?,
     val parsedContent: CommentContent,

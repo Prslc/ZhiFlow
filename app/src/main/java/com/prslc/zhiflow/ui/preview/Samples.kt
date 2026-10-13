@@ -385,6 +385,7 @@ val sampleComment = CommentDto(
     createdTime = 1791726117L,
     likeCount = 42,
     liked = false,
+    isAuthor = false,
     childCount = 3,
     ipInfo = "Fujian",
     parsedContent = CommentContent(
@@ -412,6 +413,18 @@ val sampleUnreplyableComment = sampleComment.copy(
     likeCount = 1,
     childCount = 0,
     canReply = false,
+)
+
+/** Left by the author of the piece it sits under, which is what the row's badge says. */
+val sampleCommentByAuthor = sampleComment.copy(
+    id = "11594201741",
+    isAuthor = true,
+)
+
+/** The author answering someone: the badge on a row that also names who it answers. */
+val sampleReplyByAuthor = sampleReply.copy(
+    id = "11594201742",
+    isAuthor = true,
 )
 
 val sampleComments = listOf(sampleComment, sampleReply, sampleUnreplyableComment)

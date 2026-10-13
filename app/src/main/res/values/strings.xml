@@ -194,6 +194,7 @@
     <string name="comment_end_root">All comments shown</string>
     <string name="comment_end_child">All replies shown</string>
     <string name="comment_published_with_ip">%1$s · %2$s</string>
+    <string name="comment_author">Author</string>
 
     <!-- segment panel -->
     <string name="segment_action_like">Like</string>
