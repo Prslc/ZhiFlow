@@ -211,19 +211,9 @@ fun CommentItem(
                 }
             }
 
-            // The replies, where the response carried any: one of them whole, and the block itself
-            // is the way into the rest.
-            if (!isChild && comment.childCount > 0) {
-                CommentReplies(
-                    preview = comment.childComments.firstOrNull(),
-                    count = comment.childCount,
-                    onClick = { onEvent(CommentUiEvent.LoadChildComments(comment)) },
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-            }
-
             // What the reader can do about the comment, under it: the way in on the left, the way
-            // to agree on the right.
+            // to agree on the right. Under that come the replies, which belong to the comment the
+            // way a note does -- the actions close it, and what is under them is what came of it.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -241,6 +231,19 @@ fun CommentItem(
                         toggleHaptic(!comment.liked)
                         onEvent(CommentUiEvent.ToggleLike(comment.id))
                     },
+                )
+            }
+
+            // The replies, where the response carried any: one of them whole, and the block itself
+            // is the way into the rest. Not on a reply, and not on the comment the pane was opened
+            // for -- that one is drawn above its own replies, and the way in would lead back into
+            // the list it is already at the top of.
+            if (!isChild && showReplyButton && comment.childCount > 0) {
+                CommentReplies(
+                    preview = comment.childComments.firstOrNull(),
+                    count = comment.childCount,
+                    onClick = { onEvent(CommentUiEvent.LoadChildComments(comment)) },
+                    modifier = Modifier.padding(top = 4.dp),
                 )
             }
         }
