@@ -1,7 +1,10 @@
 package com.prslc.zhiflow.ui.component.richtext.component
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import com.prslc.zhiflow.data.model.content.Formula
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
@@ -217,13 +221,35 @@ private fun FormulaImage(
     formula: Formula,
     modifier: Modifier = Modifier,
 ) {
-    AsyncImage(
-        model = formula.imgUrl,
-        contentDescription = formula.content,
-        modifier = modifier,
-        contentScale = ContentScale.FillBounds,
-        colorFilter = formulaColorFilter(LocalIsDarkTheme.current),
-    )
+    val drawn = remember(formula.imgUrl) { mutableStateOf(false) }
+
+    Box(modifier) {
+        // Kept as a sibling rather than handed to `AsyncImage`'s own placeholder slot, for two
+        // reasons. A color filter reaches every painter that slot draws, so a placeholder there
+        // would be inverted along with the ink in dark mode; and a background behind the image
+        // would show through it always, the bitmaps being transparent around their ink.
+        //
+        // A flat tone of the text's own color rather than a container role: on this device's
+        // dynamic palette the container tones sit two steps apart, which is not a box.
+        if (!drawn.value) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
+            )
+        }
+        AsyncImage(
+            model = formula.imgUrl,
+            contentDescription = formula.content,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds,
+            colorFilter = formulaColorFilter(LocalIsDarkTheme.current),
+            // The painter's state is a `StateFlow`, so reading it here would subscribe to nothing
+            // and the box would be drawn once and never taken away. This is the way it is meant to
+            // be watched; it reads through a state of our own, which does recompose.
+            onState = { state -> drawn.value = state is AsyncImagePainter.State.Success },
+        )
+    }
 }
 
 /**
@@ -312,9 +338,9 @@ fun FormulaTextSection(
  * A formula taller than the line it stands in, which is the case the row's height exists for: with
  * the line height left alone it would be drawn across the rows around it.
  *
- * The formula itself is not drawn: `FormulaImage` is a bare `AsyncImage` with neither a placeholder
- * nor an error drawable, so a bitmap the preview cannot fetch leaves the box invisible. What shows
- * is what the box does to the text around it.
+ * The formula's own bitmap is not drawn -- a preview fetches nothing -- so what shows is the box
+ * standing in for it, at the size the API's dp dimensions give. That is the half of this worth
+ * looking at: the box's height against the line it stands in, and the clearance around it.
  */
 @AppPreviews
 @Composable
