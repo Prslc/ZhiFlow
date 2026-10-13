@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -148,6 +149,70 @@ fun FollowButton(
     }
 }
 
+/** How much of the primary color the author's follow button washes its own fill with. */
+private const val TINT_ALPHA = 0.08f
+
+/**
+ * The follow button an author's own row wears: a wash of the primary color with that color written
+ * on it, and a plus.
+ *
+ * The wash is this app's own rather than a role the scheme names -- about an eighth of the way from
+ * the surface to the primary. It reads by its words rather than by its fill, which is what keeps it
+ * legible under the dynamic palette, where a container and its surface can sit within a few steps
+ * of each other.
+ *
+ * Its size is capped from the outside: M3's Button enforces 58x40dp minimums on its inner content
+ * row, and such a default only fills in where the incoming minimum is zero -- so a height and a
+ * width of its own are what get under it.
+ */
+@Composable
+fun AuthorFollowButton(
+    isFollowing: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val followLabel = stringResource(R.string.people_action_follow)
+    val followingLabel = stringResource(R.string.people_action_following)
+    FollowToggle(
+        isFollowing = isFollowing,
+        onClick = onClick,
+        modifier = modifier,
+        label = "AuthorFollowButton",
+    ) { following, onToggle ->
+        Button(
+            onClick = onToggle,
+            modifier = Modifier
+                .height(22.dp)
+                .widthIn(min = 44.dp),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (following) {
+                    MaterialTheme.colorScheme.surfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.primary.copy(alpha = TINT_ALPHA)
+                },
+                contentColor = if (following) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+            ),
+            contentPadding = PaddingValues(horizontal = 8.dp),
+        ) {
+            Icon(
+                imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+            )
+            Spacer(modifier = Modifier.width(2.dp))
+            Text(
+                text = if (following) followingLabel else followLabel,
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
+    }
+}
+
 @AppPreviews
 @Composable
 private fun FollowButtonPreview() {
@@ -173,6 +238,17 @@ private fun FollowButtonCompactPreview() {
         ) {
             FollowButton(isFollowing = false, onClick = {}, compact = true)
             FollowButton(isFollowing = true, onClick = {}, compact = true)
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun AuthorFollowButtonPreview() {
+    PreviewSurface {
+        Row {
+            AuthorFollowButton(isFollowing = false, onClick = {})
+            AuthorFollowButton(isFollowing = true, onClick = {})
         }
     }
 }

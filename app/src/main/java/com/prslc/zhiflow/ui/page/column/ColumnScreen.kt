@@ -14,17 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,12 +51,12 @@ import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
 import com.prslc.zhiflow.ui.component.LocalDataSaver
+import com.prslc.zhiflow.ui.component.common.AuthorFollowButton
 import com.prslc.zhiflow.ui.component.common.ColumnCover
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.FollowButton
-import com.prslc.zhiflow.ui.component.common.FollowToggle
 import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.StatItem
@@ -79,9 +74,6 @@ import org.koin.androidx.compose.koinViewModel
 private val AvatarSize = 56.dp
 private val Gutter = 20.dp
 private val CoverShape = RoundedCornerShape(6.dp)
-
-/** How much of the primary color the author's follow button washes its own fill with. */
-private const val TINT_ALPHA = 0.08f
 
 /**
  * One column: what it is, and the content it holds.
@@ -353,66 +345,6 @@ private fun ColumnHeader(
     }
 }
 
-/**
- * The author's follow button, as this page draws it: a wash of the primary color with that color
- * written on it, and a plus.
- *
- * The wash is what the page's own buttons wear — about an eighth of the way from the surface to the
- * primary. It reads by its words rather than by its fill, which is what keeps it legible under the
- * dynamic palette, where a container and its surface can sit within a few steps of each other.
- *
- * Its size is capped from the outside: M3's Button enforces 58x40dp minimums on its inner content
- * row, and such a default only fills in where the incoming minimum is zero — so a height and a
- * width of this page's own are what get under it.
- */
-@Composable
-private fun AuthorFollowButton(
-    isFollowing: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    FollowToggle(
-        isFollowing = isFollowing,
-        onClick = onClick,
-        modifier = modifier,
-        label = "AuthorFollowButton",
-    ) { following, onToggle ->
-        Button(
-            onClick = onToggle,
-            modifier = Modifier
-                .height(22.dp)
-                .widthIn(min = 44.dp),
-            shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (following) {
-                    MaterialTheme.colorScheme.surfaceVariant
-                } else {
-                    MaterialTheme.colorScheme.primary.copy(alpha = TINT_ALPHA)
-                },
-                contentColor = if (following) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                } else {
-                    MaterialTheme.colorScheme.primary
-                },
-            ),
-            contentPadding = PaddingValues(horizontal = 8.dp),
-        ) {
-            Icon(
-                imageVector = if (following) Icons.Default.Check else Icons.Default.Add,
-                contentDescription = null,
-                modifier = Modifier.size(12.dp),
-            )
-            Spacer(modifier = Modifier.width(2.dp))
-            Text(
-                text = stringResource(
-                    if (following) R.string.people_action_following else R.string.people_action_follow,
-                ),
-                style = MaterialTheme.typography.labelMedium,
-            )
-        }
-    }
-}
-
 /** One entry of the column, drawn as the feed's rows are: title, excerpt, counts, and a cover. */
 @Composable
 private fun ColumnItemRow(
@@ -592,17 +524,6 @@ private fun ColumnItemRowPreview() {
     PreviewSurface {
         Column {
             sampleColumnItems.forEach { ColumnItemRow(item = it, onClick = {}) }
-        }
-    }
-}
-
-@AppPreviews
-@Composable
-private fun AuthorFollowButtonPreview() {
-    PreviewSurface {
-        Row {
-            AuthorFollowButton(isFollowing = false, onClick = {})
-            AuthorFollowButton(isFollowing = true, onClick = {})
         }
     }
 }
