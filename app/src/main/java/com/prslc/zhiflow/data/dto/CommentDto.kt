@@ -14,6 +14,7 @@ data class CommentDto(
     val likeCount: Int,
     val liked: Boolean,
     val isAuthor: Boolean,
+    val isAuthorTop: Boolean,
     val childCount: Int,
     val ipInfo: String?,
     val parsedContent: CommentContent,

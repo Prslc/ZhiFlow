@@ -387,6 +387,7 @@ val sampleComment = CommentDto(
     likeCount = 42,
     liked = false,
     isAuthor = false,
+    isAuthorTop = false,
     childCount = 3,
     ipInfo = "Fujian",
     parsedContent = CommentContent(
@@ -426,6 +427,11 @@ val sampleCommentByAuthor = sampleComment.copy(
 val sampleReplyByAuthor = sampleReply.copy(
     id = "11594201742",
     isAuthor = true,
+)
+
+val sampleCommentByTop = sampleComment.copy(
+    id = "11594201743",
+    isAuthorTop = true,
 )
 
 val sampleComments = listOf(sampleComment, sampleReply, sampleUnreplyableComment)

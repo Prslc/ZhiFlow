@@ -48,6 +48,7 @@ import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleComment
 import com.prslc.zhiflow.ui.preview.sampleCommentByAuthor
+import com.prslc.zhiflow.ui.preview.sampleCommentByTop
 import com.prslc.zhiflow.ui.preview.sampleReply
 import com.prslc.zhiflow.ui.preview.sampleReplyByAuthor
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -73,7 +74,16 @@ fun CommentItem(
     val lightbox = koinInject<ImageLightboxController>()
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val inlineContent = comment.parsedContent.text.rememberEmojiContent()
+    val body = comment.parsedContent.text.withThemeSpans()
+
+    // The topping badge rides the comment's own first line rather than taking a line of its own;
+    // `CommentToppingBadge` holds how its box is measured into that line.
+    val toppingLabel = stringResource(R.string.comment_topping)
+    val toppingBadge = if (comment.isAuthorTop) rememberToppingBadge(toppingLabel) else null
+    val text = if (toppingBadge == null) body else body.withToppingBadge(toppingLabel)
+
+    val inlineContent = comment.parsedContent.text.rememberEmojiContent() +
+        toppingBadge?.let { mapOf(TOPPING_BADGE to it) }.orEmpty()
 
     Row(
         modifier = modifier
@@ -139,7 +149,7 @@ fun CommentItem(
             // leave nothing meaningful to select across two of them.
             SelectionContainer {
                 Text(
-                    text = comment.parsedContent.text.withThemeSpans(),
+                    text = text,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     inlineContent = inlineContent,
@@ -284,6 +294,10 @@ private fun CommentItemPreview() {
             )
             CommentItem(
                 model = CommentViewModel.CommentUiModel(sampleReplyByAuthor),
+                onEvent = {},
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleCommentByTop),
                 onEvent = {},
             )
         }

@@ -101,6 +101,7 @@ class CommentViewModelTest {
         likeCount = 0,
         liked = false,
         isAuthor = false,
+        isAuthorTop = false,
         childCount = 0,
         ipInfo = null,
         parsedContent = CommentContent(AnnotatedString(""), emptyList()),

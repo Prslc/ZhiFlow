@@ -15,6 +15,7 @@ internal fun ZhihuComment.toDto(): CommentDto {
         likeCount = likeCount,
         liked = liked,
         isAuthor = isAuthor,
+        isAuthorTop = isAuthorTop,
         childCount = childCount,
         ipInfo = ipInfo,
         parsedContent = parsedContent,

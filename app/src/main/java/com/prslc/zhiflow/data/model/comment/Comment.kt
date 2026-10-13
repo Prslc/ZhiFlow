@@ -32,6 +32,7 @@ data class ZhihuComment(
     @SerialName("like_count") val likeCount: Int,
     val author: CommentAuthor,
     @SerialName("is_author") val isAuthor: Boolean = false,
+    @SerialName("is_author_top") val isAuthorTop: Boolean = false,
     @SerialName("comment_tag") val tags: List<CommentTag> = emptyList(),
     @SerialName("child_comment_count") val childCount: Int = 0,
     val liked: Boolean = false,
