@@ -26,7 +26,7 @@ import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
 import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
 import com.prslc.zhiflow.ui.component.richtext.component.drawSegmentUnderline
-import com.prslc.zhiflow.ui.component.richtext.component.formulaPlaceholder
+import com.prslc.zhiflow.ui.component.richtext.component.inlinePlaceholder
 import com.prslc.zhiflow.ui.component.richtext.component.rememberEmojiContent
 import com.prslc.zhiflow.ui.component.richtext.component.rememberFormulaMaxWidth
 import com.prslc.zhiflow.ui.component.richtext.component.rememberSegmentLikeIcons
@@ -60,7 +60,7 @@ fun List<InlineFormulaMeta>.rememberInlineContent(
                 formula.width.toFloat(), formula.height.toFloat(), effectiveMaxWidth,
             )
 
-            meta.inlineId to InlineTextContent(formulaPlaceholder(density, widthDp, heightDp)) {
+            meta.inlineId to InlineTextContent(inlinePlaceholder(density, widthDp, heightDp)) {
                 LatexComponent(
                     formula = formula,
                     isInline = true,

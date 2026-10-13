@@ -48,21 +48,21 @@ import com.prslc.zhiflow.ui.preview.sampleFormulaParagraph
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 
 /**
- * Builds an inline formula placeholder sized by the server-provided dp dimensions.
+ * A [Placeholder] for an inline composable, sized from the dp box it is given.
  *
- * The Zhihu API reports each formula's display size in dp ([Formula.width]/[Formula.height],
- * the rendered bitmap is 3x that). The span bounds take those exact dp values as they come,
- * so formulas keep their natural size variation (simple subscripts ~13dp, display fractions up
- * to ~56dp). [Placeholder] only accepts sp/em units, so the dp target is
- * converted via density and then divided by fontScale so the final rendered pixels stay
- * constant regardless of the user's system font size.
+ * A placeholder is fixed before the text it sits in is laid out, and [Placeholder] takes sp and em
+ * -- never dp. The box is turned into px through the density and then into sp, which divides by the
+ * font scale: the pixels a placeholder covers are the same whatever size the reader has set their
+ * text to, and the composable drawn inside it is the size the box promised. Callers hand over the
+ * box their own content needs -- a formula takes its width and height from the server, a badge
+ * measures the words it is about to draw.
  *
- * @param density The density the server's dp is converted through, on the way to the sp a
- *   [Placeholder] takes.
- * @param widthDp The server-reported width, in dp.
- * @param heightDp The server-reported height, in dp.
+ * @param density The density the box is converted through, on the way to the sp a [Placeholder]
+ *   takes.
+ * @param widthDp The box's width, in dp.
+ * @param heightDp The box's height, in dp.
  */
-fun formulaPlaceholder(density: Density, widthDp: Float, heightDp: Float): Placeholder {
+fun inlinePlaceholder(density: Density, widthDp: Float, heightDp: Float): Placeholder {
     val widthSp = with(density) { widthDp.dp.toPx().toSp() }
     val heightSp = with(density) { heightDp.dp.toPx().toSp() }
     return Placeholder(
