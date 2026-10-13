@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -55,9 +57,11 @@ import com.prslc.zhiflow.ui.page.people.moment.PeopleActivitiesTab
 import com.prslc.zhiflow.ui.page.people.moment.PeoplePostsTab
 import com.prslc.zhiflow.ui.page.people.moment.PeopleUpvotesTab
 import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAB_COUNT = 3
 private val TOP_BAR_HEIGHT = 48.dp
@@ -68,6 +72,11 @@ private val TOP_BAR_SIDE_PADDING = 4.dp
 // The loaded page resolves over the loading one rather than cutting to it: a bright cover landing
 // on a black screen in a single frame is what reads as a flash.
 private const val CONTENT_FADE_MS = 120
+
+// How long to let a released drag start settling before stepping in: a finger going up and a
+// fling starting are a frame or two apart, and between them neither one holds the scroll —
+// which is the shape of the state this waits out.
+private const val SETTLE_GRACE_MS = 150L
 
 @Composable
 fun PeopleScreen(
@@ -100,6 +109,19 @@ fun PeopleScreen(
     )
     LaunchedEffect(urlToken) {
         viewModel.loadPeople(urlToken)
+    }
+
+    // A flick can leave the pager between two pages: the snap it runs on release targets a point
+    // a few pixels from where the pager already is, so it finishes having moved almost nothing,
+    // and the pager then sits there until the next gesture touches it. Hand it the settle it
+    // never ran.
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.isScrollInProgress to pagerState.currentPageOffsetFraction }
+            .collect { (isScrolling, offsetFraction) ->
+                if (isScrolling || offsetFraction == 0f) return@collect
+                delay(SETTLE_GRACE_MS.milliseconds)
+                if (pagerState.isParked()) pagerState.animateScrollToPage(pagerState.currentPage)
+            }
     }
 
     val snackbarHostState = rememberActionErrorHost(
@@ -274,6 +296,15 @@ fun PeopleScreen(
         }
     }
 }
+
+/**
+ * Whether the pager is sitting between two pages with nothing on its way to move it.
+ *
+ * A flick is the way in: the snap that follows it comes to rest a few pixels from where the
+ * pager already was, which leaves the pager parked and takes no notice of the page boundary.
+ */
+private fun PagerState.isParked(): Boolean =
+    !isScrollInProgress && currentPageOffsetFraction != 0f
 
 /**
  * Hands back only as much of the header as is still on screen: the scroll offset comes off its
