@@ -35,6 +35,11 @@ data class ZhihuComment(
     @SerialName("is_author_top") val isAuthorTop: Boolean = false,
     @SerialName("comment_tag") val tags: List<CommentTag> = emptyList(),
     @SerialName("child_comment_count") val childCount: Int = 0,
+    /**
+     * Some of the comment's replies, where the server sent any: a page of them rather than all of
+     * them, and not sent at all on many requests.
+     */
+    @SerialName("child_comments") val childComments: List<ZhihuComment> = emptyList(),
     val liked: Boolean = false,
     /**
      * Whether the server will take a reply on this comment. True by default so that a comment the

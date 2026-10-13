@@ -103,6 +103,7 @@ class CommentViewModelTest {
         isAuthor = false,
         isAuthorTop = false,
         childCount = 0,
+        childComments = emptyList(),
         ipInfo = null,
         parsedContent = CommentContent(AnnotatedString(""), emptyList()),
         canReply = true,

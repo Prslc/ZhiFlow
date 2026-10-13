@@ -5,12 +5,15 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Reply
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
@@ -26,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +51,7 @@ import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleComment
 import com.prslc.zhiflow.ui.preview.sampleCommentByAuthor
 import com.prslc.zhiflow.ui.preview.sampleCommentByTop
+import com.prslc.zhiflow.ui.preview.sampleCommentWithReplies
 import com.prslc.zhiflow.ui.preview.sampleReply
 import com.prslc.zhiflow.ui.preview.sampleReplyByAuthor
 import com.prslc.zhiflow.ui.theme.TextStyles
@@ -97,7 +100,7 @@ fun CommentItem(
         // avatar
         AsyncImage(
             model = sizedImageUrl(comment.author.avatarUrl, 36.dp),
-            contentDescription = "avatar",
+            contentDescription = stringResource(R.string.content_desc_avatar),
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
@@ -143,6 +146,24 @@ fun CommentItem(
                     )
                 }
             }
+
+            // When it was said, and from where. Under the name rather than under the body: what is
+            // under the body belongs to the replies and to what can be done about them.
+            comment.ipInfo?.let { ip ->
+                Text(
+                    text = stringResource(
+                        R.string.comment_published_with_ip,
+                        formatToDate(comment.createdTime),
+                        ip,
+                    ),
+                    style = metaStyle,
+                    color = MaterialTheme.colorScheme.outline,
+                )
+            } ?: Text(
+                text = formatToDate(comment.createdTime),
+                style = metaStyle,
+                color = MaterialTheme.colorScheme.outline,
+            )
 
             // comment
             // Per comment, not per list: the author row, images and timestamp between comments
@@ -190,85 +211,107 @@ fun CommentItem(
                 }
             }
 
-            // Create Time + IP
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(top = 2.dp),
-            ) {
-                comment.ipInfo?.let { ip ->
-                    Text(
-                        text = stringResource(
-                            R.string.comment_published_with_ip,
-                            formatToDate(comment.createdTime),
-                            ip,
-                        ),
-                        style = metaStyle,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-                } ?: Text(
-                    text = formatToDate(comment.createdTime),
-                    style = metaStyle,
-                    color = MaterialTheme.colorScheme.outline,
+            // The replies, where the response carried any: one of them whole, and the block itself
+            // is the way into the rest.
+            if (!isChild && comment.childCount > 0) {
+                CommentReplies(
+                    preview = comment.childComments.firstOrNull(),
+                    count = comment.childCount,
+                    onClick = { onEvent(CommentUiEvent.LoadChildComments(comment)) },
+                    modifier = Modifier.padding(top = 4.dp),
                 )
+            }
 
-                // Sub-comment
-                // The way into a comment's replies, and — where there are none yet — the only way
-                // to answer it: the box a reply is written in sits under that pane's list.
-                if (!isChild && showReplyButton) {
-                    val repliesLabel = when {
-                        comment.childCount > 0 -> pluralStringResource(
-                            R.plurals.comment_reply_count_with_arrow,
-                            comment.childCount,
-                            comment.childCount,
-                        )
-
-                        comment.canReply -> stringResource(R.string.comment_action_reply)
-
-                        else -> null
-                    }
-
-                    if (repliesLabel != null) {
-                        Text(
-                            text = repliesLabel,
-                            style = metaStyle.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                            ),
-                            modifier = Modifier
-                                .clickable { onEvent(CommentUiEvent.LoadChildComments(comment)) }
-                                .padding(vertical = 4.dp),
-                        )
-                    }
+            // What the reader can do about the comment, under it: the way in on the left, the way
+            // to agree on the right.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (!isChild && showReplyButton && comment.canReply) {
+                    ReplyAction(onClick = { onEvent(CommentUiEvent.LoadChildComments(comment)) })
                 }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                LikeAction(
+                    liked = comment.liked,
+                    count = comment.likeCount,
+                    onClick = {
+                        toggleHaptic(!comment.liked)
+                        onEvent(CommentUiEvent.ToggleLike(comment.id))
+                    },
+                )
             }
         }
+    }
+}
 
-        // Upvote
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .clickable {
-                    toggleHaptic(!comment.liked)
-                    onEvent(CommentUiEvent.ToggleLike(comment.id))
-                },
-        ) {
-            Icon(
-                imageVector = if (comment.liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                contentDescription = "like",
-                tint = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(18.dp),
+/**
+ * The way into a comment's replies: the pane they are read in, with the box a reply is written in
+ * under them.
+ */
+@Composable
+private fun ReplyAction(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Outlined.Reply,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp),
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = stringResource(R.string.comment_action_reply),
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontSize = TextStyles.commentMetaSize,
+                fontWeight = FontWeight.Bold,
+            ),
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+/** How the reader agrees with a comment: the thumb, and what it has been given. */
+@Composable
+private fun LikeAction(
+    liked: Boolean,
+    count: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = if (liked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
+            contentDescription = stringResource(
+                if (liked) R.string.comment_action_agreed else R.string.comment_action_agree,
+            ),
+            tint = if (liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+            modifier = Modifier.size(18.dp),
+        )
+        if (count > 0) {
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = TextStyles.commentLikeSize,
+                    color = if (liked) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.outline
+                    },
+                ),
             )
-            if (comment.likeCount > 0) {
-                Text(
-                    text = comment.likeCount.toString(),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = TextStyles.commentLikeSize,
-                        color = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                    ),
-                )
-            }
         }
     }
 }
@@ -298,6 +341,10 @@ private fun CommentItemPreview() {
             )
             CommentItem(
                 model = CommentViewModel.CommentUiModel(sampleCommentByTop),
+                onEvent = {},
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleCommentWithReplies),
                 onEvent = {},
             )
         }

@@ -16,6 +16,8 @@ data class CommentDto(
     val isAuthor: Boolean,
     val isAuthorTop: Boolean,
     val childCount: Int,
+    /** The replies the response carried, of which the row draws the first; see the mapper. */
+    val childComments: List<CommentDto>,
     val ipInfo: String?,
     val parsedContent: CommentContent,
     /** Whether a reply can be left on this comment; false hides the way in. */

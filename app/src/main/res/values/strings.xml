@@ -188,6 +188,8 @@
     <string name="comment_empty_root">No comments yet. Be the first to comment!</string>
     <string name="comment_empty_child">No replies yet</string>
     <string name="comment_action_reply">Reply</string>
+    <string name="comment_action_agree">Upvote</string>
+    <string name="comment_action_agreed">Upvoted</string>
     <string name="comment_compose_hint">Write a comment…</string>
     <string name="comment_reply_to">Reply to %1$s</string>
     <string name="comment_action_send">Send</string>

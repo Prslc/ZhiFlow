@@ -173,6 +173,8 @@
     <string name="comment_empty_root">暂无评论，快来抢沙发</string>
     <string name="comment_empty_child">暂无回复</string>
     <string name="comment_action_reply">回复</string>
+    <string name="comment_action_agree">赞同</string>
+    <string name="comment_action_agreed">已赞同</string>
     <string name="comment_compose_hint">写评论…</string>
     <string name="comment_reply_to">回复 %1$s</string>
     <string name="comment_action_send">发送</string>

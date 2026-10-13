@@ -389,6 +389,7 @@ val sampleComment = CommentDto(
     isAuthor = false,
     isAuthorTop = false,
     childCount = 3,
+    childComments = emptyList(),
     ipInfo = "Fujian",
     parsedContent = CommentContent(
         text = AnnotatedString(
@@ -432,6 +433,13 @@ val sampleReplyByAuthor = sampleReply.copy(
 val sampleCommentByTop = sampleComment.copy(
     id = "11594201743",
     isAuthorTop = true,
+)
+
+/** A comment with replies under it, one of which the row draws above the way into the rest. */
+val sampleCommentWithReplies = sampleComment.copy(
+    id = "11594201744",
+    childCount = 5,
+    childComments = listOf(sampleReply),
 )
 
 val sampleComments = listOf(sampleComment, sampleReply, sampleUnreplyableComment)
