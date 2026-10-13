@@ -1,6 +1,8 @@
 package com.prslc.zhiflow.ui.component.common
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -22,12 +24,20 @@ import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
 /**
  * The badge a card wears to say what it is.
  *
+ * It is drawn in one of two forms, and which one is a question of how loudly it should speak.
+ * Filled, it carries its color in a wash and reads at a glance; outlined, the same words in the
+ * same color are held by a border on the surface instead, which sits lighter on the row -- for a
+ * marker that is meant to be read rather than noticed.
+ *
  * @param text The label to draw; callers take it from [contentTypeConfig].
  * @param modifier Applied to the `Surface` the badge is drawn on, so a caller's padding lands
  *   outside the badge's own.
  * @param containerColor The badge's background; [contentTypeConfig] supplies the pair it
- *   belongs to.
- * @param contentColor What the label is drawn in. The surface carries it, so the text inherits it.
+ *   belongs to. Left unread when [outlined], which fills nothing.
+ * @param contentColor What the label is drawn in. The surface carries it, so the text inherits it,
+ *   and the outline is drawn in it too: the border and the words are one color, as they are in the
+ *   filled form, where the wash is the other half of the pair.
+ * @param outlined True to hold the badge's shape with a border rather than a wash.
  */
 @Composable
 fun ContentTypeLabel(
@@ -35,11 +45,13 @@ fun ContentTypeLabel(
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    outlined: Boolean = false,
 ) {
     Surface(
-        color = containerColor,
+        color = if (outlined) Color.Transparent else containerColor,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.extraSmall,
+        border = if (outlined) BorderStroke(1.dp, contentColor) else null,
         modifier = modifier,
     ) {
         Text(
@@ -127,22 +139,28 @@ private fun Color.shiftHue(degrees: Float): Color {
     return Color.hsl((h + degrees) % 360f, s, l, alpha)
 }
 
-/** Every badge the app can wear, including the one a type it does not know gets. */
+/** Every badge the app can wear, in both forms, the one a type it does not know gets included. */
 @AppPreviews
 @Composable
 private fun ContentTypeLabelPreview() {
     PreviewSurface {
-        Row(
+        Column(
             modifier = Modifier.padding(20.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            listOf("answer", "article", "pin", "question").forEach { type ->
-                val config = contentTypeConfig(type)
-                ContentTypeLabel(
-                    text = stringResource(config.labelResId),
-                    containerColor = config.containerColor,
-                    contentColor = config.contentColor,
-                )
+            // The same four twice: once with the wash carrying the shape, once with a border.
+            listOf(false, true).forEach { outlined ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("answer", "article", "pin", "question").forEach { type ->
+                        val config = contentTypeConfig(type)
+                        ContentTypeLabel(
+                            text = stringResource(config.labelResId),
+                            containerColor = config.containerColor,
+                            contentColor = config.contentColor,
+                            outlined = outlined,
+                        )
+                    }
+                }
             }
         }
     }
