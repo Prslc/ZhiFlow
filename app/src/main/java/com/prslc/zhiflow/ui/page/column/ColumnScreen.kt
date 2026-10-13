@@ -56,6 +56,7 @@ import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
 import com.prslc.zhiflow.ui.component.LocalDataSaver
+import com.prslc.zhiflow.ui.component.common.ColumnCover
 import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
@@ -243,14 +244,11 @@ private fun ColumnHeader(
             .padding(horizontal = Gutter, vertical = 8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(
-                model = column.imageUrl,
-                contentDescription = null,
+            ColumnCover(
+                url = column.imageUrl,
                 modifier = Modifier
                     .size(AvatarSize)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-                contentScale = ContentScale.Crop,
+                    .clip(RoundedCornerShape(8.dp)),
             )
 
             Spacer(modifier = Modifier.width(12.dp))
