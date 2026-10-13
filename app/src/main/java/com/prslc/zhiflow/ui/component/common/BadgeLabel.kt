@@ -40,7 +40,7 @@ import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
  * @param outlined True to hold the badge's shape with a border rather than a wash.
  */
 @Composable
-fun ContentTypeLabel(
+fun BadgeLabel(
     text: String,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
@@ -142,7 +142,7 @@ private fun Color.shiftHue(degrees: Float): Color {
 /** Every badge the app can wear, in both forms, the one a type it does not know gets included. */
 @AppPreviews
 @Composable
-private fun ContentTypeLabelPreview() {
+private fun BadgeLabelPreview() {
     PreviewSurface {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -153,7 +153,7 @@ private fun ContentTypeLabelPreview() {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("answer", "article", "pin", "question").forEach { type ->
                         val config = contentTypeConfig(type)
-                        ContentTypeLabel(
+                        BadgeLabel(
                             text = stringResource(config.labelResId),
                             containerColor = config.containerColor,
                             contentColor = config.contentColor,

@@ -54,8 +54,8 @@ import com.prslc.zhiflow.data.dto.CollectionItemDto
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.AuthorRow
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.ContentMeta
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.ImageOmitted
 import com.prslc.zhiflow.ui.component.common.LoadingView
@@ -208,7 +208,7 @@ private fun CollectionContentCard(
             // type label + title
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val config = contentTypeConfig(item.type)
-                ContentTypeLabel(
+                BadgeLabel(
                     text = stringResource(config.labelResId),
                     containerColor = config.containerColor,
                     contentColor = config.contentColor,

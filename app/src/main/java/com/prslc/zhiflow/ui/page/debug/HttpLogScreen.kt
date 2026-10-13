@@ -47,7 +47,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.network.HttpClientProvider
 import com.prslc.zhiflow.core.network.HttpLogEntry
 import com.prslc.zhiflow.core.utils.platform.rememberCopyTextToClipboard
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -243,7 +243,7 @@ private fun StatusBadge(entry: HttpLogEntry) {
         else -> scheme.errorContainer to scheme.onErrorContainer
     }
 
-    ContentTypeLabel(
+    BadgeLabel(
         text = status?.toString() ?: stringResource(R.string.http_log_status_error),
         containerColor = container,
         contentColor = content,

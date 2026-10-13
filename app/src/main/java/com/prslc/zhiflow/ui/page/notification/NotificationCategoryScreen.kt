@@ -47,7 +47,7 @@ import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.data.dto.NotificationItemDto
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
@@ -262,7 +262,7 @@ private fun NotificationRow(
                 val label = item.label
                 if (label != null) {
                     Spacer(modifier = Modifier.width(6.dp))
-                    ContentTypeLabel(
+                    BadgeLabel(
                         text = label,
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -315,7 +315,7 @@ private fun NotificationRow(
             // to read, and the sentence saying so is this app's rather than the server's.
             if (item.isContentDeleted) {
                 Spacer(modifier = Modifier.height(6.dp))
-                ContentTypeLabel(
+                BadgeLabel(
                     text = stringResource(R.string.notification_deleted_content),
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,

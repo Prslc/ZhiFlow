@@ -28,8 +28,8 @@ import com.prslc.zhiflow.data.dto.FeedAuthorNote
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.dto.FeedReason
 import com.prslc.zhiflow.ui.component.common.AuthorRow
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.ContentMeta
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.component.common.contentTypeConfig
 import com.prslc.zhiflow.ui.preview.AppPreviews
@@ -72,7 +72,7 @@ fun FeedItem(
                 modifier = Modifier.padding(bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ContentTypeLabel(
+                BadgeLabel(
                     text = stringResource(typeConfig.labelResId),
                     containerColor = typeConfig.containerColor,
                     contentColor = typeConfig.contentColor,

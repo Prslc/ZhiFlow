@@ -37,7 +37,7 @@ import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.richtext.component.rememberEmojiContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
@@ -108,7 +108,7 @@ fun CommentItem(
                 )
 
                 if (comment.isAuthor) {
-                    ContentTypeLabel(
+                    BadgeLabel(
                         text = stringResource(R.string.comment_author),
                         modifier = Modifier.padding(start = 4.dp),
                     )

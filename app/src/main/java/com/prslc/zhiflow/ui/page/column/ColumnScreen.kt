@@ -52,8 +52,8 @@ import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
 import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.common.AuthorFollowButton
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.ColumnCover
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.EmptyView
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.FollowButton
@@ -367,7 +367,7 @@ private fun ColumnItemRow(
                 modifier = Modifier.padding(bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ContentTypeLabel(
+                BadgeLabel(
                     text = stringResource(typeConfig.labelResId),
                     containerColor = typeConfig.containerColor,
                     contentColor = typeConfig.contentColor,

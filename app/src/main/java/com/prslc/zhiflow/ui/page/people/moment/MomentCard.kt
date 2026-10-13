@@ -32,8 +32,8 @@ import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ImageData
 import com.prslc.zhiflow.data.dto.MomentDto
+import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.ContentMeta
-import com.prslc.zhiflow.ui.component.common.ContentTypeLabel
 import com.prslc.zhiflow.ui.component.common.ThumbnailRow
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.preview.AppPreviews
@@ -107,7 +107,7 @@ private fun MomentHeader(
                     modifier = Modifier.weight(1f, fill = false),
                 )
                 if (state.isTopping) {
-                    ContentTypeLabel(text = stringResource(R.string.moment_pin))
+                    BadgeLabel(text = stringResource(R.string.moment_pin))
                 }
             }
             if (state.actionTime > 0) {
