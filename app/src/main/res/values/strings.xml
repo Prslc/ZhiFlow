@@ -223,7 +223,7 @@
 
     <!-- moment -->
     <string name="people_works_empty">No content yet</string>
-    <string name="moment_pin">Pinned</string>
+    <string name="moment_topping">Pinned</string>
 
     <!-- people -->
     <string name="people_stat_voteup">Likes</string>

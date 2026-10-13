@@ -206,7 +206,7 @@
 
     <!-- moment -->
     <string name="people_works_empty">暂无内容</string>
-    <string name="moment_pin">置顶</string>
+    <string name="moment_topping">置顶</string>
 
     <!-- popele -->
     <string name="people_stat_voteup">获赞</string>

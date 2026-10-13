@@ -107,7 +107,7 @@ private fun MomentHeader(
                     modifier = Modifier.weight(1f, fill = false),
                 )
                 if (state.isTopping) {
-                    BadgeLabel(text = stringResource(R.string.moment_pin))
+                    BadgeLabel(text = stringResource(R.string.moment_topping))
                 }
             }
             if (state.actionTime > 0) {
