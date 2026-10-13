@@ -35,7 +35,6 @@ data class ZhihuComment(
     @SerialName("comment_tag") val tags: List<CommentTag> = emptyList(),
     @SerialName("child_comment_count") val childCount: Int = 0,
     val liked: Boolean = false,
-    @SerialName("featured") val isFeatured: Boolean = false,
     /**
      * Whether the server will take a reply on this comment. True by default so that a comment the
      * server said nothing about is not read as one that refuses replies.
