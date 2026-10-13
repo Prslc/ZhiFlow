@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.moment.ComponentCard
@@ -63,7 +64,12 @@ open class MomentViewModel<T>(
                     val cleanMoments = response.data.mapNotNull { item ->
                         runCatching { toItemState(item) }.getOrNull()
                     }
-                    uiState = uiState.copy(moments = cleanMoments, isLoading = false)
+                    uiState = uiState.copy(
+                        moments = uiState.moments.withPage(cleanMoments, firstPage = true) {
+                            it.id
+                        },
+                        isLoading = false,
+                    )
                 }
                 .onApiFailure { error ->
                     uiState = uiState.copy(globalError = error, isLoading = false)
@@ -87,7 +93,9 @@ open class MomentViewModel<T>(
                         runCatching { toItemState(item) }.getOrNull()
                     }
                     uiState = uiState.copy(
-                        moments = uiState.moments + moreCleanMoments,
+                        moments = uiState.moments.withPage(moreCleanMoments, firstPage = false) {
+                            it.id
+                        },
                         isNextLoading = false,
                         globalError = null,
                     )

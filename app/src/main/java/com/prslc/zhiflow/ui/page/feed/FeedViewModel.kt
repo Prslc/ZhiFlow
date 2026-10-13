@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.FeedDto
 import com.prslc.zhiflow.data.dto.FeedbackAction
 import com.prslc.zhiflow.data.repository.FeedRepository
@@ -98,8 +99,7 @@ class FeedViewModel(
                     nextPageUrl = result.nextPageUrl
                     previousPageUrl = result.previousPageUrl
                     uiState = uiState.copy(
-                        // content_id keys the list; Compose throws when a key repeats.
-                        items = result.items.distinctBy { it.id },
+                        items = uiState.items.withPage(result.items, firstPage = true) { it.id },
                         isEnd = result.isEnd,
                         isRefreshing = false,
                         loadMoreError = null,
@@ -128,11 +128,8 @@ class FeedViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     previousPageUrl = result.previousPageUrl
-                    // Same key, and here the repeat crosses the page boundary.
-                    val current = uiState.items
-                    val known = current.mapTo(HashSet()) { it.id }
                     uiState = uiState.copy(
-                        items = current + result.items.filter { known.add(it.id) },
+                        items = uiState.items.withPage(result.items, firstPage = false) { it.id },
                         isEnd = result.isEnd,
                         isNextLoading = false,
                     )

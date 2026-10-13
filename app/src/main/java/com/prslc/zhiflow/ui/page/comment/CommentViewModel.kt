@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.offMain
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.CommentDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.comment.ZhihuComment
@@ -150,7 +151,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                     val hasNext = response.paging?.isEnd == false
 
                     uiState = uiState.copy(
-                        comments = if (isNewOrRefresh) processed else uiState.comments + processed,
+                        comments = uiState.comments.withPage(
+                            processed,
+                            firstPage = isNewOrRefresh,
+                        ) { it.comment.id },
                         totalCount = response.counts.total,
                         offset = nextOffset,
                         hasMore = hasNext,
@@ -201,11 +205,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         response.paging?.next?.toUri()?.getQueryParameter("offset") ?: ""
 
                     segmentUiState = segmentUiState.copy(
-                        comments = if (isNewOrRefresh) {
-                            processed
-                        } else {
-                            segmentUiState.comments + processed
-                        },
+                        comments = segmentUiState.comments.withPage(
+                            processed,
+                            firstPage = isNewOrRefresh,
+                        ) { it.comment.id },
                         totalCount = response.counts.total,
                         offset = nextOffset,
                         hasMore = response.paging?.isEnd == false,
@@ -252,7 +255,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 val hasNext = response.paging?.isEnd == false
 
                 childUiState = childUiState.copy(
-                    comments = if (isNewOrRefresh) processed else childUiState.comments + processed,
+                    comments = childUiState.comments.withPage(
+                        processed,
+                        firstPage = isNewOrRefresh,
+                    ) { it.comment.id },
                     offset = nextOffset,
                     hasMore = hasNext,
                     isLoading = false,

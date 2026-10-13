@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.repository.UserRepository
@@ -85,7 +86,9 @@ class PeopleListViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        people = if (isFirstPage) result.people else uiState.people + result.people,
+                        people = uiState.people.withPage(result.people, firstPage = isFirstPage) {
+                            it.id
+                        },
                         isRefreshing = false,
                         isNextLoading = false,
                         isEnd = result.isEnd,

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.PersonDto
 import com.prslc.zhiflow.data.model.user.PeopleListKind
 import com.prslc.zhiflow.data.repository.SearchRepository
@@ -89,7 +90,9 @@ class ChatInviteViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        followees = uiState.followees + result.people,
+                        followees = uiState.followees.withPage(result.people, firstPage = false) {
+                            it.id
+                        },
                         isNextLoading = false,
                         isEnd = result.isEnd,
                     )

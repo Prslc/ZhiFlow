@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.ColumnDto
 import com.prslc.zhiflow.data.dto.ColumnItemDto
 import com.prslc.zhiflow.data.model.user.ReadHistoryRequest
@@ -197,7 +198,10 @@ class ColumnViewModel(
                 .onSuccess { result ->
                     nextOffset += result.items.size
                     uiState = uiState.copy(
-                        items = if (firstPage) result.items else uiState.items + result.items,
+                        items = uiState.items.withPage(
+                            result.items,
+                            firstPage = firstPage,
+                        ) { it.id },
                         isNextLoading = false,
                         isEnd = result.isEnd,
                     )

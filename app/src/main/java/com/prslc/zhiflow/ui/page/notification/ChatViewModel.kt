@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.ChatMessageDto
 import com.prslc.zhiflow.data.dto.ChatPeerDto
 import com.prslc.zhiflow.data.repository.MessageRepository
@@ -76,7 +77,9 @@ class ChatViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = ChatUiState(
-                        messages = result.messages,
+                        messages = uiState.messages.withPage(result.messages, firstPage = true) {
+                            it.id
+                        },
                         peer = peer,
                         isEnd = result.isEnd,
                     )
@@ -106,7 +109,9 @@ class ChatViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        messages = uiState.messages + result.messages,
+                        messages = uiState.messages.withPage(result.messages, firstPage = false) {
+                            it.id
+                        },
                         isNextLoading = false,
                         isEnd = result.isEnd,
                     )

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.AnswerDto
 import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.content.QuestionDetail
@@ -80,14 +81,16 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
 
             nextPageUrl = feedResponse?.paging?.next
 
+            val page = feedResponse?.data
+                ?.filter { it.targetType == "answer" }
+                ?.map { it.target.toDto() }
+                ?: emptyList()
+
             uiState = uiState.copy(
                 isLoading = false,
                 question = detailData,
                 elements = elements,
-                answers = feedResponse?.data
-                    ?.filter { it.targetType == "answer" }
-                    ?.map { it.target.toDto() }
-                    ?: emptyList(),
+                answers = uiState.answers.withPage(page, firstPage = true) { it.id },
                 hasMore = feedResponse?.paging?.isEnd == false,
             )
         }
@@ -103,11 +106,12 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
             repository.getQuestionFeed(id, nextUrl = url)
                 .onSuccess { response ->
                     nextPageUrl = response.paging.next
+                    val page = response.data
+                        .filter { it.targetType == "answer" }
+                        .map { it.target.toDto() }
                     uiState = uiState.copy(
                         isNextLoading = false,
-                        answers = uiState.answers + response.data
-                            .filter { it.targetType == "answer" }
-                            .map { it.target.toDto() },
+                        answers = uiState.answers.withPage(page, firstPage = false) { it.id },
                         hasMore = !response.paging.isEnd,
                     )
                 }
