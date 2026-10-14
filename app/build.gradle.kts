@@ -44,6 +44,9 @@ android {
     namespace = "com.prslc.zhiflow"
     compileSdk = 37
 
+    // Compose 1.13.0-beta01's AAR metadata asks for a compile SDK of 37.1 or later.
+    compileSdkMinor = 2
+
     defaultConfig {
         applicationId = "com.prslc.zhiflow"
         minSdk = 33
