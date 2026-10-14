@@ -14,14 +14,9 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -29,12 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -64,10 +54,7 @@ private val GuestUser = ZhihuUser()
 @Composable
 fun ProfileScreen(
     onNavigateToHistory: () -> Unit,
-    onNavigateToComments: () -> Unit,
-    onNavigateToLikes: () -> Unit,
     onNavigateToCollections: () -> Unit,
-    onNavigateToFollows: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = koinViewModel(),
@@ -75,7 +62,6 @@ fun ProfileScreen(
     val uiState = viewModel.uiState
     val user = uiState.user
     val navigator = LocalNavigator.current
-    var showSignOutDialog by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
         if (!uiState.isGuest && user != null) {
@@ -112,14 +98,6 @@ fun ProfileScreen(
                         ),
                     ),
                     coverContentDescription = stringResource(R.string.profile_cover_desc),
-                    topEndAction = {
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(
-                                imageVector = Icons.Filled.Settings,
-                                contentDescription = stringResource(R.string.profile_nav_settings),
-                            )
-                        }
-                    },
                     actions = {
                         OutlinedButton(
                             onClick = {},
@@ -137,9 +115,6 @@ fun ProfileScreen(
                     enabled = true,
                     onNavigateToHistory = onNavigateToHistory,
                     onNavigateToCollections = onNavigateToCollections,
-                    onNavigateToComments = onNavigateToComments,
-                    onNavigateToLikes = onNavigateToLikes,
-                    onNavigateToFollows = onNavigateToFollows,
                 )
 
                 ProfileGroup(
@@ -147,10 +122,10 @@ fun ProfileScreen(
                 ) {
                     row {
                         SettingsNavRow(
-                            title = stringResource(R.string.profile_action_sign_out),
-                            description = stringResource(R.string.profile_action_sign_out_summary),
-                            icon = Icons.AutoMirrored.Filled.Logout,
-                            onClick = { showSignOutDialog = true },
+                            title = stringResource(R.string.profile_nav_settings),
+                            description = stringResource(R.string.profile_nav_settings_summary),
+                            icon = Icons.Filled.Settings,
+                            onClick = onNavigateToSettings,
                         )
                     }
                 }
@@ -216,9 +191,6 @@ fun ProfileScreen(
                     enabled = false,
                     onNavigateToHistory = {},
                     onNavigateToCollections = {},
-                    onNavigateToComments = {},
-                    onNavigateToLikes = {},
-                    onNavigateToFollows = {},
                 )
             }
         } else if (uiState.isLoading) {
@@ -231,29 +203,6 @@ fun ProfileScreen(
             )
         }
     }
-
-    if (showSignOutDialog) {
-        AlertDialog(
-            onDismissRequest = { showSignOutDialog = false },
-            title = { Text(stringResource(R.string.profile_sign_out_confirm_title)) },
-            text = { Text(stringResource(R.string.profile_sign_out_confirm_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showSignOutDialog = false
-                        viewModel.signOut()
-                    },
-                ) {
-                    Text(stringResource(R.string.profile_action_sign_out))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSignOutDialog = false }) {
-                    Text(stringResource(R.string.profile_sign_out_cancel))
-                }
-            },
-        )
-    }
 }
 
 @Composable
@@ -261,14 +210,11 @@ private fun ProfileContentGroups(
     enabled: Boolean,
     onNavigateToHistory: () -> Unit,
     onNavigateToCollections: () -> Unit,
-    onNavigateToComments: () -> Unit,
-    onNavigateToLikes: () -> Unit,
-    onNavigateToFollows: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        // The first group carries no heading: its rows say what they are, and the gap above is
-        // break enough.
+        // The first group carries no heading: its rows say what they are,
+        // and the gap above is break enough.
         ProfileGroup(
             modifier = Modifier.padding(top = 16.dp),
         ) {
@@ -288,39 +234,6 @@ private fun ProfileContentGroups(
                     icon = Icons.Filled.Bookmark,
                     enabled = enabled,
                     onClick = onNavigateToCollections,
-                )
-            }
-        }
-
-        ProfileGroup(
-            modifier = Modifier.padding(top = 4.dp),
-            title = stringResource(R.string.profile_section_social),
-        ) {
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.profile_nav_comments),
-                    description = stringResource(R.string.profile_nav_comments_summary),
-                    icon = Icons.AutoMirrored.Filled.Chat,
-                    enabled = enabled,
-                    onClick = onNavigateToComments,
-                )
-            }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.profile_nav_likes),
-                    description = stringResource(R.string.profile_nav_likes_summary),
-                    icon = Icons.Filled.ThumbUp,
-                    enabled = enabled,
-                    onClick = onNavigateToLikes,
-                )
-            }
-            row {
-                SettingsNavRow(
-                    title = stringResource(R.string.profile_nav_follows),
-                    description = stringResource(R.string.profile_nav_follows_summary),
-                    icon = Icons.Filled.PersonAdd,
-                    enabled = enabled,
-                    onClick = onNavigateToFollows,
                 )
             }
         }

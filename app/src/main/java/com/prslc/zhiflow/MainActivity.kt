@@ -239,10 +239,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
                 ProfileTab -> ProfileScreen(
                     onNavigateToHistory = navigator::navigateToReadHistory,
-                    onNavigateToComments = { },
-                    onNavigateToLikes = { },
                     onNavigateToCollections = navigator::navigateToCollectionContents,
-                    onNavigateToFollows = { },
                     onNavigateToSettings = navigator::navigateToSettings,
                 )
 

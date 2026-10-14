@@ -14,6 +14,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DataSaverOn
@@ -65,11 +66,19 @@ fun SettingsScreen(
     val language = viewModel.language
     val dataSaver by viewModel.dataSaver.collectAsStateWithLifecycle()
     val developerUnlocked by viewModel.developerUnlocked.collectAsStateWithLifecycle()
+    val session by viewModel.session.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
+    var showSignOutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewModel.loadCacheSize() }
+
+    // A sign-out is answered by leaving: the profile behind this page is the one that then shows
+    // the reader browsing as a guest.
+    LaunchedEffect(viewModel.signedOut) {
+        if (viewModel.signedOut) onBack()
+    }
 
     Scaffold(
         modifier = modifier,
@@ -158,6 +167,19 @@ fun SettingsScreen(
                     }
                 }
             }
+            // A guest has no session to end: signing out would leave them where they already are.
+            if (session.hasToken && !session.isGuest) {
+                SettingsGroup(title = stringResource(R.string.settings_section_account)) {
+                    row {
+                        SettingsNavRow(
+                            title = stringResource(R.string.settings_sign_out),
+                            description = stringResource(R.string.settings_sign_out_summary),
+                            icon = Icons.AutoMirrored.Filled.Logout,
+                            onClick = { showSignOutDialog = true },
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -206,6 +228,29 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) {
+                    Text(stringResource(R.string.general_cancel))
+                }
+            },
+        )
+    }
+
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text(stringResource(R.string.settings_sign_out_confirm_title)) },
+            text = { Text(stringResource(R.string.settings_sign_out_confirm_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSignOutDialog = false
+                        viewModel.signOut()
+                    },
+                ) {
+                    Text(stringResource(R.string.settings_sign_out))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutDialog = false }) {
                     Text(stringResource(R.string.general_cancel))
                 }
             },

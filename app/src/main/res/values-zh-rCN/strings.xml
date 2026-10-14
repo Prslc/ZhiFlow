@@ -133,23 +133,12 @@
     <string name="profile_stat_followers">粉丝</string>
     <string name="profile_nav_history">历史记录</string>
     <string name="profile_nav_history_summary">你的浏览记录</string>
-    <string name="profile_nav_comments">评论转发</string>
-    <string name="profile_nav_comments_summary">评论、转发与回复</string>
-    <string name="profile_nav_likes">赞同喜欢</string>
-    <string name="profile_nav_likes_summary">你的内容收到的赞与喜欢</string>
     <string name="profile_nav_collections">我的收藏</string>
     <string name="profile_nav_collections_summary">我收藏的内容</string>
-    <string name="profile_nav_follows">关注订阅</string>
-    <string name="profile_nav_follows_summary">新的关注与订阅</string>
     <string name="profile_nav_settings">设置</string>
+    <string name="profile_nav_settings_summary">外观、语言和应用偏好设置</string>
     <string name="content_desc_avatar">用户头像</string>
     <string name="profile_action_edit_profile">编辑资料</string>
-    <string name="profile_section_social">社交互动</string>
-    <string name="profile_action_sign_out">退出登录</string>
-    <string name="profile_action_sign_out_summary">结束这台设备上的登录</string>
-    <string name="profile_sign_out_confirm_title">退出登录？</string>
-    <string name="profile_sign_out_confirm_message">退出后将以游客身份浏览，直到你重新登录。</string>
-    <string name="profile_sign_out_cancel">取消</string>
     <string name="profile_cover_desc">封面图片</string>
 
     <!-- buttomBar -->
@@ -358,17 +347,22 @@
     <string name="settings_language_title">语言</string>
     <string name="settings_language_system">跟随系统</string>
     <string name="settings_section_general">通用</string>
-    <string name="settings_section_about">关于</string>
     <string name="settings_data_saver_title">省流模式</string>
     <string name="settings_data_saver_summary">不加载插图与缩略图</string>
     <string name="settings_image_cache_title">图片缓存</string>
     <string name="settings_image_cache_confirm_title">清除图片缓存？</string>
     <string name="settings_image_cache_confirm_message">已看过的图片在下次遇到时会重新下载。</string>
     <string name="settings_image_cache_clear">清除</string>
+    <string name="settings_section_about">关于</string>
     <string name="settings_about_title">关于 ZhiFlow</string>
     <string name="settings_about_summary">版本、源代码与开源许可</string>
     <string name="settings_section_developer">开发者</string>
     <string name="settings_developer_summary">打开链接、会话令牌、HTTP 日志</string>
+    <string name="settings_section_account">账号</string>
+    <string name="settings_sign_out">退出登录</string>
+    <string name="settings_sign_out_summary">结束这台设备上的登录</string>
+    <string name="settings_sign_out_confirm_title">退出登录？</string>
+    <string name="settings_sign_out_confirm_message">退出后将以游客身份浏览，直到你重新登录。</string>
 
     <!-- about -->
     <string name="about_title">关于</string>

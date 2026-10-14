@@ -8,10 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import coil3.disk.DiskCache
+import com.prslc.zhiflow.core.exception.ignoreOutcome
+import com.prslc.zhiflow.core.network.CredentialStore
+import com.prslc.zhiflow.core.network.Credentials
 import com.prslc.zhiflow.core.preference.AppLanguage
 import com.prslc.zhiflow.core.preference.LanguageStore
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
+import com.prslc.zhiflow.data.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,11 +34,15 @@ import kotlinx.coroutines.withContext
  *   draws the theme hears about a change made here.
  * @param languageStore Where the language is kept, which is the platform's own record rather than
  *   ours. Nothing has to hear about a change: the platform recreates the Activity for it.
+ * @param credentialStore Where the session is kept, read for whether anyone is signed in.
+ * @param authRepository What the sign-out is done through.
  */
 class SettingsViewModel(
     private val imageLoader: ImageLoader,
     private val settingsStore: SettingsStore,
     private val languageStore: LanguageStore,
+    private val credentialStore: CredentialStore,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     /** The theme in force, emitting again whenever the reader picks another. */
@@ -50,12 +58,24 @@ class SettingsViewModel(
     /** Whether the developer tools are unlocked, which the about page is what unlocks. */
     val developerUnlocked: StateFlow<Boolean> = settingsStore.developerUnlocked
 
+    /**
+     * The session behind this page, emitting again whenever it changes.
+     *
+     * The account group is drawn from it: a reader with only an anonymous session behind them has
+     * none to end.
+     */
+    val session: StateFlow<Credentials> = credentialStore.session
+
     /** Bytes the image disk cache holds, or 0 until the first read lands. */
     var cacheSize by mutableLongStateOf(0L)
         private set
 
     /** True while a clear is in flight, so the row cannot start a second one. */
     var isClearing by mutableStateOf(false)
+        private set
+
+    /** Set once the session has been dropped, which is what the page leaves on. */
+    var signedOut by mutableStateOf(false)
         private set
 
     /**
@@ -110,4 +130,23 @@ class SettingsViewModel(
 
     private val diskCache: DiskCache?
         get() = imageLoader.diskCache
+
+    /**
+     * Ends the session, here and on the server.
+     *
+     * [signedOut] is what the page waits on rather than a return value: the work runs on this
+     * ViewModel's scope, and a page that left before it finished would take that scope with it.
+     * The store is cleared after the server has been told, so leaving early would be leaving
+     * signed in.
+     *
+     * A server that could not be told is not worth reporting: the session is gone from this
+     * device either way, and the guest bootstrap underneath replaces the cookie that would
+     * otherwise have outlived it.
+     */
+    fun signOut() {
+        viewModelScope.launch {
+            authRepository.logout().ignoreOutcome()
+            signedOut = true
+        }
+    }
 }

@@ -146,23 +146,12 @@
     <string name="profile_stat_followers">Followers</string>
     <string name="profile_nav_history">History</string>
     <string name="profile_nav_history_summary">Your browsing history</string>
-    <string name="profile_nav_comments">Comments &amp; Forwards</string>
-    <string name="profile_nav_comments_summary">Comments, forwards, and replies</string>
-    <string name="profile_nav_likes">Likes &amp; Upvotes</string>
-    <string name="profile_nav_likes_summary">Upvotes and likes on your content</string>
     <string name="profile_nav_collections">My Collections</string>
     <string name="profile_nav_collections_summary">Content you have saved</string>
-    <string name="profile_nav_follows">Follows &amp; Subscriptions</string>
-    <string name="profile_nav_follows_summary">New followers and subscriptions</string>
     <string name="profile_nav_settings">Settings</string>
+    <string name="profile_nav_settings_summary">Appearance, language, and app preferences</string>
     <string name="content_desc_avatar">User Avatar</string>
     <string name="profile_action_edit_profile">Edit profile</string>
-    <string name="profile_section_social">Social</string>
-    <string name="profile_action_sign_out">Sign out</string>
-    <string name="profile_action_sign_out_summary">Ends your session on this device</string>
-    <string name="profile_sign_out_confirm_title">Sign out?</string>
-    <string name="profile_sign_out_confirm_message">You will browse as a guest until you sign in again.</string>
-    <string name="profile_sign_out_cancel">Cancel</string>
     <string name="profile_cover_desc">Cover Image</string>
 
     <!-- bottom Bar -->
@@ -381,17 +370,22 @@
     <string name="settings_language_chinese" translatable="false">简体中文</string>
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_section_general">General</string>
-    <string name="settings_section_about">About</string>
     <string name="settings_data_saver_title">Data saver</string>
     <string name="settings_data_saver_summary">Leave illustrations and thumbnails unloaded</string>
     <string name="settings_image_cache_title">Image cache</string>
     <string name="settings_image_cache_confirm_title">Clear the image cache?</string>
     <string name="settings_image_cache_confirm_message">Images you have already seen will download again the next time you come across them.</string>
     <string name="settings_image_cache_clear">Clear</string>
+    <string name="settings_section_about">About</string>
     <string name="settings_about_title">About ZhiFlow</string>
     <string name="settings_about_summary">Version, source code, and open source licenses</string>
     <string name="settings_section_developer">Developer</string>
     <string name="settings_developer_summary">Open links, session tokens, the HTTP log</string>
+    <string name="settings_section_account">Account</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_sign_out_summary">Ends your session on this device</string>
+    <string name="settings_sign_out_confirm_title">Sign out?</string>
+    <string name="settings_sign_out_confirm_message">You will browse as a guest until you sign in again.</string>
 
     <!-- about -->
     <string name="about_title">About</string>
