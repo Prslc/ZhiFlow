@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -29,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -51,8 +55,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
@@ -96,7 +98,7 @@ fun LoginScreen(
     val accountBlank = viewModel.account.isBlank()
     val secretBlank = when (viewModel.method) {
         LoginViewModel.Method.CODE -> viewModel.code.isBlank()
-        LoginViewModel.Method.PASSWORD -> viewModel.password.isBlank()
+        LoginViewModel.Method.PASSWORD -> viewModel.password.text.isBlank()
     }
     var showMissing by remember { mutableStateOf(false) }
 
@@ -210,8 +212,7 @@ fun LoginScreen(
                         }
 
                         LoginViewModel.Method.PASSWORD -> PasswordField(
-                            value = viewModel.password,
-                            onValueChange = viewModel::onPasswordChange,
+                            state = viewModel.password,
                             isError = showMissing && secretBlank,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -327,23 +328,20 @@ private val LoginViewModel.Method.labelRes: Int
 
 @Composable
 private fun PasswordField(
-    value: String,
-    onValueChange: (String) -> Unit,
+    state: TextFieldState,
     isError: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var visible by rememberSaveable { mutableStateOf(false) }
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
+    OutlinedSecureTextField(
+        state = state,
         label = { Text(stringResource(R.string.login_label_password)) },
-        singleLine = true,
         isError = isError,
-        visualTransformation = if (visible) {
-            VisualTransformation.None
+        textObfuscationMode = if (visible) {
+            TextObfuscationMode.Visible
         } else {
-            PasswordVisualTransformation()
+            TextObfuscationMode.Hidden
         },
         trailingIcon = {
             IconButton(onClick = { visible = !visible }) {
@@ -363,10 +361,6 @@ private fun PasswordField(
                 )
             }
         },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done,
-        ),
         modifier = modifier,
     )
 }
@@ -397,9 +391,9 @@ private fun MethodSelectorPreview() {
 private fun PasswordFieldPreview() {
     PreviewSurface {
         Column {
-            PasswordField(value = "", onValueChange = {}, isError = false)
-            PasswordField(value = "hunter2", onValueChange = {}, isError = false)
-            PasswordField(value = "hunter2", onValueChange = {}, isError = true)
+            PasswordField(state = rememberTextFieldState(""), isError = false)
+            PasswordField(state = rememberTextFieldState("hunter2"), isError = false)
+            PasswordField(state = rememberTextFieldState("hunter2"), isError = true)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.page.login
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +25,9 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         private set
     var code by mutableStateOf("")
         private set
-    var password by mutableStateOf("")
-        private set
+
+    /** Held here because the field that edits it is a secure one: it keeps its own text. */
+    val password = TextFieldState()
     var isSendingCode by mutableStateOf(false)
         private set
     var isSubmitting by mutableStateOf(false)
@@ -59,10 +61,6 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     fun onCodeChange(value: String) {
         code = value
-    }
-
-    fun onPasswordChange(value: String) {
-        password = value
     }
 
     /** Asks for a code. No-op while one is on its way, or one has just been sent. */
@@ -103,7 +101,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             val outcome = when (method) {
                 Method.CODE -> authRepository.signInWithDigits(number, code.trim())
-                Method.PASSWORD -> authRepository.signInWithPassword(number, password)
+                Method.PASSWORD -> authRepository.signInWithPassword(number, password.text.toString())
             }
             outcome.onSuccess { signedIn = true }
             outcome.onApiFailure { actionError = it }
