@@ -80,7 +80,9 @@ fun CustomBottomSheet(
     heightFraction: Float = MAX_HEIGHT_FRACTION,
     content: @Composable () -> Unit,
 ) {
-    val transitionState = remember { MutableTransitionState(false) }
+    // Seeded from the first value: a sheet composed already up — the screen returning from a page
+    // it opened, or a rotation — is in place from its first frame, and only a real show animates.
+    val transitionState = remember { MutableTransitionState(visible) }
 
     val backProgress = remember { Animatable(0f) }
     val isDismissing = remember { mutableStateOf(false) }

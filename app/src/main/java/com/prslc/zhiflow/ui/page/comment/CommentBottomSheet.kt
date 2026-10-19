@@ -55,12 +55,14 @@ fun CommentBottomSheet(
     val rootListState = rememberLazyListState()
     val childListState = rememberLazyListState()
 
+    // The reader opens over the sheet, which stays up underneath and is still there on the way
+    // back. A token that arrives with this sheet down belongs to the passage panel, which opens it
+    // itself; two sheets navigating would push the reader twice.
     LaunchedEffect(uiState.navigateToUser) {
-        uiState.navigateToUser?.let {
-            onDismissRequest()
-            navigator.navigateToPeople(it)
-            onEvent(CommentUiEvent.NavigatedToUser(it))
-        }
+        val token = uiState.navigateToUser ?: return@LaunchedEffect
+        if (!showComments) return@LaunchedEffect
+        navigator.navigateToPeople(token)
+        onEvent(CommentUiEvent.NavigatedToUser(token))
     }
 
     Box {

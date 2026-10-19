@@ -88,7 +88,13 @@ class PinViewModel(
             content.reaction.statistics.upVoteCount + interactionState.upvoteOffset
         }
 
+    /**
+     * Loads the thought, unless one is already held: the screen calls this again whenever it comes
+     * back from a page above it, and resetting would dismiss the sheet it was left with.
+     */
     fun loadContent(id: String) {
+        if (loadingState.content != null) return
+
         loadJob?.cancel()
         resetStates()
         loadJob = viewModelScope.launch {

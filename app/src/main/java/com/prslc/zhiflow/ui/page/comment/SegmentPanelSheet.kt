@@ -113,11 +113,11 @@ fun SegmentPanelSheet(
 
     // The gate is what keeps this to one page: the other sheet's author taps land here as well, and
     // without it both sheets would open the reader and the one behind would be wiped on the way.
+    // The panel stays up under the reader, as the content's own sheet does.
     LaunchedEffect(navigateToUser) {
         val token = navigateToUser ?: return@LaunchedEffect
         if (target == null) return@LaunchedEffect
 
-        onDismissRequest()
         navigator.navigateToPeople(token)
         onNavigated()
     }

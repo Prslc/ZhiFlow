@@ -113,10 +113,16 @@ class ContentViewModel(
     /**
      * Load content by [ContentType]
      *
+     * The screen calls this again whenever it returns from a page above it, and a content already
+     * held is kept rather than reset: the comment sheet the reader left open, and the votes cast
+     * on the page, are what they come back to.
+     *
      * @param id Content ID
      * @param type Content type (ARTICLE, ANSWER, or PIN)
      */
     fun loadContent(id: String, type: ContentType) {
+        if (loadingState.content != null) return
+
         loadJob?.cancel()
         contentType = type
         resetStates()
