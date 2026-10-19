@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
@@ -120,11 +121,17 @@ fun CommentItem(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            // The two names share what the badges leave, each taking only what it needs and handing
+            // the rest on: a long one ellipsizes rather than pushing the others out of the row.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = comment.author.name,
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
                 )
 
                 // The badge comes from the server, which knows which roles this author wears; what
@@ -155,7 +162,11 @@ fun CommentItem(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
                         ),
-                        modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(replyTo.id)) },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .clickable { onEvent(CommentUiEvent.ShowAuthor(replyTo.id)) },
                     )
                 }
             }
