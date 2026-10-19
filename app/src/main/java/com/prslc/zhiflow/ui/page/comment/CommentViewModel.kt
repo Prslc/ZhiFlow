@@ -154,6 +154,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     private var lastChildCommentId: String? = null
     private var segmentJob: Job? = null
     private var childJob: Job? = null
+    private var rootJob: Job? = null
     private val pendingReactions = mutableSetOf<String>()
 
     fun loadComments(answerId: String, contentType: ContentType, forceRefresh: Boolean = false) {
@@ -161,6 +162,9 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         if (!forceRefresh && !isNewOrRefresh && uiState.isLoading) return
 
         if (isNewOrRefresh) {
+            // A list the reader has moved on from must not land in the one being read now: both
+            // write the same state, so whichever finished last would be what they see.
+            rootJob?.cancel()
             lastLoadedAnswerId = answerId
             lastContentType = contentType
             uiState = uiState.copy(
@@ -178,7 +182,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             uiState = uiState.copy(isLoading = true, error = null)
         }
 
-        viewModelScope.launch {
+        rootJob = viewModelScope.launch {
             repository.getRootComments(answerId, contentType, uiState.offset)
                 .onSuccess { response ->
                     val processed = response.data.toUiModels()
