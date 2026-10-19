@@ -122,6 +122,7 @@ fun QuestionDetailScreen(
                     ErrorView(
                         message = uiState.globalError.uiMessage,
                         onRetry = { viewModel.loadQuestion(id) },
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
 
