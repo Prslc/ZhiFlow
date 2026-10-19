@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
+import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
@@ -75,9 +76,15 @@ fun PinDetailScreen(
     // author's own text — a 152dp expanded bar costs a quarter of the screen for it.
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
+    // Opening the sheet is a visit of its own: the list is read again rather than resumed, however
+    // recently it was last seen.
     LaunchedEffect(presentation.showComments) {
-        if (presentation.showComments && commentState.comments.isEmpty()) {
-            commentViewModel.loadComments(id, com.prslc.zhiflow.data.model.content.ContentType.PIN)
+        if (presentation.showComments) {
+            commentViewModel.loadComments(
+                id,
+                ContentType.PIN,
+                forceRefresh = true,
+            )
         }
     }
 
@@ -183,7 +190,7 @@ fun PinDetailScreen(
             if (presentation.showCollectionSheet) {
                 CollectionDialog(
                     id = id,
-                    contentType = com.prslc.zhiflow.data.model.content.ContentType.PIN,
+                    contentType = ContentType.PIN,
                     onDismissRequest = { viewModel.dismissCollection() },
                     onResult = { isFavedNow ->
                         viewModel.setFaved(isFavedNow)
@@ -194,7 +201,7 @@ fun PinDetailScreen(
 
             CommentBottomSheet(
                 id = id,
-                contentType = com.prslc.zhiflow.data.model.content.ContentType.PIN,
+                contentType = ContentType.PIN,
                 uiState = uiState,
                 childUiState = childUiState,
                 showComments = presentation.showComments,

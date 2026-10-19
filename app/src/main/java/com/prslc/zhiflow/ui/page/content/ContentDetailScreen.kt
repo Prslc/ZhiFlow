@@ -94,9 +94,11 @@ fun ContentDetailScreen(
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    // Opening the sheet is a visit of its own: the list is read again rather than resumed, however
+    // recently it was last seen.
     LaunchedEffect(presentation.showComments) {
-        if (presentation.showComments && commentState.comments.isEmpty()) {
-            commentViewModel.loadComments(id, contentType)
+        if (presentation.showComments) {
+            commentViewModel.loadComments(id, contentType, forceRefresh = true)
         }
     }
 
@@ -134,9 +136,10 @@ fun ContentDetailScreen(
     val segmentLikes = viewModel.segmentLikes
     val onSegmentLikeClick = remember { { key: String -> viewModel.openSegmentPanel(key) } }
 
+    // Opening the panel is a visit of its own, as the comment sheet's is.
     LaunchedEffect(segmentTarget?.segId) {
         segmentTarget?.segId?.let { segmentId ->
-            commentViewModel.loadSegmentComments(id, contentType, segmentId)
+            commentViewModel.loadSegmentComments(id, contentType, segmentId, forceRefresh = true)
         }
     }
 
