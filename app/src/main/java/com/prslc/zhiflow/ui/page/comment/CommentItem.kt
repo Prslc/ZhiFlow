@@ -223,8 +223,8 @@ fun CommentItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Every row that takes an answer offers one, replies included. What a tap means is
-                // the view model's to say: it answers the row that was tapped, and only brings a
-                // pane up where the row is not already in one.
+                // the view model's to say: it answers the row that was tapped, in whichever pane
+                // the row is drawn.
                 if (comment.canReply) {
                     ReplyAction(onClick = { onEvent(CommentUiEvent.ReplyTo(comment)) })
                 }
@@ -285,8 +285,7 @@ fun CommentItem(
 }
 
 /**
- * The way into a comment's replies: the pane they are read in, with the box a reply is written in
- * under them.
+ * The way to answer one comment: the box comes up addressed to it.
  */
 @Composable
 private fun ReplyAction(onClick: () -> Unit, modifier: Modifier = Modifier) {

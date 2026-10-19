@@ -20,7 +20,7 @@ data class ZhihuPin(
     @SerialName("structured_content") override val structuredContent: StructuredContent? = null,
     @SerialName("video_info") val videoInfo: String? = null,
     @SerialName("image_list") val imageList: PinImageList? = null,
-    @SerialName("comment_config") val commentConfig: PinCommentConfig? = null,
+    @SerialName("comment_config") override val commentConfig: CommentConfig? = null,
     @SerialName("relationship_tips") val relationshipTips: RelationshipTips? = null,
 ) : ZhihuContent {
     override val displayTitle: String
@@ -65,14 +65,6 @@ data class PinHeader(
     @SerialName("text_size") val textSize: Int = 17,
     @SerialName("text_color") val textColor: String? = null,
     @SerialName("bold") val bold: Boolean = false,
-)
-
-@Immutable
-@Serializable
-data class PinCommentConfig(
-    @SerialName("place_holder") val placeHolder: String? = null,
-    @SerialName("can_reply") val canReply: Boolean = false,
-    @SerialName("can_segment_reply") val canSegmentReply: Boolean = false,
 )
 
 @Immutable

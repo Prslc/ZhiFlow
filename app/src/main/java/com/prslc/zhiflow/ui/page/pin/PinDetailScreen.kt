@@ -41,6 +41,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
+import com.prslc.zhiflow.ui.page.comment.canCommentOn
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -61,6 +62,9 @@ fun PinDetailScreen(
     val presentation = viewModel.presentation
     val currentContent = loadingState.content
     val commentState = commentViewModel.uiState
+
+    // What the content and the comment section say between them about writing here.
+    val canComment = commentState.canCommentOn(currentContent)
 
     val snackbarHostState = rememberActionErrorHost(
         viewModel.actionError,
@@ -194,6 +198,7 @@ fun PinDetailScreen(
                 uiState = uiState,
                 childUiState = childUiState,
                 showComments = presentation.showComments,
+                canComment = canComment,
                 // Hides the sheet only: the sheet clears the comment state itself once it is gone.
                 onDismissRequest = { viewModel.dismissComments() },
                 onEvent = { event ->
@@ -209,6 +214,8 @@ fun PinDetailScreen(
                         is CommentUiEvent.ShowAuthor -> commentViewModel.showAuthor(event.urlToken)
                         is CommentUiEvent.LoadChildComments -> commentViewModel.loadChildComments(event.rootComment, forceRefresh = true)
                         is CommentUiEvent.ReplyTo -> commentViewModel.replyTo(event.comment)
+                        CommentUiEvent.OpenComposer -> commentViewModel.openComposer()
+                        CommentUiEvent.CloseComposer -> commentViewModel.closeComposer()
                         is CommentUiEvent.DraftChanged -> commentViewModel.onDraftChange(event.text)
                         is CommentUiEvent.SubmitComment -> commentViewModel.submitComment(event.id, event.contentType)
                         is CommentUiEvent.SubmitSegmentComment -> Unit // A pin has no passages.

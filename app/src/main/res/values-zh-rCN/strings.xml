@@ -167,6 +167,7 @@
     <string name="comment_action_disagreed">已反对</string>
     <string name="comment_action_agreed">已赞同</string>
     <string name="comment_compose_hint">写评论…</string>
+    <string name="comment_action_compose">写评论</string>
     <string name="comment_reply_to">回复 %1$s</string>
     <string name="comment_action_send">发送</string>
     <string name="comment_end_root">已显示全部评论</string>

@@ -13,6 +13,7 @@ data class ZhihuArticle(
     override val reaction: Reaction,
     @SerialName("content_end_info") override val contentEnd: ContentEndInfo? = null,
     @SerialName("structured_content") override val structuredContent: StructuredContent? = null,
+    @SerialName("comment_config") override val commentConfig: CommentConfig? = null,
     val type: String = "article",
 ) : ZhihuContent {
     override val displayTitle: String

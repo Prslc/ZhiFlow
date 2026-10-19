@@ -37,8 +37,13 @@ import com.prslc.zhiflow.ui.preview.PreviewSurface
  * The content's own comment surface: its root list, and one comment's replies behind it. The pair
  * and its pull-back live in [CommentPaneTransition], shared with a passage's panel.
  *
+ * The box is not furniture of the sheet: it is up only where the reader asked for it, and the way
+ * in to a comment of their own is a FAB over the list.
+ *
  * @param showComments Whether the sheet is up; a back belongs to the surface only while it is up
  *   and staying, so the root list keeps the sheet's own dismissal gesture.
+ * @param canComment Whether the reader may write here at all, which the content's own payload and
+ *   the comment section's say between them. Where they do not, the way in is not offered.
  */
 @Composable
 fun CommentBottomSheet(
@@ -47,6 +52,7 @@ fun CommentBottomSheet(
     uiState: CommentViewModel.CommentUiState,
     childUiState: CommentViewModel.ChildCommentUiState,
     showComments: Boolean,
+    canComment: Boolean,
     onEvent: (CommentUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
@@ -92,17 +98,30 @@ fun CommentBottomSheet(
                         val onLoadMoreRoot = remember(id, contentType) {
                             { onEvent(CommentUiEvent.LoadRootComments(id, contentType)) }
                         }
-                        CommentList(
-                            modifier = Modifier.weight(1f),
-                            onEvent = onEvent,
-                            comments = uiState.comments,
-                            isLoading = uiState.isLoading,
-                            hasMore = uiState.hasMore,
-                            onLoadMore = onLoadMoreRoot,
-                            state = rootListState,
-                            error = uiState.error,
-                            onRetry = onLoadMoreRoot,
-                        )
+                        Box(modifier = Modifier.weight(1f)) {
+                            CommentList(
+                                modifier = Modifier.fillMaxSize(),
+                                onEvent = onEvent,
+                                comments = uiState.comments,
+                                isLoading = uiState.isLoading,
+                                hasMore = uiState.hasMore,
+                                onLoadMore = onLoadMoreRoot,
+                                state = rootListState,
+                                error = uiState.error,
+                                onRetry = onLoadMoreRoot,
+                            )
+
+                            // The way into a comment on the content itself. It is not a box: the
+                            // box is asked for, so what floats here is only the asking.
+                            CommentComposeFab(
+                                visible = canComment && !uiState.isComposerOpen,
+                                listState = rootListState,
+                                onClick = { onEvent(CommentUiEvent.OpenComposer) },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(16.dp),
+                            )
+                        }
 
                         // The reader has just commented: what they wrote was put at the top of this
                         // list, and a list left where it was would not show it.
@@ -110,16 +129,18 @@ fun CommentBottomSheet(
                             if (uiState.lastPostedId != null) rootListState.animateScrollToItem(0)
                         }
 
-                        CommentComposer(
-                            draft = uiState.draft,
-                            isSubmitting = uiState.isSubmitting,
-                            // Answering one of the comments above, where one of them was tapped;
-                            // otherwise a comment on the content itself.
-                            replyToName = childUiState.replyTarget?.author?.name,
-                            focusKey = childUiState.replyTarget?.id,
-                            onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
-                            onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
-                        )
+                        if (uiState.isComposerOpen) {
+                            CommentComposer(
+                                draft = uiState.draft,
+                                isSubmitting = uiState.isSubmitting,
+                                // Answering one of the comments above, where one of them was tapped;
+                                // otherwise a comment on the content itself.
+                                replyToName = childUiState.replyTarget?.author?.name,
+                                onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
+                                onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
+                                onClose = { onEvent(CommentUiEvent.CloseComposer) },
+                            )
+                        }
                     }
                 },
                 detail = {
@@ -166,18 +187,17 @@ fun CommentBottomSheet(
                             }
                         }
 
-                        // The pane's own comment is what a reply answers, unless something in the
-                        // pane was tapped to answer that; where the server will not take an answer,
-                        // the box is not offered.
-                        if (rootComment != null && rootComment.comment.canReply) {
+                        // The box is up only where something in the pane was tapped to answer it,
+                        // and it says whom in its hint.
+                        val replyTarget = childUiState.replyTarget
+                        if (uiState.isComposerOpen && replyTarget != null) {
                             CommentComposer(
                                 draft = uiState.draft,
                                 isSubmitting = uiState.isSubmitting,
-                                replyToName = (childUiState.replyTarget ?: rootComment.comment)
-                                    .author.name,
-                                focusKey = childUiState.replyTarget?.id,
+                                replyToName = replyTarget.author.name,
                                 onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                 onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
+                                onClose = { onEvent(CommentUiEvent.CloseComposer) },
                             )
                         }
                     }

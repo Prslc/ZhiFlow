@@ -81,6 +81,8 @@ private const val PANEL_HEIGHT_FRACTION = 0.77f
  * @param draft What is in the box, which the content's own sheet shares: one surface is up at a
  *   time, and the words survive a switch between them.
  * @param isSubmitting Whether a comment is on its way.
+ * @param isComposerOpen Whether the box is up, which is only once the reader has asked to write.
+ * @param canComment Whether the reader may write here at all; see the content's own sheet.
  */
 @Composable
 fun SegmentPanelSheet(
@@ -91,6 +93,8 @@ fun SegmentPanelSheet(
     childComments: CommentViewModel.ChildCommentUiState,
     draft: String,
     isSubmitting: Boolean,
+    isComposerOpen: Boolean,
+    canComment: Boolean,
     onToggleLike: (String) -> Unit,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
@@ -168,17 +172,30 @@ fun SegmentPanelSheet(
                             )
                         }
 
-                        CommentList(
-                            modifier = Modifier.weight(1f),
-                            onEvent = onEvent,
-                            comments = comments.comments,
-                            isLoading = comments.isLoading,
-                            hasMore = comments.hasMore,
-                            onLoadMore = onLoadMore,
-                            state = listState,
-                            error = comments.error,
-                            onRetry = onRetry,
-                        )
+                        Box(modifier = Modifier.weight(1f)) {
+                            CommentList(
+                                modifier = Modifier.fillMaxSize(),
+                                onEvent = onEvent,
+                                comments = comments.comments,
+                                isLoading = comments.isLoading,
+                                hasMore = comments.hasMore,
+                                onLoadMore = onLoadMore,
+                                state = listState,
+                                error = comments.error,
+                                onRetry = onRetry,
+                            )
+
+                            // The way into a comment on the passage itself; see the content's own
+                            // sheet.
+                            CommentComposeFab(
+                                visible = canComment && held != null && !isComposerOpen,
+                                listState = listState,
+                                onClick = { onEvent(CommentUiEvent.OpenComposer) },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(16.dp),
+                            )
+                        }
 
                         // The reader has just commented on the passage: what they wrote went to the
                         // top of this list, and a list left where it was would not show it.
@@ -186,23 +203,29 @@ fun SegmentPanelSheet(
                             if (comments.lastPostedId != null) listState.animateScrollToItem(0)
                         }
 
-                        // The passage is what the comment is filed under, so there is no box until
-                        // the panel has one — which is every time it is up.
+                        // The passage is what the comment is filed under, so a box here wants the
+                        // range the panel is holding.
                         held?.let { range ->
-                            CommentComposer(
-                                draft = draft,
-                                isSubmitting = isSubmitting,
-                                // Answering one of the comments above, where one was tapped; the
-                                // passage is what the answer is filed under either way.
-                                replyToName = childComments.replyTarget?.author?.name,
-                                focusKey = childComments.replyTarget?.id,
-                                onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
-                                onSend = {
-                                    onEvent(
-                                        CommentUiEvent.SubmitSegmentComment(id, contentType, range),
-                                    )
-                                },
-                            )
+                            if (isComposerOpen) {
+                                CommentComposer(
+                                    draft = draft,
+                                    isSubmitting = isSubmitting,
+                                    // Answering one of the comments above, where one was tapped;
+                                    // the passage is what the answer is filed under either way.
+                                    replyToName = childComments.replyTarget?.author?.name,
+                                    onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
+                                    onSend = {
+                                        onEvent(
+                                            CommentUiEvent.SubmitSegmentComment(
+                                                id,
+                                                contentType,
+                                                range,
+                                            ),
+                                        )
+                                    },
+                                    onClose = { onEvent(CommentUiEvent.CloseComposer) },
+                                )
+                            }
                         }
                     }
                 },
@@ -251,15 +274,13 @@ fun SegmentPanelSheet(
 
                         // A reply is filed under the same passage as the comment it answers, so the
                         // box wants the range this panel is holding.
-                        val rootComment = childComments.rootComment
+                        val replyTarget = childComments.replyTarget
                         held?.let { range ->
-                            if (rootComment != null && rootComment.comment.canReply) {
+                            if (isComposerOpen && replyTarget != null) {
                                 CommentComposer(
                                     draft = draft,
                                     isSubmitting = isSubmitting,
-                                    replyToName = (childComments.replyTarget ?: rootComment.comment)
-                                        .author.name,
-                                    focusKey = childComments.replyTarget?.id,
+                                    replyToName = replyTarget.author.name,
                                     onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                     onSend = {
                                         onEvent(
@@ -270,6 +291,7 @@ fun SegmentPanelSheet(
                                             ),
                                         )
                                     },
+                                    onClose = { onEvent(CommentUiEvent.CloseComposer) },
                                 )
                             }
                         }

@@ -17,6 +17,7 @@ import com.prslc.zhiflow.data.mapper.toDto
 import com.prslc.zhiflow.data.model.comment.ZhihuComment
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
+import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.data.repository.CommentRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -44,10 +45,16 @@ sealed interface CommentUiEvent {
     data class LoadChildComments(val rootComment: CommentDto) : CommentUiEvent
 
     /**
-     * The reader asked the box to answer this comment rather than to open anything: the pane is
-     * brought up where the comment is not the one on screen, and the box points at it either way.
+     * The reader asked the box to answer this comment rather than to open anything: the box comes
+     * up pointing at it, in whichever pane the comment is drawn.
      */
     data class ReplyTo(val comment: CommentDto) : CommentUiEvent
+
+    /** The reader asked to comment on the content itself: the box comes up answering no one. */
+    data object OpenComposer : CommentUiEvent
+
+    /** The reader put the box away without sending. */
+    data object CloseComposer : CommentUiEvent
 
     /** What the reader has typed into the box. */
     data class DraftChanged(val text: String) : CommentUiEvent
@@ -80,6 +87,18 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val navigateToUser: String? = null,
         /** What is in the box, which the two panes share. */
         val draft: String = "",
+        /**
+         * Whether the box is up. A comment is written only when the reader asks for one — a row's
+         * reply, or the way in to a comment of their own — so the box is down for a sheet that was
+         * merely opened.
+         */
+        val isComposerOpen: Boolean = false,
+        /**
+         * Whether the comment section takes a written comment at all, which its own payload says.
+         * True until it says otherwise, so a section still being read is not taken for a closed
+         * one.
+         */
+        val canWrite: Boolean = true,
         val isSubmitting: Boolean = false,
         /** The comment just posted, so the list can bring it into view; null until one is. */
         val lastPostedId: String? = null,
@@ -96,8 +115,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val isDetailMode: Boolean = false,
         /**
          * The comment the box will answer, where the reader asked to answer one: a reply to a reply
-         * is written in the pane that reply is already in. Null answers the pane's own comment,
-         * which is what the pane means unless something in it was tapped.
+         * is written in the pane that reply is already in. Null while the box answers nobody.
          */
         val replyTarget: CommentDto? = null,
         /** The reply just posted; see [CommentUiState.lastPostedId]. */
@@ -151,9 +169,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                 offset = "",
                 hasMore = true,
                 error = null,
+                isComposerOpen = false,
             )
             // A list read afresh is not the reader's last visit to it: a box left answering some
-            // comment of the old one starts a comment again.
+            // comment of the old one is put away, and the old one's target with it.
             childUiState = childUiState.copy(replyTarget = null)
         } else {
             uiState = uiState.copy(isLoading = true, error = null)
@@ -177,6 +196,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         hasMore = hasNext,
                         isLoading = false,
                         error = null,
+                        // A page that says nothing leaves the section as the one before it left it.
+                        canWrite = response.editStatus?.canReply ?: uiState.canWrite,
                     )
                 }.onApiFailure { error ->
                     uiState = uiState.copy(isLoading = false, error = error)
@@ -232,6 +253,10 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                         isLoading = false,
                         error = null,
                     )
+                    // The passage's comments are written under the same section as the content's.
+                    response.editStatus?.let { edit ->
+                        uiState = uiState.copy(canWrite = edit.canReply)
+                    }
                 }.onApiFailure { error ->
                     segmentUiState = segmentUiState.copy(isLoading = false, error = error)
                 }
@@ -239,15 +264,32 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     /**
-     * Points the box at the comment a tap means to answer, wherever the tap was: a box is open in
-     * both panes, and answering is the one thing the tap is for. Opening a comment's replies is the
-     * block's job, which is the only thing in a row that leads anywhere.
+     * Points the box at the comment a tap means to answer, wherever the tap was, and brings the box
+     * up: answering is the one thing the tap is for. Opening a comment's replies is the block's
+     * job, which is the only thing in a row that leads anywhere.
      *
      * The box then answers that comment -- in the pane the comment belongs to, which is the one the
-     * reader is looking at -- and the pane's own comment where nothing was tapped.
+     * reader is looking at.
      */
     fun replyTo(comment: CommentDto) {
         childUiState = childUiState.copy(replyTarget = comment)
+        uiState = uiState.copy(isComposerOpen = true)
+    }
+
+    /** Brings the box up answering no one: a comment on the content itself. */
+    fun openComposer() {
+        childUiState = childUiState.copy(replyTarget = null)
+        uiState = uiState.copy(isComposerOpen = true)
+    }
+
+    /**
+     * Puts the box away, and whom it was answering with it, so the next opening says afresh whom it
+     * is addressed to. What was typed stays: a draft is the reader's until it is sent or the sheet
+     * closes.
+     */
+    fun closeComposer() {
+        uiState = uiState.copy(isComposerOpen = false)
+        childUiState = childUiState.copy(replyTarget = null)
     }
 
     fun loadChildComments(rootComment: CommentDto, forceRefresh: Boolean = false) {
@@ -271,6 +313,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
                     hasMore = true,
                     offset = "",
                 )
+                // The box was addressed from the list being left.
+                uiState = uiState.copy(isComposerOpen = false)
             }
 
             if (childUiState.isLoading && !isNewOrRefresh) return@launch
@@ -393,10 +437,9 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val text = uiState.draft.trim()
         if (text.isEmpty() || uiState.isSubmitting) return
 
-        // What the box is answering: the comment the reader pointed it at, and failing that the
-        // pane's own comment, which is what an opened pane means.
+        // What the box is answering: the comment the reader pointed it at. A box that answers no
+        // one is a comment on the content itself.
         val replyTo = childUiState.replyTarget
-            ?: childUiState.takeIf { it.isDetailMode }?.rootComment?.comment
         uiState = uiState.copy(isSubmitting = true)
 
         viewModelScope.launch {
@@ -422,7 +465,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         val model = CommentUiModel(posted)
 
         if (replyTo == null) {
-            uiState = uiState.copy(draft = "", isSubmitting = false)
+            uiState = uiState.copy(draft = "", isSubmitting = false, isComposerOpen = false)
 
             if (anchor == null) {
                 uiState = uiState.copy(
@@ -451,7 +494,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         childUiState = childUiState.copy(
             comments = childUiState.comments + model,
             rootComment = childUiState.rootComment?.let(answered),
-            // The answer is written; the next one in the pane answers the pane again.
+            // The answer is written; the box closes with the next opening told afresh.
             replyTarget = null,
             lastPostedId = posted.id,
         )
@@ -459,6 +502,7 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
             comments = uiState.comments.map(answered),
             draft = "",
             isSubmitting = false,
+            isComposerOpen = false,
         )
     }
 
@@ -469,7 +513,9 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
      * whole state, so nothing stale can reach the pane.
      */
     fun backToMain() {
-        childUiState = childUiState.copy(isDetailMode = false)
+        childUiState = childUiState.copy(isDetailMode = false, replyTarget = null)
+        // The box was addressed from the pane being left; the pane following it has not asked.
+        uiState = uiState.copy(isComposerOpen = false)
     }
 
     fun showAuthor(urlToken: String) {
@@ -529,3 +575,11 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         model.copy(comment = model.comment.copy(disliked = active))
     }
 }
+
+/**
+ * Whether the reader may write here at all: the content's say and the comment section's, between
+ * them. Each flag is true until its own payload says otherwise, so a payload still on its way is
+ * not read as a refusal.
+ */
+fun CommentViewModel.CommentUiState.canCommentOn(content: ZhihuContent?): Boolean =
+    canWrite && content?.commentConfig?.canReply != false

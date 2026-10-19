@@ -14,6 +14,17 @@ data class CommentResponse(
     val counts: CommentCounts,
     val paging: Paging? = null,
     @SerialName("atmosphere_voting_config") val atmosphere: AtmosphereConfig? = null,
+    @SerialName("edit_status") val editStatus: CommentEditStatus? = null,
+)
+
+/**
+ * Whether the reader may write in this comment section at all -- the section's own say, unlike a
+ * comment's [ZhihuComment.canReply], which is about one row.
+ */
+@Immutable
+@Serializable
+data class CommentEditStatus(
+    @SerialName("can_reply") val canReply: Boolean = true,
 )
 
 @Stable
