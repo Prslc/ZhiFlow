@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DataSaverOn
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Translate
@@ -65,6 +66,7 @@ fun SettingsScreen(
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val language = viewModel.language
     val dataSaver by viewModel.dataSaver.collectAsStateWithLifecycle()
+    val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
     val developerUnlocked by viewModel.developerUnlocked.collectAsStateWithLifecycle()
     val session by viewModel.session.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
@@ -130,6 +132,17 @@ fun SettingsScreen(
                         onClick = { viewModel.setDataSaver(!dataSaver) },
                         trailingContent = {
                             Switch(checked = dataSaver, onCheckedChange = null)
+                        },
+                    )
+                }
+                row {
+                    SettingsRow(
+                        title = stringResource(R.string.settings_search_history_title),
+                        description = stringResource(R.string.settings_search_history_summary),
+                        icon = Icons.Filled.History,
+                        onClick = { viewModel.setSearchHistory(!searchHistory) },
+                        trailingContent = {
+                            Switch(checked = searchHistory, onCheckedChange = null)
                         },
                     )
                 }

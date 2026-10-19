@@ -11,6 +11,8 @@ import com.prslc.zhiflow.core.network.SessionCookieJar
 import com.prslc.zhiflow.core.network.SessionGate
 import com.prslc.zhiflow.core.preference.LanguageStore
 import com.prslc.zhiflow.core.preference.LanguageStoreImpl
+import com.prslc.zhiflow.core.preference.SearchHistoryStore
+import com.prslc.zhiflow.core.preference.SearchHistoryStoreImpl
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.SettingsStoreImpl
 import com.prslc.zhiflow.data.remote.service.ActionService
@@ -166,6 +168,7 @@ val appModule = module {
     // Search
     singleOf(::SearchService)
     singleOf(::SearchRepository)
+    single<SearchHistoryStore> { SearchHistoryStoreImpl(get()) }
     viewModelOf(::SearchViewModel)
 
     // Notification

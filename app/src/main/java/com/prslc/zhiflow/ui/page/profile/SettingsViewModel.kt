@@ -55,6 +55,9 @@ class SettingsViewModel(
     /** Whether the reader asked to save data, emitting again whenever they change it. */
     val dataSaver: StateFlow<Boolean> = settingsStore.dataSaver
 
+    /** Whether the search box offers the reader's own phrases rather than the hot searches. */
+    val searchHistory: StateFlow<Boolean> = settingsStore.searchHistory
+
     /** Whether the developer tools are unlocked, which the about page is what unlocks. */
     val developerUnlocked: StateFlow<Boolean> = settingsStore.developerUnlocked
 
@@ -98,6 +101,13 @@ class SettingsViewModel(
      * @param enabled True leaves each of them a placeholder of its own size, which still opens.
      */
     fun setDataSaver(enabled: Boolean) = settingsStore.setDataSaver(enabled)
+
+    /**
+     * Stores whether the search box offers the reader's own phrases rather than the hot searches.
+     *
+     * @param enabled True offers what they have searched for.
+     */
+    fun setSearchHistory(enabled: Boolean) = settingsStore.setSearchHistory(enabled)
 
     /**
      * Reads the disk cache's current size, off the main thread — Coil answers it by walking its

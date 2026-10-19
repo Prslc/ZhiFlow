@@ -18,11 +18,15 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
 
     private val _dataSaver = MutableStateFlow(readDataSaver())
 
+    private val _searchHistory = MutableStateFlow(readSearchHistory())
+
     private val _developerUnlocked = MutableStateFlow(readDeveloperUnlocked())
 
     override val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
     override val dataSaver: StateFlow<Boolean> = _dataSaver.asStateFlow()
+
+    override val searchHistory: StateFlow<Boolean> = _searchHistory.asStateFlow()
 
     override val developerUnlocked: StateFlow<Boolean> = _developerUnlocked.asStateFlow()
 
@@ -34,6 +38,11 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     override fun setDataSaver(enabled: Boolean) {
         preferences.edit { putBoolean(KEY_DATA_SAVER, enabled) }
         _dataSaver.value = enabled
+    }
+
+    override fun setSearchHistory(enabled: Boolean) {
+        preferences.edit { putBoolean(KEY_SEARCH_HISTORY, enabled) }
+        _searchHistory.value = enabled
     }
 
     override fun setDeveloperUnlocked(unlocked: Boolean) {
@@ -49,6 +58,9 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     /** @return The stored choice, or false when nothing is stored — a fresh install loads images. */
     private fun readDataSaver(): Boolean = preferences.getBoolean(KEY_DATA_SAVER, false)
 
+    /** @return The stored choice, or true when nothing is stored — a fresh install offers it. */
+    private fun readSearchHistory(): Boolean = preferences.getBoolean(KEY_SEARCH_HISTORY, true)
+
     /** @return Whether the tools were unlocked, which stays true once it is. */
     private fun readDeveloperUnlocked(): Boolean =
         preferences.getBoolean(KEY_DEVELOPER_UNLOCKED, false)
@@ -56,6 +68,7 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     private companion object {
         const val KEY_THEME_MODE = "theme_mode"
         const val KEY_DATA_SAVER = "data_saver"
+        const val KEY_SEARCH_HISTORY = "search_history_enabled"
         const val KEY_DEVELOPER_UNLOCKED = "developer_unlocked"
     }
 }

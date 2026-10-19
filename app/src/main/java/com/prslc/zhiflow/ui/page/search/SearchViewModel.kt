@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.preference.SearchHistoryStore
+import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.dto.SuggestedQueryDto
@@ -17,6 +19,7 @@ import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.repository.SearchRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -25,6 +28,8 @@ private val SUGGEST_DEBOUNCE_MS = 250.milliseconds
 
 class SearchViewModel(
     private val repository: SearchRepository,
+    settingsStore: SettingsStore,
+    private val historyStore: SearchHistoryStore,
 ) : ViewModel() {
 
     @Immutable
@@ -48,6 +53,12 @@ class SearchViewModel(
     /** The phrases to offer before they have typed anything. */
     var hotQueries by mutableStateOf<List<HotQueryDto>>(emptyList())
         private set
+
+    /** What the reader has searched for before, most recent first. */
+    val history: StateFlow<List<String>> = historyStore.queries
+
+    /** Whether the box offers [history] rather than [hotQueries]. */
+    val historyEnabled: StateFlow<Boolean> = settingsStore.searchHistory
 
     /** The phrase the results on screen are for; blank until one has been searched for. */
     var submittedQuery by mutableStateOf("")
@@ -108,6 +119,7 @@ class SearchViewModel(
 
         query = phrase
         submittedQuery = phrase
+        historyStore.record(phrase)
         suggestions = emptyList()
         nextPageUrl = null
         loadRefinements(phrase)
@@ -193,6 +205,16 @@ class SearchViewModel(
                 .ignoreOutcome()
         }
     }
+
+    /**
+     * Drops one phrase from the reader's search history.
+     *
+     * @param query The phrase to drop.
+     */
+    fun removeHistory(query: String) = historyStore.remove(query)
+
+    /** Empties the reader's search history, leaving the box with nothing to offer in its place. */
+    fun clearHistory() = historyStore.clear()
 
     /** Empties the result list, for the reader who cleared the box. */
     fun clearResults() {

@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.HorizontalDivider
@@ -36,11 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.shouldLoadMore
@@ -66,8 +70,13 @@ fun SearchScreen(
     val navigator = LocalNavigator.current
     val focusManager = LocalFocusManager.current
     val listState = viewModel.listState
+    val historyEnabled by viewModel.historyEnabled.collectAsStateWithLifecycle()
+    val history by viewModel.history.collectAsStateWithLifecycle()
 
-    LaunchedEffect(tab) { viewModel.loadHotQueries(tab) }
+    // The hot searches are only worth asking for when they are what the box is going to draw.
+    LaunchedEffect(tab, historyEnabled) {
+        if (!historyEnabled) viewModel.loadHotQueries(tab)
+    }
 
     val shouldLoadMore by remember { listState.shouldLoadMore() }
     LaunchedEffect(shouldLoadMore) {
@@ -166,6 +175,21 @@ fun SearchScreen(
                         onClick = { viewModel.submit(it, tab) },
                     )
 
+                    historyEnabled -> if (history.isEmpty()) {
+                        EmptyView(
+                            message = stringResource(R.string.search_history_empty),
+                            modifier = Modifier.fillMaxSize(),
+                            icon = Icons.Filled.History,
+                        )
+                    } else {
+                        HistoryList(
+                            phrases = history,
+                            onPhraseClick = { viewModel.submit(it, tab) },
+                            onPhraseRemove = viewModel::removeHistory,
+                            onClear = viewModel::clearHistory,
+                        )
+                    }
+
                     else -> PhraseList(
                         phrases = viewModel.hotQueries.map { it.query },
                         hotPhrases = viewModel.hotQueries.filter { it.isHot }
@@ -241,30 +265,109 @@ private fun PhraseList(
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(phrases) { phrase ->
-            Row(
+            PhraseRow(
+                icon = if (phrase in hotPhrases) {
+                    Icons.Filled.LocalFireDepartment
+                } else {
+                    Icons.Filled.Search
+                },
+                phrase = phrase,
+                onClick = onClick,
+            )
+        }
+    }
+}
+
+/** What the reader has searched for before, each with the way to put it away. */
+@Composable
+private fun HistoryList(
+    phrases: List<String>,
+    onPhraseClick: (String) -> Unit,
+    onPhraseRemove: (String) -> Unit,
+    onClear: () -> Unit,
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(phrases) { phrase ->
+            PhraseRow(
+                icon = Icons.Filled.History,
+                phrase = phrase,
+                onClick = onPhraseClick,
+                trailing = {
+                    IconButton(onClick = { onPhraseRemove(phrase) }) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = stringResource(
+                                R.string.search_history_remove,
+                                phrase,
+                            ),
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+            )
+        }
+        item {
+            Text(
+                text = stringResource(R.string.search_history_clear),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onClick(phrase) }
+                    .clickable(onClick = onClear)
                     .padding(horizontal = 20.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            )
+        }
+    }
+}
+
+/**
+ * One phrase on offer, whichever list it came from.
+ *
+ * [trailing] is drawn over the row's end rather than beside it, so a button there does not make
+ * the row taller than the line of text it belongs to.
+ */
+@Composable
+private fun PhraseRow(
+    icon: ImageVector,
+    phrase: String,
+    onClick: (String) -> Unit,
+    trailing: (@Composable () -> Unit)? = null,
+) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick(phrase) }
+                .padding(
+                    start = 20.dp,
+                    top = 14.dp,
+                    end = if (trailing == null) 20.dp else 56.dp,
+                    bottom = 14.dp,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = phrase,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        if (trailing != null) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = if (phrase in hotPhrases) {
-                        Icons.Filled.LocalFireDepartment
-                    } else {
-                        Icons.Filled.Search
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = phrase,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                trailing()
             }
         }
     }
@@ -279,6 +382,20 @@ private fun PhraseListPreview() {
             phrases = sampleHotQueries.map { it.query },
             hotPhrases = sampleHotQueries.filter { it.isHot }.map { it.query }.toSet(),
             onClick = {},
+        )
+    }
+}
+
+/** The list before anything is typed when the reader keeps a history instead. */
+@AppPreviews
+@Composable
+private fun HistoryListPreview() {
+    PreviewSurface {
+        HistoryList(
+            phrases = listOf("Jetpack Compose", "Kotlin coroutines", "Machine learning"),
+            onPhraseClick = {},
+            onPhraseRemove = {},
+            onClear = {},
         )
     }
 }

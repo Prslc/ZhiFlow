@@ -37,6 +37,15 @@ interface SettingsStore {
     val dataSaver: StateFlow<Boolean>
 
     /**
+     * Whether the search box offers the phrases the reader has searched for, in place of the hot
+     * searches.
+     *
+     * Emitting again whenever it changes: the box draws what this names, and it may already be on
+     * screen when the settings page behind it is changed.
+     */
+    val searchHistory: StateFlow<Boolean>
+
+    /**
      * Stores the chosen theme, which the next composition draws in.
      *
      * @param mode The theme to draw in.
@@ -59,6 +68,14 @@ interface SettingsStore {
      *   traffic for, and are unaffected.
      */
     fun setDataSaver(enabled: Boolean)
+
+    /**
+     * Stores whether the search box draws the reader's own phrases rather than the hot searches.
+     *
+     * @param enabled True draws what they have searched for. Recording carries on either way, so
+     *   turning it back on offers what was searched for meanwhile.
+     */
+    fun setSearchHistory(enabled: Boolean)
 
     /**
      * Stores whether the developer tools are unlocked, which is what the settings page offers
