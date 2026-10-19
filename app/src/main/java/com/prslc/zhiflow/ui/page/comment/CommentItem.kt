@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.rememberToggleHaptic
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
+import com.prslc.zhiflow.data.model.comment.AuthorTag
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
@@ -52,6 +54,7 @@ import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleComment
+import com.prslc.zhiflow.ui.preview.sampleCommentByAsker
 import com.prslc.zhiflow.ui.preview.sampleCommentByAuthor
 import com.prslc.zhiflow.ui.preview.sampleCommentByTop
 import com.prslc.zhiflow.ui.preview.sampleCommentWithReplies
@@ -124,11 +127,17 @@ fun CommentItem(
                     modifier = Modifier.clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
                 )
 
-                if (comment.isAuthor) {
-                    BadgeLabel(
-                        text = stringResource(R.string.comment_author),
-                        modifier = Modifier.padding(start = 4.dp),
-                    )
+                // The badge comes from the server, which knows which roles this author wears; what
+                // it looks like is ours. `is_author` cannot be trusted for it: it reads false even
+                // on the content author's own replies.
+                comment.authorTags.forEach { tag ->
+                    val label = authorTagLabel(tag)
+                    if (label.isNotBlank()) {
+                        BadgeLabel(
+                            text = label,
+                            modifier = Modifier.padding(start = 4.dp),
+                        )
+                    }
                 }
 
                 comment.replyToAuthor?.let { replyTo ->
@@ -367,6 +376,18 @@ private fun ReactionAction(
     }
 }
 
+/**
+ * What the row calls a role the server tagged the comment with. The roles it knows are drawn in
+ * our own words; any other is drawn in the server's, which is the only name the client has for it.
+ */
+@Composable
+@ReadOnlyComposable
+private fun authorTagLabel(tag: AuthorTag): String = when (tag.type) {
+    "content_author" -> stringResource(R.string.comment_author)
+    "question_author" -> stringResource(R.string.comment_question_author)
+    else -> tag.text
+}
+
 /** A root comment, and a reply under it, which is indented and names who it answers. */
 @AppPreviews
 @Composable
@@ -388,6 +409,10 @@ private fun CommentItemPreview() {
             )
             CommentItem(
                 model = CommentViewModel.CommentUiModel(sampleReplyByAuthor),
+                onEvent = {},
+            )
+            CommentItem(
+                model = CommentViewModel.CommentUiModel(sampleCommentByAsker),
                 onEvent = {},
             )
             CommentItem(

@@ -29,6 +29,7 @@ import com.prslc.zhiflow.data.dto.ReadHistoryDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.dto.SuggestedQueryDto
 import com.prslc.zhiflow.data.model.comment.Author
+import com.prslc.zhiflow.data.model.comment.AuthorTag
 import com.prslc.zhiflow.data.model.comment.CommentAuthor
 import com.prslc.zhiflow.data.model.comment.CommentContent
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
@@ -379,15 +380,21 @@ private val SampleReplyAuthor = Author(
     headline = "Writes about parsers and the machines that read them",
 )
 
+/** The role the server tags the content author's own comments with, which the row badges. */
+private val SampleAuthorTag = AuthorTag(type = "content_author", text = "作者")
+
+/** The same for the asker of the question the content answers. */
+private val SampleAskerTag = AuthorTag(type = "question_author", text = "提问者")
+
 val sampleComment = CommentDto(
     id = "11594201738",
     author = SampleCommentAuthor,
     replyToAuthor = null,
+    authorTags = emptyList(),
     createdTime = 1791726117L,
     likeCount = 42,
     liked = false,
     disliked = false,
-    isAuthor = false,
     isAuthorTop = false,
     childCount = 3,
     childComments = emptyList(),
@@ -424,13 +431,19 @@ val sampleUnreplyableComment = sampleComment.copy(
 /** Left by the author of the piece it sits under, which is what the row's badge says. */
 val sampleCommentByAuthor = sampleComment.copy(
     id = "11594201741",
-    isAuthor = true,
+    authorTags = listOf(SampleAuthorTag),
 )
 
 /** The author answering someone: the badge on a row that also names who it answers. */
 val sampleReplyByAuthor = sampleReply.copy(
     id = "11594201742",
-    isAuthor = true,
+    authorTags = listOf(SampleAuthorTag),
+)
+
+/** Left by the asker of the question the content answers, which the row badges in kind. */
+val sampleCommentByAsker = sampleComment.copy(
+    id = "11594201745",
+    authorTags = listOf(SampleAskerTag),
 )
 
 val sampleCommentByTop = sampleComment.copy(

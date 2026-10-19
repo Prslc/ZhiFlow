@@ -43,6 +43,13 @@ data class ZhihuComment(
     @SerialName("like_count") val likeCount: Int,
     val author: CommentAuthor,
     @SerialName("is_author") val isAuthor: Boolean = false,
+    /**
+     * The badges this row wears beside its author, each saying which role it stands for and the
+     * words for it: the content's author (`content_author`) and the asker of its question among
+     * them. The client draws what it is given rather than deciding from [isAuthor], which reads
+     * false even on the content author's own replies.
+     */
+    @SerialName("author_tag") val authorTags: List<AuthorTag> = emptyList(),
     @SerialName("is_author_top") val isAuthorTop: Boolean = false,
     @SerialName("comment_tag") val tags: List<CommentTag> = emptyList(),
     @SerialName("child_comment_count") val childCount: Int = 0,
@@ -116,6 +123,18 @@ data class AtmosphereEmoji(
 data class CommentTag(
     val type: String, // ip
     val text: String, // ip address,
+)
+
+/**
+ * One badge the server puts beside a comment's author: the role it stands for -- `content_author`
+ * for the content's author, `question_author` for the asker of its question -- and the words it
+ * carries. The look is the client's, not the server's.
+ */
+@Immutable
+@Serializable
+data class AuthorTag(
+    val type: String = "",
+    val text: String = "",
 )
 
 @Immutable

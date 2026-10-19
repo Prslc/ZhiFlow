@@ -2,6 +2,7 @@ package com.prslc.zhiflow.data.dto
 
 import androidx.compose.runtime.Immutable
 import com.prslc.zhiflow.data.model.comment.Author
+import com.prslc.zhiflow.data.model.comment.AuthorTag
 import com.prslc.zhiflow.data.model.comment.CommentAuthor
 import com.prslc.zhiflow.data.model.comment.CommentContent
 
@@ -10,11 +11,12 @@ data class CommentDto(
     val id: String,
     val author: CommentAuthor,
     val replyToAuthor: Author?,
+    /** The badges the row wears beside the author; see the model. */
+    val authorTags: List<AuthorTag>,
     val createdTime: Long,
     val likeCount: Int,
     val liked: Boolean,
     val disliked: Boolean,
-    val isAuthor: Boolean,
     val isAuthorTop: Boolean,
     val childCount: Int,
     /** The replies the response carried, of which the row draws the first; see the mapper. */
