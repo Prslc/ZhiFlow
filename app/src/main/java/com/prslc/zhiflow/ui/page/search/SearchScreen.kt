@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -69,6 +70,7 @@ fun SearchScreen(
 ) {
     val navigator = LocalNavigator.current
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val listState = viewModel.listState
     val historyEnabled by viewModel.historyEnabled.collectAsStateWithLifecycle()
     val history by viewModel.history.collectAsStateWithLifecycle()
@@ -87,10 +89,13 @@ fun SearchScreen(
 
     val uiState = viewModel.uiState
     val endText = if (uiState.isEnd) stringResource(R.string.end_of_list) else null
-    val search = remember(viewModel, focusManager, tab) {
-        {
-            viewModel.submit(viewModel.query, tab)
+
+    // A search replaces the box's text while it is still focused: end the editing session, or the
+    // keyboard stays over the results and the cursor stays where it was in the old text.
+    LaunchedEffect(uiState.isSearching) {
+        if (uiState.isSearching) {
             focusManager.clearFocus()
+            keyboardController?.hide()
         }
     }
 
@@ -131,7 +136,9 @@ fun SearchScreen(
                             }
                         },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(onSearch = { search() }),
+                        keyboardActions = KeyboardActions(
+                            onSearch = { viewModel.submit(viewModel.query, tab) },
+                        ),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
