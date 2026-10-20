@@ -26,6 +26,7 @@ import com.prslc.zhiflow.ui.page.people.PeopleListScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
 import com.prslc.zhiflow.ui.page.profile.AboutScreen
 import com.prslc.zhiflow.ui.page.profile.OpenSourceLicenseScreen
+import com.prslc.zhiflow.ui.page.profile.ReadingSettingsScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.search.SearchScreen
@@ -98,6 +99,12 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<Settings> {
         SettingsScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable<ReadingSettings> {
+        ReadingSettingsScreen(
             onBack = { navController.popBackStack() },
         )
     }

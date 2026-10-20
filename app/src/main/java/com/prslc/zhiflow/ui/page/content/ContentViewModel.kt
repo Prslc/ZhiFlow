@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgress
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
@@ -34,6 +35,7 @@ import com.prslc.zhiflow.ui.component.voteChange
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -41,6 +43,7 @@ class ContentViewModel(
     private val repository: ContentRepository,
     private val actionRepository: ActionRepository,
     private val userRepository: UserRepository,
+    settingsStore: SettingsStore,
 ) : ViewModel() {
 
     companion object {
@@ -93,6 +96,12 @@ class ContentViewModel(
      */
     val readProgress: Float
         get() = progress.fraction
+
+    /** Whether this page draws its progress bar. The position is tracked either way. */
+    val readingProgress: StateFlow<Boolean> = settingsStore.readingProgress
+
+    /** Whether this page's bars leave with the scroll. */
+    val barsFollowScroll: StateFlow<Boolean> = settingsStore.barsFollowScroll
 
     /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
     var isBodyComplete by mutableStateOf(false)

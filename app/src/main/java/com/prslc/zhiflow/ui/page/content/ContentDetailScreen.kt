@@ -32,6 +32,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
@@ -92,11 +94,19 @@ fun ContentDetailScreen(
         viewModel::consumeActionError,
     )
 
+    // The reading settings, which the store publishes: a page still open behind the settings that
+    // change them hears about it without a reload.
+    val readingProgress by viewModel.readingProgress.collectAsStateWithLifecycle()
+    val barsFollowScroll by viewModel.barsFollowScroll.collectAsStateWithLifecycle()
+
     // One bar, one row, whatever the page: it goes with the finger and never folds. Material's
     // large bar cross-fades the title between two rows, which with a question's title reads as one
     // title being replaced by another rather than as a title folding away.
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val topBarLeave = rememberTopBarLeave { true }
+    // The state outlives a composition and keeps the callback it was built with, so the gate reads
+    // the setting through a state rather than through the value this composition happened to see.
+    val barsMayLeave = rememberUpdatedState(barsFollowScroll)
+    val topBarLeave = rememberTopBarLeave { barsMayLeave.value }
     // The status bar is the system's: the page paints its pad and never shortens it, so the bar
     // leaves the row and the content stays clear of the icons.
     val statusBarPadPx = WindowInsets.statusBars.getTop(LocalDensity.current)
@@ -183,7 +193,9 @@ fun ContentDetailScreen(
                                 onOutlineClick = { showOutline = true },
                             )
                         }
-                        ReadingProgressBar(progress = { viewModel.readProgress })
+                        if (readingProgress) {
+                            ReadingProgressBar(progress = { viewModel.readProgress })
+                        }
                     }
                 },
                 bottomBar = {

@@ -97,6 +97,8 @@ class Navigator(
 
     fun navigateToSettings() = navController.navigate(Settings)
 
+    fun navigateToReadingSettings() = navController.navigate(ReadingSettings)
+
     fun navigateToAbout() = navController.navigate(About)
 
     fun navigateToOpenSourceLicense() = navController.navigate(OpenSourceLicense)

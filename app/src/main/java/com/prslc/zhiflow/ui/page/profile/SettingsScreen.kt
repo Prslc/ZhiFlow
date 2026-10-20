@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DataSaverOn
@@ -119,6 +120,17 @@ fun SettingsScreen(
                         description = language.label(),
                         icon = Icons.Filled.Translate,
                         onClick = { showLanguageDialog = true },
+                    )
+                }
+            }
+
+            SettingsGroup(title = stringResource(R.string.settings_section_reading)) {
+                row {
+                    SettingsNavRow(
+                        title = stringResource(R.string.settings_reading_title),
+                        description = stringResource(R.string.settings_reading_summary),
+                        icon = Icons.AutoMirrored.Filled.MenuBook,
+                        onClick = navigator::navigateToReadingSettings,
                     )
                 }
             }

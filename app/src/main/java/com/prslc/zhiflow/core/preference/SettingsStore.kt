@@ -46,6 +46,22 @@ interface SettingsStore {
     val searchHistory: StateFlow<Boolean>
 
     /**
+     * Whether a content page draws the bar along its top that shows how far it has been read.
+     *
+     * Emitting again whenever it changes: the page may already be open behind the settings, and
+     * the bar is drawn from this rather than from a value read once when the page was.
+     */
+    val readingProgress: StateFlow<Boolean>
+
+    /**
+     * Whether a content page's top and bottom bars leave with the scroll and come back with it.
+     *
+     * Emitting again whenever it changes, for the same reason: the bars are under a finger on a
+     * page that may already be open.
+     */
+    val barsFollowScroll: StateFlow<Boolean>
+
+    /**
      * Stores the chosen theme, which the next composition draws in.
      *
      * @param mode The theme to draw in.
@@ -76,6 +92,20 @@ interface SettingsStore {
      *   turning it back on offers what was searched for meanwhile.
      */
     fun setSearchHistory(enabled: Boolean)
+
+    /**
+     * Stores whether a content page draws its reading progress bar.
+     *
+     * @param enabled True draws the bar. The reading position is tracked and reported either way.
+     */
+    fun setReadingProgress(enabled: Boolean)
+
+    /**
+     * Stores whether a content page's bars leave with the scroll and come back with it.
+     *
+     * @param enabled True lets the finger put them away and bring them back.
+     */
+    fun setBarsFollowScroll(enabled: Boolean)
 
     /**
      * Stores whether the developer tools are unlocked, which is what the settings page offers

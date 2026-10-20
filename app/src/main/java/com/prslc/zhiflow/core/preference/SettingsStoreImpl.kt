@@ -20,6 +20,10 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
 
     private val _searchHistory = MutableStateFlow(readSearchHistory())
 
+    private val _readingProgress = MutableStateFlow(readReadingProgress())
+
+    private val _barsFollowScroll = MutableStateFlow(readBarsFollowScroll())
+
     private val _developerUnlocked = MutableStateFlow(readDeveloperUnlocked())
 
     override val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
@@ -27,6 +31,10 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     override val dataSaver: StateFlow<Boolean> = _dataSaver.asStateFlow()
 
     override val searchHistory: StateFlow<Boolean> = _searchHistory.asStateFlow()
+
+    override val readingProgress: StateFlow<Boolean> = _readingProgress.asStateFlow()
+
+    override val barsFollowScroll: StateFlow<Boolean> = _barsFollowScroll.asStateFlow()
 
     override val developerUnlocked: StateFlow<Boolean> = _developerUnlocked.asStateFlow()
 
@@ -45,6 +53,16 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         _searchHistory.value = enabled
     }
 
+    override fun setReadingProgress(enabled: Boolean) {
+        preferences.edit { putBoolean(KEY_READING_PROGRESS, enabled) }
+        _readingProgress.value = enabled
+    }
+
+    override fun setBarsFollowScroll(enabled: Boolean) {
+        preferences.edit { putBoolean(KEY_BARS_FOLLOW_SCROLL, enabled) }
+        _barsFollowScroll.value = enabled
+    }
+
     override fun setDeveloperUnlocked(unlocked: Boolean) {
         preferences.edit { putBoolean(KEY_DEVELOPER_UNLOCKED, unlocked) }
         _developerUnlocked.value = unlocked
@@ -61,6 +79,14 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     /** @return The stored choice, or true when nothing is stored — a fresh install offers it. */
     private fun readSearchHistory(): Boolean = preferences.getBoolean(KEY_SEARCH_HISTORY, true)
 
+    /** @return The stored choice, or true when nothing is stored — the page has always drawn it. */
+    private fun readReadingProgress(): Boolean =
+        preferences.getBoolean(KEY_READING_PROGRESS, true)
+
+    /** @return The stored choice, or true when nothing is stored — the bars have always followed. */
+    private fun readBarsFollowScroll(): Boolean =
+        preferences.getBoolean(KEY_BARS_FOLLOW_SCROLL, true)
+
     /** @return Whether the tools were unlocked, which stays true once it is. */
     private fun readDeveloperUnlocked(): Boolean =
         preferences.getBoolean(KEY_DEVELOPER_UNLOCKED, false)
@@ -69,6 +95,8 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         const val KEY_THEME_MODE = "theme_mode"
         const val KEY_DATA_SAVER = "data_saver"
         const val KEY_SEARCH_HISTORY = "search_history_enabled"
+        const val KEY_READING_PROGRESS = "reading_progress_enabled"
+        const val KEY_BARS_FOLLOW_SCROLL = "bars_follow_scroll"
         const val KEY_DEVELOPER_UNLOCKED = "developer_unlocked"
     }
 }

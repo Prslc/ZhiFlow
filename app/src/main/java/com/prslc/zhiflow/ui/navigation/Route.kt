@@ -13,6 +13,11 @@ object MainContainer
 @Serializable
 object Settings
 
+/** The settings one layer down, which is where what a content page draws is chosen. */
+@Immutable
+@Serializable
+object ReadingSettings
+
 @Immutable
 @Serializable
 object About

@@ -347,6 +347,13 @@
     <string name="settings_theme_dark">深色</string>
     <string name="settings_language_title">语言</string>
     <string name="settings_language_system">跟随系统</string>
+    <string name="settings_section_reading">阅读</string>
+    <string name="settings_reading_title">阅读设置</string>
+    <string name="settings_reading_summary">阅读进度条，以及随滚动收起的顶栏和底栏</string>
+    <string name="settings_reading_progress_title">阅读进度条</string>
+    <string name="settings_reading_progress_summary">在页面顶部显示当前读到的位置</string>
+    <string name="settings_bars_follow_scroll_title">滚动时收起顶栏和底栏</string>
+    <string name="settings_bars_follow_scroll_summary">阅读时顶栏和底栏移出画面，往回滑时再出现</string>
     <string name="settings_section_general">通用</string>
     <string name="settings_data_saver_title">省流模式</string>
     <string name="settings_data_saver_summary">不加载插图与缩略图</string>
