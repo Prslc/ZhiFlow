@@ -97,7 +97,6 @@
     <string name="type_unknown">Content</string>
 
     <!-- content -->
-    <string name="content_title_filed">Title loading failed</string>
     <string name="content_published_with_ip">Posted in %1$s · %2$s</string>
     <string name="content_published_no_ip">Posted in %1$s</string>
     <string name="content_edited_on">Edited %1$s</string>

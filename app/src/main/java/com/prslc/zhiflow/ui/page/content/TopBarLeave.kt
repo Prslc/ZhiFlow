@@ -56,6 +56,10 @@ internal class TopBarLeaveState(private val canLeave: () -> Boolean) {
     val offsetPx: Float
         get() = if (canLeave()) retracted.coerceIn(0f, limitPx) else 0f
 
+    /** How much of the way out that is, 0 while the bar's row is whole and 1 once it is gone. */
+    val fraction: Float
+        get() = if (limitPx > 0f) offsetPx / limitPx else 0f
+
     fun record(heightPx: Int) {
         limitPx = heightPx.toFloat()
     }
@@ -78,30 +82,33 @@ internal class TopBarLeaveState(private val canLeave: () -> Boolean) {
 }
 
 /**
- * The status bar's pad at the top of the bar, painted in the bar's own container color.
+ * The status bar's pad at the top of the bar.
  *
  * It is the bar's first line and it stays behind when the bar leaves: the content never goes under
- * the system's status bar, which the app does not hide. Material moves that color between two
- * values as the bar collapses, so the pad is moved with it rather than showing a seam.
+ * the system's status bar, which the app does not hide. Its color is the bar's for as long as the
+ * bar's row is there, and the page's own once the row is gone -- a pad left tinted over a plain
+ * body is a band the reader can see.
  */
 @Composable
-internal fun TopBarStrip(scrollBehavior: TopAppBarScrollBehavior, padPx: Int) {
+internal fun TopBarStrip(
+    scrollBehavior: TopAppBarScrollBehavior,
+    leave: TopBarLeaveState,
+    padPx: Int,
+) {
     val containerColor = MaterialTheme.colorScheme.background
     val scrolledColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
     Spacer(
         modifier = Modifier
             .fillMaxWidth()
             .height(with(LocalDensity.current) { padPx.toDp() })
-            // Read while drawing: the fraction is a new value on every frame of the collapse, and
-            // the pad only has to be repainted for it, not recomposed.
+            // Read while drawing: these are new values on every frame, and the pad only has to be
+            // repainted, not recomposed.
             .drawBehind {
-                drawRect(
-                    lerp(
-                        containerColor,
-                        scrolledColor,
-                        FastOutLinearInEasing.transform(scrollBehavior.state.collapsedFraction),
-                    ),
+                val scrolled = FastOutLinearInEasing.transform(
+                    if (scrollBehavior.state.overlappedFraction > 0.01f) 1f else 0f,
                 )
+                val barColor = lerp(containerColor, scrolledColor, scrolled)
+                drawRect(lerp(containerColor, barColor, 1f - leave.fraction))
             },
     )
 }

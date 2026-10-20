@@ -91,7 +91,6 @@
     <string name="type_unknown">内容</string>
 
     <!-- answer -->
-    <string name="content_title_filed">标题加载失败</string>
     <string name="content_published_with_ip">发布于 %1$s · %2$s</string>
     <string name="content_published_no_ip">发布于 %1$s</string>
     <string name="content_edited_on">编辑于 %1$s</string>

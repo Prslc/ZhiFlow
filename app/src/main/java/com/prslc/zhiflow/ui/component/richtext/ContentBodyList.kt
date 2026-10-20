@@ -217,6 +217,8 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
  *   starts with its own heading passes false.
  * @param onFollowClick Called when the follow button in the author's row is pressed.
  * @param modifier Applied to the selection container that wraps the list, not to the list itself.
+ * @param header What the page is about, where the page carries it as its first line rather than in
+ *   the bar: drawn above the author's row, and scrolling with the rest of the body.
  * @param segmentLikes The live like state of the body's `seg_like` ranges, keyed by the range's
  *   own key.
  * @param onSegmentLikeClick Called with a range's key when the reader opens its panel.
@@ -234,6 +236,7 @@ fun ContentBodyList(
     showAuthorDivider: Boolean,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
+    header: (@Composable () -> Unit)? = null,
     segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
     onSegmentLikeClick: (String) -> Unit = {},
     onProgress: (ReadingPosition) -> Unit,
@@ -262,6 +265,10 @@ fun ContentBodyList(
                 .topPadding(topPadding),
             contentPadding = PaddingValues(bottom = 80.dp),
         ) {
+            if (header != null) {
+                item(key = "header") { header() }
+            }
+
             item {
                 DisableSelection {
                     AuthorSection(
@@ -412,6 +419,7 @@ private fun AuthorSection(
     navigator: Navigator,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
+    header: (@Composable () -> Unit)? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

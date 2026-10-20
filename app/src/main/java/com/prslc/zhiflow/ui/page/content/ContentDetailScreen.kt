@@ -1,6 +1,7 @@
 package com.prslc.zhiflow.ui.page.content
 
-import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -41,7 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
-import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.BarCollapseDistance
 import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
@@ -58,7 +58,6 @@ import com.prslc.zhiflow.ui.component.richtext.rememberContentBodyState
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
 import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.page.comment.CommentBottomSheet
 import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
@@ -95,16 +94,11 @@ fun ContentDetailScreen(
         viewModel::consumeActionError,
     )
 
-    // A pin's bar is one line of the author's own text and stays where it is; the others carry a
-    // question's title, which folds away first and only then leaves with the finger.
-    val scrollBehavior = if (contentType == ContentType.PIN) {
-        TopAppBarDefaults.pinnedScrollBehavior()
-    } else {
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    }
-    val topBarLeave = rememberTopBarLeave {
-        contentType == ContentType.PIN || scrollBehavior.state.collapsedFraction >= 1f
-    }
+    // One bar, one row, whatever the page: it goes with the finger and never folds. Material's
+    // large bar cross-fades the title between two rows, which with a question's title reads as one
+    // title being replaced by another rather than as a title folding away.
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topBarLeave = rememberTopBarLeave { true }
     // The status bar is the system's: the page paints its pad and never shortens it, so the bar
     // leaves the row and the content stays clear of the icons.
     val statusBarPadPx = WindowInsets.statusBars.getTop(LocalDensity.current)
@@ -134,6 +128,23 @@ fun ContentDetailScreen(
     }
     val onStarClick = remember { { viewModel.openCollection() } }
     val onCommentClick = remember { { viewModel.openComments() } }
+
+    // What the bar's title opens, where it opens anything: an answer's title leads back to its
+    // question.
+    val openQuestion: (() -> Unit)? =
+        (currentContent as? ZhihuAnswer)
+            ?.takeIf { contentType == ContentType.ANSWER }
+            ?.question
+            ?.id
+            ?.let { questionId -> { navigator.navigateToContent(questionId, "question") } }
+
+    // The bar carries the page's title only once the body's own copy has been read past: there is
+    // one title on the screen at a time, and the bar is not an empty row once the page is read.
+    val headerReadPast by remember(bodyState.listState) {
+        derivedStateOf {
+            (bodyState.listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0) > 0
+        }
+    }
 
     val segmentKey = viewModel.openSegmentKey
     val segmentTarget = segmentKey?.let { viewModel.segmentLikes[it] }
@@ -165,26 +176,19 @@ fun ContentDetailScreen(
                     .nestedScroll(topBarLeave.connection),
                 topBar = {
                     Column {
-                        TopBarStrip(scrollBehavior, statusBarPadPx)
+                        TopBarStrip(scrollBehavior, topBarLeave, statusBarPadPx)
                         Box(modifier = Modifier.retractedBy(topBarLeave)) {
-                            if (contentType == ContentType.PIN) {
-                                PinTopBar(
-                                    title = currentContent?.displayTitle.orEmpty(),
-                                    scrollBehavior = scrollBehavior,
-                                    onBack = onBack,
-                                )
-                            } else {
-                                ContentDetailTopBar(
-                                    currentContent = currentContent,
-                                    error = loadingState.error,
-                                    contentType = contentType,
-                                    scrollBehavior = scrollBehavior,
-                                    showOutlineAction = bodyState.outline.size >= 2,
-                                    onOutlineClick = { showOutline = true },
-                                    onBack = onBack,
-                                    navigator = navigator,
-                                )
-                            }
+                            ContentTopBar(
+                                title = currentContent?.displayTitle.orEmpty(),
+                                // A pin's title is only ever in the bar: its page has no body
+                                // header to carry it.
+                                titleVisible = contentType == ContentType.PIN || headerReadPast,
+                                onTitleClick = openQuestion,
+                                scrollBehavior = scrollBehavior,
+                                onBack = onBack,
+                                showOutlineAction = bodyState.outline.size >= 2,
+                                onOutlineClick = { showOutline = true },
+                            )
                         }
                         ReadingProgressBar(progress = { viewModel.readProgress })
                     }
@@ -225,6 +229,13 @@ fun ContentDetailScreen(
                                     elements = viewModel.richTextElements,
                                     state = bodyState,
                                     navigator = navigator,
+                                    header = {
+                                        ContentDetailHeader(
+                                            contentType = contentType,
+                                            content = currentContent,
+                                            onTitleClick = openQuestion,
+                                        )
+                                    },
                                     topPadding = { padding.calculateTopPadding() },
                                     bodyComplete = viewModel.isBodyComplete,
                                     showAuthorDivider = contentType != ContentType.PIN,
@@ -358,12 +369,7 @@ fun ContentDetailScreen(
                 currentIndex = { bodyState.currentOutlineIndex },
                 onEntryClick = { entry ->
                     showOutline = false
-                    scope.launch {
-                        // Landing on a section leaves the bar out of the way. It has to be moved
-                        // here: a far jump never reaches the bar's own scroll connection.
-                        launch { scrollBehavior.retract() }
-                        bodyState.scrollTo(entry)
-                    }
+                    scope.launch { bodyState.scrollTo(entry) }
                 },
                 onDismissRequest = { showOutline = false },
             )
@@ -371,55 +377,47 @@ fun ContentDetailScreen(
     }
 }
 
+/**
+ * The page's bar: the way back, what the page is about once the body's own copy is out of sight,
+ * and the outline where the body has one.
+ *
+ * One row for every page: Material's large bar draws its title in two rows and cross-fades them,
+ * which with a question's title reads as one title being replaced by another rather than as a title
+ * folding away. The body carries the title instead, and this row picks it up once it is gone.
+ *
+ * @param titleVisible Whether the body's title is out of view; the bar's copy fades in then.
+ * @param onTitleClick What the title opens, where it opens anything: an answer's title leads back
+ *   to its question.
+ */
 @Composable
-private fun ContentDetailTopBar(
-    currentContent: ZhihuContent?,
-    error: ApiException?,
-    contentType: ContentType,
+private fun ContentTopBar(
+    title: String,
+    titleVisible: Boolean,
+    onTitleClick: (() -> Unit)?,
     scrollBehavior: TopAppBarScrollBehavior,
+    onBack: () -> Unit,
     showOutlineAction: Boolean,
     onOutlineClick: () -> Unit,
-    onBack: () -> Unit,
-    navigator: Navigator,
 ) {
-    LargeTopAppBar(
-        // One line, both rows: Material's large bar draws its title twice -- once small, once
-        // large -- and cross-fades them. A title that wraps is where that reads as one line
-        // turning into two, so the title is kept to a line and the bar is the one that says more.
+    val titleAlpha by animateFloatAsState(
+        targetValue = if (titleVisible) 1f else 0f,
+        animationSpec = tween(150),
+        label = "contentBarTitle",
+    )
+
+    TopAppBar(
         title = {
-            val titleText = when {
-                currentContent != null -> currentContent.displayTitle
-                error == null -> ""
-                else -> stringResource(R.string.content_title_filed)
-            }
-            // Material's own sizes are the large bar's: 28 and 22. These are the two the page has
-            // always drawn, switched at the halfway point of the collapse. One line either way:
-            // the count is what used to change mid-fade, and a wrapped title losing a line there is
-            // the ghost this bar used to show.
-            val isCollapsed by remember(scrollBehavior) {
-                derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5f }
-            }
             Text(
-                text = titleText,
-                style = if (isCollapsed) {
-                    MaterialTheme.typography.titleMedium
-                } else {
-                    MaterialTheme.typography.headlineSmall
-                },
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .alpha(titleAlpha)
                     .then(
-                        if (contentType == ContentType.ANSWER && currentContent is ZhihuAnswer) {
-                            Modifier.clickable(
-                                onClick = {
-                                    currentContent.question?.id?.let { qId ->
-                                        navigator.navigateToContent(qId, "question")
-                                    }
-                                },
-                            )
+                        if (onTitleClick != null) {
+                            Modifier.clickable(onClick = onTitleClick)
                         } else {
                             Modifier
                         },
@@ -445,8 +443,8 @@ private fun ContentDetailTopBar(
                 }
             }
         },
-        // The pad is drawn above the bar by TopBarStrip, so the bar measures only itself: the
-        // system's inset is not counted twice, and the pad stays when the row leaves.
+        // The pad is drawn above the bar by TopBarStrip, so the bar measures only itself and the
+        // pad stays when the row leaves.
         windowInsets = WindowInsets(0),
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
@@ -456,47 +454,27 @@ private fun ContentDetailTopBar(
     )
 }
 
-/** A pin's bar: one line of the author's own text, which stays where it is as the page is read. */
+/**
+ * What the page is about, as its first line: read with the page rather than carried in the bar, so
+ * it scrolls away with everything else and the screen never shows the same title twice.
+ */
 @Composable
-private fun PinTopBar(
-    title: String,
-    scrollBehavior: TopAppBarScrollBehavior,
-    onBack: () -> Unit,
+private fun ContentDetailHeader(
+    contentType: ContentType,
+    content: ZhihuContent?,
+    onTitleClick: (() -> Unit)?,
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                modifier = Modifier.padding(end = 10.dp),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.general_back),
-                )
-            }
-        },
-        // The pad is drawn above the bar by TopBarStrip, so the bar measures only itself and
-        // leaves without it.
-        windowInsets = WindowInsets(0),
-        scrollBehavior = scrollBehavior,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-        ),
-    )
-}
+    if (contentType == ContentType.PIN || content == null) return
 
-/** Puts the bar out of the way, the way arriving at a section should leave it. */
-private suspend fun TopAppBarScrollBehavior.retract() {
-    animate(
-        initialValue = state.heightOffset,
-        targetValue = state.heightOffsetLimit,
-    ) { value, _ -> state.heightOffset = value }
+    Text(
+        text = content.displayTitle,
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onTitleClick != null) Modifier.clickable(onClick = onTitleClick) else Modifier)
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+    )
 }
