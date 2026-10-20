@@ -90,7 +90,6 @@ ZhiFlow/
 │               │   └── widget/                 # Bottom bar, sheets, dialogs, lightbox, reading progress bar
 │               └── page/                       # One package per screen: its composables and its ViewModel
 │                   ├── feed/  content/  question/  comment/
-│                   ├── pin/                    # The thought page, with a screen of its own instead of the one answers and articles share
 │                   ├── people/                 # Profile page; moment/ is its second tab
 │                   ├── profile/                # Profile page, plus the settings, about and license screens
 │                   └── history/  collection/  login/  debug/
@@ -151,7 +150,7 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 
 - **Type-safe routes**: `@Serializable` data classes/objects in `Route.kt`. Uses `navigation-compose` 2.9 type-safe API (`composable<RouteType>`, `toRoute()`).
 - **`MainContainer`** is the start destination — it contains two tabs (Home, Profile) in a `HorizontalPager` with a `NavigationBar`.
-- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `About`, `OpenSourceLicense`, `ReadHistory`, `CollectionContents`, `HttpLog`, `DebugTools`, `Search`) are separate composable destinations pushed onto the NavHost stack. `DebugTools` is the one the settings page hides until the developer tools are unlocked. `PinDetail` uses a dedicated `PinDetailScreen` (thought page); `AnswerDetail`/`ArticleDetail` share `ContentDetailScreen`.
+- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `About`, `OpenSourceLicense`, `ReadHistory`, `CollectionContents`, `HttpLog`, `DebugTools`, `Search`) are separate composable destinations pushed onto the NavHost stack. `DebugTools` is the one the settings page hides until the developer tools are unlocked. `AnswerDetail`, `ArticleDetail` and `PinDetail` all land on `ContentDetailScreen`, whose bar is one row that goes with the finger: a pin's title rides in that row, while an answer's or an article's folds from a title held above it.
 - **`Navigator`** — Wraps `NavHostController` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`.
 - **`LinkParser`** — Parses Zhihu URLs, resolves `link.zhihu.com` redirects, extracts content type + ID from path patterns, returns `LinkDestination.Internal(route)` or `LinkDestination.External(url)`.
 - Transition animations: horizontal slide (detail push = full right→left, pop = reversed with 1/5 parallax).
@@ -170,7 +169,7 @@ var uiState by mutableStateOf(UiState())
 - **Load state**: `isLoading`, `isRefreshing`, `isNextLoading`, `globalError`, `loadMoreError` — each ViewModel defines its own UI State data class nested inside the ViewModel class. The page-level failure is `globalError`; a named sub-state (`LoadingState`, the comment sheet's three, the feedback sheet's) keeps its own `error`, which no paging field is there to be confused with.
 - **Chunked parsing**: `ContentViewModel` parses segments in chunks of 10 on `Dispatchers.Default`, emitting incremental state updates for progressive rendering. Results cached in an `LruCache<String, List<RichTextElement>>`.
 - **Sub-states**: a page whose state has outgrown one class splits it into named sub-states that travel together — `LoadingState` / `InteractionState` / `PresentationState` on the content pages, one per pane in the comment sheet. The split is for state with a lifecycle of its own, not for tidiness: a page that fits in one class keeps one. A sub-state that two pages take the same way lives in `ui/component/` instead — `InteractionState` is there because a vote is cast the same way on the pin page as on the content pages.
-- **Pin rendering**: `PinViewModel` handles the thought page separately. When a pin has no `structured_content` (image-only pins), it falls back to `image_list` to build `RichTextElement.Image` elements.
+- **Pin rendering**: `ContentViewModel` parses all three types. When a pin has no `structured_content` (image-only pins), the parse falls back to `image_list` to build `RichTextElement.Image` elements.
 
 ### Rich Text Rendering
 

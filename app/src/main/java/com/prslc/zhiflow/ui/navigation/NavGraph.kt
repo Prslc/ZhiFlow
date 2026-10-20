@@ -24,7 +24,6 @@ import com.prslc.zhiflow.ui.page.notification.ChatScreen
 import com.prslc.zhiflow.ui.page.notification.NotificationCategoryScreen
 import com.prslc.zhiflow.ui.page.people.PeopleListScreen
 import com.prslc.zhiflow.ui.page.people.PeopleScreen
-import com.prslc.zhiflow.ui.page.pin.PinDetailScreen
 import com.prslc.zhiflow.ui.page.profile.AboutScreen
 import com.prslc.zhiflow.ui.page.profile.OpenSourceLicenseScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
@@ -57,8 +56,9 @@ fun NavGraphBuilder.contentGraph(navController: NavHostController) {
 
     composable<PinDetail> { backStackEntry ->
         val route: PinDetail = backStackEntry.toRoute()
-        PinDetailScreen(
+        ContentDetailScreen(
             id = route.id,
+            contentType = ContentType.PIN,
             onBack = { navController.popBackStack() },
         )
     }

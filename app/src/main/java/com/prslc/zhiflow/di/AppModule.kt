@@ -69,7 +69,6 @@ import com.prslc.zhiflow.ui.page.people.PeopleViewModel
 import com.prslc.zhiflow.ui.page.people.moment.ActivitiesViewModel
 import com.prslc.zhiflow.ui.page.people.moment.PostsViewModel
 import com.prslc.zhiflow.ui.page.people.moment.UpvotesViewModel
-import com.prslc.zhiflow.ui.page.pin.PinViewModel
 import com.prslc.zhiflow.ui.page.profile.ProfileViewModel
 import com.prslc.zhiflow.ui.page.profile.SettingsViewModel
 import com.prslc.zhiflow.ui.page.question.QuestionViewModel
@@ -139,7 +138,6 @@ val appModule = module {
     singleOf(::ContentService)
     singleOf(::ContentRepository)
     viewModelOf(::ContentViewModel)
-    viewModelOf(::PinViewModel)
 
     // Column
     singleOf(::ColumnService)
