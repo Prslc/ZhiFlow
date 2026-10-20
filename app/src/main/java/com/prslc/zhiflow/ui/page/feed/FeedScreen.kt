@@ -52,21 +52,14 @@ import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
 import org.koin.androidx.compose.koinViewModel
 
-/**
- * The search field's height, and so the distance over which scrolling it away takes.
- *
- * The space below the field belongs to the list rather than to the field, so that it is still
- * there once the field has gone. Inside the field it would be clipped along with it, and a
- * half-collapsed bar would show a flat edge, then its inset, then the card's own padding — two
- * gaps where there is one.
- */
-private val SearchBarHeight = 50.dp
-
 /** The row's own height, inside the space above it. */
 private val SearchEntryHeight = 44.dp
 
-/** Space the field keeps above itself, and the list keeps below it. */
-private val SearchBarInset = 4.dp
+/** Space the field keeps above itself; it goes away with the field. */
+private val SearchBarInset = 12.dp
+
+/** The search field's height, and so the distance over which scrolling it away takes. */
+private val SearchBarHeight = SearchBarInset + SearchEntryHeight
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -145,7 +138,7 @@ fun FeedScreen(
                 LazyColumn(
                     state = viewModel.listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = SearchBarInset, bottom = 16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp),
                 ) {
                     itemsIndexed(
                         items = items,
