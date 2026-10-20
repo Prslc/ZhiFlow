@@ -1,5 +1,8 @@
 package com.prslc.zhiflow.ui.page.profile
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -94,6 +99,14 @@ fun ReadingSettingsScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState()),
         ) {
+            ReadingPreview(
+                textScale = textScale,
+                margin = margin,
+                letterSpacing = letterSpacing,
+                lineHeight = lineHeight,
+                progress = readingProgress,
+            )
+
             SettingsGroup {
                 row {
                     ReadingSlider(
@@ -158,13 +171,6 @@ fun ReadingSettingsScreen(
                     )
                 }
             }
-
-            ReadingSample(
-                textScale = textScale,
-                margin = margin,
-                letterSpacing = letterSpacing,
-                lineHeight = lineHeight,
-            )
         }
     }
 }
@@ -224,21 +230,27 @@ private fun <T> ReadingSlider(
 }
 
 /**
- * A paragraph drawn the way a content page draws its own, at the size, spacing and margins in
- * force: the rows above stay at the device's own size, and so does everything outside this block,
- * so that what changes is the sample and not the page around the controls.
+ * A page drawn as the settings above would draw it: its bar, its head and a paragraph of it, at the
+ * size, spacing and margins in force.
+ *
+ * The chrome stays schematic -- a back arrow and bars where a page puts its title and its author --
+ * because it is the words the settings move, and a paragraph of them is what the reader is
+ * choosing. Everything outside this block stays at the device's own size, so what changes is the
+ * page and not the settings around it.
  *
  * @param textScale The multiple of the system's size in force.
  * @param margin The room in force at either side of the text, in dp.
  * @param letterSpacing The room in force between characters, in sp.
  * @param lineHeight The multiple of the paragraph's own line height in force.
+ * @param progress Whether the page draws its reading progress bar, which the preview draws too.
  */
 @Composable
-private fun ReadingSample(
+private fun ReadingPreview(
     textScale: Float,
     margin: Float,
     letterSpacing: Float,
     lineHeight: Float,
+    progress: Boolean,
 ) {
     val density = LocalDensity.current
     val sampleDensity = remember(density, textScale) {
@@ -251,19 +263,86 @@ private fun ReadingSample(
     val style = reading.applyTo(
         MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.25.sp),
     )
+    val skeleton = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+    val skeletonShape = RoundedCornerShape(4.dp)
+
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(GroupCornerRadius),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        CompositionLocalProvider(LocalDensity provides sampleDensity) {
-            Text(
-                text = stringResource(R.string.settings_reading_sample),
-                style = style,
+        Column {
+            if (progress) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.55f)
+                        .height(2.dp)
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+            }
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = margin.dp, vertical = 16.dp),
-            )
+                    .height(36.dp)
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Box(
+                    modifier = Modifier
+                        .width(64.dp)
+                        .height(8.dp)
+                        .clip(skeletonShape)
+                        .background(skeleton),
+                )
+            }
+            CompositionLocalProvider(LocalDensity provides sampleDensity) {
+                Column(
+                    modifier = Modifier.padding(
+                        start = margin.dp,
+                        top = 4.dp,
+                        end = margin.dp,
+                        bottom = 16.dp,
+                    ),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.72f)
+                            .height(16.dp)
+                            .clip(skeletonShape)
+                            .background(skeleton),
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(skeleton),
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(72.dp)
+                                .height(8.dp)
+                                .clip(skeletonShape)
+                                .background(skeleton),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.settings_reading_sample),
+                        style = style,
+                    )
+                }
+            }
         }
     }
 }
