@@ -24,7 +24,7 @@ can check. Numbers describing what the tree currently measures at are neither, a
 | Image Loading | Coil 3 (OkHttp network fetcher, GIF support, disk + memory cache) |
 | Zoom | Telephoto (`zoomable-image-coil3`) |
 | LaTeX | Rendered as pre-rasterized images served by the Zhihu API (`img_url` + dp `width`/`height`), loaded via Coil |
-| Licenses | AboutLibraries — a Gradle plugin generates the list from the resolved dependencies, and `aboutlibraries-compose-m3` draws it |
+| Licenses | Licensee — a Gradle plugin validates the resolved dependency graph's licenses and ships the report in the APK's assets; the app's own licenses page reads and draws it |
 | Arch | MVVM — ViewModels expose `mutableStateOf` UI state, one per screen |
 | Min SDK | 33 (Android 13) |
 | Target/Compile SDK | compileSdk 37, targetSdk 36 |

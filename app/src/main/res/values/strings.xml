@@ -421,8 +421,8 @@
     <string name="about_licenses_title">Open source licenses</string>
     <string name="about_licenses_summary">Libraries this app is built on</string>
     <string name="licenses_title">Open Source Licenses</string>
-    <string name="licenses_visit">Visit home page</string>
-    <string name="licenses_no_text">No license text was bundled for this library.</string>
+    <string name="licenses_none">No license was declared for this library.</string>
+    <string name="licenses_unavailable">The license report could not be read.</string>
 
     <!-- search -->
     <string name="search_placeholder">Search Zhihu</string>

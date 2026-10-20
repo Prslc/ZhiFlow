@@ -1,16 +1,14 @@
 @file:Suppress("ANNOTATION_WITH_USE_SITE_TARGET_ON_EXPRESSION_WARNING")
 
 import com.android.build.gradle.tasks.PackageAndroidArtifact
-import com.mikepenz.aboutlibraries.plugin.DuplicateMode
-import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.android.application)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.licensee)
 }
 
 val localProperties = Properties().apply {
@@ -118,13 +116,15 @@ android {
     }
 }
 
-aboutLibraries {
-    library {
-        // A library reached by more than one path -- declared by us and again by something we
-        // depend on -- is listed once, rather than once per path that reaches it.
-        duplicationMode = DuplicateMode.MERGE
-        duplicationRule = DuplicateRule.SIMPLE
-    }
+licensee {
+    // What the app ships is Apache-2.0. A dependency bringing in anything else has to be accepted
+    // here first, rather than reaching the licenses page unannounced.
+    allow("Apache-2.0")
+
+    // The report ships inside the APK, so the licenses page reads what the build resolved instead
+    // of keeping its own list of libraries.
+    bundleAndroidAsset = true
+    androidAssetReportPath = "licenses.json"
 }
 
 // Not `packaging { }` inside `release`: that binds to the extension outside, hitting every variant.
@@ -182,7 +182,6 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation(libs.telephoto.zoomable.image.coil)
     implementation(libs.highlights)
-    implementation(libs.aboutlibraries.compose.m3)
 
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)

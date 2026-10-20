@@ -397,8 +397,8 @@
     <string name="about_licenses_title">开源许可</string>
     <string name="about_licenses_summary">本应用使用的开源库</string>
     <string name="licenses_title">开源许可</string>
-    <string name="licenses_visit">访问项目主页</string>
-    <string name="licenses_no_text">该库未附带许可全文。</string>
+    <string name="licenses_none">该库未声明许可证。</string>
+    <string name="licenses_unavailable">无法读取许可清单。</string>
 
     <!-- search -->
     <string name="search_placeholder">搜索知乎</string>

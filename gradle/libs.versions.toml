@@ -1,5 +1,4 @@
 [versions]
-aboutLibraries = "15.3.0"
 agp = "9.4.1"
 coreKtx = "1.19.1"
 lifecycle = "2.11.0"
@@ -23,14 +22,15 @@ kotlinxCoroutines = "1.11.0"
 baselineProfile = "1.5.0"
 androidxTestJunit = "1.3.0"
 profileinstaller = "1.4.1"
+licensee = "1.14.1"
 
 [plugins]
-aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineProfile" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -68,9 +68,6 @@ okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "
 # tracing
 androidx-tracing-perfetto = { group = "androidx.tracing", name = "tracing-perfetto", version.ref = "tracingPerfetto" }
 androidx-tracing-perfetto-binary = { group = "androidx.tracing", name = "tracing-perfetto-binary", version.ref = "tracingPerfetto" }
-
-# aboutlibraries
-aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
 
 # lint
 compose-lint = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "compose-lint"}
