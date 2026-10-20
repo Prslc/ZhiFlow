@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
-import com.prslc.zhiflow.core.preference.ReadingMargin
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgress
@@ -113,8 +112,8 @@ class ContentViewModel(
     /** How far apart this page sets its lines, as a multiple of each style's own line height. */
     val readingLineHeight: StateFlow<Float> = settingsStore.readingLineHeight
 
-    /** How much room this page leaves at either side of its text. */
-    val readingMargin: StateFlow<ReadingMargin> = settingsStore.readingMargin
+    /** How much room this page leaves at either side of its text, in dp. */
+    val readingMargin: StateFlow<Float> = settingsStore.readingMargin
 
     /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
     var isBodyComplete by mutableStateOf(false)

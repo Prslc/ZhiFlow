@@ -357,9 +357,7 @@
     <string name="settings_reading_line_height_title">行距</string>
     <string name="settings_reading_line_height_value">%1$.2f×</string>
     <string name="settings_reading_margin_title">页边距</string>
-    <string name="settings_reading_margin_narrow">窄</string>
-    <string name="settings_reading_margin_standard">标准</string>
-    <string name="settings_reading_margin_wide">宽</string>
+    <string name="settings_reading_margin_value">%1$ddp</string>
     <string name="settings_reading_sample">这是一段样例文字，按内容页的方式排版：你在这里选的字号、字距、行距和页边距，会作用在这里，也作用在每一篇正文上。</string>
     <string name="settings_reading_progress_title">阅读进度条</string>
     <string name="settings_reading_progress_summary">在页面顶部显示当前读到的位置</string>

@@ -380,9 +380,7 @@
     <string name="settings_reading_line_height_title">Line spacing</string>
     <string name="settings_reading_line_height_value">%1$.2f×</string>
     <string name="settings_reading_margin_title">Margins</string>
-    <string name="settings_reading_margin_narrow">Narrow</string>
-    <string name="settings_reading_margin_standard">Standard</string>
-    <string name="settings_reading_margin_wide">Wide</string>
+    <string name="settings_reading_margin_value">%1$ddp</string>
     <string name="settings_reading_sample">This is a sample paragraph, drawn the way a content page draws its own: the size, spacing and margins you choose here apply to it, and to every page you read.</string>
     <string name="settings_reading_progress_title">Reading progress</string>
     <string name="settings_reading_progress_summary">Show how far you have read along the top of a page</string>

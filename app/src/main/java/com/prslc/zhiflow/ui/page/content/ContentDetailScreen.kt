@@ -126,7 +126,7 @@ fun ContentDetailScreen(
     val bodyReading = remember(readingLetterSpacing, readingLineHeight) {
         ReadingText(letterSpacing = readingLetterSpacing, lineHeight = readingLineHeight)
     }
-    val bodyMargin = readingMargin.horizontalDp.dp
+    val bodyMargin = readingMargin.dp
 
     // One bar, one row, whatever the page: it goes with the finger and never folds. Material's
     // large bar cross-fades the title between two rows, which with a question's title reads as one

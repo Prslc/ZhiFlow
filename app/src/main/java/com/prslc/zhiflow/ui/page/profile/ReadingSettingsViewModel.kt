@@ -1,7 +1,6 @@
 package com.prslc.zhiflow.ui.page.profile
 
 import androidx.lifecycle.ViewModel
-import com.prslc.zhiflow.core.preference.ReadingMargin
 import com.prslc.zhiflow.core.preference.SettingsStore
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,8 +29,8 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
     /** How far apart a content page sets its lines, as a multiple of each style's own line height. */
     val readingLineHeight: StateFlow<Float> = settingsStore.readingLineHeight
 
-    /** How much room a content page leaves at either side of its text. */
-    val readingMargin: StateFlow<ReadingMargin> = settingsStore.readingMargin
+    /** How much room a content page leaves at either side of its text, in dp. */
+    val readingMargin: StateFlow<Float> = settingsStore.readingMargin
 
     /**
      * Stores whether a content page draws its reading progress bar.
@@ -71,7 +70,7 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
     /**
      * Stores how much room a content page leaves at either side of its text.
      *
-     * @param margin The room to leave.
+     * @param margin The room to leave, in dp.
      */
-    fun setReadingMargin(margin: ReadingMargin) = settingsStore.setReadingMargin(margin)
+    fun setReadingMargin(margin: Float) = settingsStore.setReadingMargin(margin)
 }

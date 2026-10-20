@@ -31,23 +31,14 @@ object ReadingChoices {
 
     /** Line height, as a multiple of the line height a style gives itself. */
     val lineHeights = listOf(1f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f)
-}
 
-/**
- * How much room a content page leaves at either side, which is what decides how long a line is.
- *
- * Named for the room rather than for the line, because the room is what the reader is changing:
- * a narrow margin leaves a longer line, and it is the margin they see on the page.
- */
-enum class ReadingMargin(val horizontalDp: Float) {
-    /** Less room at the sides, so a longer line. */
-    Narrow(12f),
-
-    /** What the page has always drawn at. */
-    Standard(20f),
-
-    /** More room at the sides, so a shorter line. */
-    Wide(32f),
+    /**
+     * The room a content page leaves at either side, in dp.
+     *
+     * Named for the room rather than for the line, because the room is what the reader is
+     * changing: a narrow margin leaves a longer line, and it is the margin they see on the page.
+     */
+    val margins = listOf(12f, 14f, 16f, 18f, 20f, 22f, 24f, 26f, 28f, 30f, 32f)
 }
 
 /**
@@ -120,11 +111,11 @@ interface SettingsStore {
     val readingLineHeight: StateFlow<Float>
 
     /**
-     * How much room a content page leaves at either side of its text.
+     * How much room a content page leaves at either side of its text, in dp.
      *
      * Emitting again whenever it changes, for the same reason: the page may already be open.
      */
-    val readingMargin: StateFlow<ReadingMargin>
+    val readingMargin: StateFlow<Float>
 
     /**
      * Stores the chosen theme, which the next composition draws in.
@@ -196,9 +187,9 @@ interface SettingsStore {
     /**
      * Stores how much room a content page leaves at either side of its text.
      *
-     * @param margin The room to leave.
+     * @param margin The room to leave, in dp.
      */
-    fun setReadingMargin(margin: ReadingMargin)
+    fun setReadingMargin(margin: Float)
 
     /**
      * Stores whether the developer tools are unlocked, which is what the settings page offers

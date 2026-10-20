@@ -32,9 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -46,12 +44,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.preference.ReadingChoices
-import com.prslc.zhiflow.core.preference.ReadingMargin
-import com.prslc.zhiflow.ui.component.preference.ChoiceDialog
 import com.prslc.zhiflow.ui.component.preference.GroupCornerRadius
 import com.prslc.zhiflow.ui.component.preference.LevelSlider
 import com.prslc.zhiflow.ui.component.preference.SettingsGroup
-import com.prslc.zhiflow.ui.component.preference.SettingsNavRow
 import com.prslc.zhiflow.ui.component.preference.SettingsRow
 import com.prslc.zhiflow.ui.component.richtext.ReadingText
 import org.koin.androidx.compose.koinViewModel
@@ -76,7 +71,6 @@ fun ReadingSettingsScreen(
     val letterSpacing by viewModel.readingLetterSpacing.collectAsStateWithLifecycle()
     val lineHeight by viewModel.readingLineHeight.collectAsStateWithLifecycle()
     val margin by viewModel.readingMargin.collectAsStateWithLifecycle()
-    var showMarginDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -132,11 +126,13 @@ fun ReadingSettingsScreen(
                     )
                 }
                 row {
-                    SettingsNavRow(
+                    ReadingSlider(
                         title = stringResource(R.string.settings_reading_margin_title),
-                        description = margin.label(),
+                        valueLabel = marginLabel(margin),
+                        value = margin,
+                        levels = ReadingChoices.margins,
+                        onValueChange = { viewModel.setReadingMargin(it) },
                         icon = Icons.AutoMirrored.Filled.FormatIndentIncrease,
-                        onClick = { showMarginDialog = true },
                     )
                 }
                 row {
@@ -171,20 +167,6 @@ fun ReadingSettingsScreen(
             )
         }
     }
-
-    if (showMarginDialog) {
-        ChoiceDialog(
-            title = stringResource(R.string.settings_reading_margin_title),
-            options = ReadingMargin.entries,
-            selected = margin,
-            label = { it.label() },
-            onSelect = {
-                viewModel.setReadingMargin(it)
-                showMarginDialog = false
-            },
-            onDismiss = { showMarginDialog = false },
-        )
-    }
 }
 
 /**
@@ -199,12 +181,12 @@ fun ReadingSettingsScreen(
  * @param icon The mark drawn beside the name.
  */
 @Composable
-private fun ReadingSlider(
+private fun <T> ReadingSlider(
     title: String,
     valueLabel: String,
-    value: Float,
-    levels: List<Float>,
-    onValueChange: (Float) -> Unit,
+    value: T,
+    levels: List<T>,
+    onValueChange: (T) -> Unit,
     icon: ImageVector,
 ) {
     Column(
@@ -247,14 +229,14 @@ private fun ReadingSlider(
  * so that what changes is the sample and not the page around the controls.
  *
  * @param textScale The multiple of the system's size in force.
- * @param margin The room in force at either side of the text.
+ * @param margin The room in force at either side of the text, in dp.
  * @param letterSpacing The room in force between characters, in sp.
  * @param lineHeight The multiple of the paragraph's own line height in force.
  */
 @Composable
 private fun ReadingSample(
     textScale: Float,
-    margin: ReadingMargin,
+    margin: Float,
     letterSpacing: Float,
     lineHeight: Float,
 ) {
@@ -280,21 +262,18 @@ private fun ReadingSample(
                 style = style,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = margin.horizontalDp.dp, vertical = 16.dp),
+                    .padding(horizontal = margin.dp, vertical = 16.dp),
             )
         }
     }
 }
 
-/** @return How the reader's language writes this margin. */
+/** @return The room in force at either side of the text, in dp. */
 @Composable
 @ReadOnlyComposable
-private fun ReadingMargin.label(): String = stringResource(
-    when (this) {
-        ReadingMargin.Narrow -> R.string.settings_reading_margin_narrow
-        ReadingMargin.Standard -> R.string.settings_reading_margin_standard
-        ReadingMargin.Wide -> R.string.settings_reading_margin_wide
-    },
+private fun marginLabel(margin: Float): String = stringResource(
+    R.string.settings_reading_margin_value,
+    margin.roundToInt(),
 )
 
 /** @return The text size in force, as the percentage of the system's own that it draws at. */

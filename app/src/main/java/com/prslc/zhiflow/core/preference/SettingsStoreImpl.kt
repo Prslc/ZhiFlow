@@ -51,7 +51,7 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
 
     override val readingLineHeight: StateFlow<Float> = _readingLineHeight.asStateFlow()
 
-    override val readingMargin: StateFlow<ReadingMargin> = _readingMargin.asStateFlow()
+    override val readingMargin: StateFlow<Float> = _readingMargin.asStateFlow()
 
     override val developerUnlocked: StateFlow<Boolean> = _developerUnlocked.asStateFlow()
 
@@ -95,8 +95,8 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         _readingLineHeight.value = scale
     }
 
-    override fun setReadingMargin(margin: ReadingMargin) {
-        preferences.edit { putString(KEY_READING_MARGIN, margin.name) }
+    override fun setReadingMargin(margin: Float) {
+        preferences.edit { putFloat(KEY_READING_MARGIN_DP, margin) }
         _readingMargin.value = margin
     }
 
@@ -161,11 +161,24 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
      */
     private fun Float.nearestTo(choices: List<Float>): Float = choices.minBy { abs(it - this) }
 
-    /** @return The stored margin, or the one the page has always drawn at. */
-    private fun readReadingMargin(): ReadingMargin =
-        storedName(KEY_READING_MARGIN)
-            ?.let { stored -> ReadingMargin.entries.firstOrNull { it.name == stored } }
-            ?: ReadingMargin.Standard
+    /**
+     * @return The stored margin, or the one the page has always drawn at.
+     *
+     * The margin was once one of three named rooms; an install that still has one of those stored
+     * has never written the room in dp, so its name is read for the value it stood for.
+     */
+    private fun readReadingMargin(): Float {
+        val stored = preferences.getFloat(KEY_READING_MARGIN_DP, Float.NaN)
+        val margin = if (stored.isNaN()) legacyMargin() else stored
+        return margin.nearestTo(ReadingChoices.margins)
+    }
+
+    /** @return The room the named margin stood for, or the one the page has always drawn at. */
+    private fun legacyMargin(): Float = when (storedName(KEY_LEGACY_READING_MARGIN)) {
+        "Narrow" -> 12f
+        "Wide" -> 32f
+        else -> 20f
+    }
 
     /** @return What is stored under [key], or null when nothing is. */
     private fun storedName(key: String): String? = preferences.getString(key, null)
@@ -183,10 +196,13 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         const val KEY_READING_TEXT_SCALE = "reading_text_scale"
         const val KEY_READING_LETTER_SPACING = "reading_letter_spacing"
         const val KEY_READING_LINE_HEIGHT = "reading_line_height"
+        const val KEY_READING_MARGIN_DP = "reading_margin_dp"
 
         /** The key the text size was stored under while it was one of four named steps. */
         const val KEY_LEGACY_READING_TEXT_SIZE = "reading_text_size"
-        const val KEY_READING_MARGIN = "reading_margin"
+
+        /** The key the margin was stored under while it was one of three named rooms. */
+        const val KEY_LEGACY_READING_MARGIN = "reading_margin"
         const val KEY_DEVELOPER_UNLOCKED = "developer_unlocked"
     }
 }

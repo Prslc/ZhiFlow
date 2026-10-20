@@ -74,11 +74,11 @@ private const val PRESS_OVERLAY_ALPHA = 0.044f
  * @param modifier Applied to the track.
  */
 @Composable
-fun LevelSlider(
+fun <T> LevelSlider(
     label: String,
-    value: Float,
-    levels: List<Float>,
-    onValueChange: (Float) -> Unit,
+    value: T,
+    levels: List<T>,
+    onValueChange: (T) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val index = levels.indexOf(value).coerceAtLeast(0)
