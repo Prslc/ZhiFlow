@@ -34,6 +34,9 @@ import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
 import com.prslc.zhiflow.ui.preview.sampleComments
+import com.prslc.zhiflow.ui.theme.LocalIsDarkTheme
+import com.prslc.zhiflow.ui.theme.SectionGapDark
+import com.prslc.zhiflow.ui.theme.SectionGapLight
 
 @Composable
 fun CommentList(
@@ -97,7 +100,7 @@ fun CommentList(
                                     )
                                     HorizontalDivider(
                                         thickness = 4.dp,
-                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                                        color = if (LocalIsDarkTheme.current) SectionGapDark else SectionGapLight,
                                     )
                                 }
                             }

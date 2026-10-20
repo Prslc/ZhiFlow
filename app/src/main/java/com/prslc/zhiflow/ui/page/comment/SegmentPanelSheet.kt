@@ -167,7 +167,7 @@ fun SegmentPanelSheet(
                             )
 
                             HorizontalDivider(
-                                thickness = 6.dp,
+                                thickness = 4.dp,
                                 color = if (LocalIsDarkTheme.current) SectionGapDark else SectionGapLight,
                             )
                         }
