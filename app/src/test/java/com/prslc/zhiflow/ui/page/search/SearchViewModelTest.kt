@@ -1,8 +1,11 @@
 package com.prslc.zhiflow.ui.page.search
 
 import android.app.Application
+import android.content.Context
 import com.prslc.zhiflow.core.network.ApiClient
 import com.prslc.zhiflow.core.network.SessionGate
+import com.prslc.zhiflow.core.preference.SearchHistoryStoreImpl
+import com.prslc.zhiflow.core.preference.SettingsStoreImpl
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.remote.service.SearchService
@@ -25,6 +28,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -114,8 +118,18 @@ class SearchViewModelTest {
         return """{"data":[$cards],"paging":$paging}"""
     }
 
-    private fun viewModel(backend: Backend) =
-        SearchViewModel(SearchRepository(SearchService(backend.api)))
+    private fun viewModel(backend: Backend): SearchViewModel {
+        // The stores are the app's own, over a preferences file of this test's: neither is what is
+        // being asserted, and a fake of either would be a longer piece of code than the thing it
+        // stands in for.
+        val preferences = RuntimeEnvironment.getApplication()
+            .getSharedPreferences("search_view_model_test", Context.MODE_PRIVATE)
+        return SearchViewModel(
+            repository = SearchRepository(SearchService(backend.api)),
+            settingsStore = SettingsStoreImpl(preferences),
+            historyStore = SearchHistoryStoreImpl(preferences),
+        )
+    }
 
     /** Waits for work that is running on real threads, rather than assuming it has finished. */
     private fun awaitUntil(what: String, check: () -> Boolean) {
