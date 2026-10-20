@@ -33,10 +33,15 @@ import com.prslc.zhiflow.data.model.comment.AuthorTag
 import com.prslc.zhiflow.data.model.comment.CommentAuthor
 import com.prslc.zhiflow.data.model.comment.CommentContent
 import com.prslc.zhiflow.data.model.content.AnswerAuthor
+import com.prslc.zhiflow.data.model.content.ArticleHeader
 import com.prslc.zhiflow.data.model.content.Formula
-import com.prslc.zhiflow.data.model.content.QuestionDetail
+import com.prslc.zhiflow.data.model.content.Reaction
+import com.prslc.zhiflow.data.model.content.Statistics
 import com.prslc.zhiflow.data.model.content.Topic
+import com.prslc.zhiflow.data.model.content.ZhihuAnswer
+import com.prslc.zhiflow.data.model.content.ZhihuArticle
 import com.prslc.zhiflow.data.model.content.ZhihuImage
+import com.prslc.zhiflow.data.model.content.ZhihuQuestion
 import com.prslc.zhiflow.data.model.moment.MediaImage
 import com.prslc.zhiflow.data.model.user.ZhihuUser
 import com.prslc.zhiflow.data.remote.parser.model.CodeToken
@@ -603,19 +608,6 @@ val sampleTopics = listOf(
     Topic(id = "19550974", name = "Compilers", avatarUrl = null),
 )
 
-val sampleQuestion = QuestionDetail(
-    id = 19550972L,
-    title = "How does a parser turn segments into elements?",
-    detail = "I keep reading about segments and elements and cannot tell where one becomes the " +
-        "other. Is the tree kept anywhere, or does it only exist while the body is parsed?",
-    author = sampleUser,
-    topics = sampleTopics,
-    answerCount = 128,
-    commentCount = 12,
-    followerCount = 4200,
-    updatedTime = 1791726117L,
-)
-
 // Feedback
 
 val sampleFeedbackActions = listOf<FeedbackAction>(
@@ -844,4 +836,36 @@ val sampleAnswerAuthor = AnswerAuthor(
     fullname = "Ada Lovelace",
     urlToken = "ada",
     description = "Writes about parsers and the machines that read them",
+)
+
+// The bodies a detail page draws
+
+/**
+ * An answer: its page draws its question's title, and the question's two counts under it -- the
+ * line that says how many more answers the one on screen belongs to.
+ */
+val sampleZhihuAnswer = ZhihuAnswer(
+    id = "734558056",
+    author = sampleAnswerAuthor,
+    question = ZhihuQuestion(
+        id = "19550972",
+        title = "How does a parser turn segments into elements?",
+        answerCount = 128,
+        followerCount = 4200,
+    ),
+    reaction = Reaction(
+        statistics = Statistics(
+            favoritesCount = 210,
+            upVoteCount = 1284,
+            commentCount = 96,
+        ),
+    ),
+)
+
+/** An article: a title of its own, and no question over it to count anything for. */
+val sampleZhihuArticle = ZhihuArticle(
+    id = "1867989249418211328",
+    header = ArticleHeader(text = "Notes on the segment tree"),
+    author = sampleAnswerAuthor,
+    reaction = sampleZhihuAnswer.reaction,
 )

@@ -54,7 +54,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
@@ -64,13 +63,13 @@ import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.isOverflowed
-import com.prslc.zhiflow.data.model.content.QuestionDetail
 import com.prslc.zhiflow.data.model.content.Topic
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.QuestionStats
 import com.prslc.zhiflow.ui.component.common.pagingFooter
 import com.prslc.zhiflow.ui.component.richtext.component.ImageComponent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
@@ -79,7 +78,6 @@ import com.prslc.zhiflow.ui.component.widget.LightboxItem
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
 import com.prslc.zhiflow.ui.preview.AppPreviews
 import com.prslc.zhiflow.ui.preview.PreviewSurface
-import com.prslc.zhiflow.ui.preview.sampleQuestion
 import com.prslc.zhiflow.ui.preview.sampleTopics
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -253,7 +251,13 @@ private fun QuestionContentList(
                         thickness = 0.5.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                     )
-                    QuestionStatsSection(question)
+                    QuestionStats(
+                        answerCount = question.answerCount,
+                        followerCount = question.followerCount,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                    )
                     HorizontalDivider(
                         thickness = 8.dp,
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
@@ -451,49 +455,11 @@ private fun QuestionTopBar(
     )
 }
 
-@Composable
-fun QuestionStatsSection(
-    question: QuestionDetail,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-    ) {
-        Text(
-            text = pluralStringResource(R.plurals.question_stats_answers, question.answerCount, question.answerCount),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = " · ",
-            color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.padding(horizontal = 4.dp),
-        )
-        Text(
-            text = pluralStringResource(R.plurals.question_stats_followers, question.followerCount, question.followerCount),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.outline,
-        )
-    }
-}
-
 @AppPreviews
 @Composable
 private fun TopicRowPreview() {
     PreviewSurface {
         TopicRow(topics = sampleTopics)
-    }
-}
-
-@AppPreviews
-@Composable
-private fun QuestionStatsSectionPreview() {
-    PreviewSurface {
-        QuestionStatsSection(question = sampleQuestion)
     }
 }
 

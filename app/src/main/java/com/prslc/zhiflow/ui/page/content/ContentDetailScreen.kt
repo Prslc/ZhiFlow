@@ -54,6 +54,7 @@ import com.prslc.zhiflow.data.model.content.ZhihuAnswer
 import com.prslc.zhiflow.data.model.content.ZhihuContent
 import com.prslc.zhiflow.ui.component.common.ErrorView
 import com.prslc.zhiflow.ui.component.common.LoadingView
+import com.prslc.zhiflow.ui.component.common.QuestionStats
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.BodyOutlineSheet
 import com.prslc.zhiflow.ui.component.richtext.ContentBodyList
@@ -66,6 +67,10 @@ import com.prslc.zhiflow.ui.page.comment.CommentUiEvent
 import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.comment.SegmentPanelSheet
 import com.prslc.zhiflow.ui.page.comment.canCommentOn
+import com.prslc.zhiflow.ui.preview.AppPreviews
+import com.prslc.zhiflow.ui.preview.PreviewSurface
+import com.prslc.zhiflow.ui.preview.sampleZhihuAnswer
+import com.prslc.zhiflow.ui.preview.sampleZhihuArticle
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -481,6 +486,10 @@ private fun ContentTopBar(
  * What the page is about, as its first line: read with the page rather than carried in the bar, so
  * it scrolls away with everything else and the screen never shows the same title twice.
  *
+ * An answer's title is its question's, and the question's two counts belong under it: the page is
+ * one answer out of those, and the line says how many others are a tap away. An article has no
+ * question over it and draws the title alone.
+ *
  * @param margin The room the body leaves at either side, which the title shares so that it starts
  *   and ends where the text under it does.
  */
@@ -493,15 +502,51 @@ private fun ContentDetailHeader(
 ) {
     if (contentType == ContentType.PIN || content == null) return
 
-    Text(
-        text = content.displayTitle,
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.Bold,
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis,
+    val question = (content as? ZhihuAnswer)?.question
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .then(if (onTitleClick != null) Modifier.clickable(onClick = onTitleClick) else Modifier)
-            .padding(horizontal = margin, vertical = 8.dp),
-    )
+            .padding(top = 8.dp),
+    ) {
+        Column(modifier = Modifier.padding(horizontal = margin)) {
+            Text(
+                text = content.displayTitle,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (question != null) {
+                QuestionStats(
+                    answerCount = question.answerCount,
+                    followerCount = question.followerCount,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+        }
+    }
+}
+
+/** The header in both forms: an answer's, carrying its question's counts, and an article's alone. */
+@AppPreviews
+@Composable
+private fun ContentDetailHeaderPreview() {
+    PreviewSurface {
+        Column {
+            ContentDetailHeader(
+                contentType = ContentType.ANSWER,
+                content = sampleZhihuAnswer,
+                margin = 20.dp,
+                onTitleClick = {},
+            )
+            ContentDetailHeader(
+                contentType = ContentType.ARTICLE,
+                content = sampleZhihuArticle,
+                margin = 20.dp,
+                onTitleClick = null,
+            )
+        }
+    }
 }

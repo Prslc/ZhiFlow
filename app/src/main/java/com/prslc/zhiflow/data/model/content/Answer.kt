@@ -129,10 +129,19 @@ data class ZhihuImage(
         }
 }
 
+/**
+ * The question an answer belongs to.
+ *
+ * The detail payload spells the follower count `followers_count`, where the question endpoint's
+ * own object says `follower_count`; the two are the same number under two names, and this one is
+ * mapped at the edge so both pages draw it off a field spelled alike.
+ */
 @Immutable
 @Serializable
 data class ZhihuQuestion(
     val id: String,
     val title: String,
     val type: String = "question",
+    @SerialName("answer_count") val answerCount: Int = 0,
+    @SerialName("followers_count") val followerCount: Int = 0,
 )
