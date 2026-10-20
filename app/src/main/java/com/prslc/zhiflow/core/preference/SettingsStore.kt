@@ -15,23 +15,22 @@ enum class ThemeMode {
 }
 
 /**
- * How large a content page's text draws, as a multiple of the size the system is set to.
+ * The choices each reading setting offers, in the order the page draws them.
  *
- * A multiple rather than a size: a reader who has asked the system for larger text keeps that
- * choice, and this moves from there instead of overruling it.
+ * The text size is a multiple rather than a size: a reader who has asked the system for larger text
+ * keeps that choice, and this moves from there instead of overruling it. The letter spacing is
+ * added in sp to the spacing prose is already set with, and the line height is a multiple of the
+ * line height each style gives itself, so neither has to be re-chosen when the text size moves.
  */
-enum class ReadingTextSize(val scale: Float) {
-    /** Smaller than the system's own size. */
-    Small(0.85f),
+object ReadingChoices {
+    /** Text size, as a multiple of the size the system is set to. */
+    val textScales = listOf(0.85f, 0.9f, 1f, 1.1f, 1.2f, 1.3f)
 
-    /** The system's own size, which is what the page has always drawn at. */
-    Standard(1f),
+    /** Letter spacing, in sp added on top of the spacing prose is already set with. */
+    val letterSpacings = listOf(-0.2f, 0f, 0.2f, 0.4f, 0.6f, 0.8f)
 
-    /** Larger than the system's own size. */
-    Large(1.15f),
-
-    /** Larger still. */
-    ExtraLarge(1.3f),
+    /** Line height, as a multiple of the line height a style gives itself. */
+    val lineHeights = listOf(1f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f)
 }
 
 /**
@@ -99,12 +98,26 @@ interface SettingsStore {
     val barsFollowScroll: StateFlow<Boolean>
 
     /**
-     * How large a content page's text draws.
+     * How large a content page's text draws, as a multiple of the size the system is set to.
      *
      * Emitting again whenever it changes: the page may already be open behind the settings, and it
      * draws its text from this rather than from a value read once.
      */
-    val readingTextSize: StateFlow<ReadingTextSize>
+    val readingTextScale: StateFlow<Float>
+
+    /**
+     * How far apart a content page sets its characters, in sp added to what prose already uses.
+     *
+     * Emitting again whenever it changes, for the same reason: the page may already be open.
+     */
+    val readingLetterSpacing: StateFlow<Float>
+
+    /**
+     * How far apart a content page sets its lines, as a multiple of each style's own line height.
+     *
+     * Emitting again whenever it changes, for the same reason: the page may already be open.
+     */
+    val readingLineHeight: StateFlow<Float>
 
     /**
      * How much room a content page leaves at either side of its text.
@@ -162,9 +175,23 @@ interface SettingsStore {
     /**
      * Stores how large a content page's text draws.
      *
-     * @param size The size to draw at, as a multiple of the system's own.
+     * @param scale The size to draw at, as a multiple of the system's own.
      */
-    fun setReadingTextSize(size: ReadingTextSize)
+    fun setReadingTextScale(scale: Float)
+
+    /**
+     * Stores how far apart a content page sets its characters.
+     *
+     * @param spacing The room to add, in sp, on top of the spacing prose is already set with.
+     */
+    fun setReadingLetterSpacing(spacing: Float)
+
+    /**
+     * Stores how far apart a content page sets its lines.
+     *
+     * @param scale The multiple of each style's own line height.
+     */
+    fun setReadingLineHeight(scale: Float)
 
     /**
      * Stores how much room a content page leaves at either side of its text.

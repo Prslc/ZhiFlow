@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.LocalReadingText
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
 import com.prslc.zhiflow.ui.preview.AppPreviews
@@ -116,9 +117,11 @@ fun BlockquoteComponent(
         ZRichText(
             content = element.content,
             inlineMetas = element.inlineMetas,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                lineHeight = 24.sp,
+            style = LocalReadingText.current.applyTo(
+                MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    lineHeight = 24.sp,
+                ),
             ),
             modifier = Modifier.padding(start = 12.dp),
             segmentLikes = segmentLikes,

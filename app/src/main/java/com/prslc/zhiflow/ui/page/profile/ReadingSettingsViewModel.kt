@@ -2,7 +2,6 @@ package com.prslc.zhiflow.ui.page.profile
 
 import androidx.lifecycle.ViewModel
 import com.prslc.zhiflow.core.preference.ReadingMargin
-import com.prslc.zhiflow.core.preference.ReadingTextSize
 import com.prslc.zhiflow.core.preference.SettingsStore
 import kotlinx.coroutines.flow.StateFlow
 
@@ -12,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
  * Both choices are published by the store, which is what lets a change here reach a page already
  * open behind this one.
  *
- * @param settingsStore Where the two choices are kept.
+ * @param settingsStore Where the choices are kept.
  */
 class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewModel() {
 
@@ -22,8 +21,14 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
     /** Whether a content page's bars leave with the scroll. */
     val barsFollowScroll: StateFlow<Boolean> = settingsStore.barsFollowScroll
 
-    /** How large a content page's text draws. */
-    val readingTextSize: StateFlow<ReadingTextSize> = settingsStore.readingTextSize
+    /** How large a content page's text draws, as a multiple of the system's own. */
+    val readingTextScale: StateFlow<Float> = settingsStore.readingTextScale
+
+    /** How far apart a content page sets its characters, in sp on top of what prose already uses. */
+    val readingLetterSpacing: StateFlow<Float> = settingsStore.readingLetterSpacing
+
+    /** How far apart a content page sets its lines, as a multiple of each style's own line height. */
+    val readingLineHeight: StateFlow<Float> = settingsStore.readingLineHeight
 
     /** How much room a content page leaves at either side of its text. */
     val readingMargin: StateFlow<ReadingMargin> = settingsStore.readingMargin
@@ -45,9 +50,23 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
     /**
      * Stores how large a content page's text draws.
      *
-     * @param size The size to draw at.
+     * @param scale The size to draw at, as a multiple of the system's own.
      */
-    fun setReadingTextSize(size: ReadingTextSize) = settingsStore.setReadingTextSize(size)
+    fun setReadingTextScale(scale: Float) = settingsStore.setReadingTextScale(scale)
+
+    /**
+     * Stores how far apart a content page sets its characters.
+     *
+     * @param spacing The room to add, in sp, on top of the spacing prose is already set with.
+     */
+    fun setReadingLetterSpacing(spacing: Float) = settingsStore.setReadingLetterSpacing(spacing)
+
+    /**
+     * Stores how far apart a content page sets its lines.
+     *
+     * @param scale The multiple of each style's own line height.
+     */
+    fun setReadingLineHeight(scale: Float) = settingsStore.setReadingLineHeight(scale)
 
     /**
      * Stores how much room a content page leaves at either side of its text.

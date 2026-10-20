@@ -12,7 +12,6 @@ import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.core.preference.ReadingMargin
-import com.prslc.zhiflow.core.preference.ReadingTextSize
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgress
@@ -105,8 +104,14 @@ class ContentViewModel(
     /** Whether this page's bars leave with the scroll. */
     val barsFollowScroll: StateFlow<Boolean> = settingsStore.barsFollowScroll
 
-    /** How large this page's text draws. */
-    val readingTextSize: StateFlow<ReadingTextSize> = settingsStore.readingTextSize
+    /** How large this page's text draws, as a multiple of the system's own. */
+    val readingTextScale: StateFlow<Float> = settingsStore.readingTextScale
+
+    /** How far apart this page sets its characters, in sp on top of what prose already uses. */
+    val readingLetterSpacing: StateFlow<Float> = settingsStore.readingLetterSpacing
+
+    /** How far apart this page sets its lines, as a multiple of each style's own line height. */
+    val readingLineHeight: StateFlow<Float> = settingsStore.readingLineHeight
 
     /** How much room this page leaves at either side of its text. */
     val readingMargin: StateFlow<ReadingMargin> = settingsStore.readingMargin

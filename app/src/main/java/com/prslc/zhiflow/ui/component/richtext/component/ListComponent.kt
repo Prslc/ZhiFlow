@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.LocalReadingText
 import com.prslc.zhiflow.ui.component.richtext.ZRichText
 import com.prslc.zhiflow.ui.component.richtext.bodyElementPadding
 import com.prslc.zhiflow.ui.preview.AppPreviews
@@ -49,7 +50,9 @@ fun BulletItemRow(
 ) {
     val indentation = (maxOf(0, element.level - 1) * 12).dp
     val markerWidth = 24.dp
-    val style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp)
+    val style = LocalReadingText.current.applyTo(
+        MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
+    )
     val dotSize = 6.dp
     Row(
         modifier = modifier

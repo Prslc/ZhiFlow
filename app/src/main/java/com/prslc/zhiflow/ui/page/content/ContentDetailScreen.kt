@@ -59,6 +59,8 @@ import com.prslc.zhiflow.ui.component.common.QuestionStats
 import com.prslc.zhiflow.ui.component.common.rememberActionErrorHost
 import com.prslc.zhiflow.ui.component.richtext.BodyOutlineSheet
 import com.prslc.zhiflow.ui.component.richtext.ContentBodyList
+import com.prslc.zhiflow.ui.component.richtext.LocalReadingText
+import com.prslc.zhiflow.ui.component.richtext.ReadingText
 import com.prslc.zhiflow.ui.component.richtext.rememberContentBodyState
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
 import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
@@ -107,15 +109,22 @@ fun ContentDetailScreen(
     // change them hears about it without a reload.
     val readingProgress by viewModel.readingProgress.collectAsStateWithLifecycle()
     val barsFollowScroll by viewModel.barsFollowScroll.collectAsStateWithLifecycle()
-    val readingTextSize by viewModel.readingTextSize.collectAsStateWithLifecycle()
+    val readingTextScale by viewModel.readingTextScale.collectAsStateWithLifecycle()
+    val readingLetterSpacing by viewModel.readingLetterSpacing.collectAsStateWithLifecycle()
+    val readingLineHeight by viewModel.readingLineHeight.collectAsStateWithLifecycle()
     val readingMargin by viewModel.readingMargin.collectAsStateWithLifecycle()
 
     // The body draws at a multiple of the system's own font size: the density is the device's,
     // only the scale moves, so images and formulas keep their pixels while the words grow. The
     // chrome and the comment sheet sit outside this and stay as they are.
     val density = LocalDensity.current
-    val bodyDensity = remember(density, readingTextSize) {
-        Density(density = density.density, fontScale = density.fontScale * readingTextSize.scale)
+    val bodyDensity = remember(density, readingTextScale) {
+        Density(density = density.density, fontScale = density.fontScale * readingTextScale)
+    }
+    // The spacing rides beside the density rather than in it: sp already grows with the scale
+    // above, so a reader who raises the text size keeps the spacing they chose.
+    val bodyReading = remember(readingLetterSpacing, readingLineHeight) {
+        ReadingText(letterSpacing = readingLetterSpacing, lineHeight = readingLineHeight)
     }
     val bodyMargin = readingMargin.horizontalDp.dp
 
@@ -249,7 +258,10 @@ fun ContentDetailScreen(
                     else -> {
                         currentContent?.let { answer ->
                             key(id) {
-                                CompositionLocalProvider(LocalDensity provides bodyDensity) {
+                                CompositionLocalProvider(
+                                    LocalDensity provides bodyDensity,
+                                    LocalReadingText provides bodyReading,
+                                ) {
                                     ContentBodyList(
                                         content = answer,
                                         elements = viewModel.richTextElements,

@@ -39,6 +39,7 @@ import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.data.remote.parser.model.RichTextElement
+import com.prslc.zhiflow.ui.component.richtext.LocalReadingText
 import com.prslc.zhiflow.ui.component.richtext.rememberInlineContent
 import com.prslc.zhiflow.ui.component.richtext.withThemeSpans
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
@@ -328,9 +329,9 @@ fun FormulaTextSection(
             },
         inlineContent = inlineContentMap + bubbleContentMap + emojiContentMap,
         onTextLayout = { layoutResult.value = it },
-        style = MaterialTheme.typography.bodyLarge
-            .copy(letterSpacing = 0.25.sp)
-            .withFormulaLineHeight(element.inlineMetas),
+        style = LocalReadingText.current.applyTo(
+            MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.25.sp),
+        ).withFormulaLineHeight(element.inlineMetas),
     )
 }
 
