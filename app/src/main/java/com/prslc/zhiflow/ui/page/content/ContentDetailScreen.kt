@@ -445,6 +445,9 @@ private fun ContentDetailTopBar(
                 }
             }
         },
+        // The pad is drawn above the bar by TopBarStrip, so the bar measures only itself: the
+        // system's inset is not counted twice, and the pad stays when the row leaves.
+        windowInsets = WindowInsets(0),
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
