@@ -42,7 +42,7 @@
     <string name="feed_note_following_member">你关注的人关注</string>
     <string name="feed_note_upvoted">你赞同过 TA</string>
     <plurals name="feed_note_followers">
-        <item quantity="other">%1$d 人关注</item>
+        <item quantity="other">%1$d 个关注</item>
     </plurals>
 
     <!-- feedback -->
@@ -196,7 +196,7 @@
         <item quantity="other">%1$d 个回答</item>
     </plurals>
     <plurals name="question_stats_followers">
-        <item quantity="other">%1$d 人关注</item>
+        <item quantity="other">%1$d 个关注</item>
     </plurals>
 
     <!-- moment -->
