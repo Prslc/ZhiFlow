@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -265,7 +266,6 @@ fun ContentDetailScreen(
                                         margin = bodyMargin,
                                         topPadding = { padding.calculateTopPadding() },
                                         bodyComplete = viewModel.isBodyComplete,
-                                        showAuthorDivider = contentType != ContentType.PIN,
                                         onProgress = { viewModel.trackProgress(it) },
                                         onFollowClick = viewModel::toggleFollow,
                                         segmentLikes = segmentLikes,
@@ -490,6 +490,11 @@ private fun ContentTopBar(
  * one answer out of those, and the line says how many others are a tap away. An article has no
  * question over it and draws the title alone.
  *
+ * The rule under it is where the question ends and the answer begins, which is why it is here and
+ * not under the author's row: the author is the answer's, and the body follows them without a line
+ * to cross first. Only an answer draws it -- an article is its own page, with no question above it
+ * to close off, and a pin has no header at all.
+ *
  * @param margin The room the body leaves at either side, which the title shares so that it starts
  *   and ends where the text under it does.
  */
@@ -525,6 +530,13 @@ private fun ContentDetailHeader(
                     modifier = Modifier.padding(top = 8.dp),
                 )
             }
+        }
+        if (contentType == ContentType.ANSWER) {
+            HorizontalDivider(
+                modifier = Modifier.padding(start = margin, end = margin, top = 16.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+            )
         }
     }
 }

@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -213,8 +212,6 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
  * @param bodyComplete Whether the parse has finished. Nothing at all is reported while it is
  *   false: the effect it gates returns instead of starting, so a body that is still growing sends
  *   no position rather than a partial one.
- * @param showAuthorDivider Whether to draw a rule under the author's row. A page whose body
- *   starts with its own heading passes false.
  * @param onFollowClick Called when the follow button in the author's row is pressed.
  * @param modifier Applied to the selection container that wraps the list, not to the list itself.
  * @param margin The room the body leaves at either side of everything it draws, which is what
@@ -235,7 +232,6 @@ fun ContentBodyList(
     navigator: Navigator,
     topPadding: () -> Dp,
     bodyComplete: Boolean,
-    showAuthorDivider: Boolean,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
     margin: Dp = 20.dp,
@@ -280,13 +276,6 @@ fun ContentBodyList(
                         onFollowClick = onFollowClick,
                         margin = margin,
                     )
-                    if (showAuthorDivider) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = margin),
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                        )
-                    }
                 }
             }
 
