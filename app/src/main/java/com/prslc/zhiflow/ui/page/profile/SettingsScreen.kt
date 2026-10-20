@@ -2,15 +2,9 @@ package com.prslc.zhiflow.ui.page.profile
 
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,8 +20,6 @@ import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -40,16 +32,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.preference.AppLanguage
 import com.prslc.zhiflow.core.preference.ThemeMode
+import com.prslc.zhiflow.ui.component.preference.ChoiceDialog
 import com.prslc.zhiflow.ui.component.preference.SettingsGroup
 import com.prslc.zhiflow.ui.component.preference.SettingsNavRow
 import com.prslc.zhiflow.ui.component.preference.SettingsRow
@@ -281,60 +272,6 @@ fun SettingsScreen(
             },
         )
     }
-}
-
-/**
- * A dialog of choices, one of which is already taken.
- *
- * @param title What the choices are for.
- * @param options The choices, in the order they are drawn.
- * @param selected The one in force.
- * @param label How one choice is written in the reader's language.
- * @param onSelect Called with the choice that was tapped.
- * @param onDismiss Called when the dialog is dismissed without a choice.
- */
-@Composable
-private fun <T> ChoiceDialog(
-    title: String,
-    options: List<T>,
-    selected: T,
-    label: @Composable (T) -> String,
-    onSelect: (T) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(modifier = Modifier.selectableGroup()) {
-                options.forEach { option ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = option == selected,
-                                role = Role.RadioButton,
-                                onClick = { onSelect(option) },
-                            )
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = option == selected, onClick = null)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = label(option),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.general_close))
-            }
-        },
-    )
 }
 
 /** @return How the reader's language writes this theme. */

@@ -1,6 +1,8 @@
 package com.prslc.zhiflow.ui.page.profile
 
 import androidx.lifecycle.ViewModel
+import com.prslc.zhiflow.core.preference.ReadingMargin
+import com.prslc.zhiflow.core.preference.ReadingTextSize
 import com.prslc.zhiflow.core.preference.SettingsStore
 import kotlinx.coroutines.flow.StateFlow
 
@@ -20,6 +22,12 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
     /** Whether a content page's bars leave with the scroll. */
     val barsFollowScroll: StateFlow<Boolean> = settingsStore.barsFollowScroll
 
+    /** How large a content page's text draws. */
+    val readingTextSize: StateFlow<ReadingTextSize> = settingsStore.readingTextSize
+
+    /** How much room a content page leaves at either side of its text. */
+    val readingMargin: StateFlow<ReadingMargin> = settingsStore.readingMargin
+
     /**
      * Stores whether a content page draws its reading progress bar.
      *
@@ -33,4 +41,18 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
      * @param enabled True lets the finger put them away.
      */
     fun setBarsFollowScroll(enabled: Boolean) = settingsStore.setBarsFollowScroll(enabled)
+
+    /**
+     * Stores how large a content page's text draws.
+     *
+     * @param size The size to draw at.
+     */
+    fun setReadingTextSize(size: ReadingTextSize) = settingsStore.setReadingTextSize(size)
+
+    /**
+     * Stores how much room a content page leaves at either side of its text.
+     *
+     * @param margin The room to leave.
+     */
+    fun setReadingMargin(margin: ReadingMargin) = settingsStore.setReadingMargin(margin)
 }

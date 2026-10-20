@@ -217,6 +217,8 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
  *   starts with its own heading passes false.
  * @param onFollowClick Called when the follow button in the author's row is pressed.
  * @param modifier Applied to the selection container that wraps the list, not to the list itself.
+ * @param margin The room the body leaves at either side of everything it draws, which is what
+ *   decides how long a line is. Wider room, a shorter line; the room is the reader's choice.
  * @param header What the page is about, where the page carries it as its first line rather than in
  *   the bar: drawn above the author's row, and scrolling with the rest of the body.
  * @param segmentLikes The live like state of the body's `seg_like` ranges, keyed by the range's
@@ -236,6 +238,7 @@ fun ContentBodyList(
     showAuthorDivider: Boolean,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
+    margin: Dp = 20.dp,
     header: (@Composable () -> Unit)? = null,
     segmentLikes: Map<String, SegmentLikeTarget> = emptyMap(),
     onSegmentLikeClick: (String) -> Unit = {},
@@ -275,10 +278,11 @@ fun ContentBodyList(
                         author = content.author,
                         navigator = navigator,
                         onFollowClick = onFollowClick,
+                        margin = margin,
                     )
                     if (showAuthorDivider) {
                         HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 20.dp),
+                            modifier = Modifier.padding(horizontal = margin),
                             thickness = 0.5.dp,
                             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                         )
@@ -298,7 +302,7 @@ fun ContentBodyList(
                 contentType = { _, element -> element::class.simpleName },
             ) { _, element ->
                 Box(
-                    modifier = Modifier.padding(bodyElementPadding(element)),
+                    modifier = Modifier.padding(bodyElementPadding(element, margin)),
                 ) {
                     RichTextSingleElement(
                         element = element,
@@ -341,7 +345,7 @@ fun ContentBodyList(
                         }
 
                         if (!timeDisplay.isNullOrBlank()) {
-                            Column(modifier = Modifier.padding(20.dp)) {
+                            Column(modifier = Modifier.padding(horizontal = margin, vertical = 20.dp)) {
                                 val text = if (contentEnd.ipInfo.isNotEmpty()) {
                                     stringResource(
                                         R.string.content_published_with_ip,
@@ -392,8 +396,11 @@ private fun bodyPages(elements: List<RichTextElement>): List<LightboxItem> =
  * column out and had drawn the horizontal half of this rule only — so the rule lives here rather
  * than being repeated beside each caller.
  */
-fun bodyElementPadding(element: RichTextElement): PaddingValues = PaddingValues(
-    horizontal = 20.dp,
+fun bodyElementPadding(
+    element: RichTextElement,
+    horizontal: Dp = 20.dp,
+): PaddingValues = PaddingValues(
+    horizontal = horizontal,
     vertical = if (element is RichTextElement.BulletItem) 0.dp else 16.dp,
 )
 
@@ -419,13 +426,13 @@ private fun AuthorSection(
     navigator: Navigator,
     onFollowClick: () -> Unit,
     modifier: Modifier = Modifier,
-    header: (@Composable () -> Unit)? = null,
+    margin: Dp = 20.dp,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .padding(20.dp),
+            .padding(horizontal = margin, vertical = 20.dp),
     ) {
         AsyncImage(
             model = author.avatar?.avatarImage?.day,

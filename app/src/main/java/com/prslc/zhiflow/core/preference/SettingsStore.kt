@@ -15,6 +15,43 @@ enum class ThemeMode {
 }
 
 /**
+ * How large a content page's text draws, as a multiple of the size the system is set to.
+ *
+ * A multiple rather than a size: a reader who has asked the system for larger text keeps that
+ * choice, and this moves from there instead of overruling it.
+ */
+enum class ReadingTextSize(val scale: Float) {
+    /** Smaller than the system's own size. */
+    Small(0.85f),
+
+    /** The system's own size, which is what the page has always drawn at. */
+    Standard(1f),
+
+    /** Larger than the system's own size. */
+    Large(1.15f),
+
+    /** Larger still. */
+    ExtraLarge(1.3f),
+}
+
+/**
+ * How much room a content page leaves at either side, which is what decides how long a line is.
+ *
+ * Named for the room rather than for the line, because the room is what the reader is changing:
+ * a narrow margin leaves a longer line, and it is the margin they see on the page.
+ */
+enum class ReadingMargin(val horizontalDp: Float) {
+    /** Less room at the sides, so a longer line. */
+    Narrow(12f),
+
+    /** What the page has always drawn at. */
+    Standard(20f),
+
+    /** More room at the sides, so a shorter line. */
+    Wide(32f),
+}
+
+/**
  * Where the reader's own settings are kept.
  *
  * A port over the same preferences file the credentials live in: writes go through it and survive
@@ -62,6 +99,21 @@ interface SettingsStore {
     val barsFollowScroll: StateFlow<Boolean>
 
     /**
+     * How large a content page's text draws.
+     *
+     * Emitting again whenever it changes: the page may already be open behind the settings, and it
+     * draws its text from this rather than from a value read once.
+     */
+    val readingTextSize: StateFlow<ReadingTextSize>
+
+    /**
+     * How much room a content page leaves at either side of its text.
+     *
+     * Emitting again whenever it changes, for the same reason: the page may already be open.
+     */
+    val readingMargin: StateFlow<ReadingMargin>
+
+    /**
      * Stores the chosen theme, which the next composition draws in.
      *
      * @param mode The theme to draw in.
@@ -106,6 +158,20 @@ interface SettingsStore {
      * @param enabled True lets the finger put them away and bring them back.
      */
     fun setBarsFollowScroll(enabled: Boolean)
+
+    /**
+     * Stores how large a content page's text draws.
+     *
+     * @param size The size to draw at, as a multiple of the system's own.
+     */
+    fun setReadingTextSize(size: ReadingTextSize)
+
+    /**
+     * Stores how much room a content page leaves at either side of its text.
+     *
+     * @param margin The room to leave.
+     */
+    fun setReadingMargin(margin: ReadingMargin)
 
     /**
      * Stores whether the developer tools are unlocked, which is what the settings page offers

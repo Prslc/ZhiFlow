@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.preference.ReadingMargin
+import com.prslc.zhiflow.core.preference.ReadingTextSize
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.utils.compose.ReadingPosition
 import com.prslc.zhiflow.core.utils.compose.ReadingProgress
@@ -102,6 +104,12 @@ class ContentViewModel(
 
     /** Whether this page's bars leave with the scroll. */
     val barsFollowScroll: StateFlow<Boolean> = settingsStore.barsFollowScroll
+
+    /** How large this page's text draws. */
+    val readingTextSize: StateFlow<ReadingTextSize> = settingsStore.readingTextSize
+
+    /** How much room this page leaves at either side of its text. */
+    val readingMargin: StateFlow<ReadingMargin> = settingsStore.readingMargin
 
     /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
     var isBodyComplete by mutableStateOf(false)

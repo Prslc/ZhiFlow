@@ -25,6 +25,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -41,6 +42,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prslc.zhiflow.R
@@ -98,6 +101,17 @@ fun ContentDetailScreen(
     // change them hears about it without a reload.
     val readingProgress by viewModel.readingProgress.collectAsStateWithLifecycle()
     val barsFollowScroll by viewModel.barsFollowScroll.collectAsStateWithLifecycle()
+    val readingTextSize by viewModel.readingTextSize.collectAsStateWithLifecycle()
+    val readingMargin by viewModel.readingMargin.collectAsStateWithLifecycle()
+
+    // The body draws at a multiple of the system's own font size: the density is the device's,
+    // only the scale moves, so images and formulas keep their pixels while the words grow. The
+    // chrome and the comment sheet sit outside this and stay as they are.
+    val density = LocalDensity.current
+    val bodyDensity = remember(density, readingTextSize) {
+        Density(density = density.density, fontScale = density.fontScale * readingTextSize.scale)
+    }
+    val bodyMargin = readingMargin.horizontalDp.dp
 
     // One bar, one row, whatever the page: it goes with the finger and never folds. Material's
     // large bar cross-fades the title between two rows, which with a question's title reads as one
@@ -229,26 +243,30 @@ fun ContentDetailScreen(
                     else -> {
                         currentContent?.let { answer ->
                             key(id) {
-                                ContentBodyList(
-                                    content = answer,
-                                    elements = viewModel.richTextElements,
-                                    state = bodyState,
-                                    navigator = navigator,
-                                    header = {
-                                        ContentDetailHeader(
-                                            contentType = contentType,
-                                            content = currentContent,
-                                            onTitleClick = openQuestion,
-                                        )
-                                    },
-                                    topPadding = { padding.calculateTopPadding() },
-                                    bodyComplete = viewModel.isBodyComplete,
-                                    showAuthorDivider = contentType != ContentType.PIN,
-                                    onProgress = { viewModel.trackProgress(it) },
-                                    onFollowClick = viewModel::toggleFollow,
-                                    segmentLikes = segmentLikes,
-                                    onSegmentLikeClick = onSegmentLikeClick,
-                                )
+                                CompositionLocalProvider(LocalDensity provides bodyDensity) {
+                                    ContentBodyList(
+                                        content = answer,
+                                        elements = viewModel.richTextElements,
+                                        state = bodyState,
+                                        navigator = navigator,
+                                        header = {
+                                            ContentDetailHeader(
+                                                contentType = contentType,
+                                                content = currentContent,
+                                                margin = bodyMargin,
+                                                onTitleClick = openQuestion,
+                                            )
+                                        },
+                                        margin = bodyMargin,
+                                        topPadding = { padding.calculateTopPadding() },
+                                        bodyComplete = viewModel.isBodyComplete,
+                                        showAuthorDivider = contentType != ContentType.PIN,
+                                        onProgress = { viewModel.trackProgress(it) },
+                                        onFollowClick = viewModel::toggleFollow,
+                                        segmentLikes = segmentLikes,
+                                        onSegmentLikeClick = onSegmentLikeClick,
+                                    )
+                                }
                             }
                         }
                     }
@@ -462,11 +480,15 @@ private fun ContentTopBar(
 /**
  * What the page is about, as its first line: read with the page rather than carried in the bar, so
  * it scrolls away with everything else and the screen never shows the same title twice.
+ *
+ * @param margin The room the body leaves at either side, which the title shares so that it starts
+ *   and ends where the text under it does.
  */
 @Composable
 private fun ContentDetailHeader(
     contentType: ContentType,
     content: ZhihuContent?,
+    margin: Dp,
     onTitleClick: (() -> Unit)?,
 ) {
     if (contentType == ContentType.PIN || content == null) return
@@ -480,6 +502,6 @@ private fun ContentDetailHeader(
         modifier = Modifier
             .fillMaxWidth()
             .then(if (onTitleClick != null) Modifier.clickable(onClick = onTitleClick) else Modifier)
-            .padding(horizontal = 20.dp, vertical = 8.dp),
+            .padding(horizontal = margin, vertical = 8.dp),
     )
 }
