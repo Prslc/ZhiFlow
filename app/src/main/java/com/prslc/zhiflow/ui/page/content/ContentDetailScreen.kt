@@ -43,9 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
-import com.prslc.zhiflow.core.utils.compose.BarCollapseDistance
 import com.prslc.zhiflow.core.utils.compose.FlushProgressOnLeave
-import com.prslc.zhiflow.core.utils.compose.rememberHideOnScroll
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.content.ZhihuAnswer
 import com.prslc.zhiflow.data.model.content.ZhihuContent
@@ -120,9 +118,6 @@ fun ContentDetailScreen(
     var showOutline by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    // The bottom bar goes with the finger, as the bar at the foot of the main screen does.
-    val bottomBarHide = rememberHideOnScroll(BarCollapseDistance)
-
     val onVoteClick = remember {
         { action: String -> viewModel.vote(action, contentType) }
     }
@@ -159,9 +154,7 @@ fun ContentDetailScreen(
     }
 
     Surface(
-        modifier = modifier
-            .fillMaxSize()
-            .nestedScroll(bottomBarHide.connection),
+        modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -197,7 +190,7 @@ fun ContentDetailScreen(
                     // Outside the animated wrapper: a failure drops the bar, never retracts it.
                     if (loadingState.error == null) {
                         ContentDetailBottomBar(
-                            hide = bottomBarHide,
+                            leave = topBarLeave,
                             currentContent = currentContent,
                             interaction = interaction,
                             upvoteCount = viewModel.displayUpvoteCount,
