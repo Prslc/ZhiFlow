@@ -31,6 +31,7 @@ import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
 import com.prslc.zhiflow.core.utils.formatToDate
 import com.prslc.zhiflow.data.dto.ImageData
+import com.prslc.zhiflow.data.dto.MomentContentType
 import com.prslc.zhiflow.data.dto.MomentDto
 import com.prslc.zhiflow.ui.component.common.BadgeLabel
 import com.prslc.zhiflow.ui.component.common.ContentMeta
@@ -213,11 +214,15 @@ fun StandardMomentCard(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        ContentMeta(
-            voteCount = state.voteCount,
-            commentCount = state.commentCount,
-        )
+        // A question is neither voted on nor commented on, so what the card carries is a pair of
+        // zeroes rather than a count.
+        if (state.type != MomentContentType.QUESTION) {
+            Spacer(modifier = Modifier.height(8.dp))
+            ContentMeta(
+                voteCount = state.voteCount,
+                commentCount = state.commentCount,
+            )
+        }
     }
 }
 

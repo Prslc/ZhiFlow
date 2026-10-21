@@ -18,6 +18,7 @@ internal fun ComponentCard.toDto(): MomentDto {
         "ANSWER" -> MomentContentType.ANSWER
         "ARTICLE" -> MomentContentType.ARTICLE
         "PIN" -> MomentContentType.THOUGHT
+        "QUESTION" -> MomentContentType.QUESTION
         else -> MomentContentType.UNKNOWN
     }
 
@@ -61,14 +62,15 @@ internal fun MomentsFeedItem.toDto(): MomentDto {
 
     val momentType = when {
         actionType == "MEMBER_MEMBER_FOLLOW" -> MomentContentType.USER
-        actionType == "MEMBER_FOLLOW_QUESTION" -> MomentContentType.UNKNOWN
+        actionType == "MEMBER_FOLLOW_QUESTION" -> MomentContentType.QUESTION
         target?.type == "answer" -> MomentContentType.ANSWER
         target?.type == "article" -> MomentContentType.ARTICLE
         target?.type == "pin" -> MomentContentType.THOUGHT
         bem?.contentInfo?.contentType == "ANSWER" -> MomentContentType.ANSWER
         bem?.contentInfo?.contentType == "ARTICLE" -> MomentContentType.ARTICLE
         bem?.contentInfo?.contentType == "PIN" -> MomentContentType.THOUGHT
-        target?.type == "question" -> MomentContentType.UNKNOWN
+        bem?.contentInfo?.contentType == "QUESTION" -> MomentContentType.QUESTION
+        target?.type == "question" -> MomentContentType.QUESTION
         else -> MomentContentType.UNKNOWN
     }
 

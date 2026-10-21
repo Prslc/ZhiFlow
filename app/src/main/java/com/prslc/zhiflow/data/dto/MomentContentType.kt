@@ -7,6 +7,7 @@ enum class MomentContentType {
     ANSWER,
     ARTICLE,
     THOUGHT,
+    QUESTION,
     USER,
     UNKNOWN,
 }
