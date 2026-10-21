@@ -282,7 +282,9 @@ fun ContentBodyList(
             contentPadding = PaddingValues(bottom = 80.dp),
         ) {
             if (header != null) {
-                item(key = "header") { header() }
+                item(key = "header") {
+                    DisableSelection { header() }
+                }
             }
 
             item {
