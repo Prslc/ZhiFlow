@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,6 +78,9 @@ import com.prslc.zhiflow.ui.preview.sampleZhihuAnswer
 import com.prslc.zhiflow.ui.preview.sampleZhihuArticle
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+
+/** What the baseline profile generator finds the page by, before its body has arrived. */
+private const val CONTENT_PAGE_TAG = "content_page"
 
 @Composable
 fun ContentDetailScreen(
@@ -195,7 +199,9 @@ fun ContentDetailScreen(
     }
 
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .testTag(CONTENT_PAGE_TAG),
         color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

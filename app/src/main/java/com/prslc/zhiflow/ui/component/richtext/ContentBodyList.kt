@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -68,6 +69,9 @@ import org.koin.compose.koinInject
 
 /** The items [ContentBodyList] lays out before the body: the author's row. */
 private const val LEADING_ITEMS = 1
+
+/** What the baseline profile generator finds and swipes the body by. */
+private const val CONTENT_BODY_TAG = "content_body"
 
 /**
  * One heading, as the outline lists it: [depth] is 0 for the shallowest heading in the body, and
@@ -261,7 +265,8 @@ fun ContentBodyList(
             state = state.listState,
             modifier = Modifier
                 .fillMaxSize()
-                .topPadding(topPadding),
+                .topPadding(topPadding)
+                .testTag(CONTENT_BODY_TAG),
             contentPadding = PaddingValues(bottom = 80.dp),
         ) {
             if (header != null) {
