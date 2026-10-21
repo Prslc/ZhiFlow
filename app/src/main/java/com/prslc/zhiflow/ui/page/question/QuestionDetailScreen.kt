@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -14,10 +15,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -54,15 +57,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.utils.compose.isOverflowed
+import com.prslc.zhiflow.core.utils.compose.sizedImageUrl
+import com.prslc.zhiflow.data.dto.QuestionAuthorDto
 import com.prslc.zhiflow.data.model.content.Topic
 import com.prslc.zhiflow.data.model.content.ZhihuImage
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
@@ -187,6 +194,16 @@ private fun QuestionContentList(
         modifier = modifier,
         contentPadding = PaddingValues(bottom = 32.dp),
     ) {
+        // who asked
+        state.asker?.let { asker ->
+            item(key = "asker") {
+                QuestionAuthor(
+                    author = asker,
+                    onClick = { navigator.navigateToPeople(asker.profileToken) },
+                )
+            }
+        }
+
         item(key = "element_header") {
             state.elements.firstOrNull()?.let { first ->
                 QuestionElement(
@@ -338,6 +355,72 @@ private fun QuestionElement(
                 ImageComponent(element.image, onImageClick)
             }
         }
+    }
+}
+
+/**
+ * Who asked the question, drawn as a column's author is: a small picture, with the name and
+ * headline stacked beside it.
+ */
+@Composable
+private fun QuestionAuthor(
+    author: QuestionAuthorDto,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            model = sizedImageUrl(author.avatarUrl, 32.dp),
+            contentDescription = null,
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+            contentScale = ContentScale.Crop,
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(modifier = Modifier.weight(1f, fill = false)) {
+            Text(
+                text = author.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            if (author.headline.isNotBlank()) {
+                Text(
+                    text = author.headline,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.outline,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@AppPreviews
+@Composable
+private fun QuestionAuthorPreview() {
+    PreviewSurface {
+        QuestionAuthor(
+            author = QuestionAuthorDto(
+                profileToken = "ada-lovelace",
+                name = "Ada Lovelace",
+                headline = "Writes about parsers and the machines that read them",
+                avatarUrl = null,
+            ),
+            onClick = {},
+        )
     }
 }
 

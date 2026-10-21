@@ -11,7 +11,9 @@ import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.AnswerDto
+import com.prslc.zhiflow.data.dto.QuestionAuthorDto
 import com.prslc.zhiflow.data.mapper.toDto
+import com.prslc.zhiflow.data.mapper.toQuestionAuthor
 import com.prslc.zhiflow.data.model.content.QuestionDetail
 import com.prslc.zhiflow.data.remote.parser.QuestionParser
 import com.prslc.zhiflow.data.remote.parser.model.DetailElement
@@ -34,6 +36,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
         val isLoading: Boolean = false,
         val isNextLoading: Boolean = false,
         val question: QuestionDetail? = null,
+        val asker: QuestionAuthorDto? = null,
         val elements: List<DetailElement> = emptyList(),
         val answers: List<AnswerDto> = emptyList(),
         val globalError: ApiException? = null,
@@ -89,6 +92,7 @@ class QuestionViewModel(private val repository: QuestionRepository) : ViewModel(
             uiState = uiState.copy(
                 isLoading = false,
                 question = detailData,
+                asker = detailData?.author?.toQuestionAuthor(),
                 elements = elements,
                 answers = uiState.answers.withPage(page, firstPage = true) { it.id },
                 hasMore = feedResponse?.paging?.isEnd == false,
