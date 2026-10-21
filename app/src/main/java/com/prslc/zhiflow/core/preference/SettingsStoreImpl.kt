@@ -33,6 +33,8 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
 
     private val _readingMargin = MutableStateFlow(readReadingMargin())
 
+    private val _segmentComments = MutableStateFlow(readSegmentComments())
+
     private val _developerUnlocked = MutableStateFlow(readDeveloperUnlocked())
 
     override val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
@@ -52,6 +54,8 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     override val readingLineHeight: StateFlow<Float> = _readingLineHeight.asStateFlow()
 
     override val readingMargin: StateFlow<Float> = _readingMargin.asStateFlow()
+
+    override val segmentComments: StateFlow<Boolean> = _segmentComments.asStateFlow()
 
     override val developerUnlocked: StateFlow<Boolean> = _developerUnlocked.asStateFlow()
 
@@ -98,6 +102,11 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
     override fun setReadingMargin(margin: Float) {
         preferences.edit { putFloat(KEY_READING_MARGIN_DP, margin) }
         _readingMargin.value = margin
+    }
+
+    override fun setSegmentComments(enabled: Boolean) {
+        preferences.edit { putBoolean(KEY_SEGMENT_COMMENTS, enabled) }
+        _segmentComments.value = enabled
     }
 
     override fun setDeveloperUnlocked(unlocked: Boolean) {
@@ -180,6 +189,9 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         else -> 20f
     }
 
+    /** @return The stored choice, or true when nothing is stored — the marks have always been drawn. */
+    private fun readSegmentComments(): Boolean = preferences.getBoolean(KEY_SEGMENT_COMMENTS, true)
+
     /** @return What is stored under [key], or null when nothing is. */
     private fun storedName(key: String): String? = preferences.getString(key, null)
 
@@ -197,6 +209,7 @@ class SettingsStoreImpl(private val preferences: SharedPreferences) : SettingsSt
         const val KEY_READING_LETTER_SPACING = "reading_letter_spacing"
         const val KEY_READING_LINE_HEIGHT = "reading_line_height"
         const val KEY_READING_MARGIN_DP = "reading_margin_dp"
+        const val KEY_SEGMENT_COMMENTS = "segment_comments_enabled"
 
         /** The key the text size was stored under while it was one of four named steps. */
         const val KEY_LEGACY_READING_TEXT_SIZE = "reading_text_size"

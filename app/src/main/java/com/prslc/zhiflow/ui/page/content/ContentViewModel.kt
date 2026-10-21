@@ -115,6 +115,9 @@ class ContentViewModel(
     /** How much room this page leaves at either side of its text, in dp. */
     val readingMargin: StateFlow<Float> = settingsStore.readingMargin
 
+    /** Whether this page marks the passages that carry comments. */
+    val segmentComments: StateFlow<Boolean> = settingsStore.segmentComments
+
     /** True once [richTextElements] holds the whole body; the list measures nothing before that. */
     var isBodyComplete by mutableStateOf(false)
         private set

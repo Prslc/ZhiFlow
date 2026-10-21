@@ -372,7 +372,7 @@
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_section_reading">Reading</string>
     <string name="settings_reading_title">Reading settings</string>
-    <string name="settings_reading_summary">Text size, spacing, margins, and bars that follow the scroll</string>
+    <string name="settings_reading_summary">Text size, spacing, margins, passage comments, and bars that follow the scroll</string>
     <string name="settings_reading_text_size_title">Text size</string>
     <string name="settings_reading_text_size_value">%1$d%%</string>
     <string name="settings_reading_letter_spacing_title">Letter spacing</string>
@@ -382,6 +382,8 @@
     <string name="settings_reading_margin_title">Margins</string>
     <string name="settings_reading_margin_value">%1$ddp</string>
     <string name="settings_reading_sample">This is a sample paragraph, drawn the way a content page draws its own: the size, spacing and margins you choose here apply to it, and to every page you read.</string>
+    <string name="settings_reading_segment_comments_title">Passage comments</string>
+    <string name="settings_reading_segment_comments_summary">Mark the passages that carry comments</string>
     <string name="settings_reading_progress_title">Reading progress</string>
     <string name="settings_reading_progress_summary">Show how far you have read along the top of a page</string>
     <string name="settings_bars_follow_scroll_title">Hide bars while scrolling</string>

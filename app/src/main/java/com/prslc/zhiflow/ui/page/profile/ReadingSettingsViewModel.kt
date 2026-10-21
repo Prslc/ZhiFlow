@@ -32,6 +32,9 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
     /** How much room a content page leaves at either side of its text, in dp. */
     val readingMargin: StateFlow<Float> = settingsStore.readingMargin
 
+    /** Whether a content page marks the passages that carry comments. */
+    val segmentComments: StateFlow<Boolean> = settingsStore.segmentComments
+
     /**
      * Stores whether a content page draws its reading progress bar.
      *
@@ -73,4 +76,12 @@ class ReadingSettingsViewModel(private val settingsStore: SettingsStore) : ViewM
      * @param margin The room to leave, in dp.
      */
     fun setReadingMargin(margin: Float) = settingsStore.setReadingMargin(margin)
+
+    /**
+     * Stores whether a content page marks the passages that carry comments.
+     *
+     * @param enabled False draws the text unmarked, and takes the way into a passage's comments
+     *   with the marks.
+     */
+    fun setSegmentComments(enabled: Boolean) = settingsStore.setSegmentComments(enabled)
 }

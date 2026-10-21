@@ -24,6 +24,7 @@ import com.prslc.zhiflow.data.model.content.SegmentLikeTarget
 import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 import com.prslc.zhiflow.data.remote.parser.model.InlineFormulaMeta
 import com.prslc.zhiflow.ui.component.richtext.component.LatexComponent
+import com.prslc.zhiflow.ui.component.richtext.component.LocalSegmentComments
 import com.prslc.zhiflow.ui.component.richtext.component.constrainedSize
 import com.prslc.zhiflow.ui.component.richtext.component.drawSegmentUnderline
 import com.prslc.zhiflow.ui.component.richtext.component.inlinePlaceholder
@@ -109,6 +110,7 @@ fun ZRichText(
 ) {
     val navigator = LocalNavigator.current
     val isDark = LocalIsDarkTheme.current
+    val segmentComments = LocalSegmentComments.current
     val underlineColor = MaterialTheme.colorScheme.outline
 
     val inlineContent = inlineMetas.rememberInlineContent(maxFormulaWidthDp)
@@ -151,12 +153,26 @@ fun ZRichText(
     }
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val segmentRanges = remember(interceptedContent) {
-        interceptedContent.getStringAnnotations(
-            AnnotatedStringBuilder.SEGMENT_LIKE_TAG,
-            0,
-            interceptedContent.length,
+    val segmentRanges = remember(interceptedContent, segmentComments) {
+        if (segmentComments) {
+            interceptedContent.getStringAnnotations(
+                AnnotatedStringBuilder.SEGMENT_LIKE_TAG,
+                0,
+                interceptedContent.length,
+            )
+        } else {
+            emptyList()
+        }
+    }
+    // The marks are also the way into a passage's comments, so none are drawn when the reader has
+    // turned them off.
+    val segmentBubbles = if (segmentComments) {
+        interceptedContent.rememberSegmentLikeIcons(
+            tint = underlineColor,
+            onClick = onSegmentLikeClick,
         )
+    } else {
+        emptyMap()
     }
 
     // No range, no gesture: a tap filter would swallow the click of the row the outline draws this
@@ -180,10 +196,7 @@ fun ZRichText(
         text = interceptedContent,
         style = style.withFormulaLineHeight(inlineMetas, maxFormulaWidthDp),
         inlineContent = inlineContent +
-            interceptedContent.rememberSegmentLikeIcons(
-                tint = underlineColor,
-                onClick = onSegmentLikeClick,
-            ) +
+            segmentBubbles +
             interceptedContent.rememberEmojiContent(),
         maxLines = maxLines,
         overflow = overflow,

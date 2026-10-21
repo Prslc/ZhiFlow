@@ -273,23 +273,32 @@ fun FormulaTextSection(
     onSegmentLikeClick: (String) -> Unit = {},
 ) {
     val navigator = LocalNavigator.current
+    val segmentComments = LocalSegmentComments.current
     val underlineColor = MaterialTheme.colorScheme.outline
 
     val inlineContentMap = element.inlineMetas.rememberInlineContent()
-    val bubbleContentMap = element.content.rememberSegmentLikeIcons(
-        tint = underlineColor,
-        onClick = onSegmentLikeClick,
-    )
+    val bubbleContentMap = if (segmentComments) {
+        element.content.rememberSegmentLikeIcons(
+            tint = underlineColor,
+            onClick = onSegmentLikeClick,
+        )
+    } else {
+        emptyMap()
+    }
     val emojiContentMap = element.content.rememberEmojiContent()
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val segmentRanges = remember(element.content) {
-        element.content.getStringAnnotations(
-            AnnotatedStringBuilder.SEGMENT_LIKE_TAG,
-            0,
-            element.content.length,
-        )
+    val segmentRanges = remember(element.content, segmentComments) {
+        if (segmentComments) {
+            element.content.getStringAnnotations(
+                AnnotatedStringBuilder.SEGMENT_LIKE_TAG,
+                0,
+                element.content.length,
+            )
+        } else {
+            emptyList()
+        }
     }
 
     Text(
@@ -307,7 +316,7 @@ fun FormulaTextSection(
                     )
                 }
             }
-            .pointerInput(element.content) {
+            .pointerInput(element.content, segmentComments) {
                 detectTapGestures { pos ->
                     layoutResult.value?.let { layout ->
                         val offset = layout.getOffsetForPosition(pos)
@@ -318,12 +327,14 @@ fun FormulaTextSection(
                             .firstOrNull()?.let { navigator.handleUrl(it.item) }
 
                         // The bubble carries its own tap target; this covers a tap that lands on
-                        // the underlined text instead.
-                        element.content
-                            .getStringAnnotations(
-                                AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset,
-                            )
-                            .firstOrNull()?.let { onSegmentLikeClick(it.item) }
+                        // the underlined text instead. Unmarked text opens nothing.
+                        if (segmentComments) {
+                            element.content
+                                .getStringAnnotations(
+                                    AnnotatedStringBuilder.SEGMENT_LIKE_TAG, offset, offset,
+                                )
+                                .firstOrNull()?.let { onSegmentLikeClick(it.item) }
+                        }
                     }
                 }
             },

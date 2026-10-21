@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.FormatIndentIncrease
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.FormatLineSpacing
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.LinearScale
@@ -36,13 +37,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,9 +65,9 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
 
 /**
- * What a content page draws along its edges, reached from the settings page: how large its text is,
- * how far apart its characters and lines sit, how much room the text leaves, and whether the page
- * draws its progress bar and keeps its bars in place.
+ * What a content page draws, reached from the settings page: how large its text is, how far apart
+ * its characters and lines sit, how much room the text leaves, whether it marks the passages that
+ * carry comments, and whether the page draws its progress bar and keeps its bars in place.
  *
  * @param onBack Called when the reader leaves the page.
  */
@@ -76,6 +83,7 @@ fun ReadingSettingsScreen(
     val letterSpacing by viewModel.readingLetterSpacing.collectAsStateWithLifecycle()
     val lineHeight by viewModel.readingLineHeight.collectAsStateWithLifecycle()
     val margin by viewModel.readingMargin.collectAsStateWithLifecycle()
+    val segmentComments by viewModel.segmentComments.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier,
@@ -105,6 +113,7 @@ fun ReadingSettingsScreen(
                 letterSpacing = letterSpacing,
                 lineHeight = lineHeight,
                 progress = readingProgress,
+                segmentComments = segmentComments,
             )
 
             SettingsGroup {
@@ -146,6 +155,19 @@ fun ReadingSettingsScreen(
                         levels = ReadingChoices.margins,
                         onValueChange = { viewModel.setReadingMargin(it) },
                         icon = Icons.AutoMirrored.Filled.FormatIndentIncrease,
+                    )
+                }
+                row {
+                    SettingsRow(
+                        title = stringResource(R.string.settings_reading_segment_comments_title),
+                        description = stringResource(
+                            R.string.settings_reading_segment_comments_summary,
+                        ),
+                        icon = Icons.Filled.ChatBubbleOutline,
+                        onClick = { viewModel.setSegmentComments(!segmentComments) },
+                        trailingContent = {
+                            Switch(checked = segmentComments, onCheckedChange = null)
+                        },
                     )
                 }
                 row {
@@ -238,11 +260,16 @@ private fun <T> ReadingSlider(
  * choosing. Everything outside this block stays at the device's own size, so what changes is the
  * page and not the settings around it.
  *
+ * The paragraph carries the dashed rule a commented passage carries, drawn under its lines, so the
+ * switch above has something to hide.
+ *
  * @param textScale The multiple of the system's size in force.
  * @param margin The room in force at either side of the text, in dp.
  * @param letterSpacing The room in force between characters, in sp.
  * @param lineHeight The multiple of the paragraph's own line height in force.
  * @param progress Whether the page draws its reading progress bar, which the preview draws too.
+ * @param segmentComments Whether the page marks the passages that carry comments, which the preview
+ *   draws too.
  */
 @Composable
 private fun ReadingPreview(
@@ -251,6 +278,7 @@ private fun ReadingPreview(
     letterSpacing: Float,
     lineHeight: Float,
     progress: Boolean,
+    segmentComments: Boolean,
 ) {
     val density = LocalDensity.current
     val sampleDensity = remember(density, textScale) {
@@ -337,14 +365,62 @@ private fun ReadingPreview(
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
+                    SampleParagraph(
                         text = stringResource(R.string.settings_reading_sample),
                         style = style,
+                        marked = segmentComments,
                     )
                 }
             }
         }
     }
+}
+
+/**
+ * The sample paragraph: [text] in [style], with the dashed rule a passage comment draws under its
+ * lines when [marked].
+ *
+ * The rule is measured off the layout rather than painted as one line under the block: the sample
+ * wraps where the size and margins in force make it wrap, and a single line would sit under the
+ * last of those lines rather than follow all of them.
+ *
+ * @param text The sample, in the reader's language.
+ * @param style The style the page's own paragraphs are drawn in.
+ * @param marked Whether the paragraph carries a comment, and so draws its rule.
+ */
+@Composable
+private fun SampleParagraph(
+    text: String,
+    style: TextStyle,
+    marked: Boolean,
+) {
+    val underlineColor = MaterialTheme.colorScheme.outline
+    val layout = remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    Text(
+        text = text,
+        style = style,
+        onTextLayout = { layout.value = it },
+        modifier = if (marked) {
+            Modifier.drawBehind {
+                val textLayout = layout.value ?: return@drawBehind
+                val gap = 3.dp.toPx()
+                val dash = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 4.dp.toPx()))
+                for (line in 0 until textLayout.lineCount) {
+                    val y = textLayout.getLineBaseline(line) + gap
+                    drawLine(
+                        color = underlineColor,
+                        start = Offset(textLayout.getLineLeft(line), y),
+                        end = Offset(textLayout.getLineRight(line), y),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = dash,
+                    )
+                }
+            }
+        } else {
+            Modifier
+        },
+    )
 }
 
 /** @return The room in force at either side of the text, in dp. */

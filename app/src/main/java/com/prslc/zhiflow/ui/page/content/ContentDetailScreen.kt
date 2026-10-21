@@ -61,6 +61,7 @@ import com.prslc.zhiflow.ui.component.richtext.BodyOutlineSheet
 import com.prslc.zhiflow.ui.component.richtext.ContentBodyList
 import com.prslc.zhiflow.ui.component.richtext.LocalReadingText
 import com.prslc.zhiflow.ui.component.richtext.ReadingText
+import com.prslc.zhiflow.ui.component.richtext.component.LocalSegmentComments
 import com.prslc.zhiflow.ui.component.richtext.rememberContentBodyState
 import com.prslc.zhiflow.ui.component.widget.CollectionDialog
 import com.prslc.zhiflow.ui.component.widget.ReadingProgressBar
@@ -113,6 +114,7 @@ fun ContentDetailScreen(
     val readingLetterSpacing by viewModel.readingLetterSpacing.collectAsStateWithLifecycle()
     val readingLineHeight by viewModel.readingLineHeight.collectAsStateWithLifecycle()
     val readingMargin by viewModel.readingMargin.collectAsStateWithLifecycle()
+    val segmentComments by viewModel.segmentComments.collectAsStateWithLifecycle()
 
     // The body draws at a multiple of the system's own font size: the density is the device's,
     // only the scale moves, so images and formulas keep their pixels while the words grow. The
@@ -261,6 +263,7 @@ fun ContentDetailScreen(
                                 CompositionLocalProvider(
                                     LocalDensity provides bodyDensity,
                                     LocalReadingText provides bodyReading,
+                                    LocalSegmentComments provides segmentComments,
                                 ) {
                                     ContentBodyList(
                                         content = answer,

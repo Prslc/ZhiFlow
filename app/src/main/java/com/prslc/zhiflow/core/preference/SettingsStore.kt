@@ -118,6 +118,14 @@ interface SettingsStore {
     val readingMargin: StateFlow<Float>
 
     /**
+     * Whether a content page marks the passages that carry comments.
+     *
+     * Emitting again whenever it changes: the page may already be open behind the settings, and the
+     * marks are drawn from this rather than from a value read once when the page was.
+     */
+    val segmentComments: StateFlow<Boolean>
+
+    /**
      * Stores the chosen theme, which the next composition draws in.
      *
      * @param mode The theme to draw in.
@@ -190,6 +198,14 @@ interface SettingsStore {
      * @param margin The room to leave, in dp.
      */
     fun setReadingMargin(margin: Float)
+
+    /**
+     * Stores whether a content page marks the passages that carry comments.
+     *
+     * @param enabled False draws the text unmarked, and takes the way into a passage's comments
+     *   with the marks, which are the only place they open from.
+     */
+    fun setSegmentComments(enabled: Boolean)
 
     /**
      * Stores whether the developer tools are unlocked, which is what the settings page offers

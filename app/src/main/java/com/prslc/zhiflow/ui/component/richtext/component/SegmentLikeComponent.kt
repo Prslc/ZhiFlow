@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -25,6 +26,18 @@ import com.prslc.zhiflow.data.remote.parser.engine.AnnotatedStringBuilder
 
 private const val ICON_SIZE_DP = 12f
 private val ICON_LEADING_DP = 2.dp
+
+/**
+ * Whether a body marks the passages that carry comments: the rule under them and the bubble at the
+ * end of the range.
+ *
+ * Off, the text is drawn as it was written and a range opens nothing -- the marks are the only way
+ * into a passage's comments, so hiding them is what turning the feature off means.
+ *
+ * A composition local rather than a parameter: a paragraph draws itself deep inside the body, and
+ * one place hands the reader's choice to both of the hosts that draw ranges.
+ */
+val LocalSegmentComments = compositionLocalOf { true }
 
 /**
  * Builds the inline content for the speech bubbles of [this] text.
