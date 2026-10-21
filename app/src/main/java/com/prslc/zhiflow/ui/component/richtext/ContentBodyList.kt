@@ -421,7 +421,7 @@ private fun AuthorSection(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = margin, vertical = 20.dp),
+            .padding(start = margin, top = 20.dp, end = margin, bottom = 16.dp),
     ) {
         AsyncImage(
             model = author.avatar?.avatarImage?.day,
