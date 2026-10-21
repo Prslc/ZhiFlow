@@ -157,7 +157,7 @@ fun CollectionContentsScreen(
                     ) {
                         itemsIndexed(
                             items = items,
-                            key = { index, _ -> index },
+                            key = { _, item -> item.collectionKey },
                         ) { index, item ->
                             CollectionContentCard(
                                 item = item,

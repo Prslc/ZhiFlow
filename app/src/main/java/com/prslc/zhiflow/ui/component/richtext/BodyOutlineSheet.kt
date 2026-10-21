@@ -125,7 +125,7 @@ fun BodyOutlineSheet(
                 state = listState,
                 modifier = Modifier.weight(1f, fill = false),
             ) {
-                itemsIndexed(entries()) { index, entry ->
+                itemsIndexed(entries(), key = { _, entry -> entry.index }) { index, entry ->
                     val isCurrent = index == current
                     val topLevel = entry.depth == 0
                     val indent = (ROW_INSET_DP + entry.depth * ROW_LEVEL_INDENT_DP).dp

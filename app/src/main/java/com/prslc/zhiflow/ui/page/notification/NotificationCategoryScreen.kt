@@ -165,7 +165,13 @@ fun NotificationCategoryScreen(
                 ) {
                     itemsIndexed(
                         items = items,
-                        key = { index, _ -> index },
+                        key = { _, item -> item.notificationKey },
+                        contentType = { _, item ->
+                            when (item) {
+                                is NotificationItemDto.Day -> "day"
+                                is NotificationItemDto.Entry -> "entry"
+                            }
+                        },
                     ) { index, item ->
                         when (item) {
                             is NotificationItemDto.Day -> DaySeparator(item)

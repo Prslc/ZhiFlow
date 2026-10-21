@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.CollectionItemDto
 import com.prslc.zhiflow.data.repository.CollectionRepository
 import kotlinx.coroutines.launch
@@ -46,7 +47,7 @@ class CollectionContentsViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        items = result.items,
+                        items = result.items.distinctBy { it.collectionKey },
                         isRefreshing = false,
                         loadMoreError = null,
                     )
@@ -68,7 +69,9 @@ class CollectionContentsViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        items = uiState.items + result.items,
+                        items = uiState.items.withPage(result.items, firstPage = false) {
+                            it.collectionKey
+                        },
                         isNextLoading = false,
                     )
                 }
@@ -78,3 +81,7 @@ class CollectionContentsViewModel(
         }
     }
 }
+
+/** The identity a collected row is drawn under: a content id is only unique within its own type. */
+internal val CollectionItemDto.collectionKey: String
+    get() = "${type}_$id"

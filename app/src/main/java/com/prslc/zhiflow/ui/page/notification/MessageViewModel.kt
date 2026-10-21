@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.MessageThreadDto
 import com.prslc.zhiflow.data.dto.NotificationCategoryDto
 import com.prslc.zhiflow.data.dto.UnreadSummaryDto
@@ -78,7 +79,9 @@ class MessageViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        threads = uiState.threads + result.threads,
+                        threads = uiState.threads.withPage(result.threads, firstPage = false) {
+                            it.threadKey
+                        },
                         isNextLoading = false,
                     )
                 }
@@ -136,7 +139,7 @@ class MessageViewModel(
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
                         categories = result.categories,
-                        threads = result.threads,
+                        threads = result.threads.distinctBy { it.threadKey },
                         unread = result.unread,
                         isRefreshing = false,
                         loadMoreError = null,
@@ -148,3 +151,12 @@ class MessageViewModel(
         }
     }
 }
+
+/**
+ * The identity a conversation row is drawn under.
+ *
+ * A card the server left without an id is named by when it arrived and where it points; nothing
+ * here assumes the server always sends one.
+ */
+internal val MessageThreadDto.threadKey: String
+    get() = id.ifBlank { "${createdTime}_$targetLink" }

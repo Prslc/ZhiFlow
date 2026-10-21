@@ -233,7 +233,7 @@ fun MessageScreen(
 
                         itemsIndexed(
                             items = threads,
-                            key = { index, _ -> index },
+                            key = { _, thread -> thread.threadKey },
                         ) { index, thread ->
                             val peerId = thread.peerId
                             ThreadRow(

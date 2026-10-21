@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.NotificationItemDto
 import com.prslc.zhiflow.data.repository.NotificationRepository
 import kotlinx.coroutines.launch
@@ -72,7 +73,9 @@ class NotificationCategoryViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        items = uiState.items + result.items,
+                        items = uiState.items.withPage(result.items, firstPage = false) {
+                            it.notificationKey
+                        },
                         isNextLoading = false,
                     )
                 }
@@ -122,7 +125,7 @@ class NotificationCategoryViewModel(
                 .onSuccess { result ->
                     nextPageUrl = result.nextPageUrl
                     uiState = uiState.copy(
-                        items = result.items,
+                        items = result.items.distinctBy { it.notificationKey },
                         isLoading = false,
                         loadMoreError = null,
                     )
@@ -133,3 +136,16 @@ class NotificationCategoryViewModel(
         }
     }
 }
+
+/**
+ * The identity a notification row is drawn under: a card by its own id, a day separator by the day
+ * it names. The server names each day once, and a row repeated by a page is one row.
+ *
+ * A card the server left without an id is named by when it arrived and where it points; nothing
+ * here assumes the server always sends one.
+ */
+internal val NotificationItemDto.notificationKey: String
+    get() = when (this) {
+        is NotificationItemDto.Day -> "day_$text"
+        is NotificationItemDto.Entry -> "entry_${id.ifBlank { "${createdTime}_$targetLink" }}"
+    }

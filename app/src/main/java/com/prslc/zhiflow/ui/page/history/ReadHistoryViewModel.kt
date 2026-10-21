@@ -9,21 +9,38 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prslc.zhiflow.core.exception.ApiException
 import com.prslc.zhiflow.core.exception.onApiFailure
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.ReadHistoryDto
 import com.prslc.zhiflow.data.repository.ReadHistoryRepository
 import kotlinx.coroutines.launch
 
 sealed interface HistoryListItem {
+    /** The identity this row is drawn under; a page's rows are unique by it. */
+    val key: String
+
     /** Question-level header displayed before its grouped answer items. */
     data class Header(
         val questionTitle: String,
         val questionToken: String,
         val icon: String?,
+        override val key: String,
     ) : HistoryListItem
 
     /** Individual read-history entry (answer to a question). */
-    data class Entry(val item: ReadHistoryDto, val isInGroup: Boolean = false) : HistoryListItem
+    data class Entry(
+        val item: ReadHistoryDto,
+        val isInGroup: Boolean = false,
+    ) : HistoryListItem {
+        override val key: String get() = "e_${item.identity}"
+    }
 }
+
+/**
+ * What names one history row: the content it points at, or — for a row that points at nothing,
+ * such as a profile — the moment it was read.
+ */
+private val ReadHistoryDto.identity: String
+    get() = contentToken?.takeIf { it.isNotBlank() } ?: "q_${questionToken.orEmpty()}-$readTime"
 
 class ReadHistoryViewModel(
     private val repository: ReadHistoryRepository,
@@ -58,7 +75,7 @@ class ReadHistoryViewModel(
                 .onSuccess { result ->
                     nextOffset = PAGE_SIZE
                     uiState = uiState.copy(
-                        items = buildDisplayList(result.items),
+                        items = buildDisplayList(result.items).distinctBy { it.key },
                         isRefreshing = false,
                         isEnd = result.isEnd,
                         loadMoreError = null,
@@ -79,7 +96,10 @@ class ReadHistoryViewModel(
                 .onSuccess { result ->
                     nextOffset += PAGE_SIZE
                     uiState = uiState.copy(
-                        items = uiState.items + buildDisplayList(result.items),
+                        items = uiState.items.withPage(
+                            buildDisplayList(result.items),
+                            firstPage = false,
+                        ) { it.key },
                         isNextLoading = false,
                         isEnd = result.isEnd,
                     )
@@ -128,6 +148,9 @@ class ReadHistoryViewModel(
                             questionTitle = segment.first().questionTitle,
                             questionToken = key,
                             icon = segment.first().contentTypeIcon,
+                            // Two stretches of the same question are two headers, so the question
+                            // alone cannot name one: the entry the stretch opens with does.
+                            key = "h_${segment.first().identity}",
                         ),
                     )
                 }

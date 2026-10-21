@@ -142,7 +142,7 @@ fun ReadHistoryScreen(
                 ) {
                     itemsIndexed(
                         items = items,
-                        key = { index, _ -> index },
+                        key = { _, item -> item.key },
                     ) { idx, item ->
                         when (item) {
                             is HistoryListItem.Header -> {
@@ -431,6 +431,7 @@ private fun HistoryHeaderPreview() {
                 questionTitle = "How does a parser turn segments into elements?",
                 questionToken = "19550972",
                 icon = null,
+                key = "h_sample",
             ),
             onClick = {},
         )

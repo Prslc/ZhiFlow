@@ -238,7 +238,11 @@ private fun Results(
             state = listState,
             modifier = Modifier.fillMaxSize(),
         ) {
-            items(uiState.items) { item ->
+            items(
+                items = uiState.items,
+                key = { it.searchKey },
+                contentType = { it.searchContentType },
+            ) { item ->
                 when (item) {
                     is SearchItemDto.Content -> SearchResultCard(item, onItemClick)
                     is SearchItemDto.RelatedQueries -> RelatedQueriesRow(item, onPhraseClick)
@@ -271,7 +275,7 @@ private fun PhraseList(
     onClick: (String) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(phrases) { phrase ->
+        items(phrases, key = { it }) { phrase ->
             PhraseRow(
                 icon = if (phrase in hotPhrases) {
                     Icons.Filled.LocalFireDepartment
@@ -294,7 +298,7 @@ private fun HistoryList(
     onClear: () -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(phrases) { phrase ->
+        items(phrases, key = { it }) { phrase ->
             PhraseRow(
                 icon = Icons.Filled.History,
                 phrase = phrase,

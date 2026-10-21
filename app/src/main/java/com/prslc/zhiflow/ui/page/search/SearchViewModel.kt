@@ -12,6 +12,7 @@ import com.prslc.zhiflow.core.exception.ignoreOutcome
 import com.prslc.zhiflow.core.exception.onApiFailure
 import com.prslc.zhiflow.core.preference.SearchHistoryStore
 import com.prslc.zhiflow.core.preference.SettingsStore
+import com.prslc.zhiflow.core.utils.compose.withPage
 import com.prslc.zhiflow.data.dto.HotQueryDto
 import com.prslc.zhiflow.data.dto.SearchItemDto
 import com.prslc.zhiflow.data.dto.SuggestedQueryDto
@@ -134,7 +135,10 @@ class SearchViewModel(
 
             repository.search(phrase, tab.value)
                 .onSuccess { result ->
-                    uiState = SearchUiState(items = result.items, isEnd = result.isEnd)
+                    uiState = SearchUiState(
+                        items = result.items.distinctBy { it.searchKey },
+                        isEnd = result.isEnd,
+                    )
                     nextPageUrl = result.nextPageUrl
                 }
                 .onApiFailure { error ->
@@ -154,7 +158,9 @@ class SearchViewModel(
             repository.search(submittedQuery, nextUrl = url)
                 .onSuccess { result ->
                     uiState = uiState.copy(
-                        items = uiState.items + result.items,
+                        items = uiState.items.withPage(result.items, firstPage = false) {
+                            it.searchKey
+                        },
                         isNextLoading = false,
                         isEnd = result.isEnd,
                     )
@@ -225,3 +231,22 @@ class SearchViewModel(
         uiState = SearchUiState()
     }
 }
+
+/**
+ * The identity a result row is drawn under.
+ *
+ * A card is named by its content. A related-query row has no id of its own, so the phrases it
+ * offers are what name it: two rows carrying the same phrases are the same row.
+ */
+internal val SearchItemDto.searchKey: String
+    get() = when (this) {
+        is SearchItemDto.Content -> "${type}_$id"
+        is SearchItemDto.RelatedQueries -> "related_${queries.joinToString("|")}"
+    }
+
+/** The row's shape, which is what decides whether the list may reuse a slot for it. */
+internal val SearchItemDto.searchContentType: String
+    get() = when (this) {
+        is SearchItemDto.Content -> "content"
+        is SearchItemDto.RelatedQueries -> "related"
+    }
