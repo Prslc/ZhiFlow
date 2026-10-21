@@ -43,7 +43,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -98,7 +101,12 @@ class MainActivity : ComponentActivity(), KoinComponent {
 
             ZhiFlowTheme(darkTheme = darkTheme) {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    // What puts every testTag below into the accessibility tree as a resource id,
+                    // which is the only form UiAutomator -- and so the baseline profile generator --
+                    // can match on.
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics { testTagsAsResourceId = true },
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     val context = LocalContext.current
@@ -190,6 +198,12 @@ class MainActivity : ComponentActivity(), KoinComponent {
 /** The bottom bar's height, and so how far it travels when it goes. */
 private val BottomBarHeight = 80.dp
 
+private val TabTags = mapOf<Any, String>(
+    HomeTab to "tab_home",
+    MessageTab to "tab_message",
+    ProfileTab to "tab_profile",
+)
+
 /**
  * What the message tab is badged with.
  *
@@ -256,6 +270,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             tabs.forEachIndexed { index, tab ->
                 NavigationBarItem(
+                    modifier = Modifier.testTag(TabTags.getValue(tab)),
                     selected = pagerState.currentPage == index,
                     onClick = {
                         when {

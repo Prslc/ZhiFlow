@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.prslc.zhiflow.R
@@ -60,6 +61,8 @@ private val SearchBarInset = 12.dp
 
 /** The search field's height, and so the distance over which scrolling it away takes. */
 private val SearchBarHeight = SearchBarInset + SearchEntryHeight
+
+private const val FEED_LIST_TAG = "feed_list"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -137,7 +140,9 @@ fun FeedScreen(
             ) {
                 LazyColumn(
                     state = viewModel.listState,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(FEED_LIST_TAG),
                     contentPadding = PaddingValues(bottom = 16.dp),
                 ) {
                     itemsIndexed(
