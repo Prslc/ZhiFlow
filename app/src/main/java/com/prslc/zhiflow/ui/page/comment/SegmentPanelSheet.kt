@@ -75,37 +75,40 @@ private const val PANEL_HEIGHT_FRACTION = 0.77f
  *
  * @param onToggleLike Takes the range's key, so the like state stays with the screen that owns the
  *   body rather than with the panel.
- * @param navigateToUser A url token the reader asked for, which the panel cannot open itself.
+ * @param comments The passage's comment state, as a producer: it is read here rather than by the
+ *   caller, which would otherwise recompose the page around the sheet on every change.
+ * @param childComments The reply pane's state, read here for the same reason.
+ * @param commentState The comment box's state, which this panel shares with the content's own
+ *   sheet: one surface is up at a time, and the words survive a switch between them.
+ * @param canComment Whether the reader may write here at all; see the content's own sheet.
  * @param actionError Failures of either the passage like or a comment like; the sheet carries the
  *   only host that is visible while it is up.
- * @param draft What is in the box, which the content's own sheet shares: one surface is up at a
- *   time, and the words survive a switch between them.
- * @param isSubmitting Whether a comment is on its way.
- * @param isComposerOpen Whether the box is up, which is only once the reader has asked to write.
- * @param canComment Whether the reader may write here at all; see the content's own sheet.
  */
 @Composable
 fun SegmentPanelSheet(
     id: String,
     contentType: ContentType,
     target: SegmentLikeTarget?,
-    comments: CommentViewModel.SegmentUiState,
-    childComments: CommentViewModel.ChildCommentUiState,
-    draft: String,
-    isSubmitting: Boolean,
-    isComposerOpen: Boolean,
-    canComment: Boolean,
+    comments: () -> CommentViewModel.SegmentUiState,
+    childComments: () -> CommentViewModel.ChildCommentUiState,
+    commentState: () -> CommentViewModel.CommentUiState,
+    canComment: () -> Boolean,
+    actionError: () -> ApiException?,
     onToggleLike: (String) -> Unit,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    navigateToUser: String? = null,
     onNavigated: () -> Unit = {},
-    actionError: ApiException? = null,
     onErrorConsumed: () -> Unit = {},
     onEvent: (CommentUiEvent) -> Unit = {},
 ) {
+    val state = commentState()
+    val segmentState = comments()
+    val childState = childComments()
+    val canCommentNow = canComment()
+    val actionErrorNow = actionError()
+
     var held by remember { mutableStateOf(target) }
     if (target != null) held = target
 
@@ -118,8 +121,8 @@ fun SegmentPanelSheet(
     // The gate is what keeps this to one page: the other sheet's author taps land here as well, and
     // without it both sheets would open the reader and the one behind would be wiped on the way.
     // The panel stays up under the reader, as the content's own sheet does.
-    LaunchedEffect(navigateToUser) {
-        val token = navigateToUser ?: return@LaunchedEffect
+    LaunchedEffect(state.navigateToUser) {
+        val token = state.navigateToUser ?: return@LaunchedEffect
         if (target == null) return@LaunchedEffect
 
         navigator.navigateToPeople(token)
@@ -133,7 +136,7 @@ fun SegmentPanelSheet(
             heightFraction = PANEL_HEIGHT_FRACTION,
         ) {
             CommentPaneTransition(
-                isDetail = childComments.isDetailMode,
+                isDetail = childState.isDetailMode,
                 backEnabled = target != null,
                 onBackToMain = { onEvent(CommentUiEvent.BackToMain) },
                 main = {
@@ -160,7 +163,7 @@ fun SegmentPanelSheet(
                             SegmentActionRow(
                                 likeCount = range.likeCount,
                                 isLiked = range.isLiked,
-                                commentCount = comments.totalCount,
+                                commentCount = segmentState.totalCount,
                                 onCopy = { copyText(range.passageText) },
                                 onLike = { onToggleLike(range.key) },
                                 onComments = { scope.launch { listState.animateScrollToItem(0) } },
@@ -176,19 +179,19 @@ fun SegmentPanelSheet(
                             CommentList(
                                 modifier = Modifier.fillMaxSize(),
                                 onEvent = onEvent,
-                                comments = comments.comments,
-                                isLoading = comments.isLoading,
-                                hasMore = comments.hasMore,
+                                comments = segmentState.comments,
+                                isLoading = segmentState.isLoading,
+                                hasMore = segmentState.hasMore,
                                 onLoadMore = onLoadMore,
                                 state = listState,
-                                error = comments.error,
+                                error = segmentState.error,
                                 onRetry = onRetry,
                             )
 
                             // The way into a comment on the passage itself; see the content's own
                             // sheet.
                             CommentComposeFab(
-                                visible = canComment && held != null && !isComposerOpen,
+                                visible = canCommentNow && held != null && !state.isComposerOpen,
                                 listState = listState,
                                 onClick = { onEvent(CommentUiEvent.OpenComposer) },
                                 modifier = Modifier
@@ -199,20 +202,20 @@ fun SegmentPanelSheet(
 
                         // The reader has just commented on the passage: what they wrote went to the
                         // top of this list, and a list left where it was would not show it.
-                        LaunchedEffect(comments.lastPostedId) {
-                            if (comments.lastPostedId != null) listState.animateScrollToItem(0)
+                        LaunchedEffect(segmentState.lastPostedId) {
+                            if (segmentState.lastPostedId != null) listState.animateScrollToItem(0)
                         }
 
                         // The passage is what the comment is filed under, so a box here wants the
                         // range the panel is holding.
                         held?.let { range ->
-                            if (isComposerOpen) {
+                            if (state.isComposerOpen) {
                                 CommentComposer(
-                                    draft = draft,
-                                    isSubmitting = isSubmitting,
+                                    draft = state.draft,
+                                    isSubmitting = state.isSubmitting,
                                     // Answering one of the comments above, where one was tapped;
                                     // the passage is what the answer is filed under either way.
-                                    replyToName = childComments.replyTarget?.author?.name,
+                                    replyToName = childState.replyTarget?.author?.name,
                                     onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                     onSend = {
                                         onEvent(
@@ -235,7 +238,7 @@ fun SegmentPanelSheet(
                             .fillMaxSize()
                             .imePadding(),
                     ) {
-                        val currentRootId = childComments.rootComment?.comment?.id
+                        val currentRootId = childState.rootComment?.comment?.id
                         val onLoadMoreReplies = remember {
                             { onEvent(CommentUiEvent.LoadMoreReplies) }
                         }
@@ -254,32 +257,32 @@ fun SegmentPanelSheet(
                         CommentList(
                             modifier = Modifier.weight(1f),
                             onEvent = onEvent,
-                            comments = childComments.comments,
-                            isLoading = childComments.isLoading,
-                            hasMore = childComments.hasMore,
-                            rootComment = childComments.rootComment,
+                            comments = childState.comments,
+                            isLoading = childState.isLoading,
+                            hasMore = childState.hasMore,
+                            rootComment = childState.rootComment,
                             onLoadMore = onLoadMoreReplies,
                             state = childListState,
                             isChild = true,
-                            error = childComments.error,
+                            error = childState.error,
                             onRetry = onLoadMoreReplies,
                         )
 
                         // The reply goes on the end of this list; see the content's own sheet.
-                        LaunchedEffect(childComments.lastPostedId) {
-                            if (childComments.lastPostedId != null) {
-                                childListState.animateScrollToItem(childComments.comments.size)
+                        LaunchedEffect(childState.lastPostedId) {
+                            if (childState.lastPostedId != null) {
+                                childListState.animateScrollToItem(childState.comments.size)
                             }
                         }
 
                         // A reply is filed under the same passage as the comment it answers, so the
                         // box wants the range this panel is holding.
-                        val replyTarget = childComments.replyTarget
+                        val replyTarget = childState.replyTarget
                         held?.let { range ->
-                            if (isComposerOpen && replyTarget != null) {
+                            if (state.isComposerOpen && replyTarget != null) {
                                 CommentComposer(
-                                    draft = draft,
-                                    isSubmitting = isSubmitting,
+                                    draft = state.draft,
+                                    isSubmitting = state.isSubmitting,
                                     replyToName = replyTarget.author.name,
                                     onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                     onSend = {
@@ -299,7 +302,7 @@ fun SegmentPanelSheet(
                 },
             )
 
-            val snackbarHostState = rememberActionErrorHost(actionError, onErrorConsumed)
+            val snackbarHostState = rememberActionErrorHost(actionErrorNow, onErrorConsumed)
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier.align(Alignment.BottomCenter),

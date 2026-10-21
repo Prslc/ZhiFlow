@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
@@ -91,19 +92,15 @@ fun ContentDetailScreen(
     viewModel: ContentViewModel = koinViewModel(),
     commentViewModel: CommentViewModel = koinViewModel(),
 ) {
-    val uiState = commentViewModel.uiState
-    val childUiState = commentViewModel.childUiState
-
     val navigator = LocalNavigator.current
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
-    val bodyState by rememberContentBodyState { viewModel.richTextElements }
+    // The list is held here, but the body state built on it is not read here: a read would
+    // recompose this page once per parse chunk, which is what the two providers below avoid.
+    val listState = rememberLazyListState()
+    val bodyState = rememberContentBodyState(listState) { viewModel.richTextElements }
     val presentation = viewModel.presentation
     val currentContent = loadingState.content
-    val commentState = commentViewModel.uiState
-
-    // What the content and the comment section say between them about writing here.
-    val canComment = commentState.canCommentOn(currentContent)
 
     val snackbarHostState = rememberActionErrorHost(
         viewModel.actionError,
@@ -180,9 +177,9 @@ fun ContentDetailScreen(
 
     // The bar carries the page's title only once the body's own copy has been read past: there is
     // one title on the screen at a time, and the bar is not an empty row once the page is read.
-    val headerReadPast by remember(bodyState.listState) {
+    val headerReadPast by remember(listState) {
         derivedStateOf {
-            (bodyState.listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0) > 0
+            (listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0) > 0
         }
     }
 
@@ -226,7 +223,7 @@ fun ContentDetailScreen(
                                 onTitleClick = openQuestion,
                                 scrollBehavior = scrollBehavior,
                                 onBack = onBack,
-                                showOutlineAction = bodyState.outline.size >= 2,
+                                showOutlineAction = bodyState.value.outline.size >= 2,
                                 onOutlineClick = { showOutline = true },
                             )
                         }
@@ -273,8 +270,8 @@ fun ContentDetailScreen(
                                 ) {
                                     ContentBodyList(
                                         content = answer,
-                                        elements = viewModel.richTextElements,
-                                        state = bodyState,
+                                        elements = { viewModel.richTextElements },
+                                        state = { bodyState.value },
                                         navigator = navigator,
                                         header = {
                                             ContentDetailHeader(
@@ -314,10 +311,12 @@ fun ContentDetailScreen(
             CommentBottomSheet(
                 id = id,
                 contentType = contentType,
-                uiState = uiState,
-                childUiState = childUiState,
+                // Providers, not values: a value read here would recompose this whole page once
+                // per keystroke, along with the sheet that draws the draft.
+                uiState = { commentViewModel.uiState },
+                childUiState = { commentViewModel.childUiState },
                 showComments = presentation.showComments,
-                canComment = canComment,
+                canComment = { commentViewModel.uiState.canCommentOn(currentContent) },
                 // Hides the sheet only: the sheet clears the comment state itself once it is gone.
                 onDismissRequest = { viewModel.dismissComments() },
                 onEvent = { event ->
@@ -346,15 +345,12 @@ fun ContentDetailScreen(
                 id = id,
                 contentType = contentType,
                 target = segmentTarget,
-                comments = commentViewModel.segmentUiState,
-                childComments = commentViewModel.childUiState,
-                draft = commentViewModel.uiState.draft,
-                isSubmitting = commentViewModel.uiState.isSubmitting,
-                isComposerOpen = commentViewModel.uiState.isComposerOpen,
-                canComment = canComment,
-                navigateToUser = commentViewModel.uiState.navigateToUser,
+                comments = { commentViewModel.segmentUiState },
+                childComments = { commentViewModel.childUiState },
+                commentState = { commentViewModel.uiState },
+                canComment = { commentViewModel.uiState.canCommentOn(currentContent) },
                 onNavigated = commentViewModel::onNavigated,
-                actionError = viewModel.actionError ?: commentViewModel.uiState.actionError,
+                actionError = { viewModel.actionError ?: commentViewModel.uiState.actionError },
                 onErrorConsumed = {
                     viewModel.consumeActionError()
                     commentViewModel.consumeActionError()
@@ -414,11 +410,11 @@ fun ContentDetailScreen(
 
             BodyOutlineSheet(
                 visible = showOutline,
-                entries = { bodyState.outline },
-                currentIndex = { bodyState.currentOutlineIndex },
+                entries = { bodyState.value.outline },
+                currentIndex = { bodyState.value.currentOutlineIndex },
                 onEntryClick = { entry ->
                     showOutline = false
-                    scope.launch { bodyState.scrollTo(entry) }
+                    scope.launch { bodyState.value.scrollTo(entry) }
                 },
                 onDismissRequest = { showOutline = false },
             )

@@ -40,6 +40,9 @@ import com.prslc.zhiflow.ui.preview.PreviewSurface
  * The box is not furniture of the sheet: it is up only where the reader asked for it, and the way
  * in to a comment of their own is a FAB over the list.
  *
+ * @param uiState The section's state, as a producer: the reader's draft changes on every keystroke,
+ *   and a value the caller read would recompose the page around the sheet with it.
+ * @param childUiState The reply pane's state, read here for the same reason.
  * @param showComments Whether the sheet is up; a back belongs to the surface only while it is up
  *   and staying, so the root list keeps the sheet's own dismissal gesture.
  * @param canComment Whether the reader may write here at all, which the content's own payload and
@@ -49,14 +52,18 @@ import com.prslc.zhiflow.ui.preview.PreviewSurface
 fun CommentBottomSheet(
     id: String,
     contentType: ContentType,
-    uiState: CommentViewModel.CommentUiState,
-    childUiState: CommentViewModel.ChildCommentUiState,
+    uiState: () -> CommentViewModel.CommentUiState,
+    childUiState: () -> CommentViewModel.ChildCommentUiState,
     showComments: Boolean,
-    canComment: Boolean,
+    canComment: () -> Boolean,
     onEvent: (CommentUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
 ) {
+    val state = uiState()
+    val childState = childUiState()
+    val canCommentNow = canComment()
+
     val navigator = LocalNavigator.current
     val rootListState = rememberLazyListState()
     val childListState = rememberLazyListState()
@@ -64,8 +71,8 @@ fun CommentBottomSheet(
     // The reader opens over the sheet, which stays up underneath and is still there on the way
     // back. A token that arrives with this sheet down belongs to the passage panel, which opens it
     // itself; two sheets navigating would push the reader twice.
-    LaunchedEffect(uiState.navigateToUser) {
-        val token = uiState.navigateToUser ?: return@LaunchedEffect
+    LaunchedEffect(state.navigateToUser) {
+        val token = state.navigateToUser ?: return@LaunchedEffect
         if (!showComments) return@LaunchedEffect
         navigator.navigateToPeople(token)
         onEvent(CommentUiEvent.NavigatedToUser(token))
@@ -82,7 +89,7 @@ fun CommentBottomSheet(
             },
         ) {
             CommentPaneTransition(
-                isDetail = childUiState.isDetailMode,
+                isDetail = childState.isDetailMode,
                 backEnabled = showComments,
                 onBackToMain = { onEvent(CommentUiEvent.BackToMain) },
                 main = {
@@ -92,7 +99,7 @@ fun CommentBottomSheet(
                             .imePadding(),
                     ) {
                         CommentHeader(
-                            title = stringResource(R.string.comment_count, uiState.totalCount),
+                            title = stringResource(R.string.comment_count, state.totalCount),
                             onClose = onDismissRequest,
                         )
                         val onLoadMoreRoot = remember(id, contentType) {
@@ -102,19 +109,19 @@ fun CommentBottomSheet(
                             CommentList(
                                 modifier = Modifier.fillMaxSize(),
                                 onEvent = onEvent,
-                                comments = uiState.comments,
-                                isLoading = uiState.isLoading,
-                                hasMore = uiState.hasMore,
+                                comments = state.comments,
+                                isLoading = state.isLoading,
+                                hasMore = state.hasMore,
                                 onLoadMore = onLoadMoreRoot,
                                 state = rootListState,
-                                error = uiState.error,
+                                error = state.error,
                                 onRetry = onLoadMoreRoot,
                             )
 
                             // The way into a comment on the content itself. It is not a box: the
                             // box is asked for, so what floats here is only the asking.
                             CommentComposeFab(
-                                visible = canComment && !uiState.isComposerOpen,
+                                visible = canCommentNow && !state.isComposerOpen,
                                 listState = rootListState,
                                 onClick = { onEvent(CommentUiEvent.OpenComposer) },
                                 modifier = Modifier
@@ -125,17 +132,17 @@ fun CommentBottomSheet(
 
                         // The reader has just commented: what they wrote was put at the top of this
                         // list, and a list left where it was would not show it.
-                        LaunchedEffect(uiState.lastPostedId) {
-                            if (uiState.lastPostedId != null) rootListState.animateScrollToItem(0)
+                        LaunchedEffect(state.lastPostedId) {
+                            if (state.lastPostedId != null) rootListState.animateScrollToItem(0)
                         }
 
-                        if (uiState.isComposerOpen) {
+                        if (state.isComposerOpen) {
                             CommentComposer(
-                                draft = uiState.draft,
-                                isSubmitting = uiState.isSubmitting,
+                                draft = state.draft,
+                                isSubmitting = state.isSubmitting,
                                 // Answering one of the comments above, where one of them was tapped;
                                 // otherwise a comment on the content itself.
-                                replyToName = childUiState.replyTarget?.author?.name,
+                                replyToName = childState.replyTarget?.author?.name,
                                 onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                 onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
                                 onClose = { onEvent(CommentUiEvent.CloseComposer) },
@@ -149,7 +156,7 @@ fun CommentBottomSheet(
                             .fillMaxSize()
                             .imePadding(),
                     ) {
-                        val rootComment = childUiState.rootComment
+                        val rootComment = childState.rootComment
                         val currentRootId = rootComment?.comment?.id
                         val onLoadMoreChild = remember { { onEvent(CommentUiEvent.LoadMoreReplies) } }
 
@@ -167,33 +174,33 @@ fun CommentBottomSheet(
                         CommentList(
                             modifier = Modifier.weight(1f),
                             onEvent = onEvent,
-                            comments = childUiState.comments,
-                            isLoading = childUiState.isLoading,
-                            hasMore = childUiState.hasMore,
-                            rootComment = childUiState.rootComment,
+                            comments = childState.comments,
+                            isLoading = childState.isLoading,
+                            hasMore = childState.hasMore,
+                            rootComment = childState.rootComment,
                             onLoadMore = onLoadMoreChild,
                             state = childListState,
                             isChild = true,
-                            error = childUiState.error,
+                            error = childState.error,
                             onRetry = onLoadMoreChild,
                         )
 
                         // The reply goes on the end of this list, which is where a new one belongs
                         // and usually where the reader is not. The pane draws the comment being
                         // answered first, so the replies start at one and the last is the size.
-                        LaunchedEffect(childUiState.lastPostedId) {
-                            if (childUiState.lastPostedId != null) {
-                                childListState.animateScrollToItem(childUiState.comments.size)
+                        LaunchedEffect(childState.lastPostedId) {
+                            if (childState.lastPostedId != null) {
+                                childListState.animateScrollToItem(childState.comments.size)
                             }
                         }
 
                         // The box is up only where something in the pane was tapped to answer it,
                         // and it says whom in its hint.
-                        val replyTarget = childUiState.replyTarget
-                        if (uiState.isComposerOpen && replyTarget != null) {
+                        val replyTarget = childState.replyTarget
+                        if (state.isComposerOpen && replyTarget != null) {
                             CommentComposer(
-                                draft = uiState.draft,
-                                isSubmitting = uiState.isSubmitting,
+                                draft = state.draft,
+                                isSubmitting = state.isSubmitting,
                                 replyToName = replyTarget.author.name,
                                 onDraftChange = { onEvent(CommentUiEvent.DraftChanged(it)) },
                                 onSend = { onEvent(CommentUiEvent.SubmitComment(id, contentType)) },
@@ -205,7 +212,7 @@ fun CommentBottomSheet(
             )
 
             // The host lives inside the sheet: a sibling would be drawn underneath it (zIndex 100).
-            val snackbarHostState = rememberActionErrorHost(uiState.actionError) {
+            val snackbarHostState = rememberActionErrorHost(state.actionError) {
                 onEvent(CommentUiEvent.ActionErrorShown)
             }
             SnackbarHost(

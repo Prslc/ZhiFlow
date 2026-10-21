@@ -120,13 +120,17 @@ class ContentBodyState internal constructor(
  * the chunk cannot change. Behind [derivedStateOf] the read belongs to whoever asks for the state,
  * which is the list and the two places that draw from it.
  *
+ * @param listState The list's scroll position, which is the same one the state below carries; it is
+ *   a parameter so a screen can read the position without reading the body with it.
  * @param elements The parsed body, read when the state is asked for. The outline and the end are
  *   both derived from it, so a list that is still arriving gives an outline that is still arriving
  *   -- which is why the caller hands over the body it has rather than waiting for the whole of it.
  */
 @Composable
-fun rememberContentBodyState(elements: () -> List<RichTextElement>): State<ContentBodyState> {
-    val listState = rememberLazyListState()
+fun rememberContentBodyState(
+    listState: LazyListState = rememberLazyListState(),
+    elements: () -> List<RichTextElement>,
+): State<ContentBodyState> {
     val latestElements = rememberUpdatedState(elements)
     return remember(listState) {
         derivedStateOf {
@@ -206,9 +210,13 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
  * whole visible list once per chunk while the body is still arriving.
  *
  * @param content The content being read: its author, what it says, and when it was published.
- * @param elements The parsed body, in order. The pictures the lightbox can open -- its images and
- *   its block formulas -- are taken from it.
- * @param state The list's scroll position, where its text ends, and its outline.
+ * @param elements The parsed body, in order. A producer rather than a value: the body arrives a
+ *   chunk at a time, and a caller that read it would recompose the page around the list once per
+ *   chunk. The pictures the lightbox can open -- its images and its block formulas -- are taken
+ *   from it.
+ * @param state The list's scroll position, where its text ends, and its outline. A producer, for
+ *   the same reason as [elements]: a caller that read it would recompose the page around the list
+ *   once per chunk.
  * @param navigator What the body's own taps go through: links, cards, and the author's row.
  * @param topPadding A producer rather than a value: it is read while measuring, so a frame in
  *   which the bar above has just changed height places the list against that height rather than
@@ -231,8 +239,8 @@ private fun stampText(stamp: ContentStamp): String = when (stamp) {
 @Composable
 fun ContentBodyList(
     content: ZhihuContent,
-    elements: List<RichTextElement>,
-    state: ContentBodyState,
+    elements: () -> List<RichTextElement>,
+    state: () -> ContentBodyState,
     navigator: Navigator,
     topPadding: () -> Dp,
     bodyComplete: Boolean,
@@ -247,22 +255,26 @@ fun ContentBodyList(
     val lightbox = koinInject<ImageLightboxController>()
     val latestElements = rememberUpdatedState(elements)
     val onImageClick: (ZhihuImage) -> Unit = remember(latestElements, lightbox) {
-        { tapped -> lightbox.open(bodyPages(latestElements.value), tapped) }
+        { tapped -> lightbox.open(bodyPages(latestElements.value()), tapped) }
     }
     val onFormulaClick: (Formula) -> Unit = remember(latestElements, lightbox) {
-        { tapped -> lightbox.open(bodyPages(latestElements.value), tapped) }
+        { tapped -> lightbox.open(bodyPages(latestElements.value()), tapped) }
     }
 
+    // Read here rather than by the caller, so a chunk that arrives recomposes this list alone.
+    val body = elements()
+    val bodyState = state()
+
     ReadingProgressEffect(
-        state = state.listState,
-        bodyEnd = state.bodyEnd,
+        state = bodyState.listState,
+        bodyEnd = bodyState.bodyEnd,
         bodyComplete = bodyComplete,
         onProgress = onProgress,
     )
 
     SelectionContainer(modifier = modifier) {
         LazyColumn(
-            state = state.listState,
+            state = bodyState.listState,
             modifier = Modifier
                 .fillMaxSize()
                 .topPadding(topPadding)
@@ -285,7 +297,7 @@ fun ContentBodyList(
             }
 
             itemsIndexed(
-                items = elements,
+                items = body,
                 key = { index, element ->
                     when (element) {
                         is RichTextElement.Divider -> "divider_$index"
