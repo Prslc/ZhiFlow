@@ -94,7 +94,7 @@ internal fun ZhihuSearchResponse.toPeople(): List<PersonDto> = data.mapNotNull {
 
 private fun ZhihuSearchContent.toPerson(): PersonDto = PersonDto(
     id = id,
-    urlToken = urlToken,
+    profileToken = urlToken.ifBlank { id },
     name = htmlToPlainText(name),
     headline = htmlToPlainText(headline),
     avatarUrl = avatarUrl.takeIf { it.isNotBlank() },

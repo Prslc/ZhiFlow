@@ -35,7 +35,13 @@ data class AnswerAuthor(
     val avatar: AvatarContainer? = null,
     @SerialName("follow_status")
     val followStatus: String = "",
-)
+) {
+    /**
+     * The identifier a profile page is addressed by: the url token a link names the account by, or
+     * its hash when it has none.
+     */
+    val profileToken: String get() = urlToken.ifBlank { id }
+}
 
 @Immutable
 @Serializable

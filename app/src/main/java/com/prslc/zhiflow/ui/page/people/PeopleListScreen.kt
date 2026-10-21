@@ -128,12 +128,7 @@ fun PeopleListScreen(
                         items(people, key = { it.id }) { person ->
                             PersonRow(
                                 person = person,
-                                onClick = {
-                                    // The page reads a profile by its url token, which is what a
-                                    // link names it by; an account without one is still addressed
-                                    // by its hash.
-                                    navigator.navigateToPeople(person.urlToken.ifBlank { person.id })
-                                },
+                                onClick = { navigator.navigateToPeople(person.profileToken) },
                             )
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 76.dp, end = 16.dp),

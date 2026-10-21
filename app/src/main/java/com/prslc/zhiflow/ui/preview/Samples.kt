@@ -135,7 +135,7 @@ val sampleAnswer = AnswerDto(
 
 val samplePerson = PersonDto(
     id = "8f2a1b3c4d5e6f70",
-    urlToken = "ada-lovelace",
+    profileToken = "ada-lovelace",
     name = "Ada Lovelace",
     headline = "Writes about parsers and the machines that read them",
     avatarUrl = AVATAR_URL,
@@ -144,7 +144,7 @@ val samplePerson = PersonDto(
 
 val sampleFollowedPerson = PersonDto(
     id = "1a2b3c4d5e6f7081",
-    urlToken = "grace-hopper",
+    profileToken = "grace-hopper",
     name = "Grace Hopper",
     headline = "Compilers, and why the tape does not care how you indent",
     avatarUrl = AVATAR_URL,

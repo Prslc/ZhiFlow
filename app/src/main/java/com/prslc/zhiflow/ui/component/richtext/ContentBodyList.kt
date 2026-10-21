@@ -446,7 +446,7 @@ private fun AuthorSection(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .clickable { navigator.navigateToPeople(author.urlToken) },
+                .clickable { navigator.navigateToPeople(author.profileToken) },
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {

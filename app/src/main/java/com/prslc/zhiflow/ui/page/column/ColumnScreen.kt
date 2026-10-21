@@ -171,9 +171,7 @@ fun ColumnScreen(
                                 column = column,
                                 onFollowClick = viewModel::toggleFollow,
                                 onAuthorClick = {
-                                    navigator.navigateToPeople(
-                                        column.author.urlToken.ifBlank { column.author.id },
-                                    )
+                                    navigator.navigateToPeople(column.author.profileToken)
                                 },
                                 onAuthorFollowClick = viewModel::toggleAuthorFollow,
                             )
