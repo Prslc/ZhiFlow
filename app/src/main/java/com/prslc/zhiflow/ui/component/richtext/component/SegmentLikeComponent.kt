@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.component.richtext.component
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,7 @@ private val ICON_LEADING_DP = 2.dp
  * A composition local rather than a parameter: a paragraph draws itself deep inside the body, and
  * one place hands the reader's choice to both of the hosts that draw ranges.
  */
+@SuppressLint("ComposeCompositionLocalUsage")
 val LocalSegmentComments = compositionLocalOf { true }
 
 /**

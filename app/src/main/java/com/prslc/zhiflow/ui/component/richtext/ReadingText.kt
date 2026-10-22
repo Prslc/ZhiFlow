@@ -1,5 +1,6 @@
 package com.prslc.zhiflow.ui.component.richtext
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.text.TextStyle
@@ -40,4 +41,5 @@ data class ReadingText(
 }
 
 /** The reading settings in force where prose is drawn; the defaults change nothing. */
+@SuppressLint("ComposeCompositionLocalUsage")
 val LocalReadingText = compositionLocalOf { ReadingText() }
