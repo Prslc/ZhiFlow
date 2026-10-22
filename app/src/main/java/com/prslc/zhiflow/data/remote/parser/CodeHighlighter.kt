@@ -56,9 +56,8 @@ object CodeHighlighter {
         if (code.isEmpty()) return emptyList()
         val syntax = LANGUAGES[language?.trim()?.lowercase()] ?: return emptyList()
 
-        // A fresh instance per block, against the library's advice to keep one around: it holds the
-        // analyzed code in mutable state, so a shared one would answer with whatever block another
-        // page's parse had set a moment earlier.
+        // A fresh instance per block, against the library's advice: it holds the analyzed code in
+        // mutable state, so a shared one would answer with another block's parse.
         val structure = try {
             Highlights.Builder().code(code).language(syntax).build().getCodeStructure()
         } catch (e: Exception) {

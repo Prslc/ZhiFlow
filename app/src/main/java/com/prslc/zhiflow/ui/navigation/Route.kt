@@ -16,13 +16,9 @@ private object NavKeyFieldSerializer : NavKeySerializer<NavKey>()
 /**
  * One visit to a route.
  *
- * A route is not unique: the same question can sit in the stack twice — read it, open one of its
- * answers, then tap that answer's title to come back to it. Navigation names an entry's state (what
- * `rememberSaveable` holds, and which ViewModel it is handed) by a key, so two visits to one route
- * have to be told apart or they would share both.
- *
- * [id] is handed out as a visit is pushed and rides in the saved stack, which is what keeps the two
- * apart across process death as well.
+ * A route is not unique -- the same question can sit in the stack twice -- and navigation names an
+ * entry's saved state and ViewModel by a key, so [id] is what tells two visits apart. It rides in
+ * the saved stack, so they stay apart across process death as well.
  *
  * @param id What tells this visit from another to the same [route].
  * @param route Where the visit goes.

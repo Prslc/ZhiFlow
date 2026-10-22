@@ -229,9 +229,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
         if (!isNewOrRefresh && (segmentUiState.isLoading || !segmentUiState.hasMore)) return
 
         if (isNewOrRefresh) {
-            // A passage the reader has moved on from must not be answered into the one they are
-            // looking at now: both write the same state, so whichever finished last would be what
-            // they read -- another passage's comments, and its count beside them.
+            // A passage the reader has moved on from must not write into the current one: both
+            // write the same state, so the last to finish would be what they read.
             segmentJob?.cancel()
             lastSegmentId = segmentId
             segmentUiState = SegmentUiState(isLoading = true)
@@ -297,9 +296,8 @@ class CommentViewModel(private val repository: CommentRepository) : ViewModel() 
     }
 
     fun loadChildComments(rootComment: CommentDto, forceRefresh: Boolean = false) {
-        // The pane's subject is the comment whose replies are open, and the two panes beside this
-        // one track theirs the same way. An answer to the comment the reader has left must not be
-        // written into the one they are reading now.
+        // The pane's subject is the comment whose replies are open; an answer to the one the reader
+        // has left must not be written into the one they are reading now.
         val isNewOrRefresh = forceRefresh || rootComment.id != lastChildCommentId
         if (isNewOrRefresh) {
             childJob?.cancel()

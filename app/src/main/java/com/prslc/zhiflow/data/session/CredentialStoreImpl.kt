@@ -68,9 +68,8 @@ class CredentialStoreImpl(private val sharedPreferences: SharedPreferences) : Cr
     }
 
     private companion object {
-        // The device id keeps the key the debug screen has always written, so an id pasted
-        // before this existed survives. The old `auth` and `cookie` keys are not read again:
-        // the login screen replaces the first, and the cookie jar the second.
+        // The device id keeps the key the debug screen has always written, so a pasted id
+        // survives; the old auth and cookie keys are not read again.
         const val KEY_UDID = "x_udid"
         const val KEY_ACCESS_TOKEN = "access_token"
         const val KEY_REFRESH_TOKEN = "refresh_token"

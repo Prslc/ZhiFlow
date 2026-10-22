@@ -97,8 +97,7 @@ object ImageHelper {
                         shareDir.listFiles()?.forEach { file ->
                             try {
                                 file.delete()
-                            } catch (e: Exception) {
-                                // Do nothing
+                            } catch (_: Exception) {
                             }
                         }
                     } else {

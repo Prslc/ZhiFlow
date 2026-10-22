@@ -91,7 +91,7 @@ val appModule = module {
     single<CookieJar> { SessionCookieJar(get()) }
     singleOf(::HttpClientProvider)
     single { get<HttpClientProvider>().okHttpClient }
-    // The same loader `AsyncImage` reaches through SingletonImageLoader, registered so what needs
+    // The same loader AsyncImage reaches through SingletonImageLoader, registered so what needs
     // the cache itself -- the settings page -- can be handed it instead of a Context.
     single { SingletonImageLoader.get(androidContext()) }
     single { ApiClient(get()) { get() } }

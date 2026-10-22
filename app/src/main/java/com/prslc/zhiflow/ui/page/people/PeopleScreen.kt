@@ -111,10 +111,8 @@ fun PeopleScreen(
         viewModel.loadPeople(urlToken)
     }
 
-    // A flick can leave the pager between two pages: the snap it runs on release targets a point
-    // a few pixels from where the pager already is, so it finishes having moved almost nothing,
-    // and the pager then sits there until the next gesture touches it. Hand it the settle it
-    // never ran.
+    // A flick can leave the pager between two pages: the release snap targets a point a few pixels
+    // away and finishes having moved almost nothing. Hand it the settle it never ran.
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.isScrollInProgress to pagerState.currentPageOffsetFraction }
             .collect { (isScrolling, offsetFraction) ->
@@ -159,9 +157,8 @@ fun PeopleScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .collapsingHeader { viewModel.headerScrollOffset }
-                                        // Inside the collapsing modifier on purpose: the scroll
-                                        // limits want the header's own height, not the part of it
-                                        // left on screen.
+                                        // Inside the collapsing modifier: the scroll limits want the
+                                        // header's own height, not what is left on screen.
                                         .onSizeChanged { scrollState.headerHeightPx = it.height.toFloat() },
                                 ) {
                                     PeopleHeader(
@@ -206,8 +203,7 @@ fun PeopleScreen(
                             }
 
                             // topbar
-                            // Drawn rather than composed: as a color the fade would be a new
-                            // value every frame, and the surface has to be transparent for that.
+                            // Drawn, not composed: a color fade would be a new value every frame.
                             val topBarSurface = MaterialTheme.colorScheme.surface
                             Surface(
                                 color = Color.Transparent,
@@ -284,9 +280,8 @@ fun PeopleScreen(
                             }
                         }
 
-                        // Empty, and it has to stay sized: this is also the copy that fades out
-                        // under the loaded one, so it cannot collapse. Nothing is drawn while it
-                        // loads.
+                        // Empty but sized: this is the copy that fades out under the loaded one,
+                        // so it cannot collapse while it loads.
                         else -> {
                             Box(Modifier.fillMaxSize())
                         }

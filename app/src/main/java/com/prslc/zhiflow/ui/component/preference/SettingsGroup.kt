@@ -78,6 +78,9 @@ class SettingsGroupScope {
  * shape morph lerps against the motion scheme's spring unfloored -- under the expressive scheme
  * its overshoot rounds a corner past flat, which an outline rejects.
  *
+ * A row's press progress is floored but not clamped: the spring's overshoot is what rounds the
+ * corner out rather than stopping it.
+ *
  * @param modifier Applied to the group, ahead of its own content padding.
  * @param title Heading drawn above the rows; blank draws none.
  * @param cornerRadius Corner of the group's own outline.
@@ -125,8 +128,6 @@ fun SettingsGroup(
 
                     val topRadius = if (index == 0) cornerRadius else connectionRadius
                     val bottomRadius = if (index == lastIndex) cornerRadius else connectionRadius
-                    // Floored only: the expressive spring overshoots, and that overshoot is what
-                    // makes the corner round out rather than stop.
                     val progress = pressProgress.coerceAtLeast(0f)
 
                     val shape = RoundedCornerShape(

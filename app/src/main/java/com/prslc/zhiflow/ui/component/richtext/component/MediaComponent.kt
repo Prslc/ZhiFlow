@@ -118,7 +118,6 @@ fun ImageComponent(
             }
         }
         if (image.description.isNotBlank()) {
-            // Deliberately out of selection; the caption sits hard against the tappable image.
             DisableSelection {
                 Text(
                     text = image.description,

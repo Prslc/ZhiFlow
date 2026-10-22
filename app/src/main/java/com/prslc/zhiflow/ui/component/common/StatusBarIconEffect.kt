@@ -56,6 +56,9 @@ fun StatusBarIconEffect(
  * the cover leaves does not need this -- past the point where the bar is opaque the icons sit on
  * the bar, not on the cover.
  *
+ * The icons stand in the middle of the bar rather than along its bottom edge, so what the cover
+ * has to clear is that line.
+ *
  * @param scrollState The page's scroll, in pixels.
  * @param coverHeight How tall the cover is, measured from the top of the page, status bar included.
  */
@@ -65,8 +68,6 @@ fun CoverStatusBarIconEffect(
     coverHeight: Dp,
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    // The icons stand in the middle of the bar rather than along its bottom edge, so what the cover
-    // has to clear is that line.
     val clearance = with(LocalDensity.current) {
         (coverHeight - statusBarHeight / 2).roundToPx()
     }

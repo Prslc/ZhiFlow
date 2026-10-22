@@ -70,6 +70,10 @@ private val BrandToForm = 32.dp
 private val BetweenFields = 16.dp
 private val FieldHeight = 56.dp
 
+/**
+ * Signing in. The submit stays enabled in flight: the view model absorbs a repeat, and a disabled
+ * button would dim the spinner along with its label.
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LoginScreen(
@@ -146,9 +150,6 @@ fun LoginScreen(
                         .height(FieldHeight),
                 )
 
-                // Swapping the two methods changes one row of the form; fading
-                // rather than cutting keeps the field above and the button below
-                // from appearing to jump.
                 AnimatedContent(
                     targetState = viewModel.method,
                     transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -198,9 +199,6 @@ fun LoginScreen(
                                 }
                             }
 
-                            // Sits under the field it describes rather than in
-                            // the gap between rows, so it reads as that field's
-                            // status and not as its own line of the form.
                             viewModel.codeSentTo?.let { number ->
                                 Text(
                                     text = stringResource(R.string.login_code_sent, number),
@@ -256,9 +254,6 @@ fun LoginScreen(
                         .padding(top = 8.dp)
                         .height(FieldHeight),
                 ) {
-                    // In flight it stays enabled: the view model absorbs a repeat,
-                    // and a disabled button would dim the spinner along with the
-                    // label.
                     if (viewModel.isSubmitting) {
                         LoadingIndicator(
                             modifier = Modifier.size(24.dp),

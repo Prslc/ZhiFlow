@@ -42,9 +42,8 @@ internal class HideOnScrollState(private val maxScroll: Float) {
 
     val connection: NestedScrollConnection = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            // Only a finger on the screen moves the bar. A fling carries the list a long way on
-            // its own, and a bar collapsing at that speed reads as the content being shoved
-            // around rather than as the bar following the gesture.
+            // Only a finger moves the bar: a fling carries the list on its own, and a bar
+            // collapsing at that speed reads as the content being shoved around.
             if (source == NestedScrollSource.UserInput) {
                 scrolled = (scrolled - available.y).coerceIn(0f, maxScroll)
             }

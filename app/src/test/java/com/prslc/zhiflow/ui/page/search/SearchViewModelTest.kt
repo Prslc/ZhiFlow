@@ -119,9 +119,6 @@ class SearchViewModelTest {
     }
 
     private fun viewModel(backend: Backend): SearchViewModel {
-        // The stores are the app's own, over a preferences file of this test's: neither is what is
-        // being asserted, and a fake of either would be a longer piece of code than the thing it
-        // stands in for.
         val preferences = RuntimeEnvironment.getApplication()
             .getSharedPreferences("search_view_model_test", Context.MODE_PRIVATE)
         return SearchViewModel(
@@ -149,7 +146,7 @@ class SearchViewModelTest {
 
     @Test
     fun `a page whose cursor is blank leaves nothing to ask for`() {
-        // The server spells "no more pages" two ways, and this is one of them: a `next` that is
+        // The server spells "no more pages" two ways, and this is one of them: a next that is
         // there and empty. Read as a url it would be a request to nowhere.
         val backend = Backend { results("1", paging = """{"is_end":false,"next":""}""") }
         val viewModel = viewModel(backend)
@@ -177,7 +174,7 @@ class SearchViewModelTest {
     @Test
     fun `paging asks for the address the server sent, exactly as it sent it`() {
         // That url carries the cursor, the hash id and the tab it was run against. Nothing may be
-        // added to it, and `q` is not among the things it carries.
+        // added to it, and q is not among the things it carries.
         val next = "$BASE/search_v3?q=ada&t=general&offset=20&search_hash_id=abc"
         val backend = Backend { url ->
             if (url.queryParameter("offset") == "20") {
@@ -302,10 +299,8 @@ class SearchViewModelTest {
 
     @Test
     fun `a slower answer for a phrase the reader has left cannot land under the new one`() {
-        // Tapping two of the chips under the box does exactly this: two searches go out and the
-        // first is answered last. Both write the whole state, so the newer one has to supersede
-        // the older rather than race it, or the reader ends up reading the results of a search
-        // they have already moved on from while the box names the one they asked for.
+        // Two chips tapped in turn: two searches go out and the first answers last. Both write the
+        // whole state, so the newer must supersede the older rather than race it.
         val backend = Backend(
             reply = { url -> results(if (url.queryParameter("q") == "ada") "slow" else "quick") },
             delayMs = { url ->
@@ -320,8 +315,7 @@ class SearchViewModelTest {
         awaitUntil("the first search to be on its way") { backend.searching().size == 1 }
         viewModel.submit("grace", SearchTab.GENERAL)
         awaitUntil("both answers") { backend.answered.count { it.encodedPath == RESULTS_PATH } == 2 }
-        // The superseded request has been answered; give it the moment it needs to write, if it is
-        // going to.
+        // The superseded request has been answered; give it a moment to write, if it will.
         Thread.sleep(100)
 
         assertEquals("grace", viewModel.submittedQuery)
@@ -332,9 +326,8 @@ class SearchViewModelTest {
 
     @Test
     fun `an answer for a page the reader has left cannot land on the search they moved to`() {
-        // The list is scrolled and paged, and the reader goes back to the box and searches again
-        // while that page is still out. Both write the whole state, so the late page would be
-        // appended to the new search's results -- rows from a search they are no longer looking at.
+        // The list is paged, and the reader searches again while that page is out: both write the
+        // whole state, so the late page would be appended to the new search's results.
         val backend = Backend(
             delayMs = { url -> if (url.queryParameter("offset") == "20") 400 else 0 },
             reply = { url ->
@@ -377,8 +370,7 @@ class SearchViewModelTest {
 
     @Test
     fun `the hot phrases are asked for once, and only by the whole-site tab`() {
-        // A page scoped to what the reader has saved would be offering them searches for things
-        // they have not.
+        // A page scoped to saved content would offer searches for things the reader has not.
         val backend = Backend { """{"preset_words":{"words":[{"query":"ada","real_query":"ada"}]}}""" }
         val viewModel = viewModel(backend)
 

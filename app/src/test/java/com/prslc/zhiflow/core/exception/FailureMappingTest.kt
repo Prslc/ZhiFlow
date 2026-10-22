@@ -46,9 +46,8 @@ class FailureMappingTest {
 
     @Test
     fun `the account endpoints' own rejection of a refresh token is not read as a bad request`() {
-        // A credential the server is finished with does not always arrive as a 401: those endpoints
-        // answer a bad refresh token with 400 and a code of their own. Missing this is silent -- the
-        // session is simply never given up, and the reader is asked to sign in again and again.
+        // A finished credential can arrive as 400 with a code of its own; missing it is silent, and
+        // the reader is asked to sign in again and again.
         val failure = rejected(400, apiErrorCode = 100008, message = "invalid refresh token")
             .toApiException()
 
@@ -106,7 +105,6 @@ class FailureMappingTest {
 
     @Test
     fun `cancellation is control flow, not a failure to map`() {
-        // The one place that decides so, and the reason `onApiFailure` exists at all.
         val cancelled = CancellationException("superseded")
 
         val thrown = runCatching { cancelled.toApiException() }.exceptionOrNull()

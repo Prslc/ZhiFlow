@@ -142,8 +142,7 @@ class CommentViewModelTest {
         awaitUntil("the first request to be on its way") { backend.repliesFor("A") }
         viewModel.loadChildComments(comment("B"), forceRefresh = true)
         awaitUntil("both answers") { backend.answersFor("A") + backend.answersFor("B") == 2 }
-        // The superseded request has been answered; give it the moment it needs to write, if it is
-        // going to.
+        // The superseded request has been answered; give it a moment to write, if it will.
         Thread.sleep(100)
 
         assertEquals("B", viewModel.childUiState.rootComment?.comment?.id)

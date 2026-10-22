@@ -68,9 +68,8 @@ class CodeHighlighterTest {
 
     @Test
     fun `the names people type reach the languages they mean`() {
-        // `SyntaxLanguage.getByName` knows only the enum's own spelling, so every one of these
-        // rides on the alias table. A fence missing from it does not go uncolored by accident --
-        // it comes back with no runs at all, which is the same answer an unknown language gets.
+        // SyntaxLanguage knows only the enum's spelling, so these ride on the alias table; one
+        // missing from it yields no runs at all, as an unknown language does.
         val fences = mapOf(
             "c++" to "int main() { return 0; }",
             "cxx" to "int main() { return 0; }",

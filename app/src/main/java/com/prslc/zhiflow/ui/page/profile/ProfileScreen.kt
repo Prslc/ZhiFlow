@@ -133,10 +133,8 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         } else if (uiState.isGuest) {
-            // The page above with its content locked, not a page of its own: what signing in
-            // opens should be visible from here.
-            // The guest's own profile when the server has answered with it, and a bare one
-            // until then — the header reads what it is given and fills the rest itself.
+            // The same page with its content locked, not one of its own: the guest's profile once
+            // the server answers, a bare one until then.
             val guest = user ?: GuestUser
             val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
             val scrollState = rememberScrollState()
@@ -213,8 +211,6 @@ private fun ProfileContentGroups(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        // The first group carries no heading: its rows say what they are,
-        // and the gap above is break enough.
         ProfileGroup(
             modifier = Modifier.padding(top = 16.dp),
         ) {

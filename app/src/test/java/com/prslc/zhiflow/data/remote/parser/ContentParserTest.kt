@@ -91,7 +91,7 @@ class ContentParserTest {
 
     @Test
     fun `a segment whose body is missing is dropped`() {
-        // The API says `paragraph` and then sends nothing under it. Reading the type alone and
+        // The API says paragraph and then sends nothing under it. Reading the type alone and
         // reaching into the body would throw here, in a parse with no way to report it.
         assertEquals(emptyList<RichTextElement>(), ContentParser.transform(listOf(Segment(type = "paragraph"))))
         assertEquals(emptyList<RichTextElement>(), ContentParser.transform(listOf(Segment(type = "heading"))))
@@ -159,10 +159,8 @@ class ContentParserTest {
 
     @Test
     fun `an inline formula in the text after a block formula keeps its place in that text`() {
-        // The sub-text is parsed on its own, so the marks handed to it are rebased. A formula that
-        // kept its offset into the whole paragraph would be keyed to a position that no longer
-        // exists in the text it is drawn over: here it sits 6 characters into the tail, not 15 into
-        // the paragraph.
+        // The sub-text is parsed on its own, so the marks handed to it are rebased: the formula
+        // sits 6 characters into the tail, not 15 into the paragraph.
         val block = "\\begin{aligned}a\\end{aligned}"
         val inline = "x^2"
         val text = "text $formulaPlaceholder then $formulaPlaceholder end"
@@ -190,10 +188,8 @@ class ContentParserTest {
 
     @Test
     fun `a mark reaching past its paragraph is clamped rather than cut out of it`() {
-        // The offsets are the server's, measured against text this app has already had. One that
-        // reaches past the end has to be clamped the way a passage's offsets are: `substring`
-        // throws, and a throw out of a mapper is not a `Result` in this app -- it leaves the
-        // coroutine, and on a device it takes the process with it.
+        // A server offset that reaches past the end has to be clamped: substring throws, and a
+        // throw out of a mapper leaves the coroutine and takes the process with it.
         val overrun = 999
         val text = "before $formulaPlaceholder after"
         val start = text.indexOf(formulaPlaceholder)
@@ -244,9 +240,8 @@ class ContentParserTest {
 
     @Test
     fun `a formula with no LaTeX is left out rather than stood in for empty`() {
-        // The bitmap is rendered from the LaTeX, so the LaTeX is also what stands in the text for
-        // it -- and an empty stand-in is refused outright. The placeholder goes with the mark,
-        // leaving the gap the formula would have filled.
+        // The LaTeX stands in the text for the bitmap, and an empty stand-in is refused: the
+        // placeholder goes with the mark, leaving the gap the formula would have filled.
         val text = "before $formulaPlaceholder after"
         val start = text.indexOf(formulaPlaceholder)
 
@@ -364,7 +359,7 @@ class ContentParserTest {
 
     @Test
     fun `a column card that cannot be read is dropped whole`() {
-        // Both halves of it come out of `extra_info`: with nothing readable there is no column to
+        // Both halves of it come out of extra_info: with nothing readable there is no column to
         // name and nowhere for a tap to go.
         assertEquals(
             emptyList<RichTextElement>(),
@@ -405,9 +400,8 @@ class ContentParserTest {
 
     @Test
     fun `the count comes from the shared record and the like from the reader's own`() {
-        // Counts only live on the record everyone sees, and the id to unlike with only on the
-        // reader's. Reading the flag from the shared one would report a like with nothing to
-        // undo it.
+        // Counts live on the shared record, the unlike id only on the reader's: reading the flag
+        // from the shared one reports a like with nothing to undo it.
         val shared = Mark(type = "seg_like", start = 0, end = 7, segLike = segLike(listOf("s1"), count = 12))
         val mine = Mark(
             type = "seg_like",

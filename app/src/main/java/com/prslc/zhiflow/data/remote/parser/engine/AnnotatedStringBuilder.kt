@@ -78,6 +78,8 @@ object AnnotatedStringBuilder {
      * with nothing said about it carries no bubble and ends at its own last character instead; its
      * underline is still there, and still opens the panel.
      *
+     * Bubbles are keyed by range rather than by offset, since two ranges can share one.
+     *
      * @param onFormulaFound Returns null to drop the mark's raw text instead of placing inline
      *   content over it.
      * @param segmentLikes The ranges to mark up, in raw-text order. One whose
@@ -102,8 +104,6 @@ object AnnotatedStringBuilder {
         }.sortedBy { it.start }
 
         val rawToBuiltMap = IntArray(rawText.length + 1)
-        // Keyed by the range, not by the offset a bubble sits at: two ranges can share an offset,
-        // and an underline read off the wrong one would stop at a bubble that is not its own.
         val bubbleStarts = mutableMapOf<String, Int>()
 
         val annotated = buildAnnotatedString {
@@ -168,7 +168,7 @@ object AnnotatedStringBuilder {
                             length,
                         )
                         bubbleStarts[insertion.target.key] = insertionStart
-                        // Zero-width in raw text: the bubble sits between [start] and the character
+                        // Zero-width in raw text: the bubble sits between start and the character
                         // after it, so every offset mapping stays as it was.
                     }
                 }

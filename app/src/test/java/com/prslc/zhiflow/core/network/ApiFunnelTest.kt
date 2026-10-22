@@ -140,10 +140,8 @@ class ApiFunnelTest {
 
     @Test
     fun `the account endpoints' own refresh-token code is read as a lost session`() {
-        // 400 rather than 401, with a code of its own. Mapped by status alone this would be an
-        // ordinary bad request, and the session would never be given up. Nothing is asserted about
-        // the wording: a lost session is the one failure this app words for itself rather than
-        // passing the server's sentence through.
+        // 400 rather than 401, with a code of its own: mapped by status alone the session would
+        // never be given up. The wording is not asserted; this failure is worded locally.
         reply(400, """{"error":{"code":100008,"message":"refresh token is invalid"}}""")
 
         assertTrue(call().exceptionOrNull() is ApiException.UnAuthorizedException)

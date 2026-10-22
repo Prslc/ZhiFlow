@@ -155,8 +155,6 @@ fun SearchScreen(
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            // Above the results rather than in them: what it offers is another search for the
-            // phrase they are for, and it has to be there while the reader is looking at them.
             if (viewModel.refinements.isNotEmpty()) {
                 RefinementRow(
                     refinements = viewModel.refinements,

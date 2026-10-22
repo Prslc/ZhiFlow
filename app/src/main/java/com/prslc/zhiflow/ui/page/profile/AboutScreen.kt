@@ -54,6 +54,10 @@ private const val SOURCE_URL = "https://github.com/Prslc/ZhiFlow"
 /** Taps on the version number that unlock the developer tools, the count the platform asks for. */
 private const val DEVELOPER_TAPS = 7
 
+/**
+ * The about page. The hint under the version number is read ahead: the tap handler is not a
+ * composable and cannot read a string resource.
+ */
 @Composable
 fun AboutScreen(
     onBack: () -> Unit,
@@ -67,8 +71,6 @@ fun AboutScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Every line the tap below can say, read here because its handler is not a composable and
-    // could not read a string resource itself. The countdown is the one that depends on taps.
     val hintOnNextTap = pluralStringResource(
         R.plurals.about_developer_hint,
         DEVELOPER_TAPS - taps - 1,
@@ -101,8 +103,8 @@ fun AboutScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // The launcher's foreground layer rather than the adaptive icon: `painterResource`
-            // reads a vector, and an `<adaptive-icon>` is not one.
+            // The launcher's foreground layer rather than the adaptive icon: painterResource
+            // reads a vector, and an <adaptive-icon> is not one.
             Box(
                 modifier = Modifier
                     .padding(top = 24.dp)

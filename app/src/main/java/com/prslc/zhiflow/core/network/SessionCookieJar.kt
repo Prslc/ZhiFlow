@@ -47,7 +47,7 @@ class SessionCookieJar(private val sharedPreferences: SharedPreferences) : Cooki
 
     private fun Cookie.isExpired(now: Long): Boolean = expiresAt <= now
 
-    // `Cookie.toString` is not a round trip and `Cookie.parse` wants the URL the cookie came
+    // Cookie.toString is not a round trip and Cookie.parse wants the URL the cookie came
     // from; five fields written out plainly are both, and cannot be broken by either changing.
     private fun encode(cookie: Cookie): String = listOf(
         cookie.name,

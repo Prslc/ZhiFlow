@@ -284,10 +284,6 @@ private fun NotificationRow(
                 )
             }
 
-            // What was done and what it was done to are one line, as the client's own draws them:
-            // the two are joined by a separator, and only a card with no body is left with the
-            // first half alone. The body keeps the markup it arrived in, so that a comment's links
-            // can be followed and its emoji are drawn as the pictures they are.
             if (item.subTitle.isNotBlank() || item.text.isNotBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
 

@@ -72,9 +72,8 @@ fun RenderLabScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Seeded once, from the device, because the knob means an absolute scale: starting every
-    // device at 100 would open the page on a size this reader is not using. The read happens out
-    // here because a `remember` calculation is not a composable scope.
+    // Seeded once from the device, since the knob means an absolute scale; it is read here because
+    // a remember calculation is not a composable scope.
     val deviceFontScale = LocalDensity.current.fontScale
     var params by remember {
         mutableStateOf(
@@ -166,10 +165,8 @@ fun RenderLabScreen(
                 modifier = Modifier.padding(top = 8.dp),
             )
 
-            // The knobs stay outside this, on the device's own font scale: they are the instrument,
-            // and one that resizes with what it measures is harder to read. The density is the
-            // device's throughout -- only the scale moves, so a case is the same layout at another
-            // reader's font size rather than a different layout.
+            // The knobs stay on the device's own font scale: one that resizes with what it measures
+            // is harder to read. Only the scale moves, so a case is the same layout at another size.
             CompositionLocalProvider(
                 LocalDensity provides Density(
                     density = LocalDensity.current.density,

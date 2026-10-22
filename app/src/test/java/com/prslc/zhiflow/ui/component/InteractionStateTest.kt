@@ -45,9 +45,8 @@ class InteractionStateTest {
 
     @Test
     fun `a vote coming off is read off the state the tap landed on`() {
-        // The request needs this answer, and it is not in the state the reader is about to be
-        // shown: there, nothing is upvoted any more. Taken after the write, the same tap would
-        // tell the server to vote rather than to take the vote back.
+        // The request needs the state before the write: taken after it, the same tap would tell
+        // the server to vote rather than to take the vote back.
         val change = InteractionState(isUpvoted = true).voteChange("up")
 
         assertFalse(change.state.isUpvoted)
@@ -70,7 +69,6 @@ class InteractionStateTest {
         val was = InteractionState(isUpvoted = true, upvoteOffset = 1)
         val afterDown = was.voteChange("down").state
 
-        // The collection sheet lands its own answer while the vote is in flight.
         val current = afterDown.copy(isFavorite = true)
 
         val restored = current.restoreVotes(was)

@@ -129,7 +129,7 @@ class ColumnViewModelTest {
     @Test
     fun `an entry the page before already carried is not drawn a second time`() {
         // One piece is published between the two requests: asked for by offset, the second page
-        // (10 onwards, as the column now stands) opens on `a9`, which the first page ended with.
+        // (10 onwards, as the column now stands) opens on a9, which the first page ended with.
         val beforeThePiece = (0 until 10).map { "a$it" }
         val afterThePiece = (9 until 19).map { "a$it" }
         val backend = Backend { offset -> page(if (offset == 0) beforeThePiece else afterThePiece) }
@@ -156,8 +156,6 @@ class ColumnViewModelTest {
     }
 
     private fun viewModel(backend: Backend): ColumnViewModel {
-        // The user repository is here because the page asks for one; nothing in this test reaches
-        // the author toggle that is the only thing it serves.
         val userService = UserService(backend.api)
         return ColumnViewModel(
             repository = ColumnRepository(ColumnService(backend.api)),

@@ -158,9 +158,8 @@ class AuthService(private val api: ApiClient) {
         apiUrl(path).header("x-api-version", HeaderProvider.API_VERSION)
 
     private companion object {
-        // Empty, and deliberately: the endpoint answers the same for a full device report and
-        // for nothing at all, and half a report is a worse thing to send than none. The client
-        // fills this in; what it puts there is not something this app can answer honestly.
+        // Empty on purpose: the endpoint answers the same for a full device report and for
+        // nothing, and the body the client fills in is not one this app can answer honestly.
         val EMPTY_FORM = FormBody.Builder().build()
 
         const val PATH_CAPTCHA = "/captcha"

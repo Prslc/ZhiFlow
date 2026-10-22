@@ -69,9 +69,8 @@ fun CommentComposer(
     modifier: Modifier = Modifier,
     replyToName: String? = null,
 ) {
-    // Asked for as the box comes up, which is the only way it is composed: the reader asked to
-    // write, so the cursor is theirs and the keyboard is wanted. The keyboard is asked for by name
-    // as well, because a focus no finger brought does not raise it.
+    // Asked for as the box comes up, because a focus no finger brought does not raise the keyboard;
+    // the reader asked to write, so both are wanted.
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {

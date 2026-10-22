@@ -33,8 +33,7 @@ class ResultExtensionsTest {
 
     @Test
     fun `a failure the app cannot name still reaches the handler`() {
-        // The whole point: never a silent no-op. An unrecognised throwable arrives as the unknown
-        // failure rather than as nothing at all.
+        // An unrecognised throwable arrives as the unknown failure, never as nothing.
         var seen: ApiException? = null
 
         Result.failure<Unit>(IllegalStateException("boom")).onApiFailure { seen = it }
@@ -55,7 +54,7 @@ class ResultExtensionsTest {
     @Test
     fun `cancellation is let past rather than reported`() {
         // Cancellation is control flow: a request the reader has already navigated away from is
-        // not an error state to raise. `Result.onFailure` would have swallowed it.
+        // not an error state to raise. Result.onFailure would have swallowed it.
         var reported = false
 
         assertThrows(CancellationException::class.java) {
@@ -68,9 +67,7 @@ class ResultExtensionsTest {
 
     @Test
     fun `ignoreOutcome takes a failure without touching it`() {
-        // The counterpart to `onApiFailure`: best-effort work says so by name, and nothing is read
-        // here, so nothing is thrown -- a cancellation included, which nothing here has an opinion
-        // about either way.
+        // Best-effort work: nothing is thrown, a cancellation included.
         assertEquals(Unit, Result.failure<Unit>(IllegalStateException("boom")).ignoreOutcome())
         assertEquals(Unit, Result.failure<Unit>(CancellationException("superseded")).ignoreOutcome())
     }
@@ -100,9 +97,8 @@ class ResultExtensionsTest {
 
     @Test
     fun `a mapping that throws is a failure rather than an escape`() {
-        // A parser or a mapper reads the server's data and is not written to be total. Left to
-        // escape, a throw from one goes past every `onApiFailure`, out of the scope it was
-        // launched in and to the thread's uncaught handler, which for a ViewModel is the process.
+        // A parser or mapper is not written to be total; left to escape, a throw goes past every
+        // onApiFailure to the thread's uncaught handler, which for a ViewModel is the process.
         val mapped = runBlocking {
             Result.success("a page").mapOffMain { error("a parser that met something new") }
         }
@@ -114,7 +110,7 @@ class ResultExtensionsTest {
     @Test
     fun `a mapping that is cancelled stays cancelled`() {
         // Cancellation stays control flow rather than becoming something the reader is shown. The
-        // instance is not the one thrown: the hop through `withContext` wraps it.
+        // instance is not the one thrown: the hop through withContext wraps it.
         val thrown = runCatching {
             runBlocking {
                 Result.success("a page").mapOffMain<String, Unit> {

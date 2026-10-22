@@ -225,13 +225,8 @@ private fun FormulaImage(
     val drawn = remember(formula.imgUrl) { mutableStateOf(false) }
 
     Box(modifier) {
-        // Kept as a sibling rather than handed to `AsyncImage`'s own placeholder slot, for two
-        // reasons. A color filter reaches every painter that slot draws, so a placeholder there
-        // would be inverted along with the ink in dark mode; and a background behind the image
-        // would show through it always, the bitmaps being transparent around their ink.
-        //
-        // A flat tone of the text's own color rather than a container role: on this device's
-        // dynamic palette the container tones sit two steps apart, which is not a box.
+        // A sibling, not AsyncImage's placeholder slot: the color filter would invert that slot too,
+        // and the transparent bitmaps would show a background through. A flat tone, not a container.
         if (!drawn.value) {
             Box(
                 modifier = Modifier
@@ -245,9 +240,8 @@ private fun FormulaImage(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds,
             colorFilter = formulaColorFilter(LocalIsDarkTheme.current),
-            // The painter's state is a `StateFlow`, so reading it here would subscribe to nothing
-            // and the box would be drawn once and never taken away. This is the way it is meant to
-            // be watched; it reads through a state of our own, which does recompose.
+            // The painter's state is a StateFlow: reading it directly subscribes to nothing, so it
+            // is watched through a state of our own, which does recompose.
             onState = { state -> drawn.value = state is AsyncImagePainter.State.Success },
         )
     }

@@ -95,8 +95,7 @@ fun CommentPaneTransition(
     var isGesturing by remember { mutableStateOf(false) }
 
     LaunchedEffect(isDetail) {
-        // Judged by rest, not by targetState: a gesture's seek has already pointed that at this
-        // side.
+        // Judged by rest, not targetState: a gesture's seek has already pointed at this side.
         if (!detailState.isAt(isDetail)) {
             if (isDetail) detailState.animateTo(true) else detailState.completeExit()
         }

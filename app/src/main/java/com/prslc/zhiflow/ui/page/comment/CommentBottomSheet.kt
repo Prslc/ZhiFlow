@@ -68,9 +68,8 @@ fun CommentBottomSheet(
     val rootListState = rememberLazyListState()
     val childListState = rememberLazyListState()
 
-    // The reader opens over the sheet, which stays up underneath and is still there on the way
-    // back. A token that arrives with this sheet down belongs to the passage panel, which opens it
-    // itself; two sheets navigating would push the reader twice.
+    // The reader opens over this sheet, which stays up underneath; a token arriving with it down
+    // belongs to the passage panel, and two sheets navigating would push the reader twice.
     LaunchedEffect(state.navigateToUser) {
         val token = state.navigateToUser ?: return@LaunchedEffect
         if (!showComments) return@LaunchedEffect
@@ -118,8 +117,6 @@ fun CommentBottomSheet(
                                 onRetry = onLoadMoreRoot,
                             )
 
-                            // The way into a comment on the content itself. It is not a box: the
-                            // box is asked for, so what floats here is only the asking.
                             CommentComposeFab(
                                 visible = canCommentNow && !state.isComposerOpen,
                                 listState = rootListState,
@@ -185,9 +182,8 @@ fun CommentBottomSheet(
                             onRetry = onLoadMoreChild,
                         )
 
-                        // The reply goes on the end of this list, which is where a new one belongs
-                        // and usually where the reader is not. The pane draws the comment being
-                        // answered first, so the replies start at one and the last is the size.
+                        // The reply goes on the end of the list while the pane draws the answered
+                        // comment first, so replies start at one and the last is the size.
                         LaunchedEffect(childState.lastPostedId) {
                             if (childState.lastPostedId != null) {
                                 childListState.animateScrollToItem(childState.comments.size)

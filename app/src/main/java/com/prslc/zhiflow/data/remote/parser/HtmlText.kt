@@ -24,7 +24,8 @@ private val SEARCH_WORD_REGEX = """<a[^>]+class="[^"]*search_word[^"]*"[^>]*>(.*
  * nothing.
  *
  * Each link is annotated as its run is emitted, and the runs are emitted through the emoji pass one
- * at a time, so nothing can shorten the ground an offset was measured on.
+ * at a time, so nothing can shorten the ground an offset was measured on. The leading trim is
+ * carried as an offset for the same reason: Html measures its spans over the untrimmed text.
  */
 internal fun htmlToAnnotatedString(html: String): AnnotatedString {
     val spanned: Spanned = Html.fromHtml(
@@ -34,7 +35,6 @@ internal fun htmlToAnnotatedString(html: String): AnnotatedString {
 
     val full = spanned.toString()
     val text = full.trim()
-    // The spans were measured over `full`, an origin that is no longer the first character drawn.
     val trimmed = full.length - full.trimStart().length
 
     return buildAnnotatedString {
@@ -78,7 +78,8 @@ internal fun htmlToPlainText(html: String): String = Html.fromHtml(
  * what marks a match in a list of results, and not what this app draws anywhere else. They are
  * carried as a weight instead. It is not only the title that arrives this way; the excerpt does
  * too, whatever the field's documentation says. Links the backend injects come off the same way
- * they do in [htmlToAnnotatedString]: the words stay, the link to a search is dropped.
+ * they do in [htmlToAnnotatedString]: the words stay, the link to a search is dropped. The leading
+ * trim is carried as an offset: Html measures its spans over the untrimmed text.
  */
 internal fun searchTextToAnnotatedString(html: String): AnnotatedString {
     val spanned: Spanned = Html.fromHtml(
@@ -88,7 +89,6 @@ internal fun searchTextToAnnotatedString(html: String): AnnotatedString {
 
     val full = spanned.toString()
     val text = full.trim()
-    // The spans were measured over `full`, an origin that is no longer the first character drawn.
     val trimmed = full.length - full.trimStart().length
 
     return buildAnnotatedString {

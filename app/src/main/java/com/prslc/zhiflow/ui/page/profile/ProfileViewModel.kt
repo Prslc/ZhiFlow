@@ -53,9 +53,8 @@ class ProfileViewModel(
         val session = credentialStore.read()
         loadedToken = session.accessToken
 
-        // `people/self` is not answered for an anonymous session; `/guest/self` is. An empty
-        // store is that same state one request early — the funnel bootstraps a guest underneath
-        // — so both settle here.
+        // people/self is not answered for an anonymous session; /guest/self is. An empty store is
+        // that same state one request early, so both settle here.
         if (session.isGuest || !session.hasToken) {
             uiState = UserUiState(isGuest = true)
             loadGuest(session.accessToken)

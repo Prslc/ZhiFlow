@@ -325,10 +325,8 @@ fun ContentBodyList(
             item {
                 DisableSelection {
                     content.contentEnd?.let { contentEnd ->
-                        // The server words these as text, and an update carries a marker in front
-                        // of its own: whichever form it came in is drawn in the reader's language,
-                        // and an update outranks the creation time, which is the order the server
-                        // writes them in. A stamp this cannot read is drawn as it came.
+                        // Worded by the server; an update carries a marker and outranks the
+                        // creation time. A stamp this cannot read is drawn as it came.
                         val updated = contentEnd.updated
                         val created = contentEnd.created
                         val timeDisplay = when {

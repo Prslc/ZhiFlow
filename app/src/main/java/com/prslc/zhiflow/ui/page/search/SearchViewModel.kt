@@ -125,10 +125,8 @@ class SearchViewModel(
         nextPageUrl = null
         loadRefinements(phrase)
 
-        // A search the reader has moved on from must not land on the one they are waiting for, and
-        // neither must a page of the one before it. Both write the whole state, so whichever
-        // finished last would be what they read, and the box would be naming a phrase the results
-        // are not for.
+        // A search the reader has moved on from must not land on the one they are waiting for, nor
+        // may a page of the one before it: both write the whole state, so the last to finish wins.
         requestJob?.cancel()
         requestJob = viewModelScope.launch {
             uiState = SearchUiState(isSearching = true)

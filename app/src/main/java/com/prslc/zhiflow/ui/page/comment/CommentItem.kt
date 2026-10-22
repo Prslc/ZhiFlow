@@ -65,6 +65,9 @@ import com.prslc.zhiflow.ui.preview.sampleReplyByAuthor
 import com.prslc.zhiflow.ui.theme.TextStyles
 import org.koin.compose.koinInject
 
+/**
+ * One comment. A topping badge rides the comment's first line rather than taking a line of its own.
+ */
 @Composable
 fun CommentItem(
     model: CommentViewModel.CommentUiModel,
@@ -87,8 +90,6 @@ fun CommentItem(
 
     val body = comment.parsedContent.text.withThemeSpans()
 
-    // The topping badge rides the comment's own first line rather than taking a line of its own;
-    // `CommentToppingBadge` holds how its box is measured into that line.
     val toppingLabel = stringResource(R.string.comment_topping)
     val toppingBadge = if (comment.isAuthorTop) rememberToppingBadge(toppingLabel) else null
     val text = if (toppingBadge == null) body else body.withToppingBadge(toppingLabel)
@@ -134,9 +135,8 @@ fun CommentItem(
                         .clickable { onEvent(CommentUiEvent.ShowAuthor(comment.author.id)) },
                 )
 
-                // The badge comes from the server, which knows which roles this author wears; what
-                // it looks like is ours. `is_author` cannot be trusted for it: it reads false even
-                // on the content author's own replies.
+                // The badge comes from the server, which knows the roles the author wears; is_author
+                // cannot be trusted for it, reading false even on the author's own replies.
                 comment.authorTags.forEach { tag ->
                     val label = authorTagLabel(tag)
                     if (label.isNotBlank()) {
@@ -190,8 +190,7 @@ fun CommentItem(
             )
 
             // comment
-            // Per comment, not per list: the author row, images and timestamp between comments
-            // leave nothing meaningful to select across two of them.
+            // Per comment: the rows between comments leave nothing to select across two.
             SelectionContainer {
                 Text(
                     text = text,
@@ -235,16 +234,14 @@ fun CommentItem(
                 }
             }
 
-            // What the reader can do about the comment, under it: the way in on the left, the way
-            // to agree on the right. Under that come the replies, which belong to the comment the
-            // way a note does -- the actions close it, and what is under them is what came of it.
+            // The actions sit under the comment -- way in left, agree right -- and the replies
+            // under them, belonging to it the way a note does.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Every row that takes an answer offers one, replies included. What a tap means is
-                // the view model's to say: it answers the row that was tapped, in whichever pane
-                // the row is drawn.
+                // Every row that takes an answer offers one, replies included; what a tap means is
+                // the view model's to say.
                 if (comment.canReply) {
                     ReplyAction(onClick = { onEvent(CommentUiEvent.ReplyTo(comment)) })
                 }
@@ -288,10 +285,8 @@ fun CommentItem(
                 }
             }
 
-            // The replies, where the response carried any: one of them whole, and the block itself
-            // is the way into the rest. Not on a reply, and not on the comment the pane was opened
-            // for -- that one is drawn above its own replies, and the way in would lead back into
-            // the list it is already at the top of.
+            // The replies, where the response carried any: one whole, the block the way into the
+            // rest. Not on a reply, nor on the comment the pane was opened for.
             if (!isChild && showReplyButton && comment.childCount > 0) {
                 CommentReplies(
                     preview = comment.childComments.firstOrNull(),

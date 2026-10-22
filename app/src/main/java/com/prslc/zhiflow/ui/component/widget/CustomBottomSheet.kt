@@ -102,8 +102,7 @@ fun CustomBottomSheet(
         if (transitionState.currentState || transitionState.targetState) {
             hasBeenUp.value = true
         } else if (hasBeenUp.value) {
-            // Both ends false is also how a sheet that was never up reads; the flag tells them
-            // apart.
+            // Both ends false is how a sheet that was never up reads; the flag tells them apart.
             hasBeenUp.value = false
             onDismissRequest()
         }
@@ -141,9 +140,8 @@ fun CustomBottomSheet(
         }
     }
 
-    // The container animates nothing itself. A fade at this level would reach the sheet as well as
-    // the scrim, sliding it in and out at partial opacity with the feed showing through it. Each
-    // child carries its own animation instead, and the container still outlives them both.
+    // The container animates nothing itself: a fade here would reach the sheet and the scrim alike,
+    // so each child carries its own animation, and the container still outlives them both.
     AnimatedVisibility(
         visibleState = transitionState,
         enter = EnterTransition.None,

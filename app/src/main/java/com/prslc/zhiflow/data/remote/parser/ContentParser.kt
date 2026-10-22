@@ -44,10 +44,8 @@ object ContentParser {
             } ?: emptyList()
 
             "list_node" -> segment.listNode?.let { listNode ->
-                // One counter per list, not per call: a new list_node means the list was
-                // interrupted, and the API gives no signal that the numbering carries on.
-                // Sharing one across a parsing chunk instead made the result depend on where
-                // the chunk boundary fell.
+                // One counter per list: a new list_node means the list was interrupted, and the
+                // API never says the numbering carries on.
                 val counter = OrderedListCounter()
                 listNode.items.map { item ->
                     val p = parseContent(item.text, item.marks)
@@ -198,9 +196,8 @@ object ContentParser {
         var lastIndex = 0
 
         blockFormulaMarks.forEach { mark ->
-            // The offsets are the server's, and clamped the way a passage's are a few lines up: one
-            // reaching past the text would end the parse, and a throw out of a mapper is not a
-            // `Result` in this app -- it leaves the coroutine and takes the process with it.
+            // Clamped like a passage's offsets: one past the end would end the parse, and a throw
+            // out of a mapper leaves the coroutine and takes the process with it.
             val start = mark.start.coerceIn(lastIndex, rawText.length)
             if (start > lastIndex) {
                 val subText = rawText.substring(lastIndex, start)
@@ -303,15 +300,13 @@ object ContentParser {
             listOf(
                 RichTextElement.Card(
                     cardType = it.cardType,
-                    // A card that keeps its words in extra_info sends its own title and url down as
-                    // empty strings, not as nulls: blank has to count as absent, or the empty field
-                    // wins the fallback and the card draws without a title.
+                    // A card that keeps its words in extra_info sends title and url as empty
+                    // strings, not nulls: blank has to count as absent, or the fallback loses to it.
                     title = it.title?.takeIf { t -> t.isNotBlank() } ?: extra?.title ?: "No title",
                     url = address ?: it.url?.takeIf { u -> u.isNotBlank() } ?: extra?.url ?: "",
                     cover = extra?.cover?.takeIf { c -> c.isNotBlank() } ?: it.cover,
-                    // The type to wear is the one of what the card points at, and that is
-                    // extra_info's: the card's own names the content it sits in, so a link to an
-                    // answer inside a pin arrives as PIN.
+                    // The type to wear comes from extra_info: the card's own names the content it
+                    // sits in, so a link to an answer inside a pin arrives as PIN.
                     contentType = if (isExternal) null else extra?.contentType ?: it.contentType,
                     externalLink = address,
                     voteCount = stats?.voteCount ?: 0,

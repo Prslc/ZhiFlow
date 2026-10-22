@@ -70,8 +70,7 @@ fun BulletItemRow(
             )
 
             else -> Box(
-                // The mark's own height is what it aligns by, so its bottom edge comes to rest on
-                // that baseline.
+                // Aligned by the mark's own height: its bottom edge rests on the baseline.
                 modifier = Modifier.width(markerWidth).alignBy { it.measuredHeight },
                 contentAlignment = Alignment.Center,
             ) {

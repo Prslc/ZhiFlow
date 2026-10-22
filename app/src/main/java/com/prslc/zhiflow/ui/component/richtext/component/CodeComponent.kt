@@ -48,6 +48,7 @@ import com.prslc.zhiflow.ui.theme.SyntaxColors
  *
  * The block carries its own copy button and scrolls sideways, so selection is off inside it: a drag
  * would fight the scroll, and there is nothing to select that the button does not already take.
+ * The colors are keyed on the mode; the block itself is parsed once and cached across both.
  *
  * @param code The code as the parser found it, with the fence already off.
  * @param lang The language the fence named, or null when it named none. It is drawn upper-cased,
@@ -68,8 +69,6 @@ fun CodeBlock(
     val scrollState = rememberScrollState()
     val isDark = LocalIsDarkTheme.current
 
-    // Keyed on the mode: the block is parsed once and cached across both, so the colors are the
-    // one part of it that has to be rebuilt when the reader switches.
     val styledCode = remember(code, tokens, isDark) {
         buildAnnotatedString {
             append(code)

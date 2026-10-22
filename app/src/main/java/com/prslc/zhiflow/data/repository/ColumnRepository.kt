@@ -37,9 +37,8 @@ class ColumnRepository(
         service.items(urlToken, offset).mapOffMain { body ->
             ColumnItemsResult(
                 items = body.data.map { it.toDto() },
-                // A page that holds nothing ends the list whatever the server's own flag says: the
-                // list is advanced by offset, so one that answered nothing would be asked for
-                // again and again.
+                // A page that holds nothing ends the list: it advances by offset, so an empty one
+                // would be asked for again and again.
                 isEnd = body.paging.isEnd || body.data.isEmpty(),
             )
         }

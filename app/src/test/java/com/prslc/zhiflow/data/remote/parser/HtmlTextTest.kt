@@ -101,8 +101,7 @@ class HtmlTextTest {
 
     @Test
     fun `a link to a search is not kept, because this app does not run one`() {
-        // It was arriving as a blue link that went nowhere when tapped. The word belongs to the
-        // sentence and stays; the address it was wrapped in does not.
+        // The word belongs to the sentence and stays; the address wrapped around it does not.
         val html = """see <a class="search_word" href="https://www.zhihu.com/search?q=parsers">parsers</a>"""
 
         val marked = htmlToAnnotatedString(html)

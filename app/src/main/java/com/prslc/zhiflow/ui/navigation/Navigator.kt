@@ -159,20 +159,14 @@ class Navigator(
     fun navigateToChat(peerId: String, sourceType: String? = null) =
         navigate(Chat(peerId, sourceType))
 
-    /**
-     * Pops the page on top.
-     *
-     * The bottom of the stack is the app's root and is never popped: a display with nothing left to
-     * draw could not be got back from.
-     */
+    /** Pops the page on top. The bottom of the stack is the app's root and stays. */
     fun goBack() {
         if (backStack.size > 1) backStack.removeLastOrNull()
     }
 
     private fun navigate(route: NavKey) {
         // Two taps on one row arrive before the first push has been drawn, and the second would
-        // stack the page the first one opened. The controller this replaces dropped the same tap
-        // by refusing to navigate while the current destination was mid-transition.
+        // stack the page the first one opened.
         if ((backStack.lastOrNull() as? NavVisit)?.route == route) return
         lastId += 1
         backStack.add(NavVisit(id = lastId, route = route))

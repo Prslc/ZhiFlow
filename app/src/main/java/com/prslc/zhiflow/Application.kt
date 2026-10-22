@@ -31,9 +31,8 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
     override fun onCreate() {
         super.onCreate()
 
-        // First, and on this thread: naming this class is what loads the library, and every
-        // `System.loadLibrary` in the process queues on the one monitor inside `Runtime`. Left to
-        // whoever gets there first, a worker loading its own library makes the main thread wait.
+        // First, and on this thread: System.loadLibrary queues on one monitor inside Runtime, so a
+        // worker loading its own library first would make the main thread wait.
         Natives.preload()
 
         // koin
@@ -45,8 +44,6 @@ class Application : Application(), SingletonImageLoader.Factory, KoinComponent {
         // After Koin: the preferences the settled User-Agent is kept in are one of its singles.
         HeaderProvider.init(this, sharedPreferences)
 
-        // An anonymous session is the floor every request stands on, and fetching it here lets
-        // it happen while the first screen composes instead of in front of that screen's request.
         sessionManager.prefetchGuestSession()
     }
 

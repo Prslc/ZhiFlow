@@ -83,6 +83,11 @@ import org.koin.androidx.compose.koinViewModel
 /** What the baseline profile generator finds the page by, before its body has arrived. */
 private const val CONTENT_PAGE_TAG = "content_page"
 
+/**
+ * A content page. The body is read through a provider, so a parse chunk does not recompose the
+ * page; the status bar's pad is painted here and never shortened; and the top bar's gate reads the
+ * setting through a state, because its callback outlives this composition.
+ */
 @Composable
 fun ContentDetailScreen(
     id: String,
@@ -95,8 +100,6 @@ fun ContentDetailScreen(
     val navigator = LocalNavigator.current
     val loadingState = viewModel.loadingState
     val interaction = viewModel.interactionState
-    // The list is held here, but the body state built on it is not read here: a read would
-    // recompose this page once per parse chunk, which is what the two providers below avoid.
     val listState = rememberLazyListState()
     val bodyState = rememberContentBodyState(listState) { viewModel.richTextElements }
     val presentation = viewModel.presentation
@@ -117,9 +120,8 @@ fun ContentDetailScreen(
     val readingMargin by viewModel.readingMargin.collectAsStateWithLifecycle()
     val segmentComments by viewModel.segmentComments.collectAsStateWithLifecycle()
 
-    // The body draws at a multiple of the system's own font size: the density is the device's,
-    // only the scale moves, so images and formulas keep their pixels while the words grow. The
-    // chrome and the comment sheet sit outside this and stay as they are.
+    // The body draws at a multiple of the system's font size: only the scale moves, so images and
+    // formulas keep their pixels while the words grow.
     val density = LocalDensity.current
     val bodyDensity = remember(density, readingTextScale) {
         Density(density = density.density, fontScale = density.fontScale * readingTextScale)
@@ -131,16 +133,11 @@ fun ContentDetailScreen(
     }
     val bodyMargin = readingMargin.dp
 
-    // One bar, one row, whatever the page: it goes with the finger and never folds. Material's
-    // large bar cross-fades the title between two rows, which with a question's title reads as one
-    // title being replaced by another rather than as a title folding away.
+    // One bar, one row: it goes with the finger and never folds, unlike Material's large bar, whose
+    // cross-fade reads as one title replacing another rather than folding away.
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    // The state outlives a composition and keeps the callback it was built with, so the gate reads
-    // the setting through a state rather than through the value this composition happened to see.
     val barsMayLeave = rememberUpdatedState(barsFollowScroll)
     val topBarLeave = rememberTopBarLeave { barsMayLeave.value }
-    // The status bar is the system's: the page paints its pad and never shortens it, so the bar
-    // leaves the row and the content stays clear of the icons.
     val statusBarPadPx = WindowInsets.statusBars.getTop(LocalDensity.current)
 
     // Opening the sheet is a visit of its own: the list is read again rather than resumed, however
@@ -166,8 +163,6 @@ fun ContentDetailScreen(
     val onStarClick = remember { { viewModel.openCollection() } }
     val onCommentClick = remember { { viewModel.openComments() } }
 
-    // What the bar's title opens, where it opens anything: an answer's title leads back to its
-    // question.
     val openQuestion: (() -> Unit)? =
         (currentContent as? ZhihuAnswer)
             ?.takeIf { contentType == ContentType.ANSWER }
@@ -208,8 +203,7 @@ fun ContentDetailScreen(
                 modifier = Modifier
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
                     // Nearer than the behaviour, so this stage meets a delta first: going down it
-                    // stands aside until the title has collapsed; coming up the bar is home before
-                    // the title has any of the scroll.
+                    // stands aside until the title collapses; coming up the bar is home first.
                     .nestedScroll(topBarLeave.connection),
                 topBar = {
                     Column {

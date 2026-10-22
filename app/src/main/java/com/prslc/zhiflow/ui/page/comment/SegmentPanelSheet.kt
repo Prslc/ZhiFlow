@@ -118,9 +118,8 @@ fun SegmentPanelSheet(
     val scope = rememberCoroutineScope()
     val copyText = rememberCopyTextToClipboard()
 
-    // The gate is what keeps this to one page: the other sheet's author taps land here as well, and
-    // without it both sheets would open the reader and the one behind would be wiped on the way.
-    // The panel stays up under the reader, as the content's own sheet does.
+    // The gate keeps this to one page: the other sheet's author taps land here too, and without it
+    // both would open the reader; the panel stays up underneath, as the content's own sheet does.
     LaunchedEffect(state.navigateToUser) {
         val token = state.navigateToUser ?: return@LaunchedEffect
         if (target == null) return@LaunchedEffect
@@ -188,8 +187,7 @@ fun SegmentPanelSheet(
                                 onRetry = onRetry,
                             )
 
-                            // The way into a comment on the passage itself; see the content's own
-                            // sheet.
+                            // The way into a comment on the passage; see the content's own sheet.
                             CommentComposeFab(
                                 visible = canCommentNow && held != null && !state.isComposerOpen,
                                 listState = listState,

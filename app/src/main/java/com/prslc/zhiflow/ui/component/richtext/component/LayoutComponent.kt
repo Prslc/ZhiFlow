@@ -162,8 +162,7 @@ fun TableComponent(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        // The dividers stand between the columns, so their width comes out of what the columns
-        // share.
+        // The dividers stand between the columns, so their width comes out of what they share.
         val cellWidth = if (element.cols > 0) {
             maxOf(
                 MIN_TABLE_CELL_WIDTH,
@@ -179,9 +178,8 @@ fun TableComponent(
         DisableSelection {
             Card(
                 colors = CardDefaults.cardColors(
-                    // The grid draws its own edges; a filled container under them only muddies the
-                    // band and the lines. The content color has to be stated, since a transparent
-                    // container maps to none.
+                    // The grid draws its own edges, so the container stays transparent; its content
+                    // color has to be stated, since a transparent container maps to none.
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                 ),

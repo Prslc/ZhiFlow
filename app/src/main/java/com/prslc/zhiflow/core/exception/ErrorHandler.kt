@@ -9,8 +9,7 @@ private const val ERROR_INVALID_REFRESH_TOKEN = 100008
 
 // Converters from Throwable and OkHttp Response to domain-specific ApiException.
 //
-// Since OkHttp does not throw exceptions for non-2xx status codes, we provide an extension for
-// Response to handle HTTP errors explicitly.
+// OkHttp does not throw on a non-2xx, so a Response is what carries an HTTP error.
 
 /**
  * Handles network-level exceptions (e.g., timeouts, no internet).
@@ -48,9 +47,8 @@ internal fun Throwable.toApiException(): ApiException {
 private fun Response.toApiException(apiErrorCode: Int?, apiErrorMessage: String?): ApiException? {
     if (isSuccessful) return null
 
-    // A credential the server is finished with does not always arrive as a 401: the account
-    // endpoints answer a bad refresh token with 400 and a code of their own. Missing this is
-    // silent — the session is simply never given up.
+    // A credential the server is finished with can arrive as 400 with a code of its own; missing
+    // that is silent, since the session is simply never given up.
     if (apiErrorCode == ERROR_INVALID_REFRESH_TOKEN) return ApiException.UnAuthorizedException()
 
     return when (code) {

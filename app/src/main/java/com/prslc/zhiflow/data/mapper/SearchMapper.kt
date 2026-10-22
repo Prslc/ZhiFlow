@@ -108,7 +108,7 @@ private fun ZhihuSearchContent.toPerson(): PersonDto = PersonDto(
  */
 internal fun ZhihuPresetWordsResponse.toHotQueries(): List<HotQueryDto> = presetWords.words
     .map { word ->
-        // The phrase to search for is `real_query`; `query` is what is drawn, and for a preset
+        // The phrase to search for is real_query; query is what is drawn, and for a preset
         // word the two are the same string.
         HotQueryDto(query = word.realQuery.ifBlank { word.query }, isHot = word.label == "hot")
     }

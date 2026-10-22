@@ -192,18 +192,16 @@ fun ChatScreen(
                     }
                 } else {
                     LazyColumn(
-                        // Laid out from the bottom, so the newest message is where the reader left
-                        // off and a short conversation sits at the end of the screen rather than
-                        // the top.
+                        // Laid out from the bottom: the newest message is where the reader left off,
+                        // and a short conversation sits at the end rather than the top.
                         state = viewModel.listState,
                         reverseLayout = true,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(vertical = 12.dp),
                     ) {
                         itemsIndexed(messages, key = { _, message -> message.id }) { index, message ->
-                            // The page is drawn from the bottom, and a reversed list stacks an
-                            // item's own children from the bottom too: the bubble is written first
-                            // so that the stamp above it comes out above it.
+                            // A reversed list stacks an item's children from the bottom too, so the
+                            // bubble is written first and the stamp above it comes out above it.
                             MessageBubble(
                                 message = message,
                                 isSelecting = isSelecting,
@@ -229,9 +227,8 @@ fun ChatScreen(
                                 },
                             )
 
-                            // The message sent before this one is the next in the list, and the
-                            // newest always carries a stamp, being the one whose time the reader
-                            // is looking for.
+                            // The message sent before this one is next in the list; the newest
+                            // always carries a stamp, being the time the reader is looking for.
                             val before = messages.getOrNull(index + 1)
                             if (before == null || message.createdTime - before.createdTime > MARK_GAP) {
                                 TimeMark(relativeStamp(message.createdTime))
@@ -250,8 +247,6 @@ fun ChatScreen(
                 }
             }
 
-            // Picking messages replaces the box while it lasts: the page is not being written to,
-            // and what the reader can do with what they picked is what belongs down here.
             if (isSelecting) {
                 SelectionBar(
                     count = uiState.selectedIds.size,
@@ -260,8 +255,6 @@ fun ChatScreen(
                     onCancel = viewModel::cancelSelecting,
                 )
             } else if (peer?.isForbidden == true) {
-                // An account that takes no messages is told so where the box would be, rather than
-                // being offered one that cannot send.
                 Text(
                     text = stringResource(R.string.chat_forbidden),
                     style = MaterialTheme.typography.bodySmall,

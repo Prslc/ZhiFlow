@@ -104,9 +104,8 @@ class MainActivity : ComponentActivity(), KoinComponent {
 
             ZhiFlowTheme(darkTheme = darkTheme) {
                 Surface(
-                    // What puts every testTag below into the accessibility tree as a resource id,
-                    // which is the only form UiAutomator -- and so the baseline profile generator --
-                    // can match on.
+                    // Puts every testTag below into the accessibility tree as a resource id, the
+                    // only form UiAutomator and the baseline profile generator can match on.
                     modifier = Modifier
                         .fillMaxSize()
                         .semantics { testTagsAsResourceId = true },
@@ -114,8 +113,6 @@ class MainActivity : ComponentActivity(), KoinComponent {
                 ) {
                     val context = LocalContext.current
                     val uriHandler = LocalUriHandler.current
-                    // One stack for the whole app: the bottom bar lives inside MainContainer, so
-                    // a detail covers the tabs rather than belonging to one of them.
                     val backStack = rememberNavBackStack(RootVisit)
                     val navigator = remember(backStack) {
                         Navigator(
@@ -142,9 +139,8 @@ class MainActivity : ComponentActivity(), KoinComponent {
                         NavDisplay(
                             backStack = backStack,
                             onBack = navigator::goBack,
-                            // The display adds the saveable-state decorator on its own; the
-                            // ViewModel one has to be named, or every destination would share
-                            // the activity's store.
+                            // The display adds the saveable-state decorator; the ViewModel one must
+                            // be named, or every destination shares the activity's store.
                             entryDecorators = listOf(
                                 rememberSaveableStateHolderNavEntryDecorator(),
                                 rememberViewModelStoreNavEntryDecorator(),

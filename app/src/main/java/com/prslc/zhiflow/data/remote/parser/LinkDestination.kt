@@ -6,10 +6,8 @@ import androidx.core.net.toUri
 
 @Stable
 sealed class LinkDestination {
-    // What the address names — the kind of thing, and its id — for the navigator to open.
     data class Internal(val type: String, val id: String) : LinkDestination()
 
-    // Fallback external URL
     @Immutable
     data class External(val url: String) : LinkDestination()
 }
@@ -36,7 +34,6 @@ object LinkParser {
         val host = finalUri.host ?: ""
         val path = finalUrl.substringBefore("?")
 
-        // Security check: only allow internal navigation for zhihu.com
         if (!host.contains("zhihu.com")) {
             return LinkDestination.External(finalUrl)
         }
@@ -108,7 +105,7 @@ object LinkParser {
         }
 
         val last = segments.last()
-        // A column is named by a token rather than by a number (`c_1867989249418211328`).
+        // A column is named by a token rather than by a number (c_1867989249418211328).
         if (segments.contains("column")) return last.takeIf { it.isNotBlank() }
 
         return if (last.all { it.isDigit() }) last else null

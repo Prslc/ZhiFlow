@@ -69,8 +69,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 private val ReadableContentTypes = setOf("answer", "article", "pin", "zvideo")
 
-// The rectangles a row draws, each rounded by its own size: the type icon, the progress chip, the
-// cover.
+// The rectangles a row draws, each rounded by its own size: the type icon, the chip, the cover.
 private val TypeIconShape = RoundedCornerShape(2.dp)
 private val ProgressChipShape = RoundedCornerShape(4.dp)
 private val CoverShape = RoundedCornerShape(6.dp)

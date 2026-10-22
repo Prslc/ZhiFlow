@@ -35,9 +35,8 @@ class HttpClientProvider(
                 .header("x-app-version", HeaderProvider.APP_VERSION)
                 .header("x-app-za", HeaderProvider.xAppZa)
 
-            // The session and the signature belong to Zhihu's own hosts. What else could arrive
-            // here is what a server named: its paging links name those hosts, and so does the
-            // eight-digit id of an image, which is why the images take the other client.
+            // Session and signature belong to Zhihu's own hosts. Paging links name those hosts;
+            // an image is named by an eight-digit id, and so takes the other client.
             if (original.url.host in CREDENTIALED_HOSTS) {
                 val urlPath = original.url.encodedPath +
                     original.url.encodedQuery?.let { "?$it" }.orEmpty()
@@ -46,15 +45,13 @@ class HttpClientProvider(
                 val auth = if (accessToken.isBlank()) "" else "Bearer $accessToken"
                 val xUdid = credentialStore.udid()
 
-                // Left off while there is none, rather than sent empty or made up: the request
-                // that asks for this install's first device id is refused outright if it already
-                // carries an id the server does not know, so a blank one would be worse than
-                // useless. The client sends none on a fresh install for the same reason.
+                // Left off while there is none: the request that asks for this install's first
+                // device id is refused outright if it already carries an unknown one.
                 if (xUdid != null) {
                     builder.header("x-udid", xUdid)
                 }
 
-                // Omitted rather than sent empty while there is no session: a bare `Authorization:`
+                // Omitted rather than sent empty while there is no session: a bare Authorization:
                 // is a header the gateway has to parse and cannot, and the client never sends one.
                 if (auth.isNotEmpty()) {
                     builder.header("Authorization", auth)

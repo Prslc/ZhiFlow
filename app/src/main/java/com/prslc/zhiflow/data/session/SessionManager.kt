@@ -70,8 +70,7 @@ class SessionManager(
 
             authRepository.startGuestSession().onApiFailure {
                 // Nothing to tell anyone: the request goes out without credentials and its own
-                // failure is what the reader sees. The delay is what keeps every request in
-                // flight from retrying the bootstrap at once while the network is down.
+                // failure is what the reader sees; the delay keeps a retry stampede off.
                 nextBootstrapAttemptAt = System.currentTimeMillis() + BOOTSTRAP_RETRY_DELAY_MS
             }
         }

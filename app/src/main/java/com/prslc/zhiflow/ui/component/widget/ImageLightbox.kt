@@ -143,8 +143,7 @@ fun ImageLightbox(
         DisposableEffect(insetsController) {
             insetsController?.isAppearanceLightStatusBars = false
             onDispose {
-                // Show both bars, not just status: dismissing while zoomed would leave the nav bar
-                // hidden.
+                // Show both bars, not just status: dismissing while zoomed would lose the nav bar.
                 insetsController?.show(barsType)
                 insetsController?.isAppearanceLightStatusBars = defaultDarkIcons
             }
@@ -273,7 +272,6 @@ fun ImageLightbox(
                             val current = items.getOrNull(pagerState.currentPage)
 
                             if (current is LightboxItem.Formula) {
-                                // The ƒ of "function", not a copy glyph: the label says copy.
                                 DropdownMenuItem(text = { Text(copyFormulaText) }, leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Functions,
@@ -348,7 +346,7 @@ fun ImageLightbox(
     }
 }
 
-// The Dialog window hosting this view, or null when it isn't inside one.
+/** The dialog window hosting this view, or null when it isn't inside one. */
 private fun View.findDialogWindow(): Window? {
     if (this is DialogWindowProvider) return window
     var parent: ViewParent? = this.parent

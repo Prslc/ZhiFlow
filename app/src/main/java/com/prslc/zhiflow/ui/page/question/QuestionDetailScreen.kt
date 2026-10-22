@@ -500,6 +500,10 @@ private fun ExpandToggleButton(
     }
 }
 
+/**
+ * The collapsed bar. Its title sits behind a derived state: read straight, the collapse fraction
+ * is a new value every frame and the title would recompose for each of them.
+ */
 @Composable
 private fun QuestionTopBar(
     state: QuestionViewModel.QuestionUiState,
@@ -511,8 +515,6 @@ private fun QuestionTopBar(
         modifier = modifier,
         title = {
             val titleText = state.question?.title ?: ""
-            // Behind a derived state: read straight, the fraction is a new value on every frame
-            // the bar collapses, and the title would recompose for each of them.
             val isCollapsed by remember(scrollBehavior) {
                 derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5f }
             }

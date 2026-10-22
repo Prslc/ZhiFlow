@@ -122,9 +122,8 @@ private fun ZhihuNotificationEmpty.toDay(): NotificationItemDto.Day? =
 private fun ZhihuNotificationCard.toEntry(): NotificationItemDto.Entry? {
     val title = htmlToPlainText(content.title)
     val subTitle = htmlToPlainText(content.subTitle)
-    // The body is the abstract where the server sent one, and the text otherwise. It is the one
-    // part of a card drawn as the markup it arrives in: the links in it are meant to be followed,
-    // and the emoji in it are pictures.
+    // The body is the abstract where there is one, and the text otherwise; it is the one part of
+    // a card drawn as the markup it arrives in, since its links and emoji are meant to work.
     val body = content.abstractText.ifBlank { content.text }
     val text = htmlToAnnotatedString(body)
     val targetText = htmlToPlainText(targetSource.text)
