@@ -247,7 +247,11 @@ private fun Results(
                     is SearchItemDto.Content -> SearchResultCard(item, onItemClick)
                     is SearchItemDto.RelatedQueries -> RelatedQueriesRow(item, onPhraseClick)
                 }
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                )
             }
 
             pagingFooter(
