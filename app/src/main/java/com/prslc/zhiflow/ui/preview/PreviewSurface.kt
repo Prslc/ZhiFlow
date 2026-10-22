@@ -10,9 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.UriHandler
-import androidx.navigation.NavHostController
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
+import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import org.koin.compose.KoinApplicationPreview
@@ -40,8 +42,7 @@ private val previewModule = module {
  *   different set of colors from either mode the app actually runs in.
  * - A `LocalNavigator`. It has no default -- reading it without a provider is an error, by design --
  *   and a good many components resolve their own taps through it, so a preview of one would throw
- *   rather than draw. The controller it wraps is never navigated with; a tap in a preview can do
- *   nothing.
+ *   rather than draw. The stack it wraps is never pushed to; a tap in a preview can do nothing.
  * - Koin, for the widgets that resolve the lightbox themselves.
  * - A background, at the full width, since most of what is previewed is a row meant to be drawn
  *   edge to edge.
@@ -60,7 +61,7 @@ fun PreviewSurface(
     val context = LocalContext.current
     val navigator = remember(context) {
         Navigator(
-            navController = NavHostController(context),
+            backStack = NavBackStack<NavKey>(MainContainer),
             context = context,
             uriHandler = object : UriHandler {
                 override fun openUri(uri: String) = Unit

@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,8 +50,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.prslc.zhiflow.core.exception.uiMessage
 import com.prslc.zhiflow.core.preference.SettingsStore
 import com.prslc.zhiflow.core.preference.ThemeMode
@@ -110,17 +113,23 @@ class MainActivity : ComponentActivity(), KoinComponent {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     val context = LocalContext.current
-                    val navController = rememberNavController()
                     val uriHandler = LocalUriHandler.current
-                    val navigator = remember(navController) {
+                    // One stack for the whole app: the bottom bar lives inside MainContainer, so
+                    // a detail covers the tabs rather than belonging to one of them.
+                    val backStack = rememberNavBackStack(MainContainer)
+                    val navigator = remember(backStack) {
                         Navigator(
-                            navController = navController,
+                            backStack = backStack,
                             context = context,
                             uriHandler = uriHandler,
                         )
                     }
+                    // Held here rather than in MainScreen: the block-list page drops a card the
+                    // feed is drawing, and a destination cannot reach the ViewModel of the entry
+                    // below it.
+                    val feedViewModel: FeedViewModel = koinViewModel()
 
-                    // Sits outside the NavHost, so it stays composed whichever screen is on top.
+                    // Sits outside the display, so it stays composed whichever screen is on top.
                     val droppedToGuest = sessionManager.droppedToGuest
                     LaunchedEffect(Unit) {
                         droppedToGuest.collect {
@@ -134,59 +143,65 @@ class MainActivity : ComponentActivity(), KoinComponent {
 
                     val imagesSetting = LocalDataSaver provides dataSaver
                     CompositionLocalProvider(LocalNavigator provides navigator, imagesSetting) {
-                        NavHost(
-                            navController = navController,
-                            startDestination = MainContainer,
-                            enterTransition = {
-                                slideInHorizontally(
+                        NavDisplay(
+                            backStack = backStack,
+                            onBack = navigator::goBack,
+                            // The display adds the saveable-state decorator on its own; the
+                            // ViewModel one has to be named, or every destination would share
+                            // the activity's store.
+                            entryDecorators = listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator(),
+                            ),
+                            transitionSpec = {
+                                val enter = slideInHorizontally(
                                     initialOffsetX = { it },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
+                                val exit = slideOutHorizontally(
                                     targetOffsetX = { -it / 5 },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 ) + fadeOut(
                                     targetAlpha = 0f,
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
+                                enter togetherWith exit
                             },
-                            popEnterTransition = {
-                                slideInHorizontally(
+                            popTransitionSpec = {
+                                val enter = slideInHorizontally(
                                     initialOffsetX = { -it / 5 },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 ) + fadeIn(
                                     initialAlpha = 0f,
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
-                            },
-                            popExitTransition = {
-                                slideOutHorizontally(
+                                val exit = slideOutHorizontally(
                                     targetOffsetX = { it },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
+                                enter togetherWith exit
                             },
-                            // Runs during the back gesture, where the pop* pair above does not --
+                            // Runs during the back gesture, where the pop pair above does not --
                             // the two have to match or the handoff jumps on release.
-                            predictivePopEnterTransition = {
-                                slideInHorizontally(
+                            predictivePopTransitionSpec = {
+                                val enter = slideInHorizontally(
                                     initialOffsetX = { -it / 5 },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 ) + fadeIn(
                                     initialAlpha = 0f,
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
-                            },
-                            predictivePopExitTransition = {
-                                slideOutHorizontally(
+                                val exit = slideOutHorizontally(
                                     targetOffsetX = { it },
                                     animationSpec = tween(300, easing = FastOutSlowInEasing),
                                 )
+                                enter togetherWith exit
                             },
-                        ) {
-                            contentGraph(navController)
-                        }
+                            entryProvider = contentGraph(
+                                navigator = navigator,
+                                feedViewModel = feedViewModel,
+                            ),
+                        )
                         ImageLightboxHost()
                     }
                 }
@@ -223,10 +238,9 @@ private fun UnreadBadge(unread: UnreadSummaryDto?) {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(feedViewModel: FeedViewModel, modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
-    val feedViewModel: FeedViewModel = koinViewModel()
     val messageViewModel: MessageViewModel = koinViewModel()
 
     // The tab's badge is drawn whether or not the page has ever been shown, so the count is fetched

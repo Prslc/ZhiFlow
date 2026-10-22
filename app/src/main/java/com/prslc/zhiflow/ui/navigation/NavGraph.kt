@@ -1,10 +1,8 @@
 package com.prslc.zhiflow.ui.navigation
 
-import androidx.compose.runtime.remember
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.search.SearchTab
@@ -30,179 +28,173 @@ import com.prslc.zhiflow.ui.page.profile.ReadingSettingsScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.search.SearchScreen
-import org.koin.androidx.compose.koinViewModel
 
-fun NavGraphBuilder.contentGraph(navController: NavHostController) {
-    composable<MainContainer> {
-        MainScreen()
+/**
+ * What each route draws.
+ *
+ * The display asks this for an entry whenever the stack changes. A destination reads its own
+ * parameters off the route it is handed, and hands a pop back to [navigator]; nothing here reaches
+ * navigation state any other way.
+ *
+ * @param feedViewModel The card list's ViewModel, held above the display so the block-list page
+ *   can drop a card the feed is drawing.
+ */
+fun contentGraph(
+    navigator: Navigator,
+    feedViewModel: FeedViewModel,
+): (NavKey) -> NavEntry<NavKey> = entryProvider {
+    entry<MainContainer> {
+        MainScreen(feedViewModel = feedViewModel)
     }
 
-    composable<AnswerDetail> { backStackEntry ->
-        val route: AnswerDetail = backStackEntry.toRoute()
+    entry<AnswerDetail> { route ->
         ContentDetailScreen(
             id = route.id,
             contentType = ContentType.ANSWER,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<ArticleDetail> { backStackEntry ->
-        val route: ArticleDetail = backStackEntry.toRoute()
+    entry<ArticleDetail> { route ->
         ContentDetailScreen(
             id = route.id,
             contentType = ContentType.ARTICLE,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<PinDetail> { backStackEntry ->
-        val route: PinDetail = backStackEntry.toRoute()
+    entry<PinDetail> { route ->
         ContentDetailScreen(
             id = route.id,
             contentType = ContentType.PIN,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<QuestionDetail> { backStackEntry ->
-        val route: QuestionDetail = backStackEntry.toRoute()
+    entry<QuestionDetail> { route ->
         QuestionDetailScreen(
             id = route.id,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<ColumnDetail> { backStackEntry ->
-        val route: ColumnDetail = backStackEntry.toRoute()
+    entry<ColumnDetail> { route ->
         ColumnScreen(
             urlToken = route.urlToken,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<PeopleDetail> { backStackEntry ->
-        val route: PeopleDetail = backStackEntry.toRoute()
+    entry<PeopleDetail> { route ->
         PeopleScreen(
             urlToken = route.urlToken,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<PeopleList> { backStackEntry ->
-        val route: PeopleList = backStackEntry.toRoute()
+    entry<PeopleList> { route ->
         PeopleListScreen(
             userId = route.userId,
             kind = PeopleListKind.from(route.kind),
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<Settings> {
+    entry<Settings> {
         SettingsScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<ReadingSettings> {
+    entry<ReadingSettings> {
         ReadingSettingsScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<About> {
+    entry<About> {
         AboutScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<OpenSourceLicense> {
+    entry<OpenSourceLicense> {
         OpenSourceLicenseScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<Login> {
-        LoginScreen(onSignedIn = { navController.popBackStack() })
+    entry<Login> {
+        LoginScreen(onSignedIn = navigator::goBack)
     }
 
-    composable<ReadHistory> {
+    entry<ReadHistory> {
         ReadHistoryScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<CollectionContents> {
+    entry<CollectionContents> {
         CollectionContentsScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<HttpLog> {
+    entry<HttpLog> {
         HttpLogScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<RenderLab> {
+    entry<RenderLab> {
         RenderLabScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<DebugTools> {
+    entry<DebugTools> {
         DebugScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<Search> { backStackEntry ->
-        val route: Search = backStackEntry.toRoute()
+    entry<Search> { route ->
         SearchScreen(
             tab = SearchTab.from(route.tab),
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<NotificationCategory> { backStackEntry ->
-        val route: NotificationCategory = backStackEntry.toRoute()
+    entry<NotificationCategory> { route ->
         NotificationCategoryScreen(
             type = route.type,
             title = route.title,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<ChatInvite> {
+    entry<ChatInvite> {
         ChatInviteScreen(
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<Chat> { backStackEntry ->
-        val route: Chat = backStackEntry.toRoute()
+    entry<Chat> { route ->
         ChatScreen(
             peerId = route.peerId,
             sourceType = route.sourceType,
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 
-    composable<FeedbackBlockList> { backStackEntry ->
-        val route: FeedbackBlockList = backStackEntry.toRoute()
-        val mainEntry = remember(backStackEntry) {
-            // The card list belongs to MainScreen's ViewModel: reach that instance rather than
-            // letting this destination resolve one of its own.
-            navController.getBackStackEntry<MainContainer>()
-        }
-        val feedViewModel: FeedViewModel = koinViewModel(viewModelStoreOwner = mainEntry)
-
+    entry<FeedbackBlockList> { route ->
         FeedbackBlockListScreen(
             route = route,
             onBlocked = { contentId ->
                 feedViewModel.removeContent(contentId)
-                navController.popBackStack()
+                navigator.goBack()
             },
-            onBack = { navController.popBackStack() },
+            onBack = navigator::goBack,
         )
     }
 }

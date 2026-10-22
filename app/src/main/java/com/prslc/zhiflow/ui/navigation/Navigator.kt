@@ -5,7 +5,8 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.UriHandler
-import androidx.navigation.NavHostController
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.prslc.zhiflow.R
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.model.user.PeopleListKind
@@ -14,11 +15,19 @@ import com.prslc.zhiflow.data.remote.parser.LinkParser
 
 @SuppressLint("ComposeCompositionLocalUsage")
 val LocalNavigator = staticCompositionLocalOf<Navigator> {
-    error("NavController not provided")
+    error("Navigator not provided")
 }
 
+/**
+ * What every screen reaches navigation through.
+ *
+ * The stack is the whole of the navigation state: the display draws whatever is on top of it, and
+ * a destination is opened by pushing its route. There is no controller between the two, so a
+ * screen's own navigation is a call on this class rather than a callback threaded down from
+ * whatever draws it.
+ */
 class Navigator(
-    private val navController: NavHostController,
+    private val backStack: NavBackStack<NavKey>,
     private val context: Context,
     private val uriHandler: UriHandler,
 ) {
@@ -55,17 +64,17 @@ class Navigator(
      */
     fun navigateToContent(id: String, type: String) {
         when (type.lowercase()) {
-            "answer" -> navController.navigate(AnswerDetail(id))
+            "answer" -> navigate(AnswerDetail(id))
 
-            "article" -> navController.navigate(ArticleDetail(id))
+            "article" -> navigate(ArticleDetail(id))
 
-            "pin" -> navController.navigate(PinDetail(id))
+            "pin" -> navigate(PinDetail(id))
 
-            "question" -> navController.navigate(QuestionDetail(id))
+            "question" -> navigate(QuestionDetail(id))
 
-            "column" -> navController.navigate(ColumnDetail(id))
+            "column" -> navigate(ColumnDetail(id))
 
-            "people", "profile" -> navController.navigate(PeopleDetail(id))
+            "people", "profile" -> navigate(PeopleDetail(id))
 
             else -> Toast.makeText(
                 context,
@@ -76,7 +85,7 @@ class Navigator(
     }
 
     fun navigateToPeople(urlToken: String) {
-        navController.navigate(PeopleDetail(urlToken))
+        navigate(PeopleDetail(urlToken))
     }
 
     /**
@@ -84,7 +93,7 @@ class Navigator(
      *
      * @param urlToken The column's token, as its links name it.
      */
-    fun navigateToColumn(urlToken: String) = navController.navigate(ColumnDetail(urlToken))
+    fun navigateToColumn(urlToken: String) = navigate(ColumnDetail(urlToken))
 
     /**
      * Opens one of an account's lists of people.
@@ -93,29 +102,29 @@ class Navigator(
      * @param kind Which of the two lists.
      */
     fun navigateToPeopleList(userId: String, kind: PeopleListKind) =
-        navController.navigate(PeopleList(userId, kind.value))
+        navigate(PeopleList(userId, kind.value))
 
-    fun navigateToSettings() = navController.navigate(Settings)
+    fun navigateToSettings() = navigate(Settings)
 
-    fun navigateToReadingSettings() = navController.navigate(ReadingSettings)
+    fun navigateToReadingSettings() = navigate(ReadingSettings)
 
-    fun navigateToAbout() = navController.navigate(About)
+    fun navigateToAbout() = navigate(About)
 
-    fun navigateToOpenSourceLicense() = navController.navigate(OpenSourceLicense)
+    fun navigateToOpenSourceLicense() = navigate(OpenSourceLicense)
 
-    fun navigateToLogin() = navController.navigate(Login)
+    fun navigateToLogin() = navigate(Login)
 
-    fun navigateToReadHistory() = navController.navigate(ReadHistory)
+    fun navigateToReadHistory() = navigate(ReadHistory)
 
-    fun navigateToCollectionContents() = navController.navigate(CollectionContents)
+    fun navigateToCollectionContents() = navigate(CollectionContents)
 
-    fun navigateToFeedbackBlockList(route: FeedbackBlockList) = navController.navigate(route)
+    fun navigateToFeedbackBlockList(route: FeedbackBlockList) = navigate(route)
 
-    fun navigateToHttpLog() = navController.navigate(HttpLog)
+    fun navigateToHttpLog() = navigate(HttpLog)
 
-    fun navigateToRenderLab() = navController.navigate(RenderLab)
+    fun navigateToRenderLab() = navigate(RenderLab)
 
-    fun navigateToDebugTools() = navController.navigate(DebugTools)
+    fun navigateToDebugTools() = navigate(DebugTools)
 
     /**
      * Opens the search page.
@@ -124,7 +133,7 @@ class Navigator(
      *   opens the one scoped to what the reader has saved.
      */
     fun navigateToSearch(tab: SearchTab = SearchTab.GENERAL) =
-        navController.navigate(Search(tab.value))
+        navigate(Search(tab.value))
 
     /**
      * Opens one list of notifications.
@@ -133,10 +142,10 @@ class Navigator(
      * @param title What the server calls it, which the page is headed with.
      */
     fun navigateToNotificationCategory(type: String, title: String) =
-        navController.navigate(NotificationCategory(type, title))
+        navigate(NotificationCategory(type, title))
 
     /** Opens the page a conversation is started from. */
-    fun navigateToChatInvite() = navController.navigate(ChatInvite)
+    fun navigateToChatInvite() = navigate(ChatInvite)
 
     /**
      * Opens a conversation.
@@ -145,5 +154,22 @@ class Navigator(
      * @param sourceType How the page was opened, when the card that opened it said.
      */
     fun navigateToChat(peerId: String, sourceType: String? = null) =
-        navController.navigate(Chat(peerId, sourceType))
+        navigate(Chat(peerId, sourceType))
+
+    /**
+     * Pops the page on top.
+     *
+     * The bottom of the stack is the app's root and is never popped: a display with nothing left to
+     * draw could not be got back from.
+     */
+    fun goBack() {
+        if (backStack.size > 1) backStack.removeLastOrNull()
+    }
+
+    private fun navigate(route: NavKey) {
+        // Two taps on one row arrive before the first push has been drawn, and the second would
+        // stack the page the first one opened. The controller this replaces dropped the same tap
+        // by refusing to navigate while the current destination was mid-transition.
+        if (backStack.lastOrNull() != route) backStack.add(route)
+    }
 }

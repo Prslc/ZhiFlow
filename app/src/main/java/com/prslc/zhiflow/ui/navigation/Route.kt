@@ -1,59 +1,60 @@
 package com.prslc.zhiflow.ui.navigation
 
 import androidx.compose.runtime.Immutable
+import androidx.navigation3.runtime.NavKey
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.model.user.PeopleListKind
 import kotlinx.serialization.Serializable
 
 @Immutable
 @Serializable
-object MainContainer
+object MainContainer : NavKey
 
 @Immutable
 @Serializable
-object Settings
+object Settings : NavKey
 
 /** The settings one layer down, which is where what a content page draws is chosen. */
 @Immutable
 @Serializable
-object ReadingSettings
+object ReadingSettings : NavKey
 
 @Immutable
 @Serializable
-object About
+object About : NavKey
 
 @Immutable
 @Serializable
-object OpenSourceLicense
+object OpenSourceLicense : NavKey
 
 @Immutable
 @Serializable
-object Login
+object Login : NavKey
 
 @Immutable
 @Serializable
-data class AnswerDetail(val id: String)
+data class AnswerDetail(val id: String) : NavKey
 
 @Immutable
 @Serializable
-data class ArticleDetail(val id: String)
+data class ArticleDetail(val id: String) : NavKey
 
 @Immutable
 @Serializable
-data class PinDetail(val id: String)
+data class PinDetail(val id: String) : NavKey
 
 @Immutable
 @Serializable
-data class QuestionDetail(val id: String)
+data class QuestionDetail(val id: String) : NavKey
 
 /** A column, which is addressed by its token (`c_1867989249418211328`) rather than by a number. */
 @Immutable
 @Serializable
-data class ColumnDetail(val urlToken: String)
+data class ColumnDetail(val urlToken: String) : NavKey
 
 @Immutable
 @Serializable
-data class PeopleDetail(val urlToken: String)
+data class PeopleDetail(val urlToken: String) : NavKey
 
 /**
  * One of an account's lists of people: who it follows, or who follows it.
@@ -63,7 +64,7 @@ data class PeopleDetail(val urlToken: String)
  */
 @Immutable
 @Serializable
-data class PeopleList(val userId: String, val kind: String)
+data class PeopleList(val userId: String, val kind: String) : NavKey
 
 @Immutable
 @Serializable
@@ -77,7 +78,7 @@ object MessageTab
 /** One list of notifications. The title is the server's name for it, which is what heads the page. */
 @Immutable
 @Serializable
-data class NotificationCategory(val type: String, val title: String)
+data class NotificationCategory(val type: String, val title: String) : NavKey
 
 /**
  * How a conversation is said to have been opened when the reader named someone rather than opened
@@ -88,7 +89,7 @@ const val CHAT_SOURCE_SEED = "seed_chat"
 /** The page a conversation is started from: name someone, and the server hands back who it found. */
 @Immutable
 @Serializable
-object ChatInvite
+object ChatInvite : NavKey
 
 /**
  * One conversation, opened by the user hash of the person at the other end.
@@ -98,11 +99,11 @@ object ChatInvite
  */
 @Immutable
 @Serializable
-data class Chat(val peerId: String, val sourceType: String? = null)
+data class Chat(val peerId: String, val sourceType: String? = null) : NavKey
 
 @Immutable
 @Serializable
-object DebugTools
+object DebugTools : NavKey
 
 /**
  * The search page. The tab rides along so the page can be opened scoped to the reader's own saved
@@ -114,7 +115,7 @@ object DebugTools
  */
 @Immutable
 @Serializable
-data class Search(val tab: String)
+data class Search(val tab: String) : NavKey
 
 @Immutable
 @Serializable
@@ -122,19 +123,19 @@ object ProfileTab
 
 @Immutable
 @Serializable
-object ReadHistory
+object ReadHistory : NavKey
 
 @Immutable
 @Serializable
-object HttpLog
+object HttpLog : NavKey
 
 @Immutable
 @Serializable
-object RenderLab
+object RenderLab : NavKey
 
 @Immutable
 @Serializable
-object CollectionContents
+object CollectionContents : NavKey
 
 /**
  * The "not interested" topics page. Its parameters are the ones the panel's
@@ -146,4 +147,4 @@ data class FeedbackBlockList(
     val contentToken: String,
     val contentType: String,
     val feedbackType: String,
-)
+) : NavKey

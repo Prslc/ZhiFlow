@@ -17,7 +17,7 @@ can check. Numbers describing what the tree currently measures at are neither, a
 
 | Layer | Technology |
 |-------|-----------|
-| UI | Jetpack Compose + Material 3 + Navigation Compose (type-safe, serializable routes) |
+| UI | Jetpack Compose + Material 3 + Navigation 3 (`NavDisplay`, routes implement `NavKey`) |
 | DI | Koin (`koin-android`, `koin-compose-viewmodel`) |
 | HTTP | OkHttp 5 with a custom interceptor |
 | Serialization | kotlinx-serialization-json (used for both DTOs and Navigation routes) |
@@ -62,7 +62,7 @@ ZhiFlow/
 │       ├── res/                                # Drawables, mipmap launcher icons, strings (en + zh-CN), XML config
 │       └── java/com/prslc/zhiflow/
 │           ├── Application.kt                  # App class: Koin init + Coil ImageLoader factory
-│           ├── MainActivity.kt                 # Single Activity: NavHost + bottom-bar HorizontalPager
+│           ├── MainActivity.kt                 # Single Activity: NavDisplay + bottom-bar HorizontalPager
 │           ├── core/                           # Infrastructure that knows nothing about Zhihu's domain
 │           │   ├── exception/                  # ApiException, ErrorHandler, Result extensions (onApiFailure / ignoreOutcome)
 │           │   ├── native/                     # JNI bridge to the native library
@@ -81,7 +81,7 @@ ZhiFlow/
 │           ├── di/                             # The single Koin module
 │           └── ui/                             # Compose only
 │               ├── theme/                      # Color, type, the dark-mode flag the tree reads, dynamic-color fallback, and a syntax palette that follows neither
-│               ├── navigation/                 # Type-safe routes, the NavHost graph, the Navigator
+│               ├── navigation/                 # NavKey routes, the entry provider, the Navigator
 │               ├── preview/                    # The wrapper every @Preview is drawn inside, and the sample data it is drawn with
 │               ├── component/                  # Reusable pieces no page owns
 │               │   ├── common/                 # Error and empty states, paging footer, author row
@@ -148,10 +148,13 @@ Single module `appModule` in `di/AppModule.kt`. Uses DSL:
 
 ### Navigation
 
-- **Type-safe routes**: `@Serializable` data classes/objects in `Route.kt`. Uses `navigation-compose` 2.9 type-safe API (`composable<RouteType>`, `toRoute()`).
-- **`MainContainer`** is the start destination — it contains two tabs (Home, Profile) in a `HorizontalPager` with a `NavigationBar`.
-- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadingSettings`, `About`, `OpenSourceLicense`, `ReadHistory`, `CollectionContents`, `HttpLog`, `DebugTools`, `Search`) are separate composable destinations pushed onto the NavHost stack. `ReadingSettings` is the one layer down from `Settings`: how large a content page's text is, how far apart its characters and lines sit, how much room it leaves, whether it marks the passages that carry comments, and whether its progress bar and its bars are shown. `DebugTools` is the one the settings page hides until the developer tools are unlocked. `AnswerDetail`, `ArticleDetail` and `PinDetail` all land on `ContentDetailScreen`, whose bar is one row that goes with the finger: a pin's title rides in that row, while an answer's or an article's folds from a title held above it.
-- **`Navigator`** — Wraps `NavHostController` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`.
+- **Routes are `NavKey`s**: `@Serializable` data classes/objects in `Route.kt`, each implementing `NavKey`. The whole navigation state is one `rememberNavBackStack(MainContainer)` in `MainActivity`, which nav3 saves across configuration changes and process death. A route is written down as its class name plus its serialized form and read back with `Class.forName`, so it stays a `@Serializable` type with no hand-written parsing.
+- **`NavDisplay`** draws the top of that stack, and `contentGraph` (`NavGraph.kt`) answers which screen a route draws. A destination reads its parameters off the route it is handed and pops through the `Navigator`; there is no `NavController`.
+- **`entryDecorators`** — the display adds the saveable-state decorator on its own, but `rememberViewModelStoreNavEntryDecorator()` has to be named. Without it every destination resolves `koinViewModel()` against the activity's store, and two content pages would share one ViewModel.
+- **One stack, not one per tab.** `MainContainer` is the bottom of the stack and never popped; it holds the three tabs (Home, Message, Profile) in a `HorizontalPager` with a `NavigationBar`, and details are pushed above it. The bar lives inside `MainContainer`, so a detail covers the tabs rather than belonging to one of them, and per-tab back stacks would not change anything a reader can see. They become necessary only if the bar is ever drawn on a detail page — that is an interaction change, not a navigation detail.
+- Detail screens (`AnswerDetail`, `ArticleDetail`, `PinDetail`, `QuestionDetail`, `PeopleDetail`, `Settings`, `ReadingSettings`, `About`, `OpenSourceLicense`, `ReadHistory`, `CollectionContents`, `HttpLog`, `DebugTools`, `Search`) are separate destinations pushed onto that stack. `ReadingSettings` is the one layer down from `Settings`: how large a content page's text is, how far apart its characters and lines sit, how much room it leaves, whether it marks the passages that carry comments, and whether its progress bar and its bars are shown. `DebugTools` is the one the settings page hides until the developer tools are unlocked. `AnswerDetail`, `ArticleDetail` and `PinDetail` all land on `ContentDetailScreen`, whose bar is one row that goes with the finger: a pin's title rides in that row, while an answer's or an article's folds from a title held above it.
+- **`Navigator`** — holds the `NavBackStack` + `Context` + `UriHandler`. Exposed via `CompositionLocalProvider` as `LocalNavigator`. Handles URL→route resolution via `LinkParser`. `navigate` drops a route equal to the one on top, which is where two taps on one row would otherwise open the page twice.
+- **The feed's ViewModel is held above the display** (`MainActivity`) because the block-list destination drops a card the feed is drawing, and an entry cannot reach the ViewModel of the entry below it. It is handed to `MainScreen` and to `contentGraph` as a parameter.
 - **`LinkParser`** — Parses Zhihu URLs, resolves `link.zhihu.com` redirects, extracts content type + ID from path patterns, returns `LinkDestination.Internal(route)` or `LinkDestination.External(url)`.
 - Transition animations: horizontal slide (detail push = full right→left, pop = reversed with 1/5 parallax).
 
@@ -239,9 +242,9 @@ Do not pass a snackbar host down through a `CompositionLocal`: two of these rows
 - **Composable parameters**: required first, then `modifier: Modifier = Modifier`, then what is optional, with a trailing `content` lambda last — the order Material's own components use. A required callback belongs with the other required parameters, not parked after `modifier`.
 - **String resources** are in `res/values/strings.xml` (English) and `res/values-zh-rCN/strings.xml` (Chinese). Always reference via `R.string.*`, never hardcode user-facing strings.
 - **Credentials**: The session lives in `SharedPreferences` (`"temp_auth_prefs"`) behind `CredentialStore`, read fresh on every request so a write reaches the next one with nothing having to be told. It also publishes the session as a `StateFlow`, for what draws the session rather than requests it — a screen has no request of its own that would come back and tell it. Cookies are not among them; those are the cookie jar's. DebugScreen manages the device id only, and `http_log_enabled` shares the file and survives.
-- **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from NavGraph — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps NavGraph entries thin and avoids callback threading through multiple layers.
+- **Screen navigation**: Use `LocalNavigator.current` inside screens for item-click navigation (see `ReadHistoryScreen`, `CollectionContentsScreen`). Do NOT pass `onItemClick: (String, String) -> Unit` callbacks from `contentGraph` — the screen resolves its own navigation via `navigator.navigateToContent(id, type)`. This keeps entries thin and avoids callback threading through multiple layers.
 - **The payload's shape is settled in the mapper, not where it is drawn**: where an endpoint offers one value under several spellings — a title on the item or on its question, an account's token or its hash, a count under one name or another — the mapper picks one and the DTO carries it under a single name. A screen reads what it is handed and decides how it looks; it does not repair the payload and does not choose between two fields. `x.token.ifBlank { x.id }` inside an `onClick` is that rule living at the call site: nothing fails when the next row forgets it, and the third row copies it. Which side a line belongs on: it would change when the API changes → the mapper; it would change when the page looks wrong → the screen.
-- **A ViewModel action is not navigation**: a composable that takes a `viewModel:` parameter must not hand anything *derived from it* to another composable — `remember(viewModel) { viewModel::openFeedback }` passed into a list row is `ComposeViewModelForwarding`, an error that fails `./gradlew lint`. Such a callback arrives as a parameter instead, from a caller that holds the ViewModel as a local (`MainScreen`'s `val feedViewModel = koinViewModel()`), which is not a forwarding. The bullets above still stand: a callback carrying no ViewModel belongs inside the screen.
+- **A ViewModel action is not navigation**: a composable that takes a `viewModel:` parameter must not hand anything *derived from it* to another composable — `remember(viewModel) { viewModel::openFeedback }` passed into a list row is `ComposeViewModelForwarding`, an error that fails `./gradlew lint`. Such a callback arrives as a parameter instead, from a caller that holds the ViewModel as a local (the `feedViewModel` `MainActivity` resolves and hands to `MainScreen`), which is not a forwarding. The bullets above still stand: a callback carrying no ViewModel belongs inside the screen.
 
 ## Git Conventions
 
