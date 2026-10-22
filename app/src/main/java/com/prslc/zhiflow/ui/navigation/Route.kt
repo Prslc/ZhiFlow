@@ -2,13 +2,44 @@ package com.prslc.zhiflow.ui.navigation
 
 import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.serialization.NavKeySerializer
 import com.prslc.zhiflow.data.model.search.SearchTab
 import com.prslc.zhiflow.data.model.user.PeopleListKind
 import kotlinx.serialization.Serializable
 
+/**
+ * The serializer for the route a visit carries: the field is a `NavKey` rather than one type, so
+ * it is saved as the class name plus the route's own form, as the stack itself is.
+ */
+private object NavKeyFieldSerializer : NavKeySerializer<NavKey>()
+
+/**
+ * One visit to a route.
+ *
+ * A route is not unique: the same question can sit in the stack twice — read it, open one of its
+ * answers, then tap that answer's title to come back to it. Navigation names an entry's state (what
+ * `rememberSaveable` holds, and which ViewModel it is handed) by a key, so two visits to one route
+ * have to be told apart or they would share both.
+ *
+ * [id] is handed out as a visit is pushed and rides in the saved stack, which is what keeps the two
+ * apart across process death as well.
+ *
+ * @param id What tells this visit from another to the same [route].
+ * @param route Where the visit goes.
+ */
+@Immutable
+@Serializable
+data class NavVisit(
+    val id: Long,
+    @Serializable(with = NavKeyFieldSerializer::class) val route: NavKey,
+) : NavKey
+
 @Immutable
 @Serializable
 object MainContainer : NavKey
+
+/** The bottom of the stack: the app's own container, entered once and never popped. */
+val RootVisit = NavVisit(id = 0, route = MainContainer)
 
 @Immutable
 @Serializable
@@ -109,9 +140,9 @@ object DebugTools : NavKey
  * The search page. The tab rides along so the page can be opened scoped to the reader's own saved
  * content, which is the only way into the collections one.
  *
- * It is carried as the identifier `/search_v3` takes rather than as a [SearchTab]: navigation
- * resolves a type of its own by looking the class up under its own name, which minification does
- * not leave alone.
+ * It is carried as the identifier `/search_v3` takes rather than as a [SearchTab]: the tab is a
+ * plain enum with no serializer of its own, and an identifier the server named does not move when
+ * the app's own type does.
  */
 @Immutable
 @Serializable

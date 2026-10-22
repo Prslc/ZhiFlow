@@ -14,8 +14,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxController
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.Navigator
+import com.prslc.zhiflow.ui.navigation.RootVisit
 import com.prslc.zhiflow.ui.theme.ZhiFlowTheme
 import org.koin.compose.KoinApplicationPreview
 import org.koin.dsl.module
@@ -61,7 +61,7 @@ fun PreviewSurface(
     val context = LocalContext.current
     val navigator = remember(context) {
         Navigator(
-            backStack = NavBackStack<NavKey>(MainContainer),
+            backStack = NavBackStack<NavKey>(RootVisit),
             context = context,
             uriHandler = object : UriHandler {
                 override fun openUri(uri: String) = Unit

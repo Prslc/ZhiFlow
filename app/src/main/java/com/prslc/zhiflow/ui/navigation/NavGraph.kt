@@ -1,8 +1,8 @@
 package com.prslc.zhiflow.ui.navigation
 
+import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
 import com.prslc.zhiflow.MainScreen
 import com.prslc.zhiflow.data.model.content.ContentType
 import com.prslc.zhiflow.data.model.search.SearchTab
@@ -30,11 +30,12 @@ import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.search.SearchScreen
 
 /**
- * What each route draws.
+ * What each visit draws.
  *
  * The display asks this for an entry whenever the stack changes. A destination reads its own
- * parameters off the route it is handed, and hands a pop back to [navigator]; nothing here reaches
- * navigation state any other way.
+ * parameters off the route the visit carries, and hands a pop back to [navigator]; nothing here
+ * reaches navigation state any other way. The visit's id is the entry's content key, so two visits
+ * to one route keep their own saved state and their own ViewModel.
  *
  * @param feedViewModel The card list's ViewModel, held above the display so the block-list page
  *   can drop a card the feed is drawing.
@@ -42,159 +43,168 @@ import com.prslc.zhiflow.ui.page.search.SearchScreen
 fun contentGraph(
     navigator: Navigator,
     feedViewModel: FeedViewModel,
-): (NavKey) -> NavEntry<NavKey> = entryProvider {
-    entry<MainContainer> {
-        MainScreen(feedViewModel = feedViewModel)
-    }
+): (NavKey) -> NavEntry<NavKey> = { key ->
+    val visit = key as NavVisit
 
-    entry<AnswerDetail> { route ->
-        ContentDetailScreen(
-            id = route.id,
-            contentType = ContentType.ANSWER,
-            onBack = navigator::goBack,
-        )
-    }
+    fun screen(content: @Composable () -> Unit): NavEntry<NavKey> =
+        NavEntry(key = key, contentKey = visit.id) { content() }
 
-    entry<ArticleDetail> { route ->
-        ContentDetailScreen(
-            id = route.id,
-            contentType = ContentType.ARTICLE,
-            onBack = navigator::goBack,
-        )
-    }
+    when (val route = visit.route) {
+        MainContainer -> screen {
+            MainScreen(feedViewModel = feedViewModel)
+        }
 
-    entry<PinDetail> { route ->
-        ContentDetailScreen(
-            id = route.id,
-            contentType = ContentType.PIN,
-            onBack = navigator::goBack,
-        )
-    }
+        is AnswerDetail -> screen {
+            ContentDetailScreen(
+                id = route.id,
+                contentType = ContentType.ANSWER,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<QuestionDetail> { route ->
-        QuestionDetailScreen(
-            id = route.id,
-            onBack = navigator::goBack,
-        )
-    }
+        is ArticleDetail -> screen {
+            ContentDetailScreen(
+                id = route.id,
+                contentType = ContentType.ARTICLE,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<ColumnDetail> { route ->
-        ColumnScreen(
-            urlToken = route.urlToken,
-            onBack = navigator::goBack,
-        )
-    }
+        is PinDetail -> screen {
+            ContentDetailScreen(
+                id = route.id,
+                contentType = ContentType.PIN,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<PeopleDetail> { route ->
-        PeopleScreen(
-            urlToken = route.urlToken,
-            onBack = navigator::goBack,
-        )
-    }
+        is QuestionDetail -> screen {
+            QuestionDetailScreen(
+                id = route.id,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<PeopleList> { route ->
-        PeopleListScreen(
-            userId = route.userId,
-            kind = PeopleListKind.from(route.kind),
-            onBack = navigator::goBack,
-        )
-    }
+        is ColumnDetail -> screen {
+            ColumnScreen(
+                urlToken = route.urlToken,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<Settings> {
-        SettingsScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        is PeopleDetail -> screen {
+            PeopleScreen(
+                urlToken = route.urlToken,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<ReadingSettings> {
-        ReadingSettingsScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        is PeopleList -> screen {
+            PeopleListScreen(
+                userId = route.userId,
+                kind = PeopleListKind.from(route.kind),
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<About> {
-        AboutScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        Settings -> screen {
+            SettingsScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<OpenSourceLicense> {
-        OpenSourceLicenseScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        ReadingSettings -> screen {
+            ReadingSettingsScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<Login> {
-        LoginScreen(onSignedIn = navigator::goBack)
-    }
+        About -> screen {
+            AboutScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<ReadHistory> {
-        ReadHistoryScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        OpenSourceLicense -> screen {
+            OpenSourceLicenseScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<CollectionContents> {
-        CollectionContentsScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        Login -> screen {
+            LoginScreen(onSignedIn = navigator::goBack)
+        }
 
-    entry<HttpLog> {
-        HttpLogScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        ReadHistory -> screen {
+            ReadHistoryScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<RenderLab> {
-        RenderLabScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        CollectionContents -> screen {
+            CollectionContentsScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<DebugTools> {
-        DebugScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        HttpLog -> screen {
+            HttpLogScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<Search> { route ->
-        SearchScreen(
-            tab = SearchTab.from(route.tab),
-            onBack = navigator::goBack,
-        )
-    }
+        RenderLab -> screen {
+            RenderLabScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<NotificationCategory> { route ->
-        NotificationCategoryScreen(
-            type = route.type,
-            title = route.title,
-            onBack = navigator::goBack,
-        )
-    }
+        DebugTools -> screen {
+            DebugScreen(
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<ChatInvite> {
-        ChatInviteScreen(
-            onBack = navigator::goBack,
-        )
-    }
+        is Search -> screen {
+            SearchScreen(
+                tab = SearchTab.from(route.tab),
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<Chat> { route ->
-        ChatScreen(
-            peerId = route.peerId,
-            sourceType = route.sourceType,
-            onBack = navigator::goBack,
-        )
-    }
+        is NotificationCategory -> screen {
+            NotificationCategoryScreen(
+                type = route.type,
+                title = route.title,
+                onBack = navigator::goBack,
+            )
+        }
 
-    entry<FeedbackBlockList> { route ->
-        FeedbackBlockListScreen(
-            route = route,
-            onBlocked = { contentId ->
-                feedViewModel.removeContent(contentId)
-                navigator.goBack()
-            },
-            onBack = navigator::goBack,
-        )
+        ChatInvite -> screen {
+            ChatInviteScreen(
+                onBack = navigator::goBack,
+            )
+        }
+
+        is Chat -> screen {
+            ChatScreen(
+                peerId = route.peerId,
+                sourceType = route.sourceType,
+                onBack = navigator::goBack,
+            )
+        }
+
+        is FeedbackBlockList -> screen {
+            FeedbackBlockListScreen(
+                route = route,
+                onBlocked = { contentId ->
+                    feedViewModel.removeContent(contentId)
+                    navigator.goBack()
+                },
+                onBack = navigator::goBack,
+            )
+        }
+
+        else -> error("Unknown route: $route")
     }
 }

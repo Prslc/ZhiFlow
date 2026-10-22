@@ -66,10 +66,10 @@ import com.prslc.zhiflow.ui.component.LocalDataSaver
 import com.prslc.zhiflow.ui.component.widget.ImageLightboxHost
 import com.prslc.zhiflow.ui.navigation.HomeTab
 import com.prslc.zhiflow.ui.navigation.LocalNavigator
-import com.prslc.zhiflow.ui.navigation.MainContainer
 import com.prslc.zhiflow.ui.navigation.MessageTab
 import com.prslc.zhiflow.ui.navigation.Navigator
 import com.prslc.zhiflow.ui.navigation.ProfileTab
+import com.prslc.zhiflow.ui.navigation.RootVisit
 import com.prslc.zhiflow.ui.navigation.contentGraph
 import com.prslc.zhiflow.ui.page.feed.FeedScreen
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
                     val uriHandler = LocalUriHandler.current
                     // One stack for the whole app: the bottom bar lives inside MainContainer, so
                     // a detail covers the tabs rather than belonging to one of them.
-                    val backStack = rememberNavBackStack(MainContainer)
+                    val backStack = rememberNavBackStack(RootVisit)
                     val navigator = remember(backStack) {
                         Navigator(
                             backStack = backStack,

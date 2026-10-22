@@ -22,8 +22,8 @@ val LocalNavigator = staticCompositionLocalOf<Navigator> {
  * What every screen reaches navigation through.
  *
  * The stack is the whole of the navigation state: the display draws whatever is on top of it, and
- * a destination is opened by pushing its route. There is no controller between the two, so a
- * screen's own navigation is a call on this class rather than a callback threaded down from
+ * a destination is opened by pushing a visit to its route. There is no controller between the two,
+ * so a screen's own navigation is a call on this class rather than a callback threaded down from
  * whatever draws it.
  */
 class Navigator(
@@ -31,6 +31,9 @@ class Navigator(
     private val context: Context,
     private val uriHandler: UriHandler,
 ) {
+
+    /** The last id handed out, so a stack restored after process death is never renumbered. */
+    private var lastId: Long = backStack.maxOfOrNull { (it as? NavVisit)?.id ?: 0L } ?: 0L
 
     /**
      * Navigate to a URL, resolving internal Zhihu routes vs external links.
@@ -170,6 +173,8 @@ class Navigator(
         // Two taps on one row arrive before the first push has been drawn, and the second would
         // stack the page the first one opened. The controller this replaces dropped the same tap
         // by refusing to navigate while the current destination was mid-transition.
-        if (backStack.lastOrNull() != route) backStack.add(route)
+        if ((backStack.lastOrNull() as? NavVisit)?.route == route) return
+        lastId += 1
+        backStack.add(NavVisit(id = lastId, route = route))
     }
 }
