@@ -56,6 +56,7 @@ import com.prslc.zhiflow.ui.page.comment.CommentViewModel
 import com.prslc.zhiflow.ui.page.content.ContentViewModel
 import com.prslc.zhiflow.ui.page.debug.DebugViewModel
 import com.prslc.zhiflow.ui.page.debug.HttpLogViewModel
+import com.prslc.zhiflow.ui.page.feed.BlockedContent
 import com.prslc.zhiflow.ui.page.feed.FeedViewModel
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListViewModel
 import com.prslc.zhiflow.ui.page.history.ReadHistoryViewModel
@@ -115,6 +116,7 @@ val appModule = module {
     // Feed
     singleOf(::FeedService)
     singleOf(::FeedRepository)
+    singleOf(::BlockedContent)
     viewModelOf(::FeedViewModel)
 
     // Collection

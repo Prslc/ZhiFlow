@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 class FeedViewModel(
     private val repository: FeedRepository,
     private val feedbackRepository: FeedbackRepository,
+    blockedContent: BlockedContent,
 ) : ViewModel() {
 
     @Immutable
@@ -59,6 +60,13 @@ class FeedViewModel(
     val listState = LazyListState()
     private var nextPageUrl: String? = null
     private var previousPageUrl: String? = null
+
+    // Below the state it writes to, so the first event cannot arrive before uiState exists.
+    init {
+        viewModelScope.launch {
+            blockedContent.blocked.collect { removeContent(it) }
+        }
+    }
 
     /** Load the first page if the list is currently empty. */
     fun loadIfEmpty() {

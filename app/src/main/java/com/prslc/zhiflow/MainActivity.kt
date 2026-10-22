@@ -124,10 +124,6 @@ class MainActivity : ComponentActivity(), KoinComponent {
                             uriHandler = uriHandler,
                         )
                     }
-                    // Held here rather than in MainScreen: the block-list page drops a card the
-                    // feed is drawing, and a destination cannot reach the ViewModel of the entry
-                    // below it.
-                    val feedViewModel: FeedViewModel = koinViewModel()
 
                     // Sits outside the display, so it stays composed whichever screen is on top.
                     val droppedToGuest = sessionManager.droppedToGuest
@@ -197,10 +193,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
                                 )
                                 enter togetherWith exit
                             },
-                            entryProvider = contentGraph(
-                                navigator = navigator,
-                                feedViewModel = feedViewModel,
-                            ),
+                            entryProvider = contentGraph(navigator = navigator),
                         )
                         ImageLightboxHost()
                     }
@@ -238,9 +231,10 @@ private fun UnreadBadge(unread: UnreadSummaryDto?) {
 }
 
 @Composable
-fun MainScreen(feedViewModel: FeedViewModel, modifier: Modifier = Modifier) {
+fun MainScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
+    val feedViewModel: FeedViewModel = koinViewModel()
     val messageViewModel: MessageViewModel = koinViewModel()
 
     // The tab's badge is drawn whether or not the page has ever been shown, so the count is fetched

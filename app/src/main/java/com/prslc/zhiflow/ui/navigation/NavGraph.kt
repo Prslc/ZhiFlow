@@ -13,7 +13,7 @@ import com.prslc.zhiflow.ui.page.content.ContentDetailScreen
 import com.prslc.zhiflow.ui.page.debug.DebugScreen
 import com.prslc.zhiflow.ui.page.debug.HttpLogScreen
 import com.prslc.zhiflow.ui.page.debug.RenderLabScreen
-import com.prslc.zhiflow.ui.page.feed.FeedViewModel
+import com.prslc.zhiflow.ui.page.feed.BlockedContent
 import com.prslc.zhiflow.ui.page.feedback.FeedbackBlockListScreen
 import com.prslc.zhiflow.ui.page.history.ReadHistoryScreen
 import com.prslc.zhiflow.ui.page.login.LoginScreen
@@ -28,6 +28,7 @@ import com.prslc.zhiflow.ui.page.profile.ReadingSettingsScreen
 import com.prslc.zhiflow.ui.page.profile.SettingsScreen
 import com.prslc.zhiflow.ui.page.question.QuestionDetailScreen
 import com.prslc.zhiflow.ui.page.search.SearchScreen
+import org.koin.compose.koinInject
 
 /**
  * What each visit draws.
@@ -36,13 +37,9 @@ import com.prslc.zhiflow.ui.page.search.SearchScreen
  * parameters off the route the visit carries, and hands a pop back to [navigator]; nothing here
  * reaches navigation state any other way. The visit's id is the entry's content key, so two visits
  * to one route keep their own saved state and their own ViewModel.
- *
- * @param feedViewModel The card list's ViewModel, held above the display so the block-list page
- *   can drop a card the feed is drawing.
  */
 fun contentGraph(
     navigator: Navigator,
-    feedViewModel: FeedViewModel,
 ): (NavKey) -> NavEntry<NavKey> = { key ->
     val visit = key as NavVisit
 
@@ -51,7 +48,7 @@ fun contentGraph(
 
     when (val route = visit.route) {
         MainContainer -> screen {
-            MainScreen(feedViewModel = feedViewModel)
+            MainScreen()
         }
 
         is AnswerDetail -> screen {
@@ -195,10 +192,11 @@ fun contentGraph(
         }
 
         is FeedbackBlockList -> screen {
+            val blockedContent: BlockedContent = koinInject()
             FeedbackBlockListScreen(
                 route = route,
                 onBlocked = { contentId ->
-                    feedViewModel.removeContent(contentId)
+                    blockedContent.block(contentId)
                     navigator.goBack()
                 },
                 onBack = navigator::goBack,
